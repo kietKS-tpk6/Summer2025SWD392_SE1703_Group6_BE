@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{3D30678D-DDBE-4538-8D47-554089F45FE9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E866D0FB-C8B8-4516-AE08-7C8215D09EC7} = {E866D0FB-C8B8-4516-AE08-7C8215D09EC7}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{E866D0FB-C8B8-4516-AE08-7C8215D09EC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{01A72CFE-ED3C-40E1-BB1E-6E1088905E38}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3D30678D-DDBE-4538-8D47-554089F45FE9} = {3D30678D-DDBE-4538-8D47-554089F45FE9}
+		{E866D0FB-C8B8-4516-AE08-7C8215D09EC7} = {E866D0FB-C8B8-4516-AE08-7C8215D09EC7}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HangulLearningSystem.WebAPI", "HangulLearningSystem.WebAPI\HangulLearningSystem.WebAPI.csproj", "{16CA9F00-DF30-4933-881C-22BD4CC4E782}"
+	ProjectSection(ProjectDependencies) = postProject
+		{01A72CFE-ED3C-40E1-BB1E-6E1088905E38} = {01A72CFE-ED3C-40E1-BB1E-6E1088905E38}
+		{3D30678D-DDBE-4538-8D47-554089F45FE9} = {3D30678D-DDBE-4538-8D47-554089F45FE9}
+		{E866D0FB-C8B8-4516-AE08-7C8215D09EC7} = {E866D0FB-C8B8-4516-AE08-7C8215D09EC7}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3D30678D-DDBE-4538-8D47-554089F45FE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D30678D-DDBE-4538-8D47-554089F45FE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D30678D-DDBE-4538-8D47-554089F45FE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D30678D-DDBE-4538-8D47-554089F45FE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E866D0FB-C8B8-4516-AE08-7C8215D09EC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E866D0FB-C8B8-4516-AE08-7C8215D09EC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E866D0FB-C8B8-4516-AE08-7C8215D09EC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E866D0FB-C8B8-4516-AE08-7C8215D09EC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01A72CFE-ED3C-40E1-BB1E-6E1088905E38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01A72CFE-ED3C-40E1-BB1E-6E1088905E38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01A72CFE-ED3C-40E1-BB1E-6E1088905E38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01A72CFE-ED3C-40E1-BB1E-6E1088905E38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16CA9F00-DF30-4933-881C-22BD4CC4E782}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16CA9F00-DF30-4933-881C-22BD4CC4E782}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16CA9F00-DF30-4933-881C-22BD4CC4E782}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16CA9F00-DF30-4933-881C-22BD4CC4E782}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
