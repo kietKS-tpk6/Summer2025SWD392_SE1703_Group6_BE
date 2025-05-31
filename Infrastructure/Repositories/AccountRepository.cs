@@ -41,5 +41,33 @@ namespace Infrastructure.Repositories
 
             return account;
         }
+        public async Task<Account?> GetAccountsByEmailAsync(string email)
+        {
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(x => x.Email == email);
+            if (account  != null) return account;
+            return null;
+        }
+        
+            public async Task<Account?> GetAccountsByPhoneAsync(string phone)
+        {
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(x => x.PhoneNumber == phone);
+            if (account != null) return account;
+            return null;
+        }
+        
+        public async Task<List<Account>> GetAllAccountsAsync()
+        {
+            return await _dbContext.Accounts.ToListAsync();
+        }
+
+        public async Task<RegisterDTO> RegisterAsync(Account account)
+        {
+            await _dbContext.Accounts.AddAsync(account);
+            await _dbContext.SaveChangesAsync();
+            return new RegisterDTO
+            {
+                Message = "Đăng ký thành công."
+            };
+        }
     }
 }

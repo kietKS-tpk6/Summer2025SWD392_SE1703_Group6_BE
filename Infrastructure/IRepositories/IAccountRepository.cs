@@ -11,5 +11,13 @@ namespace Infrastructure.IRepositories
     public interface IAccountRepository
     {
         Task<Account?> LoginAsync(LoginCommand loginCommand);
+
+        Task<Account> GetAccountsByEmailAsync(string email);
+
+        Task<Account> GetAccountsByPhoneAsync(string phone);
+
+        Task<RegisterDTO> RegisterAsync(Account account);
+
+        Task<List<Account>> GetAllAccountsAsync();
     }
 }

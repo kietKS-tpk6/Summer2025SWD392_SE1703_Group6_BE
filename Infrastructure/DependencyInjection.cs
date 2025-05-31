@@ -27,11 +27,13 @@ namespace Infrastructure
             //services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
             //CommandHandler 
             services.AddScoped<LoginCommandHandler>();
+            services.AddScoped<RegisterCommandHandler>();
+
             //Services 
             services.AddScoped<IAccountService, AccountService>();
             //Repositories
             services.AddScoped<IAccountRepository, AccountRepository>();
-
+            
             return services;
         }
     }
