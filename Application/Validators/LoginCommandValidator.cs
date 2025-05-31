@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
-using Application.Usecases.Login;
+using Application.Usecases.Command;
 using FluentValidation;
 namespace Application.Validators
 {
@@ -17,10 +17,10 @@ namespace Application.Validators
                 .WithErrorCode(nameof(ErrorCodes.EmailIsEmpty))
                 .WithMessage(ValidationMessages.EmailIsEmpty);
 
-            //RuleFor(o => o.Password)
-            //    .NotNull()
-            //    .WithErrorCode(nameof(ErrorCodes.EmailIsNull))
-            //    .WithMessage(ValidationMessages.EmailIsNull);
+            RuleFor(o => o.Password)
+                .NotNull()
+                .WithErrorCode(nameof(ErrorCodes.PasswordIsEmpty))
+                .WithMessage(ValidationMessages.PasswordIsEmpty);
 
             //RuleFor(o => o.Password)
             //    .NotEmpty()

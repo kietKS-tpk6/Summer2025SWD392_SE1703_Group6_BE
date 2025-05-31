@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOs.Account
+namespace Application.DTOs
 {
-    public class RegisterDTO
-    {
+    public class LoginDTO
+    { 
+        public string Fullname { get; set; }
     }
 }

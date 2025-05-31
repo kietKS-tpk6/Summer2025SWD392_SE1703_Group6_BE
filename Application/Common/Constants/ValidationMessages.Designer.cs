@@ -68,5 +68,14 @@ namespace Application.Common.Constants {
                 return ResourceManager.GetString("EmailIsEmpty", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mật khẩu không được để trống.
+        /// </summary>
+        internal static string PasswordIsEmpty {
+            get {
+                return ResourceManager.GetString("PasswordIsEmpty", resourceCulture);
+            }
+        }
     }
 }

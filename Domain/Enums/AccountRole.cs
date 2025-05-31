@@ -8,8 +8,8 @@ namespace Domain.Enums
 {
     public enum AccountRole
     {
-        Manager = 0,
-        Lecture = 1,
-        Student = 2
+        manager,
+        lecture,
+        student
     }
 }

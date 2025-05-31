@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Usecases.Login
+namespace Domain.Enums
 {
-    public class LoginCommandHandler
+    public enum AccountStatus
     {
+        Active,
+        Blocked,
+        Deleted,
     }
 }

@@ -120,4 +120,7 @@
   <data name="EmailIsEmpty" xml:space="preserve">
     <value>Email không được để trống</value>
   </data>
+  <data name="PasswordIsEmpty" xml:space="preserve">
+    <value>Mật khẩu không được để trống</value>
+  </data>
 </root>

@@ -19,7 +19,7 @@ namespace Domain.Entities
 
             public string Fullname => $"{FirstName} {LastName}"; // Optional: computed property
 
-            public string PasswordHash { get; set; }
+            public string HashPass { get; set; }
 
             public Gender Gender { get; set; } // Enum
 
@@ -29,18 +29,16 @@ namespace Domain.Entities
             [EmailAddress]
             public string Email { get; set; }
 
-            public DateOnly Birthday { get; set; }
+            public DateOnly BirthDate { get; set; }
 
             //public AccountStatus Status { get; set; } // Enum
 
-            public string? Avatar { get; set; } // Image field
+            public string? Image { get; set; } // Image field
 
             public AccountRole Role { get; set; } // Enum
-
+            public AccountStatus Status { get; set; }
             public int FailedLoginAttempts { get; set; }
-
-            public DateTime? LastFailedLoginTime { get; set; }
-
+            public int LastFailedLoginTime {  get; set; }
             //public List<RefreshToken>? RefreshTokens { get; set; } = new List<RefreshToken>();
 
     }

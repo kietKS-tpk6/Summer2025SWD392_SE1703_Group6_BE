@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Enums
+namespace Application.Usecases.Command
 {
-    public enum Gender
+     public class RegisterCommand
     {
-        male,
-        female,
-        other,
     }
 }
