@@ -17,10 +17,10 @@ namespace Application.Validators
                 .WithErrorCode(nameof(ErrorCodes.EmailIsEmpty))
                 .WithMessage(ValidationMessages.EmailIsEmpty);
 
-            RuleFor(o => o.Password)
-                .NotNull()
-                .WithErrorCode(nameof(ErrorCodes.PasswordIsEmpty))
-                .WithMessage(ValidationMessages.PasswordIsEmpty);
+            //RuleFor(o => o.Password)
+            //    .NotNull()
+            //    .WithErrorCode(nameof(ErrorCodes.PasswordIsEmpty))
+            //    .WithMessage(ValidationMessages.PasswordIsEmpty);
 
             //RuleFor(o => o.Password)
             //    .NotEmpty()
