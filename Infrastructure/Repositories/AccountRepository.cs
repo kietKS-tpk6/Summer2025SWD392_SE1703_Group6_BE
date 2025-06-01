@@ -73,14 +73,11 @@ namespace Infrastructure.Repositories
 
             return account.HashPass;
         }
-        public async Task<RegisterDTO> RegisterAsync(Account account)
+        public async Task<string> RegisterAsync(Account account)
         {
             await _dbContext.Accounts.AddAsync(account);
             await _dbContext.SaveChangesAsync();
-            return new RegisterDTO
-            {
-                Message = "Đăng ký thành công."
-            };
+            return "Đăng ký thành công.";
         }
     }
 }

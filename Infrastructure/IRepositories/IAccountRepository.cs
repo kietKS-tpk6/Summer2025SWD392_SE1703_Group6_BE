@@ -16,7 +16,7 @@ namespace Infrastructure.IRepositories
 
         Task<Account?> GetAccountsByPhoneAsync(string phone);
 
-        Task<RegisterDTO> RegisterAsync(Account account);
+        Task<string> RegisterAsync(Account account);
 
         Task<int> GetNumbeOfAccountsAsync();
 

@@ -7,7 +7,7 @@ using Application.DTOs;
 using MediatR;
 namespace Application.Usecases.Command
 {
-     public class RegisterCommand :IRequest<RegisterDTO>
+     public class RegisterCommand :IRequest<string>
     {   
         public string FirstName { get; set; }
         public string LastName { get; set; }

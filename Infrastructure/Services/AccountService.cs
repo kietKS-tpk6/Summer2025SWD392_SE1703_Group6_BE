@@ -53,7 +53,7 @@ namespace Infrastructure.Services
 
             return new LoginDTO { Token= token };
         }
-        public async Task<RegisterDTO> Register(RegisterCommand registerCommand)
+        public async Task<string> Register(RegisterCommand registerCommand)
         {
             var accByEmail = await _accountRepository.GetAccountsByEmailAsync(registerCommand.Email);
             if(accByEmail != null) 
