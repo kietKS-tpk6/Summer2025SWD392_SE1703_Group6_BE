@@ -24,15 +24,19 @@ namespace Infrastructure.Services
 
         public async Task<LoginDTO> Login(LoginCommand loginCommand)
         {
-            var account = await _accountRepository.LoginAsync(loginCommand);
+            var accByEmail = await _accountRepository.GetAccountsByEmailAsync(loginCommand.Email);
 
-            if (account == null)
+            if (accByEmail == null)
                 throw new UnauthorizedAccessException("Email hoặc mật khẩu không đúng.");
 
-            var result = new LoginDTO
-            {
-                Fullname = $"{account.FirstName} {account.LastName}",
-            };
+            var hashedPasswordFromDb = await _accountRepository.GetHassPassAccountWithEmailAsync(loginCommand);
+            bool isPasswordCorrect = BCrypt.Net.BCrypt.Verify(loginCommand.Password, hashedPasswordFromDb);
+            if (isPasswordCorrect==false)
+                throw new UnauthorizedAccessException("Email hoặc mật khẩu không đúng.");
+
+
+            var result = new LoginDTO();
+            result.Token = "1";
 
             return result;
         }

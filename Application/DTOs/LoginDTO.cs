@@ -8,6 +8,6 @@ namespace Application.DTOs
 {
     public class LoginDTO
     { 
-        public string Fullname { get; set; }
+        public string Token { get; set; }
     }
 }
