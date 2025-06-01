@@ -22,18 +22,20 @@ namespace Infrastructure
             services.AddScoped<LoginCommandHandler>();
             services.AddScoped<RegisterCommandHandler>();
             services.AddScoped<AssessmentCriteriaCreateHandler>();
+            services.AddScoped<SendOTPViaEmailCommandHandler>();
+
             //Services 
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IAssessmentCriteriaService, AssessmentCriteriaService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<ISyllabusesService, SyllabusesService>();
+            services.AddScoped<IEmailService, EmailService>();
 
             //Repositories
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ISyllabusesRepository, SyllabusesRepository>();
             services.AddScoped<IAssessmentCriteriaRepository, AssessmentCriteriaRepository>();
-
             return services;
         }
     }
