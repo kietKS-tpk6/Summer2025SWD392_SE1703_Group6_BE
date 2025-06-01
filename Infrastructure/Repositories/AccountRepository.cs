@@ -26,20 +26,11 @@ namespace Infrastructure.Repositories
         //    _dbContext.Accounts.Add(account);
         //    return await _dbContext.SaveChangesAsync() > 0;
         //}
-        public async Task<Account?> LoginAsync (LoginCommand loginCommand)
+        public async Task<string?> GetHassPassAccountWithEmailAsync(LoginCommand loginCommand)
         {
             var account = await _dbContext.Accounts
            .FirstOrDefaultAsync(x => x.Email == loginCommand.Email);
-
-            if (account == null)
-                return null;
-
-            //var passwordHasher = new PasswordHasher<Account>();
-            //var result = passwordHasher.VerifyHashedPassword(account, account.PasswordHash, loginCommand.Password);
-            //if (result == PasswordVerificationResult.Failed)
-            //    return null;
-
-            return account;
+            return account.HashPass;
         }
         public async Task<Account?> GetAccountsByEmailAsync(string email)
         {
