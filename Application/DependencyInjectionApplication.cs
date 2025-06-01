@@ -14,6 +14,8 @@ namespace Application
                 cfg.RegisterServicesFromAssembly(typeof(DependencyInjectionApplication).Assembly));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+            
+
             return services;
         }
     }
