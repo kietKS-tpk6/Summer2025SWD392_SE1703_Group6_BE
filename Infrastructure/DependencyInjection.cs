@@ -26,9 +26,14 @@ namespace Infrastructure
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IAssessmentCriteriaService, AssessmentCriteriaService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<ISyllabusesService, SyllabusesService>();
+
             //Repositories
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<ISyllabusesRepository, SyllabusesRepository>();
             services.AddScoped<IAssessmentCriteriaRepository, AssessmentCriteriaRepository>();
+
             return services;
         }
     }

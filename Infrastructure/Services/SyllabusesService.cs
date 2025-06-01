@@ -15,7 +15,7 @@ namespace Infrastructure.Services
     public class SyllabusesService : ISyllabusesService
     {
         private readonly ISyllabusesRepository _iSyllabusesRepository;
-        public SyllabusesService(SyllabusesRepository syllabusesRepository)
+        public SyllabusesService(ISyllabusesRepository syllabusesRepository)
         {
             _iSyllabusesRepository = syllabusesRepository;
         }
