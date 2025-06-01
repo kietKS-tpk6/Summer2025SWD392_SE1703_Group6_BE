@@ -26,11 +26,20 @@ namespace Infrastructure.Repositories
         //    _dbContext.Accounts.Add(account);
         //    return await _dbContext.SaveChangesAsync() > 0;
         //}
-        public async Task<string?> GetHassPassAccountWithEmailAsync(LoginCommand loginCommand)
+        public async Task<Account?> LoginAsync (LoginCommand loginCommand)
         {
             var account = await _dbContext.Accounts
            .FirstOrDefaultAsync(x => x.Email == loginCommand.Email);
-            return account.HashPass;
+
+            if (account == null)
+                return null;
+
+            //var passwordHasher = new PasswordHasher<Account>();
+            //var result = passwordHasher.VerifyHashedPassword(account, account.PasswordHash, loginCommand.Password);
+            //if (result == PasswordVerificationResult.Failed)
+            //    return null;
+
+            return account;
         }
         public async Task<Account?> GetAccountsByEmailAsync(string email)
         {
@@ -51,14 +60,24 @@ namespace Infrastructure.Repositories
             return await _dbContext.Accounts.ToListAsync();
         }
 
-        public async Task<RegisterDTO> RegisterAsync(Account account)
+        public async Task<int> GetNumbeOfAccountsAsync()
+        {
+            return await _dbContext.Accounts.CountAsync();
+        }
+
+       
+             public async Task<string?> GetHassPassAccountWithEmailAsync(LoginCommand loginCommand)
+        {
+            var account = await _dbContext.Accounts
+           .FirstOrDefaultAsync(x => x.Email == loginCommand.Email);
+
+            return account.HashPass;
+        }
+        public async Task<string> RegisterAsync(Account account)
         {
             await _dbContext.Accounts.AddAsync(account);
             await _dbContext.SaveChangesAsync();
-            return new RegisterDTO
-            {
-                Message = "Đăng ký thành công."
-            };
+            return "Đăng ký thành công.";
         }
     }
 }
