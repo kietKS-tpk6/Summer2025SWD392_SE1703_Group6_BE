@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.IServices;
+using Application.Usecases.CommandHandler;
 using Infrastructure.Data;
+using Infrastructure.IRepositories;
+using Infrastructure.Repositories;
+using Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.Services;
-using Infrastructure.Repositories;
-using Application.IServices;
-using Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Application.Usecases.CommandHandler;
-using Infrastructure.IRepositories;
 namespace Infrastructure
 {
     public static class DependencyInjection
@@ -28,13 +21,14 @@ namespace Infrastructure
             //CommandHandler 
             services.AddScoped<LoginCommandHandler>();
             services.AddScoped<RegisterCommandHandler>();
-
+            services.AddScoped<AssessmentCriteriaCreateHandler>();
             //Services 
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
+            services.AddScoped<IAssessmentCriteriaService, AssessmentCriteriaService>();
             //Repositories
             services.AddScoped<IAccountRepository, AccountRepository>();
-            
+            services.AddScoped<IAssessmentCriteriaRepository, AssessmentCriteriaRepository>();
             return services;
         }
     }

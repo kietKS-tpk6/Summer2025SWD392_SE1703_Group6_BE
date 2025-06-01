@@ -84,7 +84,7 @@ namespace Infrastructure.Data
         public DbSet<Subject> Subject { get; set; }
         public DbSet<Syllabus> Syllabus { get; set; }
         public DbSet<SyllabusSchedule> SyllabusSchedule { get; set; }
-        public DbSet<WorkTask> WorkTask { get; set; }
+        public DbSet<WorkTask> WorkTasks { get; set; }
         public DbSet<Test> Test { get; set; }
         public DbSet<TestEvent> TestEvent { get; set; }
         public DbSet<TestSection> TestSection { get; set; }

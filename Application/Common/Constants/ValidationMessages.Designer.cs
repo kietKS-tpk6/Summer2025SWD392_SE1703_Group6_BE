@@ -61,6 +61,33 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Category không hợp lệ.
+        /// </summary>
+        internal static string CategoryInvalid {
+            get {
+                return ResourceManager.GetString("CategoryInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duration phải lớn hơn 0.
+        /// </summary>
+        internal static string DurationInvalid {
+            get {
+                return ResourceManager.GetString("DurationInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duration phải là số nguyên hợp lệ.
+        /// </summary>
+        internal static string DurationWrongType {
+            get {
+                return ResourceManager.GetString("DurationWrongType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email không được để trống.
         /// </summary>
         internal static string EmailIsEmpty {
@@ -70,11 +97,83 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to MinPassingScore phải lớn hơn hoặc bằng 0.
+        /// </summary>
+        internal static string MinPassingScoreInvalid {
+            get {
+                return ResourceManager.GetString("MinPassingScoreInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MinPassingScore phải là số hợp lệ.
+        /// </summary>
+        internal static string MinPassingScoreWrongType {
+            get {
+                return ResourceManager.GetString("MinPassingScoreWrongType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Mật khẩu không được để trống.
         /// </summary>
         internal static string PasswordIsEmpty {
             get {
                 return ResourceManager.GetString("PasswordIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RequiredCount phải lớn hơn hoặc bằng 0.
+        /// </summary>
+        internal static string RequiredCountInvalid {
+            get {
+                return ResourceManager.GetString("RequiredCountInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RequiredCount phải là số nguyên hợp lệ.
+        /// </summary>
+        internal static string RequiredCountWrongType {
+            get {
+                return ResourceManager.GetString("RequiredCountWrongType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SyllabusID không được để trống.
+        /// </summary>
+        internal static string SyllabusIDIsEmpty {
+            get {
+                return ResourceManager.GetString("SyllabusIDIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TestType không hợp lệ.
+        /// </summary>
+        internal static string TestTypeInvalid {
+            get {
+                return ResourceManager.GetString("TestTypeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WeightPercent phải lớn hơn 0.
+        /// </summary>
+        internal static string WeightPercentInvalid {
+            get {
+                return ResourceManager.GetString("WeightPercentInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WeightPercent phải là số hợp lệ.
+        /// </summary>
+        internal static string WeightPercentWrongType {
+            get {
+                return ResourceManager.GetString("WeightPercentWrongType", resourceCulture);
             }
         }
     }

@@ -1,9 +1,15 @@
+using Application.Usecases.CommandHandler;
+using Application.Validators;
 using Infrastructure;
+using Application;
+using MediatR;
 var builder = WebApplication.CreateBuilder(args);
 //JWT
 
 //Insfratructure
 builder.Services.AddInfrastructure(builder.Configuration);
+//Application
+builder.Services.AddApplication();
 builder.Services.AddControllers();
 // Swagger
 builder.Services.AddEndpointsApiExplorer();

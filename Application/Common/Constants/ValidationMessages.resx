@@ -117,10 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CategoryInvalid" xml:space="preserve">
+    <value>Category không hợp lệ</value>
+  </data>
+  <data name="DurationInvalid" xml:space="preserve">
+    <value>Duration phải lớn hơn 0</value>
+  </data>
+  <data name="DurationWrongType" xml:space="preserve">
+    <value>Duration phải là số nguyên hợp lệ</value>
+  </data>
   <data name="EmailIsEmpty" xml:space="preserve">
     <value>Email không được để trống</value>
   </data>
+  <data name="MinPassingScoreInvalid" xml:space="preserve">
+    <value>MinPassingScore phải lớn hơn hoặc bằng 0</value>
+  </data>
+  <data name="MinPassingScoreWrongType" xml:space="preserve">
+    <value>MinPassingScore phải là số hợp lệ</value>
+  </data>
   <data name="PasswordIsEmpty" xml:space="preserve">
     <value>Mật khẩu không được để trống</value>
+  </data>
+  <data name="RequiredCountInvalid" xml:space="preserve">
+    <value>RequiredCount phải lớn hơn hoặc bằng 0</value>
+  </data>
+  <data name="RequiredCountWrongType" xml:space="preserve">
+    <value>RequiredCount phải là số nguyên hợp lệ</value>
+  </data>
+  <data name="SyllabusIDIsEmpty" xml:space="preserve">
+    <value>SyllabusID không được để trống</value>
+  </data>
+  <data name="TestTypeInvalid" xml:space="preserve">
+    <value>TestType không hợp lệ</value>
+  </data>
+  <data name="WeightPercentInvalid" xml:space="preserve">
+    <value>WeightPercent phải lớn hơn 0</value>
+  </data>
+  <data name="WeightPercentWrongType" xml:space="preserve">
+    <value>WeightPercent phải là số hợp lệ</value>
   </data>
 </root>
