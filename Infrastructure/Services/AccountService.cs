@@ -11,15 +11,21 @@ using Infrastructure.IRepositories;
 using BCrypt.Net;
 using Domain.Entities;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Security.Claims;
+using CloudinaryDotNet.Actions;
+
 namespace Infrastructure.Services
 {
     public class AccountService: IAccountService
     {
         private const int AGE_TO_USE = 16;
         private readonly IAccountRepository _accountRepository;
-        public AccountService(IAccountRepository accountRepository)
+        private readonly ITokenService _tokenService;
+
+        public AccountService(IAccountRepository accountRepository, ITokenService tokenService)
         {
             _accountRepository = accountRepository;
+            _tokenService = tokenService;
         }
 
         public async Task<LoginDTO> Login(LoginCommand loginCommand)
@@ -34,11 +40,18 @@ namespace Infrastructure.Services
             if (isPasswordCorrect==false)
                 throw new UnauthorizedAccessException("Email hoặc mật khẩu không đúng.");
 
+             var claims = new List<Claim>
+        {
+            new Claim("AccountID", accByEmail.AccountID),
+            new Claim("Role", accByEmail.Role.ToString()),
+            new Claim("LastName", accByEmail.LastName),
+            new Claim("FirstName", accByEmail.FirstName),
 
-            var result = new LoginDTO();
-            result.Token = "1";
+        };
+            var token = _tokenService.GenerateToken(claims, 4);
+          
 
-            return result;
+            return new LoginDTO { Token= token };
         }
         public async Task<RegisterDTO> Register(RegisterCommand registerCommand)
         {
@@ -85,11 +98,11 @@ namespace Infrastructure.Services
             newAcc.Gender = (Domain.Enums.Gender)Enum.Parse(typeof(Domain.Enums.Gender), registerCommand.Gender);
             newAcc.Image = "https://s3.amazonaws.com/37assets/svn/765-default-avatar.png";
             newAcc.Status = Domain.Enums.AccountStatus.Active;
-            newAcc.Role = Domain.Enums.AccountRole.student;
+            newAcc.Role = Domain.Enums.AccountRole.Student;
 
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerCommand.Password);
             newAcc.HashPass = hashedPassword;
-
+  
 
             var res = await _accountRepository.RegisterAsync(newAcc);
             return res;

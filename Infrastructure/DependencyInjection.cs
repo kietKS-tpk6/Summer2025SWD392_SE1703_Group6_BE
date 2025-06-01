@@ -28,10 +28,11 @@ namespace Infrastructure
             //CommandHandler 
             services.AddScoped<LoginCommandHandler>();
             services.AddScoped<RegisterCommandHandler>();
-
             //Services 
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
+            services.AddScoped<ITokenService, TokenService>();
+
             //Repositories
             services.AddScoped<IAccountRepository, AccountRepository>();
             
