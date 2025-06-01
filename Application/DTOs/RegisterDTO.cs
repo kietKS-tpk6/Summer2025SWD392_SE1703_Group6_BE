@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class LoginDTO
-    { 
-        public string Token { get; set; }
+    public class RegisterDTO
+    {
+        public string Message { get; set; } 
     }
 }

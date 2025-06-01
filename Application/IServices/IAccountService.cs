@@ -12,6 +12,7 @@ namespace Application.IServices
     {
         public Task<LoginDTO> Login(LoginCommand loginCommand);
 
+        public Task<RegisterDTO> Register(RegisterCommand registerCommand);
         
 
         
