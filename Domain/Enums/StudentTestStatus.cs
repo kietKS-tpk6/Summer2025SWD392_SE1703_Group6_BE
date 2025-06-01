@@ -8,8 +8,8 @@ namespace Domain.Enums
 {
     public enum StudentTestStatus
     {
-        pending, 
-        submitted, 
-        graded
+        Pending, 
+        Submitted, 
+        Graded
     }
 }
