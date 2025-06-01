@@ -15,7 +15,7 @@ namespace Domain.Entities
         [MaxLength(6)]
         public string ScheduleWorkID { get; set; }
 
-        [ForeignKey("Task")]
+        [ForeignKey("WorkTask")]
         [MaxLength(6)]
         public string TaskID { get; set; }
 
@@ -23,7 +23,7 @@ namespace Domain.Entities
         [MaxLength(6)]
         public string AccountID { get; set; }
 
-        public virtual Task Task { get; set; }
+        public virtual WorkTask WorkTask { get; set; }
 
         public virtual Account Account { get; set; }
     }

@@ -31,7 +31,7 @@ namespace Domain.Entities
         public TestType TestType { get; set; }
 
         [MaxLength(255)]
-        public string Note { get; set; }
+        public string? Note { get; set; }
 
         public bool IsActive { get; set; }
 

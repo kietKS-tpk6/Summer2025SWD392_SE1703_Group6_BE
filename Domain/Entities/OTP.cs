@@ -13,12 +13,10 @@ namespace Domain.Entities
         [Key]
         public int OTPID { get; set; }
 
-        [ForeignKey("Account")]
         [Phone]
         [MaxLength(15)]
         public string PhoneNumber { get; set; }
 
-        [ForeignKey("Account")]
         [EmailAddress]
         [MaxLength(50)]
         public string Email { get; set; }
@@ -26,7 +24,5 @@ namespace Domain.Entities
         public DateTime ExpirationTime { get; set; }
 
         public bool IsUsed { get; set; }
-
-        public virtual Account Account { get; set; }
     }
 }
