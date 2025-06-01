@@ -25,7 +25,70 @@ namespace Infrastructure.Data
                 .Property(a => a.Gender)
                 .HasConversion<string>();
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<AssessmentCriteria>()
+                .Property(a => a.Category)
+                .HasConversion<string>();
+            modelBuilder.Entity<AssessmentCriteria>()
+                .Property(a => a.TestType)
+                .HasConversion<string>();
+            modelBuilder.Entity<AttendanceRecord>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<Class>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<ClassEnrollment>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<Payment>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<Question>()
+                .Property(a => a.Type)
+                .HasConversion<string>();
+            modelBuilder.Entity<StudentTest>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<Syllabus>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<Test>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<Test>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<TestEvent>()
+                .Property(a => a.GradingMethod)
+                .HasConversion<string>();
+            modelBuilder.Entity<TestEvent>()
+                .Property(a => a.Category)
+                .HasConversion<string>();
+            modelBuilder.Entity<TestEvent>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
         }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<AssessmentCriteria> AssessmentCriteria { get; set; }
+        public DbSet<AttendanceRecord> AttendanceRecord { get; set; }
+        public DbSet<Class> Class { get; set; }
+        public DbSet<ClassEnrollment> ClassEnrollment { get; set; }
+        public DbSet<Feedback> Feedback { get; set; }
+        public DbSet<Lesson> Lesson { get; set; }
+        public DbSet<MCQOption> MCQOption { get; set; }
+        public DbSet<OTP> OTP { get; set; }
+        public DbSet<Payment> Payment { get; set; }
+        public DbSet<Question> Question { get; set; }
+        public DbSet<ScheduleWork> ScheduleWork { get; set; }
+        public DbSet<StudentTest> StudentTest { get; set; }
+        public DbSet<Subject> Subject { get; set; }
+        public DbSet<Syllabus> Syllabus { get; set; }
+        public DbSet<SyllabusSchedule> SyllabusSchedule { get; set; }
+        public DbSet<WorkTask> WorkTask { get; set; }
+        public DbSet<Test> Test { get; set; }
+        public DbSet<TestEvent> TestEvent { get; set; }
+        public DbSet<TestSection> TestSection { get; set; }
+        public DbSet<Transaction> Transaction { get; set; }
+
     }
 }

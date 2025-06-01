@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Domain.Entities
 {
     [Table("Tasks")]
-    public class Task
+    public class WorkTask
     {
         [Key]
         [MaxLength(6)]
