@@ -18,6 +18,8 @@ namespace Infrastructure.IRepositories
 
         Task<RegisterDTO> RegisterAsync(Account account);
 
+        Task<int> GetNumbeOfAccountsAsync();
+
         Task<List<Account>> GetAllAccountsAsync();
     }
 }

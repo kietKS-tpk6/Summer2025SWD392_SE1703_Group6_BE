@@ -86,7 +86,7 @@ namespace Infrastructure.Services
             }           
             var newAcc = new Account();
 
-            var numberOfAcc = (await _accountRepository.GetAllAccountsAsync()).Count;
+            var numberOfAcc = (await _accountRepository.GetNumbeOfAccountsAsync());
             string newAccountId = "A" + numberOfAcc.ToString("D5"); // D5 = 5 chữ số, vd: 00001
             newAcc.AccountID = newAccountId;
 
