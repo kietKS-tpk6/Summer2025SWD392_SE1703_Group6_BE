@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,6 +10,7 @@ using Domain.Enums;
 
 namespace Domain.Entities
 {
+    [Table("Accounts")]
     public class Account
     {
             [Key]
@@ -31,15 +33,11 @@ namespace Domain.Entities
 
             public DateOnly BirthDate { get; set; }
 
-            //public AccountStatus Status { get; set; } // Enum
-
             public string? Image { get; set; } // Image field
 
-            public AccountRole Role { get; set; } // Enum
+            public AccountRole Role { get; set; } 
             public AccountStatus Status { get; set; }
             public int FailedLoginAttempts { get; set; }
             public int LastFailedLoginTime {  get; set; }
-            //public List<RefreshToken>? RefreshTokens { get; set; } = new List<RefreshToken>();
-
     }
 }

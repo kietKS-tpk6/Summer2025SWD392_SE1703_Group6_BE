@@ -9,11 +9,9 @@
 *.user
 *.userosscache
 *.sln.docstates
-# Ignore appsettings files
-appsettings.json
-appsettings.*.json
+# Appsetting
+appsetting*
 **/appsettings.json
-
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

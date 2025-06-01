@@ -31,6 +31,7 @@ namespace Infrastructure
 
             //Services 
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<ICloudinaryService, CloudinaryService>();
             //Repositories
             services.AddScoped<IAccountRepository, AccountRepository>();
             
