@@ -49,16 +49,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        //[HttpPost("register")]
-        //public async Task<IActionResult> Register([FromBody] RegisterCommand registerCommand)
-        //{
-        //    var result = await _registerCommandHandler.Handle(registerCommand, CancellationToken.None);
-        //    if (result == null)
-        //    {
-        //        return BadRequest("");
-        //    }
-        //    return Ok(result);
-        //}
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            if (result == null)
+            {
+                return BadRequest("");
+            }
+            return Ok(result);
+        }
     }
 
 }
