@@ -1,4 +1,5 @@
 ﻿using Application.IServices;
+using Application.Usecases.CommandHandler;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
@@ -30,6 +31,11 @@ namespace Infrastructure
             services.AddScoped<ISyllabusesRepository, SyllabusesRepository>();
             services.AddScoped<IAssessmentCriteriaRepository, AssessmentCriteriaRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
+
+            //CommandHandler
+            services.AddScoped<CreateSubjectCommandHandler>();
+            services.AddScoped<UpdateSubjectCommandHandler>();
+            services.AddScoped<DeleteSubjectCommandHandler>();
 
             return services;
         }
