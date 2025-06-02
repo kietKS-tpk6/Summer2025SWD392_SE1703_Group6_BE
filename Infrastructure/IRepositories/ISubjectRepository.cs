@@ -1,13 +1,16 @@
-﻿using Application.DTOs;
+﻿using Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Application.IServices
+namespace Infrastructure.IRepositories
 {
-    public interface ISubjectService
+    public interface ISubjectRepository
     {
-        Task<List<SubjectDTO>> GetAllSubjectsAsync(bool? isActive = null);
-        Task<SubjectDTO> GetSubjectByIdAsync(string subjectId);
+        Task<string> CreateSubjectAsync(Subject subject);
+        Task<Subject?> GetSubjectByIdAsync(string subjectId);
+        Task<List<Subject>> GetAllSubjectsAsync(bool? isActive = null);
+        Task<string> UpdateSubjectAsync(Subject subject);
+        Task<string> DeleteSubjectAsync(string subjectId);
         Task<bool> SubjectExistsAsync(string subjectId);
         Task<int> GetTotalSubjectsCountAsync();
     }
