@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.DTOs;
+using MediatR;
 
 namespace Application.Usecases.Command
 {
-    internal class CreatePaymentCommand
+    public class CreatePaymentCommand : IRequest<PaymentResponseDTO>
     {
+        public string AccountID { get; set; }
+        public string ClassID { get; set; }
+        public string Description { get; set; }
     }
 }
