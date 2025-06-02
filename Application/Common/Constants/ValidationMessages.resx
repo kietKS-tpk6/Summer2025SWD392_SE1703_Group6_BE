@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
+	<!-- 
     Microsoft ResX Schema 
     
     Version 2.0
@@ -59,155 +59,185 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="BirthDateInFuture" xml:space="preserve">
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="metadata">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" />
+							</xsd:sequence>
+							<xsd:attribute name="name" use="required" type="xsd:string" />
+							<xsd:attribute name="type" type="xsd:string" />
+							<xsd:attribute name="mimetype" type="xsd:string" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="assembly">
+						<xsd:complexType>
+							<xsd:attribute name="alias" type="xsd:string" />
+							<xsd:attribute name="name" type="xsd:string" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="BirthDateInFuture" xml:space="preserve">
     <value>Ngày sinh không được ở tương lai</value>
   </data>
-  <data name="BirthDateInvalidAge" xml:space="preserve">
+	<data name="BirthDateInvalidAge" xml:space="preserve">
     <value>Tuổi phải từ 13-120</value>
   </data>
-  <data name="BirthDateIsEmpty" xml:space="preserve">
+	<data name="BirthDateIsEmpty" xml:space="preserve">
     <value>Ngày sinh không được để trống</value>
   </data>
-  <data name="CategoryInvalid" xml:space="preserve">
+	<data name="CategoryInvalid" xml:space="preserve">
     <value>Category không hợp lệ</value>
   </data>
-  <data name="DurationInvalid" xml:space="preserve">
+	<data name="ClassNameIsEmpty" xml:space="preserve">
+    <value>Tên lớp không được để trống</value>
+  </data>
+	<data name="DurationInvalid" xml:space="preserve">
     <value>Duration phải lớn hơn 0</value>
   </data>
-  <data name="DurationWrongType" xml:space="preserve">
+	<data name="DurationWrongType" xml:space="preserve">
     <value>Duration phải là số nguyên hợp lệ</value>
   </data>
-  <data name="EmailInvalidFormat" xml:space="preserve">
+	<data name="EmailInvalidFormat" xml:space="preserve">
     <value>Email không đúng định dạng</value>
   </data>
-  <data name="EmailIsEmpty" xml:space="preserve">
+	<data name="EmailIsEmpty" xml:space="preserve">
     <value>Email không được để trống</value>
   </data>
-  <data name="EmailTooLong" xml:space="preserve">
+	<data name="EmailTooLong" xml:space="preserve">
     <value>Email không được vượt quá 254 ký tự</value>
   </data>
-  <data name="FirstNameInvalidFormat" xml:space="preserve">
+	<data name="FirstNameInvalidFormat" xml:space="preserve">
     <value>Tên chỉ được chứa chữ cái và khoảng trắng</value>
   </data>
-  <data name="GenderInvalid" xml:space="preserve">
+	<data name="GenderInvalid" xml:space="preserve">
     <value>Giới tính hợp lệ: Nam/Nữ/Khác, Male/Female/Other</value>
   </data>
-  <data name="GenderIsEmpty" xml:space="preserve">
+	<data name="GenderIsEmpty" xml:space="preserve">
     <value>Giới tính không được để trống</value>
   </data>
-  <data name="LastNameInvalidFormat" xml:space="preserve">
+	<data name="LastNameInvalidFormat" xml:space="preserve">
     <value>Họ chỉ được chứa chữ cái và khoảng trắng</value>
   </data>
-  <data name="MinPassingScoreInvalid" xml:space="preserve">
+	<data name="ImageURLIsEmpty" xml:space="preserve">
+    <value>Đường dẫn hình ảnh không được để trống</value>
+  </data>
+	<data name="LecturerIDIsEmpty" xml:space="preserve">
+    <value>LecturerID không được để trống</value>
+  </data>
+	<data name="MinPassingScoreInvalid" xml:space="preserve">
     <value>MinPassingScore phải lớn hơn hoặc bằng 0</value>
   </data>
-  <data name="MinPassingScoreWrongType" xml:space="preserve">
+	<data name="MinPassingScoreWrongType" xml:space="preserve">
     <value>MinPassingScore phải là số hợp lệ</value>
   </data>
-  <data name="PasswordIsEmpty" xml:space="preserve">
+	<data name="PasswordIsEmpty" xml:space="preserve">
     <value>Mật khẩu không được để trống</value>
   </data>
-  <data name="PasswordTooLong" xml:space="preserve">
+	<data name="PasswordTooLong" xml:space="preserve">
     <value>Mật khẩu không được vượt quá 128 ký tự</value>
   </data>
-  <data name="PasswordTooShort" xml:space="preserve">
+	<data name="PasswordTooShort" xml:space="preserve">
     <value>Mật khẩu phải có ít nhất 6 ký tự</value>
   </data>
-  <data name="PasswordTooWeak" xml:space="preserve">
+	<data name="PasswordTooWeak" xml:space="preserve">
     <value>Mật khẩu phải chứa ít nhất 3 trong 4 loại: chữ thường, chữ hoa, số, ký tự đặc biệt</value>
   </data>
-  <data name="PhoneNumberInvalidFormat" xml:space="preserve">
+	<data name="PhoneNumberInvalidFormat" xml:space="preserve">
     <value>Số điện thoại không đúng định dạng Việt Nam (VD: 0901234567, +84901234567)</value>
   </data>
-  <data name="PhoneNumberIsEmpty" xml:space="preserve">
+	<data name="PhoneNumberIsEmpty" xml:space="preserve">
     <value>Số điện thoại không được để trống</value>
   </data>
-  <data name="RequiredCountInvalid" xml:space="preserve">
+	<data name="PriceOfClassInvalid" xml:space="preserve">
+    <value>Học phí phải lớn hơn hoặc bằng 0</value>
+  </data>
+	<data name="PasswordMustBe6Digits" xml:space="preserve">
+    <value>Mật khẩu phải có 6 ký tự</value>
+  </data>
+	<data name="RequiredCountInvalid" xml:space="preserve">
     <value>RequiredCount phải lớn hơn hoặc bằng 0</value>
   </data>
-  <data name="RequiredCountWrongType" xml:space="preserve">
+	<data name="RequiredCountWrongType" xml:space="preserve">
     <value>RequiredCount phải là số nguyên hợp lệ</value>
   </data>
-  <data name="SyllabusIDIsEmpty" xml:space="preserve">
+	<data name="SubjectIDIsEmpty" xml:space="preserve">
+    <value>SubjectID không được để trống</value>
+  </data>
+	<data name="SyllabusIDIsEmpty" xml:space="preserve">
     <value>SyllabusID không được để trống</value>
   </data>
-  <data name="TestTypeInvalid" xml:space="preserve">
+	<data name="TeachingStartTimeInvalid" xml:space="preserve">
+    <value>Thời gian bắt đầu dạy phải lớn hơn hiện tại</value>
+  </data>
+	<data name="TestTypeInvalid" xml:space="preserve">
     <value>TestType không hợp lệ</value>
   </data>
-  <data name="WeightPercentInvalid" xml:space="preserve">
+	<data name="MinStudentAcpInvalid" xml:space="preserve">
+    <value>Số sinh viên tối thiểu phải lớn hơn 0</value>
+  </data>
+	<data name="WeightPercentInvalid" xml:space="preserve">
     <value>WeightPercent phải lớn hơn 0</value>
   </data>
-  <data name="WeightPercentWrongType" xml:space="preserve">
+	<data name="WeightPercentWrongType" xml:space="preserve">
     <value>WeightPercent phải là số hợp lệ</value>
   </data>
-  <data name="FirstNameInvalidLength" xml:space="preserve">
+	<data name="FirstNameInvalidLength" xml:space="preserve">
     <value>Tên phải có từ 2-50 ký tự</value>
   </data>
-  <data name="FirstNameIsEmpty" xml:space="preserve">
+	<data name="FirstNameIsEmpty" xml:space="preserve">
     <value>Tên không được để trống</value>
   </data>
-  <data name="LastNameInvalidLength" xml:space="preserve">
+	<data name="LastNameInvalidLength" xml:space="preserve">
     <value>Họ phải có từ 2-50 ký tự</value>
   </data>
-  <data name="LastNameIsEmpty" xml:space="preserve">
+	<data name="LastNameIsEmpty" xml:space="preserve">
     <value>Họ không được để trống</value>
+  </data>
+	<data name="MaxStudentAcpInvalid" xml:space="preserve">
+    <value>Số sinh viên tối đa phải lớn hơn 0</value>
+  </data>
+	<data name="MaxLessThanMin" xml:space="preserve">
+    <value>Số sinh viên tối đa phải lớn hơn hoặc bằng số sinh viên tối thiểu</value>
   </data>
 </root>
