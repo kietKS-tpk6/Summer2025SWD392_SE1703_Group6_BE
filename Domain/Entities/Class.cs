@@ -27,7 +27,8 @@ namespace Domain.Entities
         [MaxLength(20)]
         public string ClassName { get; set; }
 
-        public int TotalStudentAcp { get; set; }
+        public int MinStudentAcp { get; set; }
+        public int MaxStudentAcp { get; set; }
 
         public decimal PriceOfClass { get; set; }
 
