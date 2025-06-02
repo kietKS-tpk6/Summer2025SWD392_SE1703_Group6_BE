@@ -21,7 +21,9 @@ namespace Infrastructure
             //CommandHandler 
             services.AddScoped<LoginCommandHandler>();
             services.AddScoped<RegisterCommandHandler>();
-            services.AddScoped<AssessmentCriteriaCreateHandler>();
+                //AssessmentCriteria
+            services.AddScoped<AssessmentCriteriaCreateCommandHandler>();
+            services.AddScoped<AssessmentCriteriaUpdateCommandHandler>();
             services.AddScoped<SendOTPViaEmailCommandHandler>();
             services.AddScoped<ClassCreateCommandHandler>();
             //Services 

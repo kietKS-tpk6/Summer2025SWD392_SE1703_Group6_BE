@@ -21,6 +21,7 @@ namespace Application.Common.Constants
 
         public const string UserNotFound = "UserNotFound";
         //AssessmentCriteriaCreateCommand
+        public const string AssessmentCriteriaIDIsEmpty = "AssessmentCriteriaIDIsEmpty";
         public const string SyllabusIDIsEmpty = "SyllabusIDIsEmpty";
         public const string WeightPercentInvalid = "WeightPercentInvalid";
         public const string CategoryInvalid = "CategoryInvalid";

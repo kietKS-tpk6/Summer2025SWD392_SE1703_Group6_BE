@@ -20,7 +20,7 @@ namespace Domain.Entities
         [MaxLength(6)]
         public string SyllabusID { get; set; }
 
-        public float WeightPercent { get; set; }
+        public double WeightPercent { get; set; }
 
         public AssessmentCategory Category { get; set; }
 
@@ -35,7 +35,7 @@ namespace Domain.Entities
 
         public bool IsActive { get; set; }
 
-        public float MinPassingScore { get; set; }
+        public double MinPassingScore { get; set; }
 
         public virtual Syllabus Syllabus { get; set; }
     }

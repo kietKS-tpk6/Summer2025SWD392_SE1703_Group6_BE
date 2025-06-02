@@ -129,9 +129,6 @@
   <data name="DurationWrongType" xml:space="preserve">
     <value>Duration phải là số nguyên hợp lệ</value>
   </data>
-  <data name="EmailInvalidFormat" xml:space="preserve">
-    <value>Email không đúng định dạng</value>
-  </data>
   <data name="EmailIsEmpty" xml:space="preserve">
     <value>Email không được để trống</value>
   </data>
@@ -152,9 +149,6 @@
   </data>
   <data name="PriceOfClassInvalid" xml:space="preserve">
     <value>Học phí phải lớn hơn hoặc bằng 0</value>
-  </data>
-  <data name="PasswordMustBe6Digits" xml:space="preserve">
-    <value>Mật khẩu phải có 6 ký tự</value>
   </data>
   <data name="RequiredCountInvalid" xml:space="preserve">
     <value>RequiredCount phải lớn hơn hoặc bằng 0</value>
@@ -188,5 +182,11 @@
   </data>
   <data name="MaxLessThanMin" xml:space="preserve">
     <value>Số sinh viên tối đa phải lớn hơn hoặc bằng số sinh viên tối thiểu</value>
+  </data>
+  <data name="AssessmentCriteriaIDIsEmpty" xml:space="preserve">
+    <value>AssessmentCriteriaID không được để trống.</value>
+  </data>
+  <data name="EmailInvalidFormat" xml:space="preserve">
+    <value>Email không đúng định dạng</value>
   </data>
 </root>

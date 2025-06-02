@@ -61,6 +61,15 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AssessmentCriteriaID không được để trống..
+        /// </summary>
+        internal static string AssessmentCriteriaIDIsEmpty {
+            get {
+                return ResourceManager.GetString("AssessmentCriteriaIDIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Category không hợp lệ.
         /// </summary>
         internal static string CategoryInvalid {
@@ -192,15 +201,6 @@ namespace Application.Common.Constants {
         internal static string PriceOfClassInvalid {
             get {
                 return ResourceManager.GetString("PriceOfClassInvalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Mật khẩu phải có 6 ký tự.
-        /// </summary>
-        internal static string PasswordMustBe6Digits {
-            get {
-                return ResourceManager.GetString("PasswordMustBe6Digits", resourceCulture);
             }
         }
         
