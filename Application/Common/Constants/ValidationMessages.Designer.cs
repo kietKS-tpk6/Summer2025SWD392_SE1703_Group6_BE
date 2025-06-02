@@ -70,6 +70,15 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tên lớp không được để trống.
+        /// </summary>
+        internal static string ClassNameIsEmpty {
+            get {
+                return ResourceManager.GetString("ClassNameIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Duration phải lớn hơn 0.
         /// </summary>
         internal static string DurationInvalid {
@@ -97,6 +106,42 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Đường dẫn hình ảnh không được để trống.
+        /// </summary>
+        internal static string ImageURLIsEmpty {
+            get {
+                return ResourceManager.GetString("ImageURLIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LecturerID không được để trống.
+        /// </summary>
+        internal static string LecturerIDIsEmpty {
+            get {
+                return ResourceManager.GetString("LecturerIDIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số sinh viên tối đa phải lớn hơn hoặc bằng số sinh viên tối thiểu.
+        /// </summary>
+        internal static string MaxLessThanMin {
+            get {
+                return ResourceManager.GetString("MaxLessThanMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số sinh viên tối đa phải lớn hơn 0.
+        /// </summary>
+        internal static string MaxStudentAcpInvalid {
+            get {
+                return ResourceManager.GetString("MaxStudentAcpInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to MinPassingScore phải lớn hơn hoặc bằng 0.
         /// </summary>
         internal static string MinPassingScoreInvalid {
@@ -115,11 +160,29 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Số sinh viên tối thiểu phải lớn hơn 0.
+        /// </summary>
+        internal static string MinStudentAcpInvalid {
+            get {
+                return ResourceManager.GetString("MinStudentAcpInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Mật khẩu không được để trống.
         /// </summary>
         internal static string PasswordIsEmpty {
             get {
                 return ResourceManager.GetString("PasswordIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Học phí phải lớn hơn hoặc bằng 0.
+        /// </summary>
+        internal static string PriceOfClassInvalid {
+            get {
+                return ResourceManager.GetString("PriceOfClassInvalid", resourceCulture);
             }
         }
         
@@ -142,11 +205,29 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SubjectID không được để trống.
+        /// </summary>
+        internal static string SubjectIDIsEmpty {
+            get {
+                return ResourceManager.GetString("SubjectIDIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SyllabusID không được để trống.
         /// </summary>
         internal static string SyllabusIDIsEmpty {
             get {
                 return ResourceManager.GetString("SyllabusIDIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thời gian bắt đầu dạy phải lớn hơn hiện tại.
+        /// </summary>
+        internal static string TeachingStartTimeInvalid {
+            get {
+                return ResourceManager.GetString("TeachingStartTimeInvalid", resourceCulture);
             }
         }
         

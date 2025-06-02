@@ -25,6 +25,15 @@ namespace Application.Common.Constants
         public const string RequiredCountWrongType = "RequiredCountWrongType";
         public const string DurationWrongType = "DurationWrongType";
         public const string MinPassingScoreWrongType = "MinPassingScoreWrongType";
-
+        // ClassCreateCommand
+        public const string LecturerIDIsEmpty = "LecturerIDIsEmpty";
+        public const string SubjectIDIsEmpty = "SubjectIDIsEmpty";
+        public const string ClassNameIsEmpty = "ClassNameIsEmpty";
+        public const string PriceOfClassInvalid = "PriceOfClassInvalid";
+        public const string TeachingStartTimeInvalid = "TeachingStartTimeInvalid";
+        public const string ImageURLIsEmpty = "ImageURLIsEmpty";
+        public const string MinStudentAcpInvalid = "MinStudentAcpInvalid";
+        public const string MaxStudentAcpInvalid = "MaxStudentAcpInvalid";
+        public const string MaxLessThanMin = "MaxLessThanMin";
     }
 }

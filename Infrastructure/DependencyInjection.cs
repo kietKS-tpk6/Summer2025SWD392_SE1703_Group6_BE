@@ -23,7 +23,7 @@ namespace Infrastructure
             services.AddScoped<RegisterCommandHandler>();
             services.AddScoped<AssessmentCriteriaCreateHandler>();
             services.AddScoped<SendOTPViaEmailCommandHandler>();
-
+            services.AddScoped<ClassCreateCommandHandler>();
             //Services 
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
@@ -31,11 +31,12 @@ namespace Infrastructure
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<ISyllabusesService, SyllabusesService>();
             services.AddScoped<IEmailService, EmailService>();
-
+            services.AddScoped<IClassService, ClassService>();
             //Repositories
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ISyllabusesRepository, SyllabusesRepository>();
             services.AddScoped<IAssessmentCriteriaRepository, AssessmentCriteriaRepository>();
+            services.AddScoped<IClassRepository, ClassRepository>();
             return services;
         }
     }
