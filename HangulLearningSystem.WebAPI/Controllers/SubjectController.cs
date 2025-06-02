@@ -21,7 +21,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _subjectService = subjectService;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateSubject([FromBody] CreateSubjectCommand command)
         {
             var result = await _mediator.Send(command);
@@ -32,14 +32,14 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return BadRequest(new { message = result });
         }
 
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<ActionResult<List<SubjectDTO>>> GetAllSubjects([FromQuery] bool? isActive = null)
         {
             var subjects = await _subjectService.GetAllSubjectsAsync(isActive);
             return Ok(subjects);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("get-subject-by-{id}")]
         public async Task<ActionResult<SubjectDTO>> GetSubjectById(string id)
         {
             var subject = await _subjectService.GetSubjectByIdAsync(id);
@@ -50,12 +50,9 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(subject);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSubject(string id, [FromBody] UpdateSubjectCommand command)
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateSubject([FromBody] UpdateSubjectCommand command)
         {
-            if (id != command.SubjectID)
-                return BadRequest(new { message = "Subject ID mismatch" });
-
             var result = await _mediator.Send(command);
 
             if (result.Contains("successfully"))
@@ -67,7 +64,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return BadRequest(new { message = result });
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteSubject(string id)
         {
             var command = new DeleteSubjectCommand { SubjectID = id };

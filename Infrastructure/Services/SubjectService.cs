@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿
+using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
 using Infrastructure.IRepositories;
@@ -17,6 +18,49 @@ namespace Infrastructure.Services
         public SubjectService(ISubjectRepository subjectRepository)
         {
             _subjectRepository = subjectRepository;
+        }
+
+        public async Task<string> GenerateNextSubjectIdAsync()
+        {
+            var allSubjects = await _subjectRepository.GetAllSubjectsAsync();
+
+            if (!allSubjects.Any())
+            {
+                return "SJ0001";
+            }
+
+            var maxId = allSubjects
+                .Select(s => s.SubjectID)
+                .Where(id => id.StartsWith("SJ") && id.Length == 6)
+                .Select(id => int.TryParse(id.Substring(2), out int num) ? num : 0)
+                .DefaultIfEmpty(0)
+                .Max();
+
+            return $"SJ{(maxId + 1):D4}"; 
+        }
+
+        public async Task<string> CreateSubjectAsync(CreateSubjectCommand command)
+        {
+            var subjectId = await GenerateNextSubjectIdAsync();
+
+            var subject = new Subject
+            {
+                SubjectID = subjectId,                          
+                SubjectName = command.SubjectName,
+                Description = command.Description,
+                IsActive = true,                                
+                CreateAt = DateTime.Now,                         
+                MinAverageScoreToPass = command.MinAverageScoreToPass
+            };
+
+            var result = await _subjectRepository.CreateSubjectAsync(subject);
+
+            if (result.Contains("successfully"))
+            {
+                return $"Subject created successfully with ID: {subjectId}";
+            }
+
+            return result;
         }
 
         public async Task<List<SubjectDTO>> GetAllSubjectsAsync(bool? isActive = null)
@@ -60,28 +104,6 @@ namespace Infrastructure.Services
         public async Task<int> GetTotalSubjectsCountAsync()
         {
             return await _subjectRepository.GetTotalSubjectsCountAsync();
-        }
-
-        public async Task<string> CreateSubjectAsync(CreateSubjectCommand command)
-        {
-
-            var existingSubject = await _subjectRepository.GetSubjectByIdAsync(command.SubjectID);
-            if (existingSubject != null)
-            {
-                return $"Subject with ID {command.SubjectID} already exists";
-            }
-
-            var subject = new Subject
-            {
-                SubjectID = command.SubjectID,
-                SubjectName = command.SubjectName,
-                Description = command.Description,
-                IsActive = command.IsActive,
-                CreateAt = DateTime.Now,
-                MinAverageScoreToPass = command.MinAverageScoreToPass
-            };
-
-            return await _subjectRepository.CreateSubjectAsync(subject);
         }
 
         public async Task<string> UpdateSubjectAsync(UpdateSubjectCommand command)
