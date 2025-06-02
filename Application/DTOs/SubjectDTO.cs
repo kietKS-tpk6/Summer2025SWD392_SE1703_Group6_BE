@@ -9,6 +9,6 @@ namespace Application.DTOs
         public string Description { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreateAt { get; set; }
-        public float MinAverageScoreToPass { get; set; }
+        public double MinAverageScoreToPass { get; set; }
     }
 }
