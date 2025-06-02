@@ -28,7 +28,7 @@ namespace Infrastructure
             services.AddScoped<SendOTPViaEmailCommandHandler>();
             services.AddScoped<ClassCreateCommandHandler>();
             //Services 
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+               
 
             // Services - Business logic cho Read operations
             services.AddScoped<IAccountService, AccountService>();

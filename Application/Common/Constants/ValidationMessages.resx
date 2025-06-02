@@ -241,7 +241,9 @@
     <value>Số sinh viên tối đa phải lớn hơn hoặc bằng số sinh viên tối thiểu</value>
   </data>
   <data name="OTPIsEmpty" xml:space="preserve">
-    <value>OTP không được để trống</value>
+    
+	 <value>OTP không được để trống</value>
+	  </data>
   <data name="AssessmentCriteriaIDIsEmpty" xml:space="preserve">
     <value>AssessmentCriteriaID không được để trống.</value>
   </data>
