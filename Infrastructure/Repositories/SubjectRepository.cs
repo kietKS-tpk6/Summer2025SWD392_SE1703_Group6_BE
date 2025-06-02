@@ -1,7 +1,8 @@
-﻿using Application.IRepositories;
+﻿using Infrastructure.IRepositories;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Infrastructure.Repositories
         {
             try
             {
-                _dbContext.Subjects.Add(subject);
+                _dbContext.Subject.Add(subject);
                 await _dbContext.SaveChangesAsync();
                 return "Subject created successfully";
             }
@@ -33,13 +34,13 @@ namespace Infrastructure.Repositories
 
         public async Task<Subject?> GetSubjectByIdAsync(string subjectId)
         {
-            return await _dbContext.Subjects
+            return await _dbContext.Subject
                 .FirstOrDefaultAsync(s => s.SubjectID == subjectId);
         }
 
         public async Task<List<Subject>> GetAllSubjectsAsync(bool? isActive = null)
         {
-            var query = _dbContext.Subjects.AsQueryable();
+            var query = _dbContext.Subject.AsQueryable();
 
             if (isActive.HasValue)
             {
@@ -55,7 +56,7 @@ namespace Infrastructure.Repositories
         {
             try
             {
-                _dbContext.Subjects.Update(subject);
+                _dbContext.Subject.Update(subject);
                 await _dbContext.SaveChangesAsync();
                 return "Subject updated successfully";
             }
@@ -72,7 +73,7 @@ namespace Infrastructure.Repositories
                 var subject = await GetSubjectByIdAsync(subjectId);
                 if (subject != null)
                 {
-                    _dbContext.Subjects.Remove(subject);
+                    _dbContext.Subject.Remove(subject);
                     await _dbContext.SaveChangesAsync();
                     return "Subject deleted successfully";
                 }
@@ -86,13 +87,13 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> SubjectExistsAsync(string subjectId)
         {
-            return await _dbContext.Subjects
+            return await _dbContext.Subject
                 .AnyAsync(s => s.SubjectID == subjectId);
         }
 
         public async Task<int> GetTotalSubjectsCountAsync()
         {
-            return await _dbContext.Subjects.CountAsync();
+            return await _dbContext.Subject.CountAsync();
         }
     }
 }
