@@ -1,7 +1,7 @@
 ﻿using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
-using Application.Usecases.CommandHandler;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,27 +12,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
     [ApiController]
     public class SubjectController : ControllerBase
     {
-        private readonly CreateSubjectCommandHandler _createSubjectCommandHandler;
-        private readonly UpdateSubjectCommandHandler _updateSubjectCommandHandler;
-        private readonly DeleteSubjectCommandHandler _deleteSubjectCommandHandler;
+        private readonly IMediator _mediator;
         private readonly ISubjectService _subjectService;
 
-        public SubjectController(
-            CreateSubjectCommandHandler createSubjectCommandHandler,
-            UpdateSubjectCommandHandler updateSubjectCommandHandler,
-            DeleteSubjectCommandHandler deleteSubjectCommandHandler,
-            ISubjectService subjectService)
+        public SubjectController(IMediator mediator, ISubjectService subjectService)
         {
-            _createSubjectCommandHandler = createSubjectCommandHandler;
-            _updateSubjectCommandHandler = updateSubjectCommandHandler;
-            _deleteSubjectCommandHandler = deleteSubjectCommandHandler;
+            _mediator = mediator;
             _subjectService = subjectService;
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateSubject([FromBody] CreateSubjectCommand command)
         {
-            var result = await _createSubjectCommandHandler.Handle(command, CancellationToken.None);
+            var result = await _mediator.Send(command);
 
             if (result.Contains("successfully"))
                 return Ok(new { message = result });
@@ -64,7 +56,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if (id != command.SubjectID)
                 return BadRequest(new { message = "Subject ID mismatch" });
 
-            var result = await _updateSubjectCommandHandler.Handle(command, CancellationToken.None);
+            var result = await _mediator.Send(command);
 
             if (result.Contains("successfully"))
                 return Ok(new { message = result });
@@ -79,7 +71,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         public async Task<IActionResult> DeleteSubject(string id)
         {
             var command = new DeleteSubjectCommand { SubjectID = id };
-            var result = await _deleteSubjectCommandHandler.Handle(command, CancellationToken.None);
+            var result = await _mediator.Send(command);
 
             if (result.Contains("successfully"))
                 return Ok(new { message = result });
