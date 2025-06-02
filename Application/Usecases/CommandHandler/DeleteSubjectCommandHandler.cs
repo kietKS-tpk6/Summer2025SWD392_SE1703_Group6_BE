@@ -1,29 +1,24 @@
-﻿using Infrastructure.IRepositories;
+﻿using Application.IServices;
 using Application.Usecases.Command;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.IServices;
 
 namespace Application.Usecases.CommandHandler
 {
     public class DeleteSubjectCommandHandler : IRequestHandler<DeleteSubjectCommand, string>
     {
-        private readonly ISubjectRepository _subjectRepository;
+        private readonly ISubjectService _subjectService;
 
-        public DeleteSubjectCommandHandler(ISubjectRepository subjectRepository)
+        public DeleteSubjectCommandHandler(ISubjectService subjectService)
         {
-            _subjectRepository = subjectRepository;
+            _subjectService = subjectService;
         }
 
         public async Task<string> Handle(DeleteSubjectCommand request, CancellationToken cancellationToken)
         {
-            var existingSubject = await _subjectRepository.GetSubjectByIdAsync(request.SubjectID);
-            if (existingSubject == null)
-            {
-                return $"Subject with ID {request.SubjectID} not found";
-            }
-
-            return await _subjectRepository.DeleteSubjectAsync(request.SubjectID);
+            return await _subjectService.DeleteSubjectAsync(request.SubjectID);
         }
     }
 }

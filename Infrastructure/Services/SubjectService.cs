@@ -1,6 +1,9 @@
 ﻿using Application.DTOs;
-using Infrastructure.IRepositories;
 using Application.IServices;
+using Application.Usecases.Command;
+using Infrastructure.IRepositories;
+using Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,6 +60,55 @@ namespace Infrastructure.Services
         public async Task<int> GetTotalSubjectsCountAsync()
         {
             return await _subjectRepository.GetTotalSubjectsCountAsync();
+        }
+
+        public async Task<string> CreateSubjectAsync(CreateSubjectCommand command)
+        {
+
+            var existingSubject = await _subjectRepository.GetSubjectByIdAsync(command.SubjectID);
+            if (existingSubject != null)
+            {
+                return $"Subject with ID {command.SubjectID} already exists";
+            }
+
+            var subject = new Subject
+            {
+                SubjectID = command.SubjectID,
+                SubjectName = command.SubjectName,
+                Description = command.Description,
+                IsActive = command.IsActive,
+                CreateAt = DateTime.Now,
+                MinAverageScoreToPass = command.MinAverageScoreToPass
+            };
+
+            return await _subjectRepository.CreateSubjectAsync(subject);
+        }
+
+        public async Task<string> UpdateSubjectAsync(UpdateSubjectCommand command)
+        {
+            var existingSubject = await _subjectRepository.GetSubjectByIdAsync(command.SubjectID);
+            if (existingSubject == null)
+            {
+                return $"Subject with ID {command.SubjectID} not found";
+            }
+
+            existingSubject.SubjectName = command.SubjectName;
+            existingSubject.Description = command.Description;
+            existingSubject.IsActive = command.IsActive;
+            existingSubject.MinAverageScoreToPass = command.MinAverageScoreToPass;
+
+            return await _subjectRepository.UpdateSubjectAsync(existingSubject);
+        }
+
+        public async Task<string> DeleteSubjectAsync(string subjectId)
+        {
+            var existingSubject = await _subjectRepository.GetSubjectByIdAsync(subjectId);
+            if (existingSubject == null)
+            {
+                return $"Subject with ID {subjectId} not found";
+            }
+
+            return await _subjectRepository.DeleteSubjectAsync(subjectId);
         }
     }
 }
