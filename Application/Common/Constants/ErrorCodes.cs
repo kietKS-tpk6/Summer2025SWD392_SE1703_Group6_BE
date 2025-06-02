@@ -8,11 +8,18 @@ namespace Application.Common.Constants
 {
     public  class ErrorCodes
     {
-            public const string EmailIsEmpty = "EmailIsEmpty";
-            public const string EmailIsNull = "EmailIsNull";
-            public const string PasswordIsEmpty = "PasswordIsEmpty";
-            public const string PasswordIsNull = "PasswordIsNull";
-            public const string UserNotFound = "UserNotFound";
+        //LoginCommand
+
+        public const string EmailIsEmpty = "EmailIsEmpty";
+        public const string EmailIsNull = "EmailIsNull";
+        public const string EmailInvalidFormat = "EmailInvalidFormat";
+
+        public const string PasswordIsEmpty = "PasswordIsEmpty";
+        public const string PasswordIsNull = "PasswordIsNull";
+        public const string PasswordMustBe6Digits = "PasswordMustBe6Digits";
+
+
+        public const string UserNotFound = "UserNotFound";
         //AssessmentCriteriaCreateCommand
         public const string SyllabusIDIsEmpty = "SyllabusIDIsEmpty";
         public const string WeightPercentInvalid = "WeightPercentInvalid";
@@ -25,6 +32,8 @@ namespace Application.Common.Constants
         public const string RequiredCountWrongType = "RequiredCountWrongType";
         public const string DurationWrongType = "DurationWrongType";
         public const string MinPassingScoreWrongType = "MinPassingScoreWrongType";
+
+
 
     }
 }

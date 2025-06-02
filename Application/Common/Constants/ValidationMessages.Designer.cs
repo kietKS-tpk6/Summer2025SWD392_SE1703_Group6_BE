@@ -88,6 +88,15 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email không đúng định dạng.
+        /// </summary>
+        internal static string EmailInvalidFormat {
+            get {
+                return ResourceManager.GetString("EmailInvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email không được để trống.
         /// </summary>
         internal static string EmailIsEmpty {
@@ -120,6 +129,15 @@ namespace Application.Common.Constants {
         internal static string PasswordIsEmpty {
             get {
                 return ResourceManager.GetString("PasswordIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mật khẩu phải có 6 ký tự.
+        /// </summary>
+        internal static string PasswordMustBe6Digits {
+            get {
+                return ResourceManager.GetString("PasswordMustBe6Digits", resourceCulture);
             }
         }
         
