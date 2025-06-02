@@ -64,29 +64,7 @@ namespace Infrastructure.Services
             var accByPhone = await _accountRepository.GetAccountsByPhoneAsync(registerCommand.PhoneNumber);
             if (accByPhone != null) 
                 throw new ArgumentException("Số điện thoại đã được sử dụng, vui lòng chọn số điện thoại khác.");
-            if (!Enum.TryParse<Gender>(registerCommand.Gender, ignoreCase: true, out var gender))
-                throw new ArgumentException("Giới tính không hợp lệ.");
-            if (string.IsNullOrWhiteSpace(registerCommand.FirstName))
-                throw new ArgumentException("Vui lòng nhập họ.");
-            if (string.IsNullOrWhiteSpace(registerCommand.LastName))
-                throw new ArgumentException("Vui lòng nhập tên.");
-
-            //kiểm tra tuổi
-            if (registerCommand.BirthDate == default(DateOnly)) // default = 0001-01-01
-            {
-                throw new ArgumentException("Ngày sinh không hợp lệ.");
-            }
-            else
-            {
-                // Lấy ngày hiện tại trừ đi số tuổi tối thiểu
-                var today = DateOnly.FromDateTime(DateTime.UtcNow);
-                var todayMinus16 = today.AddYears(-AGE_TO_USE);
-
-                if (registerCommand.BirthDate > todayMinus16)
-                {
-                    throw new ArgumentException($"Tài khoản phải từ {AGE_TO_USE} tuổi trở lên.");
-                }
-            }           
+               
             var newAcc = new Account();
 
             var numberOfAcc = (await _accountRepository.GetNumbeOfAccountsAsync());

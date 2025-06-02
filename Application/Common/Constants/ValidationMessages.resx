@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BirthDateInFuture" xml:space="preserve">
+    <value>Ngày sinh không được ở tương lai</value>
+  </data>
+  <data name="BirthDateInvalidAge" xml:space="preserve">
+    <value>Tuổi phải từ 13-120</value>
+  </data>
+  <data name="BirthDateIsEmpty" xml:space="preserve">
+    <value>Ngày sinh không được để trống</value>
+  </data>
   <data name="CategoryInvalid" xml:space="preserve">
     <value>Category không hợp lệ</value>
   </data>
@@ -132,6 +141,21 @@
   <data name="EmailIsEmpty" xml:space="preserve">
     <value>Email không được để trống</value>
   </data>
+  <data name="EmailTooLong" xml:space="preserve">
+    <value>Email không được vượt quá 254 ký tự</value>
+  </data>
+  <data name="FirstNameInvalidFormat" xml:space="preserve">
+    <value>Tên chỉ được chứa chữ cái và khoảng trắng</value>
+  </data>
+  <data name="GenderInvalid" xml:space="preserve">
+    <value>Giới tính hợp lệ: Nam/Nữ/Khác, Male/Female/Other</value>
+  </data>
+  <data name="GenderIsEmpty" xml:space="preserve">
+    <value>Giới tính không được để trống</value>
+  </data>
+  <data name="LastNameInvalidFormat" xml:space="preserve">
+    <value>Họ chỉ được chứa chữ cái và khoảng trắng</value>
+  </data>
   <data name="MinPassingScoreInvalid" xml:space="preserve">
     <value>MinPassingScore phải lớn hơn hoặc bằng 0</value>
   </data>
@@ -141,8 +165,20 @@
   <data name="PasswordIsEmpty" xml:space="preserve">
     <value>Mật khẩu không được để trống</value>
   </data>
-  <data name="PasswordMustBe6Digits" xml:space="preserve">
-    <value>Mật khẩu phải có 6 ký tự</value>
+  <data name="PasswordTooLong" xml:space="preserve">
+    <value>Mật khẩu không được vượt quá 128 ký tự</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Mật khẩu phải có ít nhất 6 ký tự</value>
+  </data>
+  <data name="PasswordTooWeak" xml:space="preserve">
+    <value>Mật khẩu phải chứa ít nhất 3 trong 4 loại: chữ thường, chữ hoa, số, ký tự đặc biệt</value>
+  </data>
+  <data name="PhoneNumberInvalidFormat" xml:space="preserve">
+    <value>Số điện thoại không đúng định dạng Việt Nam (VD: 0901234567, +84901234567)</value>
+  </data>
+  <data name="PhoneNumberIsEmpty" xml:space="preserve">
+    <value>Số điện thoại không được để trống</value>
   </data>
   <data name="RequiredCountInvalid" xml:space="preserve">
     <value>RequiredCount phải lớn hơn hoặc bằng 0</value>
@@ -161,5 +197,17 @@
   </data>
   <data name="WeightPercentWrongType" xml:space="preserve">
     <value>WeightPercent phải là số hợp lệ</value>
+  </data>
+  <data name="FirstNameInvalidLength" xml:space="preserve">
+    <value>Tên phải có từ 2-50 ký tự</value>
+  </data>
+  <data name="FirstNameIsEmpty" xml:space="preserve">
+    <value>Tên không được để trống</value>
+  </data>
+  <data name="LastNameInvalidLength" xml:space="preserve">
+    <value>Họ phải có từ 2-50 ký tự</value>
+  </data>
+  <data name="LastNameIsEmpty" xml:space="preserve">
+    <value>Họ không được để trống</value>
   </data>
 </root>

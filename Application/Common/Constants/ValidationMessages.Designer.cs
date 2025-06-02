@@ -61,6 +61,33 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ngày sinh không được ở tương lai.
+        /// </summary>
+        internal static string BirthDateInFuture {
+            get {
+                return ResourceManager.GetString("BirthDateInFuture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tuổi phải từ 13-120.
+        /// </summary>
+        internal static string BirthDateInvalidAge {
+            get {
+                return ResourceManager.GetString("BirthDateInvalidAge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ngày sinh không được để trống.
+        /// </summary>
+        internal static string BirthDateIsEmpty {
+            get {
+                return ResourceManager.GetString("BirthDateIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Category không hợp lệ.
         /// </summary>
         internal static string CategoryInvalid {
@@ -106,6 +133,87 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email không được vượt quá 254 ký tự.
+        /// </summary>
+        internal static string EmailTooLong {
+            get {
+                return ResourceManager.GetString("EmailTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên chỉ được chứa chữ cái và khoảng trắng.
+        /// </summary>
+        internal static string FirstNameInvalidFormat {
+            get {
+                return ResourceManager.GetString("FirstNameInvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên phải có từ 2-50 ký tự.
+        /// </summary>
+        internal static string FirstNameInvalidLength {
+            get {
+                return ResourceManager.GetString("FirstNameInvalidLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên không được để trống.
+        /// </summary>
+        internal static string FirstNameIsEmpty {
+            get {
+                return ResourceManager.GetString("FirstNameIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giới tính hợp lệ: Nam/Nữ/Khác, Male/Female/Other.
+        /// </summary>
+        internal static string GenderInvalid {
+            get {
+                return ResourceManager.GetString("GenderInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Giới tính không được để trống.
+        /// </summary>
+        internal static string GenderIsEmpty {
+            get {
+                return ResourceManager.GetString("GenderIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Họ chỉ được chứa chữ cái và khoảng trắng.
+        /// </summary>
+        internal static string LastNameInvalidFormat {
+            get {
+                return ResourceManager.GetString("LastNameInvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Họ phải có từ 2-50 ký tự.
+        /// </summary>
+        internal static string LastNameInvalidLength {
+            get {
+                return ResourceManager.GetString("LastNameInvalidLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Họ không được để trống.
+        /// </summary>
+        internal static string LastNameIsEmpty {
+            get {
+                return ResourceManager.GetString("LastNameIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to MinPassingScore phải lớn hơn hoặc bằng 0.
         /// </summary>
         internal static string MinPassingScoreInvalid {
@@ -133,11 +241,47 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mật khẩu phải có 6 ký tự.
+        ///   Looks up a localized string similar to Mật khẩu không được vượt quá 128 ký tự.
         /// </summary>
-        internal static string PasswordMustBe6Digits {
+        internal static string PasswordTooLong {
             get {
-                return ResourceManager.GetString("PasswordMustBe6Digits", resourceCulture);
+                return ResourceManager.GetString("PasswordTooLong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mật khẩu phải có ít nhất 6 ký tự.
+        /// </summary>
+        internal static string PasswordTooShort {
+            get {
+                return ResourceManager.GetString("PasswordTooShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mật khẩu phải chứa ít nhất 3 trong 4 loại: chữ thường, chữ hoa, số, ký tự đặc biệt.
+        /// </summary>
+        internal static string PasswordTooWeak {
+            get {
+                return ResourceManager.GetString("PasswordTooWeak", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số điện thoại không đúng định dạng Việt Nam (VD: 0901234567, +84901234567).
+        /// </summary>
+        internal static string PhoneNumberInvalidFormat {
+            get {
+                return ResourceManager.GetString("PhoneNumberInvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Số điện thoại không được để trống.
+        /// </summary>
+        internal static string PhoneNumberIsEmpty {
+            get {
+                return ResourceManager.GetString("PhoneNumberIsEmpty", resourceCulture);
             }
         }
         
