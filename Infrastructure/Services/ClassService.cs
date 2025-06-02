@@ -79,7 +79,7 @@ namespace Infrastructure.Services
             return await _classRepository.GetPaginatedListBySubjectAsyn(subjectId, page,pageSize);
         }
 
-        public async Task<bool> DeleteAsync(string id)
+        public async Task<bool> DeleteClassAsync(string id)
         {
             return await _classRepository.DeleteAsync(id);
         }

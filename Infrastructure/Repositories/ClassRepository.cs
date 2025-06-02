@@ -52,10 +52,13 @@ namespace Infrastructure.Repositories
                 return false;
             }
 
-            _dbContext.Class.Remove(classToDelete);
+            classToDelete.Status = ClassStatus.Deleted;
+            _dbContext.Class.Update(classToDelete);
+
             var result = await _dbContext.SaveChangesAsync();
             return result > 0;
         }
+
 
         public async Task<int> CountAsync()
         {

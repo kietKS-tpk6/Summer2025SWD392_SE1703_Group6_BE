@@ -13,6 +13,7 @@ namespace Application.IServices
     {
         Task<bool> CreateClassAsync(ClassCreateCommand  request);
         Task<bool> UpdateClassAsync(ClassUpdateCommand request);
+        Task<bool> DeleteClassAsync(string classId);
         Task<PagedResult<ClassDTO>> GetListAsync(int page, int pageSize);
         Task<PagedResult<ClassDTO>> GetListBySubjectAsyn(string subjectId, int page, int pageSize);
         Task<PagedResult<ClassDTO>> GetListByTeacherAsync(string teacherId, int page, int pageSize);

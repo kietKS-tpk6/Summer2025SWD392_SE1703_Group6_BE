@@ -35,6 +35,35 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(OperationMessages.CreateFail);
             }
         }
+        [HttpPut("update")]
+        public async Task<IActionResult> Update([FromBody] ClassUpdateCommand command)
+        {
+            var result = await _classService.UpdateClassAsync(command);
+
+            if (result)
+            {
+                return Ok(OperationMessages.UpdateSuccess);
+            }
+            else
+            {
+                return NotFound(OperationMessages.UpdateFail);
+            }
+        }
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var result = await _classService.DeleteClassAsync(id);
+
+            if (result)
+            {
+                return Ok(OperationMessages.DeleteSuccess);
+            }
+            else
+            {
+                return NotFound(OperationMessages.DeleteFail);
+            }
+        }
+
         [HttpGet("get-all-paginated")]
         public async Task<IActionResult> GetList([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
