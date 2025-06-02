@@ -37,6 +37,8 @@ namespace Infrastructure
             services.AddScoped<ISyllabusesRepository, SyllabusesRepository>();
             services.AddScoped<IAssessmentCriteriaRepository, AssessmentCriteriaRepository>();
             services.AddScoped<IClassRepository, ClassRepository>();
+            services.AddScoped<IOTPRepository, OTPRepository>();
+
             return services;
         }
     }

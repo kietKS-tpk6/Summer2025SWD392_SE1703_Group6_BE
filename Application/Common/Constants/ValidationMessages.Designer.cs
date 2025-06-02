@@ -286,6 +286,15 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OTP không được để trống.
+        /// </summary>
+        internal static string OTPIsEmpty {
+            get {
+                return ResourceManager.GetString("OTPIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Mật khẩu không được để trống.
         /// </summary>
         internal static string PasswordIsEmpty {

@@ -50,6 +50,10 @@ namespace Application.Common.Constants
             public const string GenderInvalid = "GenderInvalid";
 
             public const string UserNotFound = "UserNotFound";
+        //OTP
+        public const string OTPIsEmpty = "OTPIsEmpty";
+
+        
         //AssessmentCriteriaCreateCommand
         public const string SyllabusIDIsEmpty = "SyllabusIDIsEmpty";
         public const string WeightPercentInvalid = "WeightPercentInvalid";

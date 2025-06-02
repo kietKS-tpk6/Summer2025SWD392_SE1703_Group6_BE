@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.IServices;
 using Domain.Entities;
+using Infrastructure.IRepositories;
+using Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -18,10 +20,12 @@ namespace Infrastructure.Services
         private readonly string _fromEmail;
         private readonly string _fromName;
         private readonly ILogger<EmailService> _logger;
-
-        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+        private readonly IOTPRepository _OTPRepository;
+        private const int TIME_TO_USE_OTP_MINUTES = 5;
+        public EmailService(IConfiguration configuration, ILogger<EmailService> logger, IOTPRepository oTPRepository)
         {
             _logger = logger;
+            _OTPRepository = oTPRepository;
             var emailSettings = configuration.GetSection("EmailSettings");
 
             _fromEmail = emailSettings["FromEmail"];
@@ -34,6 +38,7 @@ namespace Infrastructure.Services
                 EnableSsl = bool.Parse(emailSettings["EnableSsl"] ?? "true"),
                 Timeout = 30000 // 30 seconds timeout
             };
+
         }
 
         private string GenerateOtpCode(int length = 6)
@@ -58,7 +63,18 @@ namespace Infrastructure.Services
                 string otpCode = GenerateOtpCode();
                 var subject = "Mã xác thực OTP";
                 string emailBody = CreateOtpEmailTemplate(otpCode);
-                return await SendEmailAsync(toEmail, subject, emailBody, true);
+               var otp = new OTP();
+                otp.ExpirationTime = DateTime.UtcNow;
+                otp.OTPCode = otpCode;
+                otp.PhoneNumber = null;
+                otp.Email = toEmail;
+                otp.ExpirationTime = TimeZoneInfo.ConvertTimeFromUtc(
+                    DateTime.UtcNow.AddMinutes(TIME_TO_USE_OTP_MINUTES),
+                    TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")
+                );
+                var res = await _OTPRepository.createOTP(otp);
+                if (res) return await SendEmailAsync(toEmail, subject, emailBody, true);
+               return false;
             }
             catch (Exception ex)
             {
