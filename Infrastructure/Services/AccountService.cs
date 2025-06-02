@@ -21,11 +21,14 @@ namespace Infrastructure.Services
         private const int AGE_TO_USE = 16;
         private readonly IAccountRepository _accountRepository;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
 
-        public AccountService(IAccountRepository accountRepository, ITokenService tokenService)
+
+        public AccountService(IAccountRepository accountRepository, ITokenService tokenService, IEmailService emailService)
         {
             _accountRepository = accountRepository;
             _tokenService = tokenService;
+            _emailService = emailService;
         }
 
         public async Task<LoginDTO> Login(LoginCommand loginCommand)
@@ -95,7 +98,7 @@ namespace Infrastructure.Services
             newAcc.Email = registerCommand.Email;
             newAcc.FirstName = registerCommand.FirstName;
             newAcc.LastName = registerCommand.LastName;
-            newAcc.Gender = (Domain.Enums.Gender)Enum.Parse(typeof(Domain.Enums.Gender), registerCommand.Gender);
+            newAcc.Gender = (Domain.Enums.Gender)Enum.Parse(typeof(Domain.Enums.Gender), registerCommand.Gender, true);
             newAcc.Image = "https://s3.amazonaws.com/37assets/svn/765-default-avatar.png";
             newAcc.Status = Domain.Enums.AccountStatus.Active;
             newAcc.Role = Domain.Enums.AccountRole.Student;
@@ -105,6 +108,7 @@ namespace Infrastructure.Services
   
 
             var res = await _accountRepository.RegisterAsync(newAcc);
+            await _emailService.SendWelcomeEmailAsync(newAcc.Email, newAcc.LastName);
             return res;
         }
     
