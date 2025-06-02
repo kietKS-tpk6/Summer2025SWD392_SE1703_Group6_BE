@@ -242,5 +242,7 @@
   </data>
   <data name="OTPIsEmpty" xml:space="preserve">
     <value>OTP không được để trống</value>
+  <data name="AssessmentCriteriaIDIsEmpty" xml:space="preserve">
+    <value>AssessmentCriteriaID không được để trống.</value>
   </data>
 </root>

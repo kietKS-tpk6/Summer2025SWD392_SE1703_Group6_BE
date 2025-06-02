@@ -14,5 +14,6 @@ namespace Application.Common.Constants
         public const string UpdateFail = "Cập nhật thất bại.";
         public const string DeleteSuccess = "Xóa thành công.";
         public const string DeleteFail = "Xóa thất bại.";
+        public const string NotFound = "Không tìm thấy dữ liệu.";
     }
 }

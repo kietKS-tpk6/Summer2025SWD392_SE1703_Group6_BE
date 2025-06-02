@@ -10,10 +10,10 @@ using Application.Validators;
 using MediatR;
 namespace Application.Usecases.CommandHandler
 {
-    public class AssessmentCriteriaCreateHandler : IRequestHandler<AssessmentCriteriaCreateCommand, bool>
+    public class AssessmentCriteriaCreateCommandHandler : IRequestHandler<AssessmentCriteriaCreateCommand, bool>
     {
         private readonly IAssessmentCriteriaService _assessmentCriteriaService;
-        public AssessmentCriteriaCreateHandler(IAssessmentCriteriaService assessmentCriteriaService)
+        public AssessmentCriteriaCreateCommandHandler(IAssessmentCriteriaService assessmentCriteriaService)
         {
             _assessmentCriteriaService = assessmentCriteriaService;
         }

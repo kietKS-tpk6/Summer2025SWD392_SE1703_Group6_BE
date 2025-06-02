@@ -55,6 +55,7 @@ namespace Application.Common.Constants
 
         
         //AssessmentCriteriaCreateCommand
+        public const string AssessmentCriteriaIDIsEmpty = "AssessmentCriteriaIDIsEmpty";
         public const string SyllabusIDIsEmpty = "SyllabusIDIsEmpty";
         public const string WeightPercentInvalid = "WeightPercentInvalid";
         public const string CategoryInvalid = "CategoryInvalid";

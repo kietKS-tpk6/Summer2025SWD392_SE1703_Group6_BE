@@ -88,6 +88,15 @@ namespace Application.Common.Constants {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AssessmentCriteriaID không được để trống..
+        /// </summary>
+        internal static string AssessmentCriteriaIDIsEmpty {
+            get {
+                return ResourceManager.GetString("AssessmentCriteriaIDIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Category không hợp lệ.
         /// </summary>
         internal static string CategoryInvalid {
