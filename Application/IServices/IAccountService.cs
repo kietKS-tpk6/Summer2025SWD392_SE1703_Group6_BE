@@ -13,8 +13,10 @@ namespace Application.IServices
         public Task<LoginDTO> Login(LoginCommand loginCommand);
 
         public Task<string> Register(RegisterCommand registerCommand);
-        
+
+        public Task<bool> VerifyOTPByEmail(VerifyOTPCommand verifyOTPCommand);
 
         
+
     }
 }

@@ -8,6 +8,7 @@ namespace Domain.Enums
 {
     public enum ClassStatus
     {
+        Pending,
         Open,
         Ongoing,
         Completed,

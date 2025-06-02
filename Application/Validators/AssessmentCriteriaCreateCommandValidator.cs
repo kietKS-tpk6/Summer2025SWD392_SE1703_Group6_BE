@@ -60,12 +60,6 @@ namespace Application.Validators
                .GreaterThanOrEqualTo(0)
                .WithErrorCode(nameof(ErrorCodes.MinPassingScoreInvalid))
                .WithMessage(ValidationMessages.MinPassingScoreInvalid);
-
-
-
-
-
-
         }
     }
 

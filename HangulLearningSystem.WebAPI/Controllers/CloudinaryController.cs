@@ -36,5 +36,17 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _cloudinaryService.UploadFileAsync(stream, file.FileName, "reading-question-images");
             return Ok(result);
         }
+        [HttpPost("upload-image-class")]
+        public async Task<IActionResult> UploadImageClass(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+            using var stream = file.OpenReadStream();
+
+            var result = await _cloudinaryService.UploadFileAsync(stream, file.FileName, "class-images");
+            return Ok(result);
+        }
     }
 }

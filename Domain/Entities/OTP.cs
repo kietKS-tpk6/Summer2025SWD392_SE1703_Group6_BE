@@ -12,14 +12,17 @@ namespace Domain.Entities
     {
         [Key]
         public int OTPID { get; set; }
+        [Required]
+        public string OTPCode { get; set; }
+
 
         [Phone]
         [MaxLength(15)]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         [EmailAddress]
         [MaxLength(50)]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         public DateTime ExpirationTime { get; set; }
 
