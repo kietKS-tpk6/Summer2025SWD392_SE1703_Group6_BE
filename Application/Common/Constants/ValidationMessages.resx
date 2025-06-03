@@ -162,4 +162,29 @@
   <data name="WeightPercentWrongType" xml:space="preserve">
     <value>WeightPercent phải là số hợp lệ</value>
   </data>
+  <data name="FirstNameInvalidLength" xml:space="preserve">
+    <value>Tên phải có từ 2-50 ký tự</value>
+  </data>
+  <data name="FirstNameIsEmpty" xml:space="preserve">
+    <value>Tên không được để trống</value>
+  </data>
+  <data name="LastNameInvalidLength" xml:space="preserve">
+    <value>Họ phải có từ 2-50 ký tự</value>
+  </data>
+  <data name="LastNameIsEmpty" xml:space="preserve">
+    <value>Họ không được để trống</value>
+  </data>
+  <data name="MaxStudentAcpInvalid" xml:space="preserve">
+    <value>Số sinh viên tối đa phải lớn hơn 0</value>
+  </data>
+  <data name="MaxLessThanMin" xml:space="preserve">
+    <value>Số sinh viên tối đa phải lớn hơn hoặc bằng số sinh viên tối thiểu</value>
+  </data>
+  <data name="OTPIsEmpty" xml:space="preserve">
+    
+	 <value>OTP không được để trống</value>
+	  </data>
+  <data name="AssessmentCriteriaIDIsEmpty" xml:space="preserve">
+    <value>AssessmentCriteriaID không được để trống.</value>
+  </data>
 </root>
