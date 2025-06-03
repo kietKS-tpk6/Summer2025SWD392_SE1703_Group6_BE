@@ -1,5 +1,4 @@
-﻿// 📄 Application/DTOs/PaymentDTO.cs
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
 using Domain.Enums;
 
@@ -7,7 +6,7 @@ namespace Application.DTOs
 {
     public class CreatePaymentRequestDTO
     {
-        public string AccountID { get; set; } // Student ID
+        public string AccountID { get; set; } 
         public string ClassID { get; set; }
         public string Description { get; set; }
     }
