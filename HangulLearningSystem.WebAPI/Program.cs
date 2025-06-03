@@ -14,12 +14,22 @@ builder.Services.AddInfrastructure(builder.Configuration);
 //Application
 builder.Services.AddApplication();
 builder.Services.AddControllers();
-// Swagger
+//Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+//CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .WithOrigins("http://localhost:5173") 
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+        );
+});
 var app = builder.Build();
-
+app.UseCors("AllowFrontend");
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
