@@ -34,8 +34,31 @@ namespace Infrastructure.Repositories
 
             return await _dbContext.Syllabus.CountAsync();
         }
+        public async Task<bool> ExistsSyllabusAsync(int syllabusId)
+        {
+            return await _dbContext.Syllabus.AnyAsync(s => s.SyllabusID == syllabusId);
+        }
 
+        public async Task<bool> UpdateSyllabusesAsync(Syllabus syllabus)
+        {
+            var existingSyllabus = await _dbContext.Syllabus
+                .FirstOrDefaultAsync(s => s.SyllabusID == syllabus.SyllabusID);
 
+            if (existingSyllabus == null)
+                return false;
+
+            existingSyllabus.SubjectID = syllabus.SubjectID;
+            existingSyllabus.UpdateBy = syllabus.UpdateBy;
+            existingSyllabus.UpdateAt = syllabus.UpdateAt;
+            existingSyllabus.Description = syllabus.Description;
+            existingSyllabus.Note = syllabus.Note;
+            existingSyllabus.Status = syllabus.Status;
+
+            _dbContext.Syllabus.Update(existingSyllabus);
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
 
     }
 }

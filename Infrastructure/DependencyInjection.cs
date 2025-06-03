@@ -26,6 +26,7 @@ namespace Infrastructure
             services.AddScoped<AssessmentCriteriaUpdateCommandHandler>();
             services.AddScoped<SendOTPViaEmailCommandHandler>();
             services.AddScoped<ClassCreateCommandHandler>();
+            services.AddScoped<CreateSyllabusesCommandHandler>();
             //Services 
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();

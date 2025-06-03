@@ -9,6 +9,8 @@ namespace Application.IServices
 {
     public interface ISyllabusesService
     {
-        public Task<string> createSyllabuses(CreateSyllabusesCommand createSyllabusesCommand); 
+        public Task<string> createSyllabuses(CreateSyllabusesCommand createSyllabusesCommand);
+        public Task<string> UpdateSyllabusesAsync(UpdateSyllabusesCommand updateSyllabusesCommand)
+
     }
 }

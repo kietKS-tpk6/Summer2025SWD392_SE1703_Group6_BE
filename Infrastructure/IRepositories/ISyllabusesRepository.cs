@@ -13,5 +13,8 @@ namespace Infrastructure.IRepositories
     {
         Task<int> GetNumbeOfSyllabusAsync();
         Task<bool> CreateSyllabusesAsync(Syllabus syllabus);
+
+        Task<bool> UpdateSyllabusesAsync(Syllabus syllabus);
+       Task<bool> ExistsSyllabusAsync(string  syllabusID);
     }
 }

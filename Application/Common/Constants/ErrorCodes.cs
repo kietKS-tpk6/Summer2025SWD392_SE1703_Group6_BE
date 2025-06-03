@@ -53,7 +53,9 @@ namespace Application.Common.Constants
         //OTP
         public const string OTPIsEmpty = "OTPIsEmpty";
 
-        
+        //Syllabus
+        public const string AccountIDIsEmpty = "AccountIDIsEmpty";
+
         //AssessmentCriteriaCreateCommand
         public const string AssessmentCriteriaIDIsEmpty = "AssessmentCriteriaIDIsEmpty";
         public const string SyllabusIDIsEmpty = "SyllabusIDIsEmpty";

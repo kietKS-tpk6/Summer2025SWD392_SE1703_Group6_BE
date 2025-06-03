@@ -65,22 +65,22 @@ namespace Infrastructure.Services
             var accByEmail = await _accountRepository.GetAccountsByEmailAsync(registerCommand.Email);
             if (accByEmail != null)
                 throw new ArgumentException("Email đã được sử dụng, vui lòng chọn email khác.");
+
             var accByPhone = await _accountRepository.GetAccountsByPhoneAsync(registerCommand.PhoneNumber);
             if (accByPhone != null)
                 throw new ArgumentException("Số điện thoại đã được sử dụng, vui lòng chọn số điện thoại khác.");
 
             var newAcc = new Account();
-
             var numberOfAcc = (await _accountRepository.GetNumbeOfAccountsAsync());
             string newAccountId = "A" + numberOfAcc.ToString("D5"); // D5 = 5 chữ số, vd: 00001
-            newAcc.AccountID = newAccountId;
 
+            newAcc.AccountID = newAccountId;
             newAcc.BirthDate = registerCommand.BirthDate;
             newAcc.PhoneNumber = registerCommand.PhoneNumber;
             newAcc.Email = registerCommand.Email;
             newAcc.FirstName = registerCommand.FirstName;
             newAcc.LastName = registerCommand.LastName;
-            newAcc.Gender = (Domain.Enums.Gender)Enum.Parse(typeof(Domain.Enums.Gender), registerCommand.Gender, true);
+            newAcc.Gender = NormalizeGender(registerCommand.Gender); // Chuẩn hóa gender
             newAcc.Image = "https://s3.amazonaws.com/37assets/svn/765-default-avatar.png";
             newAcc.Status = Domain.Enums.AccountStatus.Active;
             newAcc.Role = Domain.Enums.AccountRole.Student;
@@ -88,12 +88,37 @@ namespace Infrastructure.Services
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerCommand.Password);
             newAcc.HashPass = hashedPassword;
 
-
             var res = await _accountRepository.RegisterAsync(newAcc);
             await _emailService.SendWelcomeEmailAsync(newAcc.Email, newAcc.LastName);
             return res;
         }
 
+        /// <summary>
+        /// Chuẩn hóa Gender: viết hoa chữ cái đầu và parse thành enum
+        /// </summary>
+        /// <param name="gender">Gender string cần chuẩn hóa</param>
+        /// <returns>Gender enum đã được chuẩn hóa</returns>
+        private Domain.Enums.Gender NormalizeGender(string gender)
+        {
+            if (string.IsNullOrWhiteSpace(gender))
+                throw new ArgumentException("Giới tính không được để trống.");
+
+            // Trim và viết hoa chữ cái đầu
+            var normalizedGender = gender.Trim();
+            if (normalizedGender.Length > 0)
+            {
+                normalizedGender = char.ToUpper(normalizedGender[0]) + normalizedGender.Substring(1).ToLower();
+            }
+
+            // Parse thành enum với ignoreCase
+            if (Enum.TryParse<Domain.Enums.Gender>(normalizedGender, true, out var result))
+            {
+                return result;
+            }
+
+            // Nếu không parse được thì throw exception
+            throw new ArgumentException($"Giới tính '{gender}' không hợp lệ. Chỉ chấp nhận: Male, Female, Other.");
+        }
         public async Task<bool> VerifyOTPByEmail(VerifyOTPCommand verifyOTPCommand)
         {
             var otp = await _OTPRepository.getOTPViaEmailAndCodeAsync(verifyOTPCommand.Email, verifyOTPCommand.OTP);
