@@ -61,18 +61,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
         //        return StatusCode(500, new { message = $"Lỗi server: {ex.Message}" });
         //    }
         //}
-        [HttpGet("get-by-syllabus/{syllabusId}")]
-        public async Task<IActionResult> GetBySyllabusId(string syllabusId)
-        {
-            var result = await _assessmentCriteriaService.GetListBySyllabusIdAsync(syllabusId);
-
-            if (result == null || !result.Any())
-            {
-                return NotFound(new { message = OperationMessages.NotFound });
-            }
-
-            return Ok(result);
-        }
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
@@ -87,6 +75,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return NotFound(OperationMessages.DeleteFail);
             }
         }
+        [HttpGet("get-by-syllabus/{syllabusId}")]
+        public async Task<IActionResult> GetBySyllabusId(string syllabusId)
+        {
+            var result = await _assessmentCriteriaService.GetListBySyllabusIdAsync(syllabusId);
+
+            if (result == null || !result.Any())
+            {
+                return NotFound(new { message = OperationMessages.NotFound });
+            }
+
+            return Ok(result);
+        }
+     
 
 
     }
