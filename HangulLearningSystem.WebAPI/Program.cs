@@ -33,6 +33,20 @@ builder.Services.AddControllers();
 
 // Swagger - Chỉ cần một lần cấu hình
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+//CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+        );
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "HangulLearningSystem.WebAPI", Version = "v1" });
@@ -155,7 +169,7 @@ app.Use(async (context, next) =>
     }
 });
 
-// Global Exception Handler - IMPROVED
+// Global Exception Handler - FIXED
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
@@ -165,111 +179,133 @@ app.UseExceptionHandler(errorApp =>
         var environment = context.RequestServices.GetRequiredService<IWebHostEnvironment>();
 
         // Log tất cả exception với stack trace
-        logger.LogError(exception, "Exception occurred: {ExceptionType} | Message: {Message} | StackTrace: {StackTrace}",
-            exception?.GetType().Name, exception?.Message, exception?.StackTrace);
+        logger.LogError(exception, "Exception occurred: {ExceptionType} | Message: {Message}",
+            exception?.GetType().Name ?? "Unknown", exception?.Message ?? "No message");
 
         // Set default values
         context.Response.ContentType = "application/json";
 
-        switch (exception)
+        try
         {
-            case ValidationException validationException:
-                context.Response.StatusCode = 400;
-                var errors = validationException.Errors.Select(e => new
-                {
-                    Field = e.PropertyName,
-                    Message = e.ErrorMessage,
-                    Code = e.ErrorCode
-                });
+            switch (exception)
+            {
+                case ValidationException validationException:
+                    context.Response.StatusCode = 400;
 
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    Message = "Validation failed",
-                    Errors = errors,
-                    Timestamp = DateTime.UtcNow
-                });
-                break;
-
-            case UnauthorizedAccessException unauthorizedException:
-                context.Response.StatusCode = 401;
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    Message = "Email hoặc mật khẩu không đúng.",
-                    Detail = environment.IsDevelopment() ? unauthorizedException.Message : null,
-                    Timestamp = DateTime.UtcNow
-                });
-                break;
-
-            case ArgumentException argEx:
-                context.Response.StatusCode = 400;
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    Message = "Invalid argument",
-                    Detail = environment.IsDevelopment() ? argEx.Message : "Bad request",
-                    Timestamp = DateTime.UtcNow
-                });
-                break;
-
-            case KeyNotFoundException keyNotFoundEx:
-                context.Response.StatusCode = 404;
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    Message = "Resource not found",
-                    Detail = environment.IsDevelopment() ? keyNotFoundEx.Message : null,
-                    Timestamp = DateTime.UtcNow
-                });
-                break;
-
-            // Thêm các exception type khác
-            case TimeoutException timeoutEx:
-                context.Response.StatusCode = 408;
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    Message = "Request timeout",
-                    Detail = environment.IsDevelopment() ? timeoutEx.Message : "The request took too long to process",
-                    Timestamp = DateTime.UtcNow
-                });
-                break;
-
-            case NotImplementedException notImplEx:
-                context.Response.StatusCode = 501;
-                await context.Response.WriteAsJsonAsync(new
-                {
-                    Message = "Feature not implemented",
-                    Detail = environment.IsDevelopment() ? notImplEx.Message : "This feature is not yet available",
-                    Timestamp = DateTime.UtcNow
-                });
-                break;
-
-            // DEFAULT CASE - QUAN TRỌNG: Vẫn hiển thị thông tin lỗi
-            default:
-                context.Response.StatusCode = 500;
-
-                // Tạo response với thông tin đầy đủ
-                var errorResponse = new
-                {
-                    Message = "An internal server error occurred",
-                    ErrorType = exception?.GetType().Name ?? "Unknown",
-                    Detail = environment.IsDevelopment()
-                        ? exception?.Message
-                        : "Please contact support if the problem persists",
-
-                    // Thêm thông tin debug trong Development
-                    Debug = environment.IsDevelopment() ? new
+                    var errors = new List<object>();
+                    if (validationException.Errors != null)
                     {
-                        FullException = exception?.ToString(),
-                        StackTrace = exception?.StackTrace,
-                        InnerException = exception?.InnerException?.Message,
-                        Source = exception?.Source,
-                        TargetSite = exception?.TargetSite?.Name
-                    } : null,
+                        errors = validationException.Errors.Select(e => new
+                        {
+                            Field = e?.PropertyName ?? "Unknown",
+                            Message = e?.ErrorMessage ?? "Validation error",
+                            Code = e?.ErrorCode ?? "ValidationError"
+                        }).ToList<object>();
+                    }
 
-                    TrackingId = Activity.Current?.Id ?? context.TraceIdentifier,
-                    Timestamp = DateTime.UtcNow
-                };
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        Message = "Validation failed",
+                        Errors = errors,
+                        Timestamp = DateTime.UtcNow
+                    });
+                    break;
 
-                await context.Response.WriteAsJsonAsync(errorResponse);
-                break;
+                case UnauthorizedAccessException unauthorizedException:
+                    context.Response.StatusCode = 401;
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        Message = "Email hoặc mật khẩu không đúng.",
+                        Detail = environment.IsDevelopment() ? (unauthorizedException.Message ?? "Unauthorized access") : null,
+                        Timestamp = DateTime.UtcNow
+                    });
+                    break;
+
+                case ArgumentException argEx:
+                    context.Response.StatusCode = 400;
+
+                    // Log chi tiết để debug
+                    logger.LogError("ArgumentException caught - Message: '{Message}', ParamName: '{ParamName}', StackTrace: {StackTrace}",
+                        argEx.Message ?? "NULL", argEx.ParamName ?? "NULL", argEx.StackTrace);
+
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        Message = "Invalid argument",
+                        Detail = environment.IsDevelopment() ? (argEx.Message ?? "Invalid argument provided") : "Bad request",
+                        Parameter = environment.IsDevelopment() ? argEx.ParamName : null,
+                        StackTrace = environment.IsDevelopment() ? argEx.StackTrace : null,
+                        Timestamp = DateTime.UtcNow
+                    });
+                    break;
+
+                case KeyNotFoundException keyNotFoundEx:
+                    context.Response.StatusCode = 404;
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        Message = "Resource not found",
+                        Detail = environment.IsDevelopment() ? (keyNotFoundEx.Message ?? "The requested resource was not found") : null,
+                        Timestamp = DateTime.UtcNow
+                    });
+                    break;
+
+                case TimeoutException timeoutEx:
+                    context.Response.StatusCode = 408;
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        Message = "Request timeout",
+                        Detail = environment.IsDevelopment() ? (timeoutEx.Message ?? "Request timed out") : "The request took too long to process",
+                        Timestamp = DateTime.UtcNow
+                    });
+                    break;
+
+                case NotImplementedException notImplEx:
+                    context.Response.StatusCode = 501;
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        Message = "Feature not implemented",
+                        Detail = environment.IsDevelopment() ? (notImplEx.Message ?? "Feature not implemented") : "This feature is not yet available",
+                        Timestamp = DateTime.UtcNow
+                    });
+                    break;
+
+                // DEFAULT CASE - IMPROVED
+                default:
+                    context.Response.StatusCode = 500;
+
+                    var errorResponse = new
+                    {
+                        Message = "An internal server error occurred",
+                        ErrorType = exception?.GetType().Name ?? "Unknown",
+                        Detail = environment.IsDevelopment()
+                            ? (exception?.Message ?? "An unexpected error occurred")
+                            : "Please contact support if the problem persists",
+
+                        // Thêm thông tin debug trong Development
+                        Debug = environment.IsDevelopment() ? new
+                        {
+                            FullException = exception?.ToString() ?? "No exception details",
+                            StackTrace = exception?.StackTrace ?? "No stack trace",
+                            InnerException = exception?.InnerException?.Message,
+                            Source = exception?.Source,
+                            TargetSite = exception?.TargetSite?.Name
+                        } : null,
+
+                        TrackingId = Activity.Current?.Id ?? context.TraceIdentifier,
+                        Timestamp = DateTime.UtcNow
+                    };
+
+                    await context.Response.WriteAsJsonAsync(errorResponse);
+                    break;
+            }
+        }
+        catch (Exception serializationEx)
+        {
+            // Fallback nếu có lỗi khi serialize JSON
+            logger.LogError(serializationEx, "Error serializing exception response");
+
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "text/plain";
+            await context.Response.WriteAsync("Internal server error occurred");
         }
     });
 });
@@ -301,6 +337,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// CORS middleware - Đặt trước Authentication
+app.UseCors("AllowFrontend");
 
 // Middleware để handle các HTTP status codes khác (không phải exception)
 app.Use(async (context, next) =>

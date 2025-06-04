@@ -54,6 +54,7 @@ namespace Infrastructure.Services
                 throw new ArgumentNullException(nameof(updateSyllabusesCommand));
             var checkSyl = await _iSyllabusesRepository.ExistsSyllabusAsync(updateSyllabusesCommand.SyllabusID);
             if (!checkSyl) return "Chương trình học không tồn tại.";
+
             var normalizedStatus = NormalizeStatus(updateSyllabusesCommand.Status);
             var numberOfSyllabuses = await _iSyllabusesRepository.GetNumbeOfSyllabusAsync();
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");

@@ -6,10 +6,10 @@ public class AssessmentCriteriaUpdateCommandValidator : AbstractValidator<Assess
 {
     public AssessmentCriteriaUpdateCommandValidator()
     {
-        RuleFor(x => x.AssessmentCriteriaID)
-            .NotEmpty()
-            .WithErrorCode(nameof(ErrorCodes.AssessmentCriteriaIDIsEmpty))
-            .WithMessage(ValidationMessages.AssessmentCriteriaIDIsEmpty);
+        //RuleFor(x => x.AssessmentCriteriaID)
+        //    .NotEmpty()
+        //    .WithErrorCode(nameof(ErrorCodes.AssessmentCriteriaIDIsEmpty))
+        //    //.WithMessage(ValidationMessages.AssessmentCriteriaIDIsEmpty);
 
         RuleFor(x => x.SyllabusID)
             .NotEmpty()

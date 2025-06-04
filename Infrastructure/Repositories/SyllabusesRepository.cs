@@ -34,9 +34,9 @@ namespace Infrastructure.Repositories
 
             return await _dbContext.Syllabus.CountAsync();
         }
-        public async Task<bool> ExistsSyllabusAsync(int syllabusId)
+        public async Task<bool> ExistsSyllabusAsync(string syllabusId)
         {
-            return await _dbContext.Syllabus.AnyAsync(s => s.SyllabusID == syllabusId);
+            return await _dbContext.Syllabus.AnyAsync(s => s.SyllabusID.Equals(syllabusId));
         }
 
         public async Task<bool> UpdateSyllabusesAsync(Syllabus syllabus)

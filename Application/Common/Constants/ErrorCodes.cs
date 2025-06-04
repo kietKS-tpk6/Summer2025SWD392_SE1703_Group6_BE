@@ -79,7 +79,7 @@ namespace Application.Common.Constants
         public const string MinStudentAcpInvalid = "MinStudentAcpInvalid";
         public const string MaxStudentAcpInvalid = "MaxStudentAcpInvalid";
         public const string MaxLessThanMin = "MaxLessThanMin";
-
+        public const string ClassIDIsEmpty = "ClassIDIsEmpty";
 
 
     }

@@ -25,6 +25,6 @@ namespace Domain.Entities
 
         public DateTime CreateAt { get; set; }
 
-        public float MinAverageScoreToPass { get; set; }
+        public double MinAverageScoreToPass { get; set; }
     }
 }

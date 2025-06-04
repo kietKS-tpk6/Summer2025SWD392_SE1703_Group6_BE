@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediatR;
 
 namespace Application.Usecases.Command
 {
-    public class UpdateSyllabusesCommand
+    public class UpdateSyllabusesCommand : IRequest<string>
     {
         public string SyllabusID { get; set; }
         public string SubjectID { get; set; }
