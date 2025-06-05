@@ -15,10 +15,13 @@ namespace Infrastructure.Services
     public class SyllabusesService : ISyllabusesService
     {
         private readonly ISyllabusesRepository _iSyllabusesRepository;
+        private readonly ISubjectRepository _iSubjectRepository;
 
-        public SyllabusesService(ISyllabusesRepository syllabusesRepository)
+
+        public SyllabusesService(ISyllabusesRepository syllabusesRepository, ISubjectRepository subjectRepository)
         {
             _iSyllabusesRepository = syllabusesRepository;
+            _iSubjectRepository = subjectRepository;
         }
 
         public async Task<string> createSyllabuses(CreateSyllabusesCommand createSyllabusesCommand)
@@ -27,7 +30,10 @@ namespace Infrastructure.Services
                 throw new ArgumentNullException(nameof(createSyllabusesCommand));
 
             var numberOfSyllabuses = (await _iSyllabusesRepository.GetNumbeOfSyllabusAsync());
-
+            
+            if(!await _iSubjectRepository.SubjectExistsAsync(createSyllabusesCommand.SubjectID))
+                return "Môn học không tồn tại.";
+           
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
 
@@ -54,6 +60,9 @@ namespace Infrastructure.Services
                 throw new ArgumentNullException(nameof(updateSyllabusesCommand));
             var checkSyl = await _iSyllabusesRepository.ExistsSyllabusAsync(updateSyllabusesCommand.SyllabusID);
             if (!checkSyl) return "Chương trình học không tồn tại.";
+
+            if (!await _iSubjectRepository.SubjectExistsAsync(updateSyllabusesCommand.SubjectID))
+                return "Môn học không tồn tại.";
 
             var normalizedStatus = NormalizeStatus(updateSyllabusesCommand.Status);
             var numberOfSyllabuses = await _iSyllabusesRepository.GetNumbeOfSyllabusAsync();
@@ -86,24 +95,18 @@ namespace Infrastructure.Services
             if (string.IsNullOrWhiteSpace(status))
                 return Domain.Enums.SyllabusStatus.Drafted;
 
-            // Viết hoa chữ cái đầu và trim
-            var normalizedStatus = status.Trim();
-            if (normalizedStatus.Length > 0)
-            {
-                normalizedStatus = char.ToUpper(normalizedStatus[0]) + normalizedStatus.Substring(1).ToLower();
-            }
+            var trimmedStatus = status.Trim();
 
-            // Parse thành enum
-            if (Enum.TryParse<Domain.Enums.SyllabusStatus>(normalizedStatus, out var result))
+            // Thử parse trực tiếp với IgnoreCase để chấp nhận các biến thể như DrAftEd, DRAFTED, drafted
+            if (Enum.TryParse<Domain.Enums.SyllabusStatus>(trimmedStatus, ignoreCase: true, out var result))
             {
                 return result;
             }
 
-            // Nếu không parse được thì trả về Drafted
-            return Domain.Enums.SyllabusStatus.Drafted;
+            // Nếu không parse được thì báo lỗi
+            throw new ArgumentException($"Status '{status}' không hợp lệ");
         }
 
-       
 
     }
 }

@@ -9,9 +9,11 @@ namespace Application.Common.Constants
     public static class ValidationMessages
     {
         // Email
+        public const string AccountIDIsEmpty = "AccountID không được để trống.";
         public const string EmailIsEmpty = "Email không được để trống.";
         public const string EmailInvalidFormat = "Email không đúng định dạng.";
         public const string EmailTooLong = "Email không được vượt quá 254 ký tự.";
+        
 
         // Password
         public const string PasswordIsEmpty = "Mật khẩu không được để trống.";
