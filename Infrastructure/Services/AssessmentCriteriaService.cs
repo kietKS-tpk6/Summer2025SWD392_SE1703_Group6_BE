@@ -63,6 +63,7 @@ namespace Infrastructure.Services
                 PageSize = pageSize
             };
         }
+
         public async Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId)
         {
             return await _assessmentCriteriaRepository.GetListBySyllabusIdAsync(syllabusId);
