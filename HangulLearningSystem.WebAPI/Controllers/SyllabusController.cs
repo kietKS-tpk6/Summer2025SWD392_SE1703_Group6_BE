@@ -56,5 +56,13 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
             return Ok(result);
         }
+
+        [Authorize(Roles = "Manager")]
+        [HttpPost("create-account")]
+        public async Task<IActionResult> CreateAccountByManager([FromBody] CreateAccountCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
     }
 }

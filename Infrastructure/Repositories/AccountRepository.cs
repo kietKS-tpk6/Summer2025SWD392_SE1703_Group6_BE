@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Shared;
 using Application.DTOs;
 using Application.Usecases.Command;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 namespace Infrastructure.Repositories
 {
     public class AccountRepository: IAccountRepository
@@ -73,11 +76,93 @@ namespace Infrastructure.Repositories
 
             return account.HashPass;
         }
-        public async Task<string> RegisterAsync(Account account)
+        public async Task<bool> CreateAccountAsync(Account account)
         {
             await _dbContext.Accounts.AddAsync(account);
             await _dbContext.SaveChangesAsync();
-            return "Đăng ký thành công.";
+            return true;
+        }
+        //  Task<(List<AssessmentCriteriaDTO> Items, int TotalCount)> GetPaginatedListAsync(int page, int pageSize);
+
+        //public async Task<PagedResult<AccountForManageDTO>> GetPaginatedAccountListAsync(int page, int pageSize, string role)
+        //{
+        //    var query = _dbContext.Accounts.AsQueryable();
+
+        //    // Filter theo role nếu role không null/empty
+        //    if (!string.IsNullOrEmpty(role))
+        //    {
+        //        if (Enum.TryParse<AccountRole>(role, true, out var roleEnum))
+        //        {
+        //            query = query.Where(x => x.Role == roleEnum);
+        //        }
+        //    }
+
+        //    var totalItems = await query.CountAsync();
+        //    var items = await query
+        //        .Skip((page - 1) * pageSize)
+        //        .Take(pageSize)
+        //        .Select(x => new AccountForManageDTO
+        //        {
+        //            LastName = x.LastName,
+        //            FirstName = x.FirstName,
+        //            Gender = x.Gender,
+        //            PhoneNumber = x.PhoneNumber,
+        //            Email = x.Email,
+        //            BirthDate = x.BirthDate,
+        //            Role = x.Role
+        //        })
+        //        .ToListAsync();
+
+        //    return new PagedResult<AccountForManageDTO>
+        //    {
+        //        Items = items,
+        //        TotalItems = totalItems,
+        //        PageNumber = page,
+        //        PageSize = pageSize
+        //    };
+        //}
+
+        public async Task<(List<AccountForManageDTO> Items, int TotalCount)> GetPaginatedAccountListAsync(int page, int pageSize, AccountRole? role = null, Gender? gender = null, AccountStatus? status = null)
+        {
+            var query = _dbContext.Accounts.AsQueryable();
+
+            // Filter theo role nếu role có giá trị
+            if (role.HasValue)
+            {
+                query = query.Where(x => x.Role == role.Value);
+            }
+
+            // Filter theo gender nếu gender có giá trị
+            if (gender.HasValue)
+            {
+                query = query.Where(x => x.Gender == gender.Value);
+            }
+
+            // Filter theo status nếu status có giá trị
+            if (status.HasValue)
+            {
+                query = query.Where(x => x.Status == status.Value);
+            }
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new AccountForManageDTO
+                {
+                    LastName = x.LastName,
+                    FirstName = x.FirstName,
+                    Gender = x.Gender,
+                    PhoneNumber = x.PhoneNumber,
+                    Email = x.Email,
+                    BirthDate = x.BirthDate,
+                    Role = x.Role,
+                    status = x.Status  // Thêm Status vào DTO nếu cần
+                })
+                .ToListAsync();
+
+            return (items, totalItems);
         }
     }
 }
