@@ -59,6 +59,9 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Class.CountAsync();
         }
+        
+
+
     }
 
 }

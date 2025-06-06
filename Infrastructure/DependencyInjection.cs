@@ -1,4 +1,5 @@
-﻿using Application.IServices;
+﻿using Application.DTOs;
+using Application.IServices;
 using Application.Usecases.CommandHandler;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
@@ -28,7 +29,7 @@ namespace Infrastructure
             services.AddScoped<SendOTPViaEmailCommandHandler>();
             services.AddScoped<ClassCreateCommandHandler>();
             //Services 
-               
+            
 
             // Services - Business logic cho Read operations
             services.AddScoped<IAccountService, AccountService>();
@@ -38,6 +39,9 @@ namespace Infrastructure
             services.AddScoped<ISyllabusesService, SyllabusesService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IClassService, ClassService>();
+            services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IEnrollmentService, EnrollmentService>();
+
             //Repositories
             services.AddScoped<ISubjectService, SubjectService>(); 
 
@@ -48,11 +52,17 @@ namespace Infrastructure
             services.AddScoped<IClassRepository, ClassRepository>();
             services.AddScoped<IOTPRepository, OTPRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
+
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
+
+            services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));
 
             return services;
         }
