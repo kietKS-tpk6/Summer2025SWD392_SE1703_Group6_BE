@@ -76,7 +76,10 @@ namespace Application.Common.Constants
         public const string MaxStudentAcpInvalid = "Số sinh viên tối đa phải lớn hơn 0.";
         public const string MaxLessThanMin = "Số sinh viên tối đa phải lớn hơn hoặc bằng số sinh viên tối thiểu.";
         public const string ClassIDIsEmpty = "ClassID không được để trống.";
-
+        //Lesson
+        public const string ClassLessonIDIsEmpty = "ClassLessonIDIsEmpty";
+        public const string SyllabusScheduleIDIsEmpty = "SyllabusScheduleID không được để trống.";
+        public const string LessonStartTimeInvalid = "Thời gian bắt đầu buổi học phải lớn hơn thời điểm hiện tại.";
         // General
         public const string UserNotFound = "Người dùng không tồn tại.";
     }

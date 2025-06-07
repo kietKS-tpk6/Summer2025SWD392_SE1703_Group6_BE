@@ -33,7 +33,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         }
 
         [HttpGet("get-all")]
-        public async Task<ActionResult<List<SubjectDTO>>> GetAllSubjects([FromQuery] bool? isActive = null)
+        public async Task<ActionResult<List<SubjectDTO>>> GetAllSubjects([FromQuery] bool? isActive = true)
         {
             var subjects = await _subjectService.GetAllSubjectsAsync(isActive);
             return Ok(subjects);

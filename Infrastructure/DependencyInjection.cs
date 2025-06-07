@@ -18,20 +18,31 @@ namespace Infrastructure
             // Database Context
             services.AddDbContext<HangulLearningSystemDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-             //Hash
-            //services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
             //CommandHandler 
+                //Authent
             services.AddScoped<LoginCommandHandler>();
             services.AddScoped<RegisterCommandHandler>();
-                //AssessmentCriteria
+                //Subject
+            services.AddScoped<CreateSubjectCommandHandler>();
+            services.AddScoped<UpdateSubjectCommandHandler>();
+            services.AddScoped<DeleteSubjectCommandHandler>();
+                //AssessmentCriteria 
             services.AddScoped<AssessmentCriteriaCreateCommandHandler>();
             services.AddScoped<AssessmentCriteriaUpdateCommandHandler>();
             services.AddScoped<SendOTPViaEmailCommandHandler>();
+                //Class
             services.AddScoped<ClassCreateCommandHandler>();
+            services.AddScoped<ClassUpdateCommandHandler>();
+                //Lesson
+            services.AddScoped<LessonCreateCommandHandler>();
+            services.AddScoped<LessonUpdateCommandHandler>();
+            //Other
+            services.AddScoped<SendOTPViaEmailCommandHandler>();
             services.AddScoped<CreateSyllabusesCommandHandler>();
             services.AddScoped<SyllabusScheduleCreateCommandHandler>();
 
             //Services 
+            services.AddScoped<ILessonService, LessonService>();
 
 
             // Services - Business logic cho Read operations
@@ -42,18 +53,19 @@ namespace Infrastructure
             services.AddScoped<ISyllabusesService, SyllabusesService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IClassService, ClassService>();
+            services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<ISyllabusScheduleService, SyllabusScheduleService>();
 
             //Repositories
-            services.AddScoped<ISubjectService, SubjectService>(); 
-
-            // Repositories - Data access layer
+            services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ISyllabusesRepository, SyllabusesRepository>();
             services.AddScoped<IAssessmentCriteriaRepository, AssessmentCriteriaRepository>();
             services.AddScoped<IClassRepository, ClassRepository>();
             services.AddScoped<IOTPRepository, OTPRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
+          
+
             services.AddScoped<ISyllabusScheduleRepository, SyllabusScheduleRepository>();
 
 
