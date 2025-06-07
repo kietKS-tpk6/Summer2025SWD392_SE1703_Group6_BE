@@ -1,0 +1,47 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Infrastructure.Data;
+using Infrastructure.IRepositories;
+using Microsoft.EntityFrameworkCore;
+using Domain.Enums;
+using Application.DTOs;
+namespace Infrastructure.Repositories
+{
+    public class SyllabusScheduleRepository : ISyllabusScheduleRepository
+    {
+        private readonly HangulLearningSystemDbContext _dbContext;
+
+        public SyllabusScheduleRepository(HangulLearningSystemDbContext context)
+        {
+            _dbContext = context;
+        }
+
+        public async Task<List<int>> GetWeeksBySubjectIdAsync(string syllabusId)
+        {
+            var weeks = await _dbContext.SyllabusSchedule
+                .Where(s => s.SyllabusID == syllabusId)
+                .Select(s => s.Week)
+                .ToListAsync();
+
+            return weeks;
+        }
+
+        public async Task<List<SyllabusScheduleCreateLessonDTO>> GetPublishedSchedulesBySyllabusIdAsync(string syllabusId)
+        {
+            var result = await _dbContext.SyllabusSchedule
+                .Where(ss => ss.SyllabusID == syllabusId)
+                .Select(ss => new SyllabusScheduleCreateLessonDTO
+                {
+                    SyllabusScheduleId = ss.SyllabusScheduleID,
+                    Week = ss.Week,
+                    DurationMinutes = ss.DurationMinutes
+                })
+                .ToListAsync();
+
+            return result;
+        }
+    }
+}
