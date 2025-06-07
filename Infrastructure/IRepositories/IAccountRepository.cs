@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.DTOs;
 using Application.Usecases.Command;
 using Domain.Entities;
+using Domain.Enums;
 namespace Infrastructure.IRepositories
 {
     public interface IAccountRepository
@@ -16,10 +17,10 @@ namespace Infrastructure.IRepositories
 
         Task<Account?> GetAccountsByPhoneAsync(string phone);
 
-        Task<string> RegisterAsync(Account account);
+        Task<bool> CreateAccountAsync(Account account);
 
         Task<int> GetNumbeOfAccountsAsync();
-
+        Task<(List<AccountForManageDTO> Items, int TotalCount)> GetPaginatedAccountListAsync(int page, int pageSize, AccountRole? role = null, Gender? gender = null, AccountStatus? status = null);
         Task<List<Account>> GetAllAccountsAsync();
     }
 }

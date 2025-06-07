@@ -24,7 +24,7 @@ namespace Infrastructure.Services
             _iSubjectRepository = subjectRepository;
         }
 
-        public async Task<string> createSyllabuses(CreateSyllabusesCommand createSyllabusesCommand)
+        public async Task<bool> createSyllabuses(CreateSyllabusesCommand createSyllabusesCommand)
         {
             if (createSyllabusesCommand == null)
                 throw new ArgumentNullException(nameof(createSyllabusesCommand));
@@ -32,8 +32,8 @@ namespace Infrastructure.Services
             var numberOfSyllabuses = (await _iSyllabusesRepository.GetNumbeOfSyllabusAsync());
             
             if(!await _iSubjectRepository.SubjectExistsAsync(createSyllabusesCommand.SubjectID))
-                return "Môn học không tồn tại.";
-           
+                throw new ArgumentNullException("Môn học không tồn tại.");
+
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
 
@@ -50,8 +50,8 @@ namespace Infrastructure.Services
 
 
             if (await _iSyllabusesRepository.CreateSyllabusesAsync(syl))
-                return "Tạo chương trình học thành công";
-            return "Có lỗi xảy ra khi tạo chương trình học";
+                return true;
+            return false;
         }
 
         public async Task<string> UpdateSyllabusesAsync(UpdateSyllabusesCommand updateSyllabusesCommand)

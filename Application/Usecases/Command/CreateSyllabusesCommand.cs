@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Application.Usecases.Command
 {
-    public class CreateSyllabusesCommand : IRequest<string>
+    public class CreateSyllabusesCommand : IRequest<bool>
     {
         public string SubjectID { get; set;}
 

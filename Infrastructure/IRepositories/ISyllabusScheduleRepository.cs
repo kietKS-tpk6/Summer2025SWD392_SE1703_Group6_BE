@@ -13,6 +13,8 @@ namespace Infrastructure.IRepositories
         Task<List<int>> GetWeeksBySubjectIdAsync(string syllabusId);
         Task<List<SyllabusScheduleCreateLessonDTO>> GetPublishedSchedulesBySyllabusIdAsync(string syllabusId);
       
+        Task<bool> CreateSyllabusesScheduleAsync(SyllabusSchedule syllabusSchedule);
+        Task<int> GetNumbeOfSyllabusScheduleAsync();
 
     }
 }

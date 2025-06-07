@@ -73,7 +73,8 @@ namespace Infrastructure.Repositories
                 var subject = await GetSubjectByIdAsync(subjectId);
                 if (subject != null)
                 {
-                    _dbContext.Subject.Remove(subject);
+                    subject.IsActive = false;
+                    _dbContext.Subject.Update(subject); 
                     await _dbContext.SaveChangesAsync();
                     return "Subject deleted successfully";
                 }

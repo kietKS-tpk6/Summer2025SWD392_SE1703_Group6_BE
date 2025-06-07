@@ -11,14 +11,14 @@ using MediatR;
 namespace Application.Usecases.CommandHandler
 {
     
-        public class CreateSyllabusesCommandHandler : IRequestHandler<CreateSyllabusesCommand, string>
+        public class CreateSyllabusesCommandHandler : IRequestHandler<CreateSyllabusesCommand, bool>
         {
             private readonly ISyllabusesService _syslabusesService;
             public CreateSyllabusesCommandHandler(ISyllabusesService syllabusesService)
             {
             _syslabusesService = syllabusesService;
             }
-            public async Task<string> Handle(CreateSyllabusesCommand req, CancellationToken cancellationToken)
+            public async Task<bool> Handle(CreateSyllabusesCommand req, CancellationToken cancellationToken)
             {
                 var res = await _syslabusesService.createSyllabuses(req);
                 return res;

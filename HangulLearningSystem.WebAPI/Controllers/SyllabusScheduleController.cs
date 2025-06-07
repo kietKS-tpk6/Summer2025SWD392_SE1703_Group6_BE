@@ -1,4 +1,6 @@
-﻿using Application.IServices;
+﻿using Application.Usecases.Command;
+using MediatR;
+using Application.IServices;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 namespace HangulLearningSystem.WebAPI.Controllers
@@ -14,11 +16,17 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
             _syllabusScheduleService = syllabusScheduleService;
         }
+        [HttpPost("create-syllabus-schedule")]
+        public async Task<IActionResult> CreateAccountByManager([FromBody] SyllabusScheduleCreateCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
+        }
         [HttpGet("max-slot/{syllabusId}")]
         public async Task<IActionResult> GetMaxSlotPerWeek(string syllabusId)
         {
             if (string.IsNullOrEmpty(syllabusId))
-            {
+        {
                 return BadRequest("SubjectId không được để trống.");
             }
 
@@ -26,6 +34,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(maxSlot);
         }
-
+      
     }
 }

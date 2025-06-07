@@ -1,4 +1,5 @@
 ﻿using Application.IServices;
+using Application.Usecases.Command;
 using Application.Usecases.CommandHandler;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
@@ -38,8 +39,14 @@ namespace Infrastructure
             services.AddScoped<LessonCreateFromScheduleCommandHandler>();
             //Other
             services.AddScoped<SendOTPViaEmailCommandHandler>();
+            services.AddScoped<CreateSyllabusesCommandHandler>();
+            services.AddScoped<SyllabusScheduleCreateCommandHandler>();
+
             //Services 
             services.AddScoped<ILessonService, LessonService>();
+
+
+            // Services - Business logic cho Read operations
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IAssessmentCriteriaService, AssessmentCriteriaService>();
@@ -60,6 +67,16 @@ namespace Infrastructure
             services.AddScoped<ISyllabusScheduleRepository, SyllabusScheduleRepository>();
           
 
+            services.AddScoped<ISyllabusScheduleRepository, SyllabusScheduleRepository>();
+
+
+            //CommandHandler
+            services.AddScoped<CreateSubjectCommandHandler>();
+            services.AddScoped<UpdateSubjectCommandHandler>();
+            services.AddScoped<DeleteSubjectCommandHandler>();
+            services.AddScoped<SyllabusScheduleCreateCommand>();
+            
+                            
             return services;
         }
     }

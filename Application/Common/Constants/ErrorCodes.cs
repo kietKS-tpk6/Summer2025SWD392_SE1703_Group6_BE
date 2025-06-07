@@ -8,9 +8,12 @@ namespace Application.Common.Constants
 {
     public  class ErrorCodes
     {
+
+        
+            public const string DataIsEmpty = "DataIsEmpty";
         //LoginCommand
 
-            public const string EmailIsEmpty = "EmailIsEmpty";
+        public const string EmailIsEmpty = "EmailIsEmpty";
             public const string EmailIsNull = "EmailIsNull";
             public const string EmailInvalidFormat = "EmailInvalidFormat";
 
