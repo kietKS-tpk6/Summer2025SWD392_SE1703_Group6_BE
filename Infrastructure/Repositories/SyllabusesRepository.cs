@@ -59,6 +59,9 @@ namespace Infrastructure.Repositories
 
             return true;
         }
-
+        public async Task<bool> SyllabusIdExistsAsync(string syllabusId)
+        {
+            return await _dbContext.Syllabus.AnyAsync(s => s.SyllabusID == syllabusId);
+        }
     }
 }

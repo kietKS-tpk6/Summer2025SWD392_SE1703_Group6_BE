@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Domain.Entities;
+
+namespace Infrastructure.IRepositories
+{
+    public interface ISyllabusScheduleRepository
+    {
+        Task<bool> CreateSyllabusesScheduleAsync(SyllabusSchedule syllabusSchedule);
+        Task<int> GetNumbeOfSyllabusScheduleAsync();
+
+    }
+}
