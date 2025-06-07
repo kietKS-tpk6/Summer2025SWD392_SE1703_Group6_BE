@@ -12,6 +12,7 @@ namespace Infrastructure.IRepositories
     {
         Task<List<Class>> GetAllAsync();
         Task<Class?> GetByIdAsync(string id);
+        Task<ClassCreateLessonDTO> GetClassCreateLessonDTOByIdAsync(string id);
         Task<bool> CreateAsync(Class classCreate);
         Task<bool> UpdateAsync(Class classUpdate);
         Task<bool> DeleteAsync(string id);

@@ -273,6 +273,21 @@ namespace Infrastructure.Repositories
 
             return result;
         }
+        public async Task<ClassCreateLessonDTO?> GetClassCreateLessonDTOByIdAsync(string classId)
+        {
+            var result = await (from c in _dbContext.Class
+                                join s in _dbContext.Syllabus
+                                  on c.SubjectID equals s.SubjectID
+                                where c.ClassID == classId && s.Status == SyllabusStatus.Published
+                                select new ClassCreateLessonDTO
+                                {
+                                    SubjectId = c.SubjectID,
+                                    LecturerID = c.LecturerID,
+                                    SyllabusID = s.SyllabusID
+                                }).FirstOrDefaultAsync();
+
+            return result;
+        }
 
 
 
