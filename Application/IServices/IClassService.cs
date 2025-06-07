@@ -17,5 +17,8 @@ namespace Application.IServices
         Task<bool> IsClassAvailableForEnrollmentAsync(string classId);
         Task<int> GetAvailableSlotsAsync(string classId);
 
+        Task<List<ClassDetailForPaymentDTO>> GetAllClassesForPaymentAsync();
+        Task<ClassDetailForPaymentDTO> GetClassDetailForPaymentAsync(string classId);
+
     }
 }

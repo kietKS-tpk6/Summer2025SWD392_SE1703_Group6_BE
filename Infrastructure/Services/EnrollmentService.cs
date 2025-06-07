@@ -108,7 +108,6 @@ namespace Infrastructure.Services
                         PriceOfClass = classEntity.PriceOfClass,
                         TeachingStartTime = classEntity.TeachingStartTime,
                         ImageURL = classEntity.ImageURL,
-                        LecturerName = classEntity.Lecturer?.FullName ?? "Unknown",
                         MaxStudentAcp = classEntity.MaxStudentAcp,
                         CurrentEnrollments = await _enrollmentRepository.GetClassCurrentEnrollmentsAsync(classEntity.ClassID),
                         CanEnroll = false 
