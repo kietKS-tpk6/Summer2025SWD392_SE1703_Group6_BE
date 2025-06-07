@@ -59,8 +59,49 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Class.CountAsync();
         }
-        
 
+        public async Task<Class> GetClassByIdAsync(string classId)
+        {
+            return await _dbContext.Class
+                .Include(c => c.Subject)
+                .Include(c => c.Lecturer)
+                .FirstOrDefaultAsync(c => c.ClassID == classId);
+        }
+
+        public async Task<List<Class>> GetAllClassesAsync(bool includeInactive = false)
+        {
+            var query = _dbContext.Class
+                .Include(c => c.Subject)
+                .Include(c => c.Lecturer)
+                .AsQueryable();
+
+            if (!includeInactive)
+            {
+                query = query.Where(c => c.Status != Domain.Enums.ClassStatus.Deleted);
+            }
+
+            return await query.OrderBy(c => c.ClassID).ToListAsync();
+        }
+
+        public async Task<List<Class>> GetClassesBySubjectIdAsync(string subjectId)
+        {
+            return await _dbContext.Class
+                .Include(c => c.Subject)
+                .Include(c => c.Lecturer)
+                .Where(c => c.SubjectID == subjectId)
+                .ToListAsync();
+        }
+
+        public async Task<bool> ClassExistsAsync(string classId)
+        {
+            return await _dbContext.Class.AnyAsync(c => c.ClassID == classId);
+        }
+
+        public async Task<string> GenerateNextClassIdAsync()
+        {
+            var numberOfClasses = await CountAsync();
+            return $"CL{(numberOfClasses + 1):D4}";
+        }
 
     }
 
