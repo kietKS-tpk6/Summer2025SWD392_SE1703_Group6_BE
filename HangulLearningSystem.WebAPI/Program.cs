@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Diagnostics;
 using FluentValidation;
 using System.Diagnostics;
+using Application.DTOs;
 var builder = WebApplication.CreateBuilder(args);
 //JWT
 
@@ -17,6 +18,8 @@ builder.Services.AddControllers();
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<PaymentSettings>(builder.Configuration.GetSection("PaymentSettings"));
 
 var app = builder.Build();
 

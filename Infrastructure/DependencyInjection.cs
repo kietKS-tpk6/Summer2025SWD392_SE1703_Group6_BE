@@ -62,6 +62,7 @@ namespace Infrastructure
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
 
+            
             services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));
 
             return services;
