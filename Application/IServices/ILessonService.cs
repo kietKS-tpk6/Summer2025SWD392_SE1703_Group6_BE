@@ -17,5 +17,13 @@ namespace Application.IServices
         Task<List<LessonDTO>> GetLessonsByStudentID(string studentID);
         Task<List<LessonDTO>> GetLessonsByLecturerID(string lecturerID);
         Task<LessonDetailDTO> GetLessonDetailByLessonIDAsync(string classLessonID);
+        Task<bool> CreateLessonsFromSchedulesAsync(
+            string classId,
+            string lecturerId,
+            TimeOnly startHour,
+            List<DayOfWeek> selectedDays,
+            List<SyllabusScheduleCreateLessonDTO> schedules
+        );
+
     }
 }

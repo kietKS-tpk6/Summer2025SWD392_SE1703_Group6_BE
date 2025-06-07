@@ -3,7 +3,7 @@ using Application.IServices;
 using Application.Usecases.Command;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-
+using FluentValidation;
 namespace HangulLearningSystem.WebAPI.Controllers
 {
     public class LessonController : ControllerBase
@@ -15,7 +15,32 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
             _lessonService = lessonService;
         }
-        [HttpPost("create")]
+        [HttpPost("create-from-schedule")]
+        public async Task<IActionResult> CreateFromSchedule([FromBody] LessonCreateFromScheduleCommand command, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _mediator.Send(command, cancellationToken);
+                if (result)
+                {
+                    return Ok(OperationMessages.CreateSuccess);
+                }
+                else
+                {
+                    return BadRequest(OperationMessages.CreateFail);
+                }
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                // Log exception ở đây nếu cần
+                return StatusCode(500, "Có lỗi xảy ra trong quá trình tạo lesson.");
+            }
+        }
+        [HttpPost("create-detail")]
         public async Task<IActionResult> Create([FromBody] LessonCreateCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
@@ -110,5 +135,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(lessonDetail);
         }
+        [ApiController]
+        [Route("api/[controller]")]
+        public class LessonsController : ControllerBase
+        {
+            private readonly IMediator _mediator;
+
+            public LessonsController(IMediator mediator)
+            {
+                _mediator = mediator;
+            }
+
+            
+        }
+
     }
 }

@@ -108,5 +108,58 @@ namespace Infrastructure.Services
         {
             return await _lessonRepository.GetLessonDetailByLessonIDAsync(classLessonID);
         }
+        private DateTime GetDateByWeekAndDay(DateTime startDate, int week, DayOfWeek day)
+        {
+            // Tính ngày đầu tuần gần nhất (thứ 2)
+            var baseMonday = startDate.AddDays(-(int)startDate.DayOfWeek + (int)DayOfWeek.Monday);
+
+            // Cộng thêm số tuần và thứ mong muốn
+            var targetDate = baseMonday.AddDays(7 * (week - 1) + (int)day);
+            return targetDate;
+        }
+
+        public async Task<bool> CreateLessonsFromSchedulesAsync(
+            string classId,
+            string lecturerId,
+            TimeOnly startHour,
+            List<DayOfWeek> selectedDays,
+            List<SyllabusScheduleCreateLessonDTO> schedules
+            )
+        {
+            var lessonsToCreate = new List<Lesson>();
+            var startDate = DateTime.Today;
+            int currentScheduleIndex = 0;
+            int currentWeek = schedules.Min(s => s.Week);
+            var totalSchedules = schedules.Count;
+
+            while (currentScheduleIndex < totalSchedules)
+            {
+                foreach (var day in selectedDays)
+                {
+                    if (currentScheduleIndex >= totalSchedules) break;
+
+                    var schedule = schedules[currentScheduleIndex];
+                    var targetDate = GetDateByWeekAndDay(startDate, schedule.Week, day);
+                    var numLesson = await _lessonRepository.CountAsync();
+                    string newLessonID = "L" + (numLesson + lessonsToCreate.Count).ToString("D6");
+                    string roomUrl = "https://meet.jit.si/hangullearningsystem/" + Guid.NewGuid().ToString("N").Substring(0, 16);
+                    lessonsToCreate.Add(new Lesson
+                    {
+                        ClassLessonID = newLessonID,
+                        ClassID = classId,
+                        LecturerID = lecturerId,
+                        SyllabusScheduleID = schedule.SyllabusScheduleId,
+                        StartTime = targetDate.Add(startHour.ToTimeSpan()),
+                        LinkMeetURL = roomUrl,
+                        IsActive = true
+                    });
+
+                    currentScheduleIndex++;
+                }
+            }
+
+            return await _lessonRepository.CreateManyAsync(lessonsToCreate);
+        }
+
     }
 }

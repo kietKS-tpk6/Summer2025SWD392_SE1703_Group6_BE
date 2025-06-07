@@ -109,6 +109,12 @@ namespace Infrastructure.Repositories
                 EndTime = lesson.StartTime.AddMinutes(lesson.SyllabusSchedule?.DurationMinutes ?? 0)
             };
         }
+        public async Task<bool> CreateManyAsync(List<Lesson> lessons)
+        {
+            await _dbContext.Lesson.AddRangeAsync(lessons);
+            return await _dbContext.SaveChangesAsync() > 0;
+        }
+
 
 
     }

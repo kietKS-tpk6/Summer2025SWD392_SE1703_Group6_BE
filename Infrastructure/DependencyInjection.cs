@@ -35,6 +35,7 @@ namespace Infrastructure
                 //Lesson
             services.AddScoped<LessonCreateCommandHandler>();
             services.AddScoped<LessonUpdateCommandHandler>();
+            services.AddScoped<LessonCreateFromScheduleCommandHandler>();
             //Other
             services.AddScoped<SendOTPViaEmailCommandHandler>();
             //Services 
@@ -47,6 +48,7 @@ namespace Infrastructure
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IClassService, ClassService>();
             services.AddScoped<ISubjectService, SubjectService>();
+            services.AddScoped<ISyllabusScheduleService, SyllabusScheduleService>();
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -55,6 +57,7 @@ namespace Infrastructure
             services.AddScoped<IClassRepository, ClassRepository>();
             services.AddScoped<IOTPRepository, OTPRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
+            services.AddScoped<ISyllabusScheduleRepository, SyllabusScheduleRepository>();
           
 
             return services;
