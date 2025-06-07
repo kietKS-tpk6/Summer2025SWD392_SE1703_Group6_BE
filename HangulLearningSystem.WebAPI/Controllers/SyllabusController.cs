@@ -19,7 +19,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPost("create-syllabus")]
         public async Task<IActionResult> CreateSyllabus([FromBody] CreateSyllabusesCommand command, CancellationToken cancellationToken)
         {
@@ -31,14 +31,18 @@ namespace HangulLearningSystem.WebAPI.Controllers
             command.AccountID = accountId; 
 
             var result = await _mediator.Send(command, cancellationToken);
-            if (result == null)
+            if (result)
             {
-                return BadRequest("Tạo chương trình học thất bại");
+                return Ok(OperationMessages.CreateSuccess);
+            }
+            else
+            {
+                return BadRequest(OperationMessages.CreateFail);
             }
             return Ok(result);
         }
 
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPost("update-syllabus")]
         public async Task<IActionResult> UpdateSyllabus([FromBody] UpdateSyllabusesCommand command, CancellationToken cancellationToken)
         {
