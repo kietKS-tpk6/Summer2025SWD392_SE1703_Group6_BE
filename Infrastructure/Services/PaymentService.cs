@@ -211,7 +211,7 @@ namespace Infrastructure.Services
             var bankName = sepayConfig["BankName"] ?? "OCB";
             var subAccount = sepayConfig["SubAccount"] ?? "SEPEIC2025";
 
-            return $"https://qr.sepay.vn/img?acc={subAccount}&bank={bankName}&amount={amount}&des=ID {paymentId}";
+            return $"https://qr.sepay.vn/img?acc={subAccount}&bank={bankName}&amount={amount*1000}&des=ID_{paymentId}";
         }
 
         public string GetWebhookUrl()
@@ -253,7 +253,7 @@ namespace Infrastructure.Services
             if (string.IsNullOrEmpty(description))
                 return string.Empty;
 
-            string pattern = @"ID (PM\d{4})";
+            string pattern = @"(PM\d{4})";
             Match match = Regex.Match(description, pattern);
 
             if (match.Success)

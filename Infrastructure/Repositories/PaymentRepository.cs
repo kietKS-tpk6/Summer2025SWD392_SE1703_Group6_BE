@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories
             return await _dbContext.Payment
                 .Include(p => p.Account)
                 .Include(p => p.Class)
-                .Include(p => p.Transaction)
+                //.Include(p => p.Transaction)
                 .FirstOrDefaultAsync(p => p.PaymentID == paymentId);
         }
 

@@ -26,7 +26,7 @@ namespace Domain.Entities
         [MaxLength(6)]
         public string ClassID { get; set; }
 
-        public float Total { get; set; }
+        public double Total { get; set; }
 
         public DateTime DayCreate { get; set; }
 
