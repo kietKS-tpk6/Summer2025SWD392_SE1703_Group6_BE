@@ -5,7 +5,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -19,20 +19,20 @@ namespace Infrastructure.Services
         private readonly ITransactionRepository _transactionRepository;
         private readonly IClassRepository _classRepository;
         private readonly IConfiguration _configuration;
-        private readonly PaymentSettings _paymentSettings;
+        private readonly ILogger<PaymentService> _logger;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
             ITransactionRepository transactionRepository,
             IClassRepository classRepository,
             IConfiguration configuration,
-            IOptions<PaymentSettings> paymentSettings)
+            ILogger<PaymentService> logger)
         {
             _paymentRepository = paymentRepository;
             _transactionRepository = transactionRepository;
             _classRepository = classRepository;
             _configuration = configuration;
-            _paymentSettings = paymentSettings.Value;
+            _logger = logger;
         }
 
         public async Task<string> GenerateNextPaymentIdAsync()
@@ -43,50 +43,82 @@ namespace Infrastructure.Services
 
         public async Task<PaymentResponseDTO> CreatePaymentAsync(CreatePaymentCommand command)
         {
-            var classEntity = await _classRepository.GetClassByIdAsync(command.ClassID);
-            if (classEntity == null)
+            try
             {
-                throw new ArgumentException("Class not found");
+                _logger.LogInformation($"Creating payment for ClassID: {command.ClassID}, AccountID: {command.AccountID}");
+
+                // Validate input
+                if (string.IsNullOrEmpty(command.ClassID))
+                {
+                    throw new ArgumentException("ClassID is required");
+                }
+
+                if (string.IsNullOrEmpty(command.AccountID))
+                {
+                    throw new ArgumentException("AccountID is required");
+                }
+
+                // Get class information
+                var classEntity = await _classRepository.GetClassByIdAsync(command.ClassID);
+                if (classEntity == null)
+                {
+                    _logger.LogWarning($"Class not found: {command.ClassID}");
+                    throw new ArgumentException("Class not found");
+                }
+
+                if (classEntity.Status != ClassStatus.Open)
+                {
+                    _logger.LogWarning($"Class {command.ClassID} is not available for enrollment. Status: {classEntity.Status}");
+                    throw new ArgumentException("Class is not available for enrollment");
+                }
+
+                // Generate payment ID
+                var paymentId = await GenerateNextPaymentIdAsync();
+                _logger.LogInformation($"Generated PaymentID: {paymentId}");
+
+                // Create payment entity
+                var payment = new Payment
+                {
+                    PaymentID = paymentId,
+                    AccountID = command.AccountID,
+                    ClassID = command.ClassID,
+                    Total = (float)classEntity.PriceOfClass,
+                    DayCreate = DateTime.Now,
+                    Status = PaymentStatus.Pending,
+                    TransactionID = null // Set to null instead of 0
+                };
+
+                // Save payment to database
+                var result = await _paymentRepository.CreatePaymentAsync(payment);
+                _logger.LogInformation($"Payment creation result: {result}");
+
+                if (!result.Contains("successfully"))
+                {
+                    _logger.LogError($"Failed to create payment: {result}");
+                    throw new Exception($"Failed to create payment: {result}");
+                }
+
+                // Generate QR code URL
+                var qrCodeUrl = GetQrCodeUrl(paymentId, classEntity.PriceOfClass);
+                _logger.LogInformation($"Generated QR Code URL: {qrCodeUrl}");
+
+                return new PaymentResponseDTO
+                {
+                    PaymentID = paymentId,
+                    ClassID = command.ClassID,
+                    ClassName = classEntity.ClassName,
+                    Total = classEntity.PriceOfClass,
+                    QRCodeUrl = qrCodeUrl,
+                    Status = PaymentStatus.Pending,
+                    DayCreate = DateTime.Now,
+                    Description = command.Description ?? $"Payment for {classEntity.ClassName}"
+                };
             }
-
-            if (classEntity.Status != ClassStatus.Open)
+            catch (Exception ex)
             {
-                throw new ArgumentException("Class is not available for enrollment");
+                _logger.LogError(ex, $"Error creating payment for ClassID: {command.ClassID}");
+                throw;
             }
-
-            var paymentId = await GenerateNextPaymentIdAsync();
-
-            var payment = new Payment
-            {
-                PaymentID = paymentId,
-                AccountID = command.AccountID,
-                ClassID = command.ClassID,
-                Total = (float)classEntity.PriceOfClass,
-                DayCreate = DateTime.Now,
-                Status = PaymentStatus.Pending,
-                TransactionID = 0 
-            };
-
-            var result = await _paymentRepository.CreatePaymentAsync(payment);
-
-            if (!result.Contains("successfully"))
-            {
-                throw new Exception("Failed to create payment");
-            }
-
-            var qrCodeUrl = GetQrCodeUrl(paymentId, classEntity.PriceOfClass);
-
-            return new PaymentResponseDTO
-            {
-                PaymentID = paymentId,
-                ClassID = command.ClassID,
-                ClassName = classEntity.ClassName,
-                Total = classEntity.PriceOfClass,
-                QRCodeUrl = qrCodeUrl,
-                Status = PaymentStatus.Pending,
-                DayCreate = DateTime.Now,
-                Description = command.Description ?? $"Payment for {classEntity.ClassName}"
-            };
         }
 
         public async Task<PaymentStatusDTO> CheckPaymentStatusAsync(string paymentId)
@@ -166,7 +198,7 @@ namespace Infrastructure.Services
 
             if (Math.Abs((decimal)payment.Total - amountReceived) > 0.01m)
             {
-                
+                _logger.LogWarning($"Amount mismatch for payment {paymentId}. Expected: {payment.Total}, Received: {amountReceived}");
             }
 
             payment.Status = PaymentStatus.Paid;
@@ -182,8 +214,11 @@ namespace Infrastructure.Services
 
         public string GetQrCodeUrl(string paymentId, decimal amount)
         {
-            var subAccount = _paymentSettings.SubAccount ?? "SEPEIC2025";
-            return $"https://qr.sepay.vn/img?acc={subAccount}&bank={_paymentSettings.BankName}&amount={amount}&des=ID {paymentId}";
+            var sepayConfig = _configuration.GetSection("SepaySettings");
+            var bankName = sepayConfig["BankName"] ?? "OCB";
+            var subAccount = sepayConfig["SubAccount"] ?? "SEPEIC2025";
+
+            return $"https://qr.sepay.vn/img?acc={subAccount}&bank={bankName}&amount={amount}&des=ID {paymentId}";
         }
 
         public string GetWebhookUrl()
@@ -192,10 +227,11 @@ namespace Infrastructure.Services
 
             if (string.IsNullOrEmpty(baseUrl))
             {
-                baseUrl = "https://localhost:7000"; 
+                baseUrl = "https://localhost:7000";
             }
 
-            return $"{baseUrl.TrimEnd('/')}{_paymentSettings.WebhookEndpoint}";
+            var webhookEndpoint = _configuration["SepaySettings:WebhookEndpoint"] ?? "/api/webhooks/payment";
+            return $"{baseUrl.TrimEnd('/')}{webhookEndpoint}";
         }
 
         private async Task SaveTransactionAsync(TransactionDTO transaction)

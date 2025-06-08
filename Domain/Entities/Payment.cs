@@ -20,7 +20,7 @@ namespace Domain.Entities
         public string AccountID { get; set; }
 
         [ForeignKey("Transaction")]
-        public int TransactionID { get; set; }
+        public int ?TransactionID { get; set; }
 
         [ForeignKey("Class")]
         [MaxLength(6)]

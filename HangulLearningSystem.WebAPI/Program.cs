@@ -9,7 +9,7 @@ using System.Diagnostics;
 using Application.DTOs;
 var builder = WebApplication.CreateBuilder(args);
 //JWT
-builder.Services.Configure<PaymentSettings>(builder.Configuration.GetSection("PaymentSettings"));
+builder.Services.AddLogging();
 //Insfratructure
 builder.Services.AddInfrastructure(builder.Configuration);
 //Application
