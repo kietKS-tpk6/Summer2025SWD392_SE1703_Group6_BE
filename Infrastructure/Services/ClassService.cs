@@ -111,5 +111,53 @@ namespace Infrastructure.Services
             var currentEnrollments = await _enrollmentRepository.GetClassCurrentEnrollmentsAsync(classId);
             return Math.Max(0, classEntity.MaxStudentAcp - currentEnrollments);
         }
+        public async Task<List<ClassDetailForPaymentDTO>> GetAllClassesAsync(bool includeInactive = false)
+        {
+            var classes = await _classRepository.GetAllClassesAsync(includeInactive);
+            var result = new List<ClassDetailForPaymentDTO>();
+
+            foreach (var classEntity in classes)
+            {
+                var subject = await _subjectRepository.GetSubjectByIdAsync(classEntity.SubjectID);
+                var currentEnrollments = await _enrollmentRepository.GetClassCurrentEnrollmentsAsync(classEntity.ClassID);
+
+                result.Add(new ClassDetailForPaymentDTO
+                {
+                    ClassID = classEntity.ClassID,
+                    ClassName = classEntity.ClassName,
+                    SubjectName = subject?.SubjectName ?? "Unknown",
+                    PriceOfClass = classEntity.PriceOfClass,
+                    TeachingStartTime = classEntity.TeachingStartTime,
+                    ImageURL = classEntity.ImageURL,
+                    MaxStudentAcp = classEntity.MaxStudentAcp,
+                    CurrentEnrollments = currentEnrollments,
+                    CanEnroll = classEntity.Status == ClassStatus.Open && currentEnrollments < classEntity.MaxStudentAcp
+                });
+            }
+
+            return result;
+        }
+
+        public async Task<ClassDetailForPaymentDTO> GetClassDetailAsync(string classId)
+        {
+            var classEntity = await _classRepository.GetClassByIdAsync(classId);
+            if (classEntity == null) return null;
+
+            var subject = await _subjectRepository.GetSubjectByIdAsync(classEntity.SubjectID);
+            var currentEnrollments = await _enrollmentRepository.GetClassCurrentEnrollmentsAsync(classEntity.ClassID);
+
+            return new ClassDetailForPaymentDTO
+            {
+                ClassID = classEntity.ClassID,
+                ClassName = classEntity.ClassName,
+                SubjectName = subject?.SubjectName ?? "Unknown",
+                PriceOfClass = classEntity.PriceOfClass,
+                TeachingStartTime = classEntity.TeachingStartTime,
+                ImageURL = classEntity.ImageURL,
+                MaxStudentAcp = classEntity.MaxStudentAcp,
+                CurrentEnrollments = currentEnrollments,
+                CanEnroll = classEntity.Status == ClassStatus.Open && currentEnrollments < classEntity.MaxStudentAcp
+            };
+        }
     }
 }

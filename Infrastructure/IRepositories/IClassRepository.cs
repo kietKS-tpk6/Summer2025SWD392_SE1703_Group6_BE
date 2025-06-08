@@ -16,13 +16,11 @@ namespace Infrastructure.IRepositories
         Task<bool> DeleteAsync(string id);
         Task<int> CountAsync();
 
-        Task<string> CreateClassAsync(Class classEntity);
         Task<Class> GetClassByIdAsync(string classId);
         Task<List<Class>> GetAllClassesAsync(bool includeInactive = false);
         Task<List<Class>> GetClassesBySubjectIdAsync(string subjectId);
-        Task<string> UpdateClassAsync(Class classEntity);
         Task<bool> ClassExistsAsync(string classId);
-        Task<int> GetTotalClassesCountAsync();
+        
         Task<string> GenerateNextClassIdAsync();
     }
 }
