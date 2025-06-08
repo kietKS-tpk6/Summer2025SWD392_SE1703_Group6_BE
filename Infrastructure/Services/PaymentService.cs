@@ -47,60 +47,52 @@ namespace Infrastructure.Services
             {
                 _logger.LogInformation($"Creating payment for ClassID: {command.ClassID}, AccountID: {command.AccountID}");
 
-                // Validate input
-                if (string.IsNullOrEmpty(command.ClassID))
-                {
+                if (string.IsNullOrWhiteSpace(command.ClassID))
                     throw new ArgumentException("ClassID is required");
-                }
 
-                if (string.IsNullOrEmpty(command.AccountID))
-                {
+                if (string.IsNullOrWhiteSpace(command.AccountID))
                     throw new ArgumentException("AccountID is required");
-                }
 
-                // Get class information
+                // Kiểm tra AccountID và ClassID có tồn tại không
                 var classEntity = await _classRepository.GetClassByIdAsync(command.ClassID);
                 if (classEntity == null)
-                {
-                    _logger.LogWarning($"Class not found: {command.ClassID}");
                     throw new ArgumentException("Class not found");
-                }
 
                 if (classEntity.Status != ClassStatus.Open)
-                {
-                    _logger.LogWarning($"Class {command.ClassID} is not available for enrollment. Status: {classEntity.Status}");
                     throw new ArgumentException("Class is not available for enrollment");
-                }
 
-                // Generate payment ID
-                var paymentId = await GenerateNextPaymentIdAsync();
-                _logger.LogInformation($"Generated PaymentID: {paymentId}");
+                // Tạo PaymentID duy nhất
+                string paymentId;
+                int retry = 0;
+                do
+                {
+                    paymentId = await GenerateNextPaymentIdAsync();
+                    if (!await _paymentRepository.PaymentExistsAsync(paymentId))
+                        break;
+                    retry++;
+                } while (retry < 5);
 
-                // Create payment entity
+                if (retry == 5)
+                    throw new Exception("Failed to generate unique PaymentID after multiple attempts.");
+
+                // Tạo entity Payment
                 var payment = new Payment
                 {
                     PaymentID = paymentId,
                     AccountID = command.AccountID,
                     ClassID = command.ClassID,
-                    Total = (float)classEntity.PriceOfClass,
-                    DayCreate = DateTime.Now,
+                    Total = Convert.ToSingle(classEntity.PriceOfClass),
+                    DayCreate = DateTime.UtcNow,
                     Status = PaymentStatus.Pending,
-                    TransactionID = null // Set to null instead of 0
+                    TransactionID = null
                 };
 
-                // Save payment to database
                 var result = await _paymentRepository.CreatePaymentAsync(payment);
-                _logger.LogInformation($"Payment creation result: {result}");
 
-                if (!result.Contains("successfully"))
-                {
-                    _logger.LogError($"Failed to create payment: {result}");
+                if (!result.Contains("successfully", StringComparison.OrdinalIgnoreCase))
                     throw new Exception($"Failed to create payment: {result}");
-                }
 
-                // Generate QR code URL
                 var qrCodeUrl = GetQrCodeUrl(paymentId, classEntity.PriceOfClass);
-                _logger.LogInformation($"Generated QR Code URL: {qrCodeUrl}");
 
                 return new PaymentResponseDTO
                 {
@@ -110,16 +102,17 @@ namespace Infrastructure.Services
                     Total = classEntity.PriceOfClass,
                     QRCodeUrl = qrCodeUrl,
                     Status = PaymentStatus.Pending,
-                    DayCreate = DateTime.Now,
+                    DayCreate = payment.DayCreate,
                     Description = command.Description ?? $"Payment for {classEntity.ClassName}"
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error creating payment for ClassID: {command.ClassID}");
+                _logger.LogError(ex, $"Error creating payment for ClassID: {command.ClassID}. Inner: {ex.InnerException?.Message}");
                 throw;
             }
         }
+
 
         public async Task<PaymentStatusDTO> CheckPaymentStatusAsync(string paymentId)
         {
