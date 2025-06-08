@@ -11,6 +11,7 @@ namespace Application.IServices
     {
         public Task<bool> createSyllabuses(CreateSyllabusesCommand createSyllabusesCommand);
         public Task<string> UpdateSyllabusesAsync(UpdateSyllabusesCommand updateSyllabusesCommand);
+        public Task<bool> IsValidSyllabusStatusForSubjectAsync(string subjectID)
 
     }
 }

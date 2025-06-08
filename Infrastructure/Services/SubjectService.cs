@@ -19,6 +19,16 @@ namespace Infrastructure.Services
         {
             _subjectRepository = subjectRepository;
         }
+        public async Task<bool> IsValidSyllabusStatusForSubjectAsync(string subjectID)
+        {
+            return await _subjectRepository.IsValidSyllabusStatusForSubjectAsync(subjectID);
+        }
+
+        public async Task<bool> SubjectExistsAsync(string id)
+        {
+            return await _subjectRepository.SubjectExistsAsync(id);
+
+        }
 
         public async Task<string> GenerateNextSubjectIdAsync()
         {

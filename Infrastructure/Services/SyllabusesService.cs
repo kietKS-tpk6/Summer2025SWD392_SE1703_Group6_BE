@@ -24,15 +24,18 @@ namespace Infrastructure.Services
             _iSubjectRepository = subjectRepository;
         }
 
+        public async Task<bool> IsValidSyllabusStatusForSubjectAsync(string subjectID)
+        {
+
+            return await _iSyllabusesRepository.IsValidSyllabusStatusForSubjectAsync(subjectID);
+        }
+            
         public async Task<bool> createSyllabuses(CreateSyllabusesCommand createSyllabusesCommand)
         {
             if (createSyllabusesCommand == null)
                 throw new ArgumentNullException(nameof(createSyllabusesCommand));
 
             var numberOfSyllabuses = (await _iSyllabusesRepository.GetNumbeOfSyllabusAsync());
-            
-            if(!await _iSubjectRepository.SubjectExistsAsync(createSyllabusesCommand.SubjectID))
-                throw new ArgumentNullException("Môn học không tồn tại.");
 
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);

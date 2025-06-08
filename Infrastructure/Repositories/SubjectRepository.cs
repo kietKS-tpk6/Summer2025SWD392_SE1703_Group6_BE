@@ -96,5 +96,8 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Subject.CountAsync();
         }
+
+        
+        
     }
 }

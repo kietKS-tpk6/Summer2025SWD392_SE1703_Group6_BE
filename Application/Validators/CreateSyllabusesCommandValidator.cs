@@ -14,13 +14,13 @@ namespace Application.Validators
         {
             RuleFor(o => o.SubjectID)
                 .NotEmpty()
-                .WithErrorCode(nameof(ErrorCodes.SubjectIDIsEmpty))
-                 .WithMessage(ValidationMessages.SubjectIDIsEmpty);
+                .WithErrorCode(nameof(ErrorCodes.DataIsEmpty))
+                 .WithMessage(ValidationMessages.DataIsEmpty);
 
             RuleFor(o => o.AccountID)
              .NotEmpty()
-             .WithErrorCode(nameof(ErrorCodes.AccountIDIsEmpty))
-                 .WithMessage(ValidationMessages.AccountIDIsEmpty);
+             .WithErrorCode(nameof(ErrorCodes.DataIsEmpty))
+                 .WithMessage(ValidationMessages.DataIsEmpty);
 
         }
     }
