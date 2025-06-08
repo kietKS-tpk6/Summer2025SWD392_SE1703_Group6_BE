@@ -17,5 +17,10 @@ namespace Infrastructure.IRepositories
         Task<bool> UpdateSyllabusesAsync(Syllabus syllabus);
         Task<bool> ExistsSyllabusAsync(string  syllabusID);
         Task<bool> IsValidSyllabusStatusForSubjectAsync(string SubjectId);
+        Task<SyllabusDTO> getSyllabusBySubjectID(string SubjectId);
+        Task<bool> deleteSyllabusById(string SyllabusID);
+
+        
+
     }
 }

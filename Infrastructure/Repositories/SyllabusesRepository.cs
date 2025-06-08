@@ -7,6 +7,7 @@ using Application.DTOs;
 using Application.Usecases.Command;
 using CloudinaryDotNet;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +48,6 @@ namespace Infrastructure.Repositories
             if (existingSyllabus == null)
                 return false;
 
-            existingSyllabus.SubjectID = syllabus.SubjectID;
             existingSyllabus.UpdateBy = syllabus.UpdateBy;
             existingSyllabus.UpdateAt = syllabus.UpdateAt;
             existingSyllabus.Description = syllabus.Description;
@@ -59,16 +59,49 @@ namespace Infrastructure.Repositories
 
             return true;
         }
-        public async Task<bool> SyllabusIdExistsAsync(string syllabusId)
-        {
-            return await _dbContext.Syllabus.AnyAsync(s => s.SyllabusID == syllabusId);
-        }
+      
 
         public async Task<bool> IsValidSyllabusStatusForSubjectAsync(string subjectId)
         {
-            return !await _dbContext.Syllabuses
+            return !await _dbContext.Syllabus
                 .AnyAsync(s => s.SubjectID == subjectId &&
-                               (s.Status == "Drafted" || s.Status == "Published"));
+                               (s.Status.Equals( "Drafted") || s.Status.Equals("Published")));
+        }
+
+        public async Task<SyllabusDTO> getSyllabusBySubjectID(string subjectId)
+        {
+            return await _dbContext.Syllabus
+                .Where(s => s.SubjectID == subjectId)
+                .Select(s => new SyllabusDTO
+                {
+                    SyllabusID = s.SyllabusID,
+                    SubjectID = s.SubjectID,
+                    CreateBy = s.CreateBy,
+                    CreateAt = s.CreateAt,
+                    UpdateBy = s.UpdateBy,
+                    UpdateAt = s.UpdateAt,
+                    Description = s.Description,
+                    Note = s.Note,
+                    Status = s.Status.ToString() // enum thành string
+                })
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> deleteSyllabusById(string syllabusID)
+        {
+            var syllabus = await _dbContext.Syllabus
+                .FirstOrDefaultAsync(s => s.SyllabusID == syllabusID);
+
+            if (syllabus == null)
+                return false;
+
+            syllabus.Status = SyllabusStatus.Deleted;
+            syllabus.UpdateAt = DateTime.UtcNow; 
+
+            _dbContext.Syllabus.Update(syllabus);
+            await _dbContext.SaveChangesAsync();
+
+            return true;
         }
 
     }

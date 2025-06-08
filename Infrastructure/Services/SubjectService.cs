@@ -19,10 +19,7 @@ namespace Infrastructure.Services
         {
             _subjectRepository = subjectRepository;
         }
-        public async Task<bool> IsValidSyllabusStatusForSubjectAsync(string subjectID)
-        {
-            return await _subjectRepository.IsValidSyllabusStatusForSubjectAsync(subjectID);
-        }
+       
 
         public async Task<bool> SubjectExistsAsync(string id)
         {
@@ -106,10 +103,6 @@ namespace Infrastructure.Services
             };
         }
 
-        public async Task<bool> SubjectExistsAsync(string subjectId)
-        {
-            return await _subjectRepository.SubjectExistsAsync(subjectId);
-        }
 
         public async Task<int> GetTotalSubjectsCountAsync()
         {

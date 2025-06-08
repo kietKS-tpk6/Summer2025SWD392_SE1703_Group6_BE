@@ -5,6 +5,8 @@ using Application.Usecases.CommandHandler;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Infrastructure.IRepositories;
+using Application.IServices;
 
 namespace HangulLearningSystem.WebAPI.Controllers
 {
@@ -13,10 +15,13 @@ namespace HangulLearningSystem.WebAPI.Controllers
     public class SyllabusController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ISyllabusesService _syllabusesService;
 
-        public SyllabusController(IMediator mediator)
+
+        public SyllabusController(IMediator mediator, ISyllabusesService syllabusesService)
         {
             _mediator = mediator;
+            _syllabusesService = syllabusesService;
         }
 
         //[Authorize(Roles = "Manager")]
@@ -39,11 +44,10 @@ namespace HangulLearningSystem.WebAPI.Controllers
             {
                 return BadRequest(OperationMessages.CreateFail);
             }
-            return Ok(result);
         }
 
         //[Authorize(Roles = "Manager")]
-        [HttpPost("update-syllabus")]
+        [HttpPut("update-syllabus")]
         public async Task<IActionResult> UpdateSyllabus([FromBody] UpdateSyllabusesCommand command, CancellationToken cancellationToken)
         {
             var accountId = User.FindFirst("AccountID")?.Value;
@@ -61,12 +65,21 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Manager")]
-        [HttpPost("create-account")]
-        public async Task<IActionResult> CreateAccountByManager([FromBody] CreateAccountCommand command, CancellationToken cancellationToken)
+        // [Authorize(Roles = "Manager")]
+        [HttpDelete("delete-syllabus/{id}")]
+        public async Task<IActionResult> DeleteSyllabus(string id)
         {
-            var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+            var success = await _syllabusesService.DeleteSyllabusById(id);
+
+            if (!success)
+            {
+                return NotFound(new { message = "Không tìm thấy syllabus với ID này" });
+            }
+
+            return Ok(new { message = "Xóa syllabus thành công" });
         }
+
+
+
     }
 }

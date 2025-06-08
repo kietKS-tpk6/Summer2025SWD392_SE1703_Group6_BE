@@ -23,9 +23,9 @@ namespace Application.Usecases.CommandHandler
             }
             public async Task<bool> Handle(CreateSyllabusesCommand req, CancellationToken cancellationToken)
             {
-                if(_subjectService.SubjectExistsAsync(req.SubjectID))
+                if(!await _subjectService.SubjectExistsAsync(req.SubjectID))
                     throw new ArgumentNullException("Môn học không tồn tại.");
-                if(_syslabusesService.IsValidSyllabusStatusForSubjectAsync(req.SubjectID))
+                if(await _syslabusesService.IsValidSyllabusStatusForSubjectAsync(req.SubjectID))
                     throw new ArgumentNullException("Môn học này đã được gán chương trình học.(Mỗi môn học chỉ một chương trình học khả dụng)");
 
             var res = await _syslabusesService.createSyllabuses(req);

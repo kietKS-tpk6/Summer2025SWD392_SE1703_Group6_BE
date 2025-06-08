@@ -10,8 +10,6 @@ namespace Application.Usecases.Command
     public class UpdateSyllabusesCommand : IRequest<string>
     {
         public string SyllabusID { get; set; }
-        public string SubjectID { get; set; }
-
         public string AccountID { get; set; }
 
         public string Description { get; set; }

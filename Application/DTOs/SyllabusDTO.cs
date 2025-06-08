@@ -10,13 +10,14 @@ namespace Application.DTOs
     public class SyllabusDTO
     {
         public string SyllabusID { get; set; }
-
         public string SubjectID { get; set; }
-
-        public string SubjectName { get; set; }
+        public string CreateBy { get; set; }
+        public DateTime CreateAt { get; set; }
+        public string? UpdateBy { get; set; }
+        public DateTime? UpdateAt { get; set; }
         public string Description { get; set; }
         public string Note { get; set; }
-        public SyllabusStatus Status { get; set; }
+        public string Status { get; set; } // Enum dưới dạng string
 
     }
 }

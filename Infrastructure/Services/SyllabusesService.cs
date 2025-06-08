@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
 using Domain.Entities;
@@ -35,7 +36,7 @@ namespace Infrastructure.Services
             if (createSyllabusesCommand == null)
                 throw new ArgumentNullException(nameof(createSyllabusesCommand));
 
-            var numberOfSyllabuses = (await _iSyllabusesRepository.GetNumbeOfSyllabusAsync());
+            var numberOfSyllabuses  = (await _iSyllabusesRepository.GetNumbeOfSyllabusAsync()) + 1;
 
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
@@ -57,25 +58,21 @@ namespace Infrastructure.Services
             return false;
         }
 
+        public async Task<bool> ExistsSyllabusAsync(string SyllabusID)
+        {
+            return await _iSyllabusesRepository.ExistsSyllabusAsync(SyllabusID);
+        }
+
+
         public async Task<string> UpdateSyllabusesAsync(UpdateSyllabusesCommand updateSyllabusesCommand)
         {
-            if (updateSyllabusesCommand == null)
-                throw new ArgumentNullException(nameof(updateSyllabusesCommand));
-            var checkSyl = await _iSyllabusesRepository.ExistsSyllabusAsync(updateSyllabusesCommand.SyllabusID);
-            if (!checkSyl) return "Chương trình học không tồn tại.";
-
-            if (!await _iSubjectRepository.SubjectExistsAsync(updateSyllabusesCommand.SubjectID))
-                return "Môn học không tồn tại.";
-
             var normalizedStatus = NormalizeStatus(updateSyllabusesCommand.Status);
-            var numberOfSyllabuses = await _iSyllabusesRepository.GetNumbeOfSyllabusAsync();
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
 
             var syllabus = new Syllabus
             {
                 SyllabusID = updateSyllabusesCommand.SyllabusID,
-                SubjectID = updateSyllabusesCommand.SubjectID,
                 UpdateBy = updateSyllabusesCommand.AccountID,
                 UpdateAt = vietnamTime,
                 Description = updateSyllabusesCommand.Description,
@@ -110,6 +107,14 @@ namespace Infrastructure.Services
             throw new ArgumentException($"Status '{status}' không hợp lệ");
         }
 
+        public Task<SyllabusDTO> getSyllabusBySubjectID(string SyllabusID)
+        {
+            return _iSyllabusesRepository.getSyllabusBySubjectID(SyllabusID);
+        }
 
+        public Task<bool> DeleteSyllabusById(string SyllabusID)
+        {
+            return _iSyllabusesRepository.deleteSyllabusById(SyllabusID);
+        }
     }
 }

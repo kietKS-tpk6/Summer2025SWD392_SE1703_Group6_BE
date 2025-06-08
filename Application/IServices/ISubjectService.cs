@@ -15,8 +15,6 @@ namespace Application.IServices
         Task<string> CreateSubjectAsync(CreateSubjectCommand command);
         Task<string> UpdateSubjectAsync(UpdateSubjectCommand command);
         Task<string> DeleteSubjectAsync(string subjectId);
-        Task<bool> SubjectExistsAsync(string id)
-
         Task<string> GenerateNextSubjectIdAsync();
 
     }
