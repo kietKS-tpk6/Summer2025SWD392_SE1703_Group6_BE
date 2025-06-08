@@ -21,5 +21,6 @@ namespace Application.IServices
         Task<PagedResult<ClassDTO>> GetListByStatusAsync(string status, int page, int pageSize);
         Task<List<ClassDTO>> SearchClassAsync(string keyword);
         Task<ClassCreateLessonDTO?> GetClassCreateLessonDTOByIdAsync(string classId);
+        Task<ClassDTO?> GetClassDTOByIDAsync(string classId);
     }
 }

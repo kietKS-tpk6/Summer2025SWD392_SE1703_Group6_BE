@@ -289,7 +289,35 @@ namespace Infrastructure.Repositories
             return result;
         }
 
+        public async Task<ClassDTO?> GetClassDTOByIdAsync(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return null;
 
+            var result = await (
+                from c in _dbContext.Class
+                join acc in _dbContext.Accounts on c.LecturerID equals acc.AccountID
+                join subj in _dbContext.Subject on c.SubjectID equals subj.SubjectID
+                where c.ClassID == id
+                select new ClassDTO
+                {
+                    ClassID = c.ClassID,
+                    LecturerID = c.LecturerID,
+                    SubjectID = c.SubjectID,
+                    ClassName = c.ClassName,
+                    MinStudentAcp = c.MinStudentAcp,
+                    MaxStudentAcp = c.MaxStudentAcp,
+                    PriceOfClass = c.PriceOfClass,
+                    Status = c.Status,
+                    CreateAt = c.CreateAt,
+                    TeachingStartTime = c.TeachingStartTime,
+                    ImageURL = c.ImageURL,
+                    LecturerName = acc.FirstName,
+                    SubjectName = subj.SubjectName
+                }
+            ).FirstOrDefaultAsync();
+
+            return result;
+        }
 
     }
 
