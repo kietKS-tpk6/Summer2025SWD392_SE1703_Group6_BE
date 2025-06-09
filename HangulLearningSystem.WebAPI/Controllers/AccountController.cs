@@ -34,7 +34,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
         [HttpGet("list-account-with-role-gender-status")]
-        public async Task<IActionResult> ListAccountWithRole([FromBody] GetPaginatedAccountListCommand command, CancellationToken cancellationToken)
+        public async Task<IActionResult> ListAccountWithRole([FromQuery] GetPaginatedAccountListCommand command, CancellationToken cancellationToken)
         {
             try
             {
