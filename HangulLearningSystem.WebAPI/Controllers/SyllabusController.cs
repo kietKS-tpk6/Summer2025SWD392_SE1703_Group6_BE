@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Infrastructure.IRepositories;
 using Application.IServices;
+using Application.DTOs;
 
 namespace HangulLearningSystem.WebAPI.Controllers
 {
@@ -79,6 +80,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(new { message = "Xóa syllabus thành công" });
         }
 
+        [HttpDelete("get-syllabus-by-subject-id/{id}")]
+        public async Task<IActionResult> getSyllabusBySubject(string id)
+        {
+            var success = await _syllabusesService.getSyllabusBySubjectID(id);
+
+            if (success != null)
+            {
+                return Ok(success);
+
+            }
+
+            return NotFound(new { message = "Không tìm thấy syllabus với ID này" });
+        }
 
 
     }
