@@ -63,7 +63,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> IsValidSyllabusStatusForSubjectAsync(string subjectId)
         {
-            return !await _dbContext.Syllabus
+            return await _dbContext.Syllabus
                 .AnyAsync(s => s.SubjectID == subjectId &&
                                (s.Status.Equals( "Drafted") || s.Status.Equals("Published")));
         }
