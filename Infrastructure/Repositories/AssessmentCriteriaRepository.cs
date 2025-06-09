@@ -123,14 +123,23 @@ namespace Infrastructure.Repositories
             return result;
         }
 
-        public async Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType)
+        public async Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, string category, string testType)
         {
+            if (!Enum.TryParse<AssessmentCategory>(category, true, out var categoryEnum))
+            {
+                return false; // Category không hợp lệ
+            }
+
+            if (!Enum.TryParse<TestType>(testType, true, out var testTypeEnum))
+            {
+                return false; // TestType không hợp lệ
+            }
+
             return await _dbContext.AssessmentCriteria
                 .AnyAsync(ac => ac.SyllabusID == syllabusId
-                             && ac.Category == (AssessmentCategory)category
-                             && ac.TestType == testType
+                             && ac.Category == categoryEnum
+                             && ac.TestType == testTypeEnum
                              && ac.IsActive);
         }
-
     }
 }

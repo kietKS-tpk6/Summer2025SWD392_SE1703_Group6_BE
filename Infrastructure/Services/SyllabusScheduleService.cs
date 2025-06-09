@@ -96,13 +96,30 @@ namespace Infrastructure.Services
 
             return res;
         }
-                public async Task<bool> slotAllowToTestAsync(string syllabusSchedulesID)
+
+        //kiểm tra slot đó cos được thêm bài kiểm tra hay ko
+          public async Task<bool> slotAllowToTestAsync(string syllabusSchedulesID)
         {
-                 return await  _syllabusScheduleRepository.SlotAllowToTestAsync(syllabusSchedulesID);
+          return await  _syllabusScheduleRepository.SlotAllowToTestAsync(syllabusSchedulesID);
 
         }
 
-       
+        public async Task<bool> ValidateTestOrderAsync(string syllabusId)
+        {
+            var tests = await _syllabusScheduleRepository.GetActiveTestsOrderedByWeekAsync(syllabusId);
+
+            var testTypes = tests.Select(t => t.TestType).ToList();
+
+            int midtermIndex = testTypes.IndexOf("Midterm");
+            int finalIndex = testTypes.IndexOf("Final");
+
+            if (finalIndex == -1) return true; // Không có final thì không ràng buộc
+            if (finalIndex != testTypes.Count - 1) return false; // final phải là test cuối cùng
+            if (midtermIndex != -1 && midtermIndex > finalIndex) return false; // midterm phải trước final nếu có
+
+            return true;
+        }
+
 
         //public Task AddTestSchedulesToSlotsAsync(string syllabusId, TestCategory category, TestType testType)
         //{

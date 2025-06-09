@@ -80,12 +80,28 @@ namespace Infrastructure.Repositories
         public async Task<bool> SlotAllowToTestAsync(string syllabusScheduleID)
         {
             return await _dbContext.SyllabusSchedule
-                .AnyAsync(x => x.SyllabusScheduleID == syllabusScheduleID && x.IsActive);
+                .AnyAsync(x => x.SyllabusScheduleID == syllabusScheduleID
+                            && x.IsActive
+                            && x.HasTest == true);
         }
 
-        public Task<List<(int Week, string TestType)>> GetActiveTestsOrderedByWeekAsync(string syllabusId)
+
+        public async Task<List<(int Week, string TestType)>> GetActiveTestsOrderedByWeekAsync(string syllabusId)
         {
-            throw new NotImplementedException();
+            var tempList = await _dbContext.SyllabusScheduleTests
+                .Where(t => t.SyllabusSchedule.SyllabusID == syllabusId && t.SyllabusSchedule.IsActive)
+                .OrderBy(t => t.SyllabusSchedule.Week)
+                .ThenBy(t => t.SyllabusSchedule.SyllabusScheduleID)
+                .Select(t => new
+                {
+                    Week = t.SyllabusSchedule.Week,
+                    TestType = t.TestType.ToString().ToLower()
+                })
+                .ToListAsync();
+
+            return tempList.Select(t => (t.Week, t.TestType)).ToList();
         }
+
+
     }
 }

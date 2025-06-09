@@ -20,6 +20,13 @@ namespace Infrastructure.Repositories
             _dbContext = context;
         }
 
+        public async Task<bool> AddAsync(SyllabusScheduleTest entity)
+        {
+            _dbContext.SyllabusScheduleTests.Add(entity);
+            var result = await _dbContext.SaveChangesAsync();
+            return result > 0;
+        }
+
         public async Task<List<SyllabusScheduleTestDTO>> GetTestsBySyllabusIdAsync(string syllabusId)
         {
             var result = await _dbContext.SyllabusScheduleTests

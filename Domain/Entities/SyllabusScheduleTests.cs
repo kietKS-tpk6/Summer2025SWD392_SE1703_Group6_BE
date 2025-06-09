@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Enums;
+
 namespace Domain.Entities
 {
     [Table("SyllabusScheduleTests")]
@@ -18,18 +12,17 @@ namespace Domain.Entities
         public int ID { get; set; }
 
         [Required]
-        [MaxLength(20)]
+        [MaxLength(20)] // nếu đúng là string
         [ForeignKey("SyllabusSchedule")]
         public string SyllabusSchedulesID { get; set; }
 
         [Required]
-        [MaxLength(100)]
         public TestCategory TestCategory { get; set; }
 
         [Required]
-        [MaxLength(100)]
         public TestType TestType { get; set; }
 
+        [Required]
         public virtual SyllabusSchedule SyllabusSchedule { get; set; }
     }
 }

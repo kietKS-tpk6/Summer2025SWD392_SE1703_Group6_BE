@@ -29,12 +29,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
         [HttpPost("create-syllabus")]
         public async Task<IActionResult> CreateSyllabus([FromBody] CreateSyllabusesCommand command, CancellationToken cancellationToken)
         {
-            var accountId = User.FindFirst("AccountID")?.Value;
+            /*var accountId = User.FindFirst("AccountID")?.Value;
 
             if (accountId == null)
                 return Unauthorized("Không tìm thấy accountID trong token.");
-
-            command.AccountID = accountId; 
+*/
+            //command.AccountID = accountId; 
 
             var result = await _mediator.Send(command, cancellationToken);
             if (result)

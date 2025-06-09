@@ -10,6 +10,6 @@ namespace Domain.Enums
     {
         Midterm,
         Final,
-        Practice,
+        FifteenMinutes,
     }
 }

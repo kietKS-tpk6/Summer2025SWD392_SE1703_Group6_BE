@@ -85,10 +85,15 @@ namespace Infrastructure.Services
                     g => g.Sum(x => x.RequiredCount)
                 );
         }
+        //kiểm tra bài kiểm tra được thêm vào
+        //có nằm trong danh sách các bài kiểm tra của môn đó không
 
         public async Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId,TestCategory category, TestType testType)
         {
-            return await _assessmentCriteriaRepository.IsTestDefinedInCriteriaAsync( syllabusId,  category,  testType);
+            var stringCategory = category.ToString();
+            var stringTestType = testType.ToString();
+
+            return await _assessmentCriteriaRepository.IsTestDefinedInCriteriaAsync( syllabusId, stringCategory, stringTestType);
             
         }
     }

@@ -19,7 +19,7 @@ namespace Infrastructure.IRepositories
         Task<bool> UpdateAsync(AssessmentCriteria assessmentCriteria);
         Task<bool> DeleteAsync(string id);
         Task<int> CountAsync();
-        Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType);
+        Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, string category, string testType);
 
     }
 }

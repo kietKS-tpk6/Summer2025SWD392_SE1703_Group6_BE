@@ -20,5 +20,7 @@ namespace Application.IServices
         Task<List<SyllabusScheduleDTO>> GetSyllabusSchedulesBySyllabusIdAsync(string syllabusId);
         //Task AddTestSchedulesToSlotsAsync(string syllabusId,TestCategory category,TestType testType);
         Task<bool> slotAllowToTestAsync(string syllabusSchedulesID);
+        Task<bool> ValidateTestOrderAsync(string syllabusId);
+
     }
 }

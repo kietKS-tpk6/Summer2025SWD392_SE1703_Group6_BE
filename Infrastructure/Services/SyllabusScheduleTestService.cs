@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.DTOs;
 using Application.IServices;
+using Application.Usecases.Command;
+using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
 
@@ -58,11 +60,13 @@ namespace Infrastructure.Services
             return result;
         }
 
+
         public async Task<List<(string Category, string TestType)>> GetAddedTestsAsync(string syllabusId)
         {
             var added = await _syllabusScheduleTestRepository.GetTestsBySyllabusIdAsync(syllabusId);
             return added.Select(x => (x.TestCategory, x.TestType)).ToList();
         }
+        //kiểm tra số lượng bài
         public async Task<bool> IsTestOverLimitAsync(string syllabusId, TestCategory category, TestType testType)
         {
             var requiredTestCounts = await _assessmentCriteriaService.GetRequiredTestCountsAsync(syllabusId);
@@ -78,5 +82,77 @@ namespace Infrastructure.Services
             return addedCount >= requiredCount;
         }
 
+        /// <summary>
+        /// Hàm helper để chuẩn hóa string: trim và viết hoa chữ cái đầu
+        /// </summary>
+        /// <param name="input">String cần chuẩn hóa</param>
+        /// <returns>String đã được chuẩn hóa</returns>
+        private string NormalizeString(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return null;
+
+            var normalized = input.Trim();
+            if (normalized.Length > 0)
+            {
+                normalized = char.ToUpper(normalized[0]) + normalized.Substring(1).ToLower();
+            }
+
+            return normalized;
+        }
+
+
+
+        public Domain.Enums.TestCategory? NormalizeTestCategory(string category, bool isRequired = true)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+            {
+                if (isRequired)
+                    throw new ArgumentException("Thể loại bài kiểm tra không được để trống.");
+                return null;
+            }
+
+            var normalizedCategory = NormalizeString(category);
+
+            if (normalizedCategory == null)
+                return null;
+
+            if (Enum.TryParse<Domain.Enums.TestCategory>(normalizedCategory, true, out var result))
+            {
+                return result;
+            }
+
+            throw new ArgumentException($"Thể loại '{category}' không hợp lệ. Chỉ chấp nhận: Midterm, Final, FifteenMinutes.");
+        }
+        public Domain.Enums.TestType? NormalizeTestType(string type, bool isRequired = true)
+        {
+            if (string.IsNullOrWhiteSpace(type))
+            {
+                if (isRequired)
+                    throw new ArgumentException("Loại bài kiểm tra không được để trống.");
+                return null;
+            }
+
+            var normalizedType = NormalizeString(type);
+
+            if (normalizedType == null)
+                return null;
+
+            if (Enum.TryParse<Domain.Enums.TestType>(normalizedType, true, out var result))
+            {
+                return result;
+            }
+
+            throw new ArgumentException($"Loại bài kiểm tra '{type}' không hợp lệ. Chỉ chấp nhận: MCQ, Writing, Speaking, Listening, Reading, Mix, Other.");
+        }
+
+        public async Task<bool> AddTestToSyllabusAsync(AddTestSchedulesToSlotsCommand addTestSchedulesToSlotsCommand)
+        {
+            var bien = new SyllabusScheduleTest();
+            bien.SyllabusSchedulesID = addTestSchedulesToSlotsCommand.SyllabusScheduleID;
+            bien.TestCategory = Enum.Parse<TestCategory>(addTestSchedulesToSlotsCommand.TestCategory, true);
+            bien.TestType = Enum.Parse<TestType>(addTestSchedulesToSlotsCommand.TestType, true);
+            return await _syllabusScheduleTestRepository.AddAsync(bien);
+        }
     }
 }
