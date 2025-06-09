@@ -17,6 +17,7 @@ namespace Infrastructure.IRepositories
         Task<int> GetNumbeOfSyllabusScheduleAsync();
 
         Task<bool> IsMaxSlotInWeek(string SyllabusID,int week);
+        Task<List<SyllabusSchedule>> GetSyllabusSchedulesBySyllabusIdAsync(string syllabusId);
 
     }
 }

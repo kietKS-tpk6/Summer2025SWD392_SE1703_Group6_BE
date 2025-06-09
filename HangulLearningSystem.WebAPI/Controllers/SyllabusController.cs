@@ -80,7 +80,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(new { message = "Xóa syllabus thành công" });
         }
 
-        [HttpDelete("get-syllabus-by-subject-id/{id}")]
+        [HttpGet("get-syllabus-by-subject-id/{id}")]
         public async Task<IActionResult> getSyllabusBySubject(string id)
         {
             var success = await _syllabusesService.getSyllabusBySubjectID(id);

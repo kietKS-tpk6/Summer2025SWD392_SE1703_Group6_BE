@@ -70,6 +70,11 @@ namespace Infrastructure.Repositories
 
             return count < 8; 
         }
-
+        public async Task<List<SyllabusSchedule>> GetSyllabusSchedulesBySyllabusIdAsync(string syllabusId)
+        {
+            return await _dbContext.SyllabusSchedule
+                .Where(s => s.SyllabusID == syllabusId)
+                .ToListAsync();
+        }
     }
 }

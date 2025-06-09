@@ -66,7 +66,36 @@ namespace Infrastructure.Services
             return await _syllabusScheduleRepository.IsMaxSlotInWeek(syllabusId, week);
 
 
+            }
+        public async Task<List<SyllabusScheduleDTO>> GetSyllabusSchedulesBySyllabusIdAsync(string syllabusId)
+        {
+            var schedules = await _syllabusScheduleRepository.GetSyllabusSchedulesBySyllabusIdAsync(syllabusId);
+            var res = new List<SyllabusScheduleDTO>();
+
+            int slotNumber = 1;
+
+            foreach (var s in schedules)
+            {
+                var dto = new SyllabusScheduleDTO
+                {
+                    SyllabusScheduleID = s.SyllabusScheduleID,
+                    SyllabusID = s.SyllabusID,
+                    Content = s.Content,
+                    Week = s.Week,
+                    Resources = s.Resources,
+                    LessonTitle = s.LessonTitle,
+                    DurationMinutes = s.DurationMinutes,
+                    IsActive = s.IsActive,
+                    HasTest = s.HasTest,
+                    Slot = $"Slot {slotNumber++}"
+                };
+
+                res.Add(dto);
+            }
+
+            return res;
         }
+
 
     }
 }
