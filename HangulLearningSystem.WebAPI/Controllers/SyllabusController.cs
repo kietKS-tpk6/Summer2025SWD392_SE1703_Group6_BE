@@ -51,12 +51,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
         [HttpPut("update-syllabus")]
         public async Task<IActionResult> UpdateSyllabus([FromBody] UpdateSyllabusesCommand command, CancellationToken cancellationToken)
         {
-            var accountId = User.FindFirst("AccountID")?.Value;
+            //var accountId = User.FindFirst("AccountID")?.Value;
 
-            if (accountId == null)
-                return Unauthorized("Không tìm thấy accountID trong token.");
+            //if (accountId == null)
+            //    return Unauthorized("Không tìm thấy accountID trong token.");
 
-            command.AccountID = accountId;
+            //command.AccountID = accountId;
 
             var result = await _mediator.Send(command, cancellationToken);
             if (result == null)
