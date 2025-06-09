@@ -311,8 +311,8 @@ app.UseExceptionHandler(errorApp =>
 });
 
 // Configure pipeline
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+
     app.UseSwagger();
     app.UseSwaggerUI();
 
@@ -334,7 +334,7 @@ if (app.Environment.IsDevelopment())
                 context.Response.StatusCode, context.Request.Method, context.Request.Path);
         }
     });
-}
+
 
 app.UseHttpsRedirection();
 
