@@ -149,6 +149,10 @@ namespace Infrastructure.Services
         {
             return await _classRepository.GetClassCreateLessonDTOByIdAsync(classId);
         }
+        public async Task<ClassDTO?> GetClassDTOByIDAsync(string classId)
+        {
+            return await _classRepository.GetClassDTOByIdAsync(classId);
+        }
 
     }
 }

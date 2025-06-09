@@ -23,6 +23,7 @@ namespace Infrastructure.IRepositories
         Task<(List<ClassDTO> Items, int TotalCount)> GetPaginatedListBySubjectAndTeacherAsync(string subjectId, string teacherId, int page, int pageSize);
         Task<(List<ClassDTO> Items, int TotalCount)> GetPaginatedListByStatusAsync(string status, int page, int pageSize);
         Task<List<ClassDTO>> SearchClassAsync(string keyword);
+        Task<ClassDTO?> GetClassDTOByIdAsync(string id);
 
 
     }
