@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.DTOs;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Infrastructure.IRepositories
 {
@@ -19,7 +20,8 @@ namespace Infrastructure.IRepositories
         Task<bool> IsMaxSlotInWeek(string SyllabusID,int week);
         Task<List<SyllabusSchedule>> GetSyllabusSchedulesBySyllabusIdAsync(string syllabusId);
         Task<bool> SlotAllowToTestAsync( string syllabusId);
-        Task<List<(int Week, string TestType)>> GetActiveTestsOrderedByWeekAsync(string syllabusId);
+        // Task<List<(int Week, string TestType)>> GetActiveTestsOrderedByWeekAsync(string syllabusId);
+        Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, TestCategory testCategory);
 
     }
 }

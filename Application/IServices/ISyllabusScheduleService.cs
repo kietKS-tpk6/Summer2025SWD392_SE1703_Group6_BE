@@ -21,6 +21,7 @@ namespace Application.IServices
         //Task AddTestSchedulesToSlotsAsync(string syllabusId,TestCategory category,TestType testType);
         Task<bool> slotAllowToTestAsync(string syllabusSchedulesID);
         Task<bool> ValidateTestOrderAsync(string syllabusId);
+        Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, string testCategory);
 
     }
 }

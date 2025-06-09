@@ -86,7 +86,99 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<List<(int Week, string TestType)>> GetActiveTestsOrderedByWeekAsync(string syllabusId)
+
+        public async Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, TestCategory testCategory)
+        {
+            // Lấy tất cả syllabus schedules đang active và có thứ tự
+            var syllabusSchedules = await _dbContext.SyllabusSchedule
+                .Where(s => s.SyllabusID == syllabusId && s.IsActive)
+                .OrderBy(s => s.Week)
+                .ThenBy(s => s.SyllabusScheduleID)
+                .Select(s => new
+                {
+                    s.SyllabusScheduleID,
+                    s.Week
+                })
+                .ToListAsync();
+
+            if (!syllabusSchedules.Any())
+                return false;
+
+            // Tìm vị trí của schedule hiện tại
+            var currentScheduleIndex = syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == syllabusScheduleId);
+            if (currentScheduleIndex == -1)
+                return false;
+
+            var isFirstSlot = currentScheduleIndex == 0;
+
+            // Lấy thông tin về các bài kiểm tra hiện có
+            var existingTests = await _dbContext.SyllabusScheduleTests
+                .Where(t => t.SyllabusSchedule.SyllabusID == syllabusId && t.SyllabusSchedule.IsActive)
+                .Select(t => new
+                {
+                    t.TestCategory,
+                    ScheduleId = t.SyllabusSchedule.SyllabusScheduleID
+                })
+                .ToListAsync();
+
+            var midtermTests = existingTests.Where(t => t.TestCategory == TestCategory.Midterm).ToList();
+            var finalTests = existingTests.Where(t => t.TestCategory == TestCategory.Final).ToList();
+
+            switch (testCategory)
+            {
+                case TestCategory.Midterm:
+                    // Midterm không được ở đầu hoặc cuối
+                    if (currentScheduleIndex == 0 || currentScheduleIndex == syllabusSchedules.Count - 1)
+                        return false;
+
+                    // Midterm không được nằm sau bất kỳ Final nào
+                    if (finalTests.Any())
+                    {
+                        var earliestFinalIndex = finalTests
+                            .Select(f => syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == f.ScheduleId))
+                            .Min();
+
+                        if (currentScheduleIndex >= earliestFinalIndex)
+                            return false;
+                    }
+                    break;
+
+                case TestCategory.Final:
+                    // ❌ Không được ở slot đầu tiên
+                    if (isFirstSlot)
+                        return false;
+
+                    // ✅ Phải nằm sau tất cả Midterm (nếu có)
+                    if (midtermTests.Any())
+                    {
+                        var latestMidtermIndex = midtermTests
+                            .Select(m => syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == m.ScheduleId))
+                            .Max();
+
+                        if (currentScheduleIndex <= latestMidtermIndex)
+                            return false;
+                    }
+                    break;
+
+                default:
+                    // Các test khác phải nằm trước tất cả bài Final
+                    if (finalTests.Any())
+                    {
+                        var earliestFinalIndex = finalTests
+                            .Select(f => syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == f.ScheduleId))
+                            .Min();
+
+                        if (currentScheduleIndex >= earliestFinalIndex)
+                            return false;
+                    }
+                    break;
+            }
+
+            return true;
+        }
+
+        // Method phụ trợ để lấy danh sách tests theo thứ tự (đã sửa đổi từ method gốc)
+        public async Task<List<(int Week, string TestType, TestCategory TestCategory)>> GetActiveTestsOrderedByWeekAsync(string syllabusId)
         {
             var tempList = await _dbContext.SyllabusScheduleTests
                 .Where(t => t.SyllabusSchedule.SyllabusID == syllabusId && t.SyllabusSchedule.IsActive)
@@ -95,13 +187,13 @@ namespace Infrastructure.Repositories
                 .Select(t => new
                 {
                     Week = t.SyllabusSchedule.Week,
-                    TestType = t.TestType.ToString().ToLower()
+                    TestType = t.TestType.ToString().ToLower(),
+                    TestCategory = t.TestCategory
                 })
                 .ToListAsync();
 
-            return tempList.Select(t => (t.Week, t.TestType)).ToList();
+            return tempList.Select(t => (t.Week, t.TestType, t.TestCategory)).ToList();
         }
-
 
     }
 }

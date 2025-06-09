@@ -13,6 +13,8 @@ namespace Infrastructure.IRepositories
     {
         Task<List<SyllabusScheduleTestDTO>> GetTestsBySyllabusIdAsync(string syllabusId);
         Task<bool> AddAsync(SyllabusScheduleTest entity);
+        Task<bool> HasTestAsync(string syllabusScheduleId);
         
+
     }
 }

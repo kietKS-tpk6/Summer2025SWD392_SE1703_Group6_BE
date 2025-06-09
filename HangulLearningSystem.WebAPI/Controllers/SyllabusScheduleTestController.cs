@@ -80,12 +80,18 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var isOverLimit = await _syllabusScheduleTestService.IsTestOverLimitAsync(command.syllabusId, parsedCategory.Value, parsedType.Value);
             if (isOverLimit)
                 return BadRequest("Test count exceeds the required count defined in assessment criteria.");
+         
 
-            // Bước 5: Kiểm tra thứ tự test
-            var isOrderValid = await _syllabusScheduleService.ValidateTestOrderAsync(command.syllabusId);
+            // Bước 5: Kiểm tra xem slot đó có bài kiểm tra nào chưa
+            var hasExistingTest = await _syllabusScheduleTestService.HasTestAsync(command.SyllabusScheduleID);
+            if (hasExistingTest)
+                return BadRequest("This schedule slot already has a test. Cannot add another test to the same slot.");
+
+            // Bước 6: Kiểm tra thứ tự test
+            var isOrderValid = await _syllabusScheduleService.ValidateTestPositionAsync(command.syllabusId,command.SyllabusScheduleID, command.TestCategory);
             if (!isOrderValid)
                 return BadRequest("Test order is invalid: Final must come after all other tests, and Midterm must appear before Final.");
-
+            
             var result = await _mediator.Send(command, cancellationToken);
 
             return Ok(new { message = result });
