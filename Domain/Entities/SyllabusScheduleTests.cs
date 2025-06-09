@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Domain.Enums;
 namespace Domain.Entities
 {
     [Table("SyllabusScheduleTests")]
@@ -23,11 +24,11 @@ namespace Domain.Entities
 
         [Required]
         [MaxLength(100)]
-        public string TestCategory { get; set; }
+        public TestCategory TestCategory { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string TestType { get; set; }
+        public TestType TestType { get; set; }
 
         public virtual SyllabusSchedule SyllabusSchedule { get; set; }
     }

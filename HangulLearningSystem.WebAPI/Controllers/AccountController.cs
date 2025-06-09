@@ -33,7 +33,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(OperationMessages.CreateFail);
             }
         }
-        [HttpPost("list-account-with-role-gender-status")]
+        [HttpGet("list-account-with-role-gender-status")]
         public async Task<IActionResult> ListAccountWithRole([FromBody] GetPaginatedAccountListCommand command, CancellationToken cancellationToken)
         {
             try

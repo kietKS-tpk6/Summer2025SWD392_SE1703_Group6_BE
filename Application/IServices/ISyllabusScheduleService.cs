@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.DTOs;
 using Domain.Entities;
 using Application.Usecases.Command;
+using Domain.Enums;
 
 namespace Application.IServices
 {
@@ -17,6 +18,7 @@ namespace Application.IServices
         Task<int> GetMaxSlotPerWeekAsync(string syllabusId);
         Task<bool> IsMaxSlotInWeek(string syllabusId,int week);
         Task<List<SyllabusScheduleDTO>> GetSyllabusSchedulesBySyllabusIdAsync(string syllabusId);
-
+        //Task AddTestSchedulesToSlotsAsync(string syllabusId,TestCategory category,TestType testType);
+        Task<bool> slotAllowToTestAsync(string syllabusSchedulesID);
     }
 }

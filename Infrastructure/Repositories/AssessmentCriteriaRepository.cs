@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.DTOs;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -121,7 +122,15 @@ namespace Infrastructure.Repositories
 
             return result;
         }
-       
+
+        public async Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType)
+        {
+            return await _dbContext.AssessmentCriteria
+                .AnyAsync(ac => ac.SyllabusID == syllabusId
+                             && ac.Category == (AssessmentCategory)category
+                             && ac.TestType == testType
+                             && ac.IsActive);
+        }
 
     }
 }

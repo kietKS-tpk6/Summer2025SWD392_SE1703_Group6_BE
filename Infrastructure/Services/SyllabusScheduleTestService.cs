@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.DTOs;
 using Application.IServices;
+using Domain.Enums;
 using Infrastructure.IRepositories;
 
 namespace Infrastructure.Services
@@ -62,7 +63,20 @@ namespace Infrastructure.Services
             var added = await _syllabusScheduleTestRepository.GetTestsBySyllabusIdAsync(syllabusId);
             return added.Select(x => (x.TestCategory, x.TestType)).ToList();
         }
+        public async Task<bool> IsTestOverLimitAsync(string syllabusId, TestCategory category, TestType testType)
+        {
+            var requiredTestCounts = await _assessmentCriteriaService.GetRequiredTestCountsAsync(syllabusId);
 
-       
+            var key = (category.ToString(), testType.ToString());
+            if (!requiredTestCounts.TryGetValue(key, out var requiredCount))
+                return false; // Không có yêu cầu => không vượt quá
+
+            var addedTests = await _syllabusScheduleTestRepository.GetTestsBySyllabusIdAsync(syllabusId);
+            var addedCount = addedTests.Count(t =>
+                t.TestCategory == category.ToString() && t.TestType == testType.ToString());
+
+            return addedCount >= requiredCount;
+        }
+
     }
 }

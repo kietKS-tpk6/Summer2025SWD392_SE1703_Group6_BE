@@ -76,5 +76,16 @@ namespace Infrastructure.Repositories
                 .Where(s => s.SyllabusID == syllabusId)
                 .ToListAsync();
         }
+
+        public async Task<bool> SlotAllowToTestAsync(string syllabusScheduleID)
+        {
+            return await _dbContext.SyllabusSchedule
+                .AnyAsync(x => x.SyllabusScheduleID == syllabusScheduleID && x.IsActive);
+        }
+
+        public Task<List<(int Week, string TestType)>> GetActiveTestsOrderedByWeekAsync(string syllabusId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

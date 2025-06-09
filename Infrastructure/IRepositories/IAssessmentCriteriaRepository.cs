@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.DTOs;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.IRepositories
 {
@@ -18,6 +19,7 @@ namespace Infrastructure.IRepositories
         Task<bool> UpdateAsync(AssessmentCriteria assessmentCriteria);
         Task<bool> DeleteAsync(string id);
         Task<int> CountAsync();
+        Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType);
 
     }
 }

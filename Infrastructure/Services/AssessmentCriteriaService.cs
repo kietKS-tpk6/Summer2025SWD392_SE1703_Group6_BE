@@ -86,8 +86,11 @@ namespace Infrastructure.Services
                 );
         }
 
-
-
+        public async Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId,TestCategory category, TestType testType)
+        {
+            return await _assessmentCriteriaRepository.IsTestDefinedInCriteriaAsync( syllabusId,  category,  testType);
+            
+        }
     }
 }
  

@@ -28,8 +28,8 @@ namespace Infrastructure.Repositories
                 {
                     ID = t.ID,
                     SyllabusSchedulesID = t.SyllabusSchedulesID,
-                    TestCategory = t.TestCategory,
-                    TestType = t.TestType
+                    TestCategory = t.TestCategory.ToString(),
+                    TestType = t.TestType.ToString()
                 })
                 .ToListAsync();
 

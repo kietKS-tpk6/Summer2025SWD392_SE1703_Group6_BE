@@ -7,6 +7,7 @@ using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Routing;
@@ -95,7 +96,17 @@ namespace Infrastructure.Services
 
             return res;
         }
+                public async Task<bool> slotAllowToTestAsync(string syllabusSchedulesID)
+        {
+                 return await  _syllabusScheduleRepository.SlotAllowToTestAsync(syllabusSchedulesID);
 
+        }
 
+       
+
+        //public Task AddTestSchedulesToSlotsAsync(string syllabusId, TestCategory category, TestType testType)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
