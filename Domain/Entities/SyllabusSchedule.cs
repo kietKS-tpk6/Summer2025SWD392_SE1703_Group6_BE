@@ -31,6 +31,8 @@ namespace Domain.Entities
 
         public int DurationMinutes { get; set; }
 
+        public bool IsActive { get; set; }
+        public bool HasTest { get; set; }
         public virtual Syllabus Syllabus { get; set; }
     }
 }

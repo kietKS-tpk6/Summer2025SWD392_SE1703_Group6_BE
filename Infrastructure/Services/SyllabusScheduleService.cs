@@ -38,11 +38,11 @@ namespace Infrastructure.Services
         {
             return await _syllabusScheduleRepository.GetPublishedSchedulesBySyllabusIdAsync(syllabusId);
         }
+        
 
         public async Task<bool> CreateSyllabusScheduleAyncs(SyllabusScheduleCreateCommand command)
         {
-            var existsSyllabus = await _syllabusesRepository.ExistsSyllabusAsync(command.SyllabusID);
-            if (!existsSyllabus) throw new ArgumentException("SyllabusID không tồn tại.");
+            
 
             var numberOfSS = (await _syllabusScheduleRepository.GetNumbeOfSyllabusScheduleAsync());
             string newId = "SS" + numberOfSS.ToString("D5");
@@ -55,9 +55,18 @@ namespace Infrastructure.Services
             syllabus.DurationMinutes = command.DurationMinutes;
             syllabus.Content = command.Content;
             syllabus.SyllabusScheduleID = newId;
+            syllabus.IsActive= false;
+            syllabus.HasTest = command.HasTest;
             var res = await _syllabusScheduleRepository.CreateSyllabusesScheduleAsync(syllabus);
             return res;
 
         }
+       public async Task<bool> IsMaxSlotInWeek(string syllabusId, int week)
+        {
+            return await _syllabusScheduleRepository.IsMaxSlotInWeek(syllabusId, week);
+
+
+        }
+
     }
 }

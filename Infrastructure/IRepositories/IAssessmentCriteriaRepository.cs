@@ -18,5 +18,6 @@ namespace Infrastructure.IRepositories
         Task<bool> UpdateAsync(AssessmentCriteria assessmentCriteria);
         Task<bool> DeleteAsync(string id);
         Task<int> CountAsync();
+
     }
 }

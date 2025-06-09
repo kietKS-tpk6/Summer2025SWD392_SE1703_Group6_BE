@@ -73,6 +73,21 @@ namespace Infrastructure.Services
             return await _assessmentCriteriaRepository.DeleteAsync(id);
         }
 
+
+        public async Task<Dictionary<(string Category, string TestType), int>> GetRequiredTestCountsAsync(string syllabusId)
+        {
+            var result = await _assessmentCriteriaRepository.GetListBySyllabusIdAsync(syllabusId);
+
+            return result
+                .GroupBy(x => (x.Category.ToString(), x.TestType.ToString()))
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(x => x.RequiredCount)
+                );
+        }
+
+
+
     }
 }
  

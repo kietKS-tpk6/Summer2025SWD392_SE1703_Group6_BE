@@ -22,6 +22,7 @@ namespace Application.Validators
             .NotEmpty()
             .WithErrorCode(nameof(ErrorCodes.DataIsEmpty))
                 .WithMessage(ValidationMessages.DataIsEmpty);
+            
 
             RuleFor(o => o.LessonTitle)
             .NotEmpty()

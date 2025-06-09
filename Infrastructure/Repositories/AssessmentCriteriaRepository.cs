@@ -107,5 +107,21 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.AssessmentCriteria.CountAsync();
         }
+        public async Task<Dictionary<string, int>> GetAssessmentCountByCategoryAsync(string syllabusId)
+        {
+            var result = await _dbContext.AssessmentCriteria
+                .Where(x => x.SyllabusID == syllabusId && x.IsActive)
+                .GroupBy(x => x.Category)
+                .Select(g => new
+                {
+                    Category = g.Key.ToString(),
+                    Count = g.Count()
+                })
+                .ToDictionaryAsync(x => x.Category, x => x.Count);
+
+            return result;
+        }
+       
+
     }
 }

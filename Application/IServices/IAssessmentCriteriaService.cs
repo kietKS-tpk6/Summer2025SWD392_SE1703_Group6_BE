@@ -16,5 +16,7 @@ namespace Application.IServices
         public Task<PagedResult<AssessmentCriteriaDTO>> GetPaginatedListAsync(int page, int pageSize);
         public Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId);
         public Task<bool> DeleteAsync(string id);
+        Task<Dictionary<(string Category, string TestType), int>> GetRequiredTestCountsAsync(string syllabusId);
+
     }
 }

@@ -56,6 +56,8 @@ namespace Infrastructure
             services.AddScoped<IClassService, ClassService>();
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<ISyllabusScheduleService, SyllabusScheduleService>();
+            services.AddScoped<ISyllabusScheduleTestService, SyllabusScheduleTestService>();
+
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -65,9 +67,10 @@ namespace Infrastructure
             services.AddScoped<IOTPRepository, OTPRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<ISyllabusScheduleRepository, SyllabusScheduleRepository>();
-          
+            services.AddScoped<ISyllabusScheduleTestRepository, SyllabusScheduleTestRepository>();
 
-            services.AddScoped<ISyllabusScheduleRepository, SyllabusScheduleRepository>();
+
+
 
 
             //CommandHandler

@@ -10,6 +10,8 @@ namespace Application.Common.Constants
     {
 
         public const string DataIsEmpty = "Dữ liệu {PropertyName} truyền vào bị trống.";
+        public const string WrongDataType = "Dữ liệu {PropertyName} không đúng kiểu.";
+
 
         // Email
         public const string AccountIDIsEmpty = "AccountID không được để trống.";

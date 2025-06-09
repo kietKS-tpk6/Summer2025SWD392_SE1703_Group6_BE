@@ -17,11 +17,14 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _syllabusScheduleService = syllabusScheduleService;
         }
         [HttpPost("create-syllabus-schedule")]
-        public async Task<IActionResult> CreateAccountByManager([FromBody] SyllabusScheduleCreateCommand command, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateSyllabusSchedule([FromBody] SyllabusScheduleCreateCommand command, CancellationToken cancellationToken)
         {
+            
+
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
+
         [HttpGet("max-slot/{syllabusId}")]
         public async Task<IActionResult> GetMaxSlotPerWeek(string syllabusId)
         {

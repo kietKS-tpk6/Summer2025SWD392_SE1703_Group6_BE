@@ -61,5 +61,15 @@ namespace Infrastructure.Repositories
                 return false;
             }
         }
+
+        public async Task<bool> IsMaxSlotInWeek(string syllabusID, int week)
+        {
+            var count = await _dbContext.SyllabusSchedule
+                .Where(s => s.SyllabusID == syllabusID && s.Week == week)
+                .CountAsync();
+
+            return count < 8; 
+        }
+
     }
 }

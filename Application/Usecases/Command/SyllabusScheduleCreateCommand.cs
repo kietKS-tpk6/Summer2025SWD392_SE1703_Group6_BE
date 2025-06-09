@@ -16,5 +16,7 @@ namespace Application.Usecases.Command
         public string LessonTitle { get; set; }
         public int DurationMinutes { get; set; }
 
+        public bool HasTest { get; set; }
+
     }
 }

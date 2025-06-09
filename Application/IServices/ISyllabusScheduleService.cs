@@ -15,5 +15,8 @@ namespace Application.IServices
 
         Task<List<SyllabusScheduleCreateLessonDTO>> GetPublishedSchedulesBySyllabusIdAsync(string syllabusId);
         Task<int> GetMaxSlotPerWeekAsync(string syllabusId);
+        Task<bool> IsMaxSlotInWeek(string syllabusId,int week);
+
+        
     }
 }
