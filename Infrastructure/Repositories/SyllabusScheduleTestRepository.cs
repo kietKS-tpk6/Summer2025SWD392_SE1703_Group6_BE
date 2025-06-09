@@ -43,8 +43,11 @@ namespace Infrastructure.Repositories
             return result;
         }
 
-      
-
+        public async Task<bool> HasTestAsync(string syllabusScheduleId)
+        {
+            return await _dbContext.SyllabusScheduleTests
+                .AnyAsync(t => t.SyllabusSchedulesID == syllabusScheduleId);
+        }
 
     }
 }

@@ -17,14 +17,19 @@ namespace Infrastructure.Services
     public class SyllabusScheduleService : ISyllabusScheduleService
     {
         private readonly ISyllabusScheduleRepository _syllabusScheduleRepository;
+        private readonly ISyllabusScheduleTestService _syllabusScheduleTestService;
+
         private readonly ISyllabusesRepository _syllabusesRepository;
+        
 
         public SyllabusScheduleService(
             ISyllabusScheduleRepository syllabusScheduleRepository,
-            ISyllabusesRepository syllabusesRepository)
+            ISyllabusesRepository syllabusesRepository,
+            ISyllabusScheduleTestService syllabusScheduleTestService)
         {
             _syllabusScheduleRepository = syllabusScheduleRepository;
             _syllabusesRepository = syllabusesRepository;
+            _syllabusScheduleTestService= syllabusScheduleTestService;
         }
 
         public async Task<int> GetMaxSlotPerWeekAsync(string syllabusId)
@@ -106,20 +111,31 @@ namespace Infrastructure.Services
 
         public async Task<bool> ValidateTestOrderAsync(string syllabusId)
         {
-            var tests = await _syllabusScheduleRepository.GetActiveTestsOrderedByWeekAsync(syllabusId);
+            //var tests = await _syllabusScheduleRepository.GetActiveTestsOrderedByWeekAsync(syllabusId);
 
-            var testTypes = tests.Select(t => t.TestType).ToList();
+            //var testTypes = tests.Select(t => t.TestType).ToList();
 
-            int midtermIndex = testTypes.IndexOf("Midterm");
-            int finalIndex = testTypes.IndexOf("Final");
+            //int midtermIndex = testTypes.IndexOf("Midterm");
+            //int finalIndex = testTypes.IndexOf("Final");
 
-            if (finalIndex == -1) return true; // Không có final thì không ràng buộc
-            if (finalIndex != testTypes.Count - 1) return false; // final phải là test cuối cùng
-            if (midtermIndex != -1 && midtermIndex > finalIndex) return false; // midterm phải trước final nếu có
+            //if (finalIndex == -1) return true; // Không có final thì không ràng buộc
+            //if (finalIndex != testTypes.Count - 1) return false; // final phải là test cuối cùng
+            //if (midtermIndex != -1 && midtermIndex > finalIndex) return false; // midterm phải trước final nếu có
 
             return true;
         }
 
+        public async Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, string testCategory)
+        {
+            var normalizedTestCategory = _syllabusScheduleTestService.NormalizeTestCategory(testCategory);
+
+            if (normalizedTestCategory == null)
+            {
+                return false;
+            }
+
+            return await _syllabusScheduleRepository.ValidateTestPositionAsync(syllabusId, syllabusScheduleId, normalizedTestCategory.Value);
+        }
 
         //public Task AddTestSchedulesToSlotsAsync(string syllabusId, TestCategory category, TestType testType)
         //{

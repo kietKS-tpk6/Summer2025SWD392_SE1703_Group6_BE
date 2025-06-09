@@ -36,7 +36,7 @@ namespace Infrastructure.Services
             if (createSyllabusesCommand == null)
                 throw new ArgumentNullException(nameof(createSyllabusesCommand));
 
-            var numberOfSyllabuses  = (await _iSyllabusesRepository.GetNumbeOfSyllabusAsync()) + 2;
+            var numberOfSyllabuses  = (await _iSyllabusesRepository.GetNumbeOfSyllabusAsync()) + 1;
 
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
