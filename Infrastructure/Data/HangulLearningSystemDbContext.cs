@@ -73,6 +73,9 @@ namespace Infrastructure.Data
             modelBuilder.Entity<SyllabusScheduleTest>()
                 .Property(a => a.TestType)
                 .HasConversion<string>();
+            modelBuilder.Entity<Subject>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
         }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<AssessmentCriteria> AssessmentCriteria { get; set; }

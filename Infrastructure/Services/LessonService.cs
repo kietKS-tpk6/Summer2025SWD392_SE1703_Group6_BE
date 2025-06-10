@@ -123,7 +123,8 @@ namespace Infrastructure.Services
             string lecturerId,
             TimeOnly startHour,
             List<DayOfWeek> selectedDays,
-            List<SyllabusScheduleCreateLessonDTO> schedules
+            List<SyllabusScheduleCreateLessonDTO> schedules,
+            DateTime StartTime
             )
         {
             var lessonsToCreate = new List<Lesson>();
