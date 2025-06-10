@@ -28,6 +28,10 @@ namespace Application.Usecases.CommandHandler
             {
                 throw new ValidationException("Class không tìm thấy.");
             }
+            //if (!request.DaysOfWeek.Contains(ClassDTO.StartTime.DayOfWeek))
+            //{
+            //    throw new InvalidOperationException($"Ngày bắt đầu ({ClassDTO.StartTime:dddd}) không nằm trong các ngày đã chọn. Vui lòng chọn thứ của ngày {ClassDTO.StartTime:dddd} lịch học .");
+            //}
             var requiredDays = await _syllabusScheduleService.GetMaxSlotPerWeekAsync(ClassDTO.SyllabusID);
             if (request.DaysOfWeek.Count != requiredDays)
             {

@@ -110,25 +110,23 @@ namespace Infrastructure.Services
         }
         private DateTime GetDateByWeekAndDay(DateTime startDate, int week, DayOfWeek day)
         {
-            // Tính ngày đầu tuần gần nhất (thứ 2)
             var baseMonday = startDate.AddDays(-(int)startDate.DayOfWeek + (int)DayOfWeek.Monday);
 
-            // Cộng thêm số tuần và thứ mong muốn
             var targetDate = baseMonday.AddDays(7 * (week - 1) + (int)day);
             return targetDate;
         }
 
         public async Task<bool> CreateLessonsFromSchedulesAsync(
-            string classId,
-            string lecturerId,
-            TimeOnly startHour,
-            List<DayOfWeek> selectedDays,
-            List<SyllabusScheduleCreateLessonDTO> schedules,
-            DateTime StartTime
-            )
+       string classId,
+       string lecturerId,
+       TimeOnly startHour,
+       List<DayOfWeek> selectedDays,
+       List<SyllabusScheduleCreateLessonDTO> schedules,
+       DateTime StartTime
+   )
         {
             var lessonsToCreate = new List<Lesson>();
-            var startDate = DateTime.Today;
+            var startDate = StartTime.Date;
             int currentScheduleIndex = 0;
             int currentWeek = schedules.Min(s => s.Week);
             var totalSchedules = schedules.Count;
@@ -140,10 +138,22 @@ namespace Infrastructure.Services
                     if (currentScheduleIndex >= totalSchedules) break;
 
                     var schedule = schedules[currentScheduleIndex];
-                    var targetDate = GetDateByWeekAndDay(startDate, schedule.Week, day);
+
+                    DateTime targetDate;
+                    if (currentScheduleIndex == 0)
+                    {
+                        targetDate = startDate;
+                    }
+                    else
+                    {
+                        targetDate = startDate.AddDays((int)day - (int)startDate.DayOfWeek);
+                        targetDate = targetDate.AddDays(7 * (schedule.Week - currentWeek));
+                    }
+
                     var numLesson = await _lessonRepository.CountAsync();
                     string newLessonID = "L" + (numLesson + lessonsToCreate.Count).ToString("D6");
                     string roomUrl = "https://meet.jit.si/hangullearningsystem/" + Guid.NewGuid().ToString("N").Substring(0, 16);
+
                     lessonsToCreate.Add(new Lesson
                     {
                         ClassLessonID = newLessonID,
