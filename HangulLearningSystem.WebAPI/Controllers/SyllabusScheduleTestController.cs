@@ -5,6 +5,8 @@ using Application.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Infrastructure.Services;
 using Domain.Enums;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Threading;
 namespace HangulLearningSystem.WebAPI.Controllers
 {
     [Route("api/[controller]")]
@@ -98,7 +100,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         }
 
 
-        [HttpGet("remove-test-from-slot")]
+        [HttpDelete("remove-test-from-slot")]
         public async Task<IActionResult> RemoveTestFromSlot([FromQuery] string SyllabusScheduleID)
         {
             if (string.IsNullOrWhiteSpace(SyllabusScheduleID))
@@ -111,5 +113,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(new { message = result });
         }
 
+        [HttpPut("update-test-from-slot")]
+        public async Task<IActionResult> UpdateTestFromSlot([FromBody] UpdateTestSchedulesToSlotsCommand command,CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(new { message = result });
+        }
     }
 }

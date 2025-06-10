@@ -27,6 +27,13 @@ namespace Infrastructure.Repositories
             return result > 0;
         }
 
+        public async Task<bool> UpdateAsync(SyllabusScheduleTest entity)
+        {
+            _dbContext.SyllabusScheduleTests.Update(entity);
+            var result = await _dbContext.SaveChangesAsync();
+            return result > 0;
+        }
+
         public async Task<List<SyllabusScheduleTestDTO>> GetTestsBySyllabusIdAsync(string syllabusId)
         {
             var result = await _dbContext.SyllabusScheduleTests
@@ -66,6 +73,11 @@ namespace Infrastructure.Repositories
             return true;
         }
 
-       
+      
+        public async Task<SyllabusScheduleTest> GetByIdAsync(int SyllabusScheduleTestID)
+        {
+            return await _dbContext.SyllabusScheduleTests
+                            .FirstOrDefaultAsync(x => x.ID == SyllabusScheduleTestID);
+        }
     }
 }

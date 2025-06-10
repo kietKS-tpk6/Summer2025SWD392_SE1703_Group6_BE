@@ -66,18 +66,33 @@ namespace Infrastructure.Services
             var added = await _syllabusScheduleTestRepository.GetTestsBySyllabusIdAsync(syllabusId);
             return added.Select(x => (x.TestCategory, x.TestType)).ToList();
         }
-        //kiểm tra số lượng bài
-        public async Task<bool> IsTestOverLimitAsync(string syllabusId, TestCategory category, TestType testType)
+        // kiểm tra số lượng bài
+        public async Task<bool> IsTestOverLimitAsync(string syllabusId, TestCategory category, TestType testType, int? excludeId = null)
         {
             var requiredTestCounts = await _assessmentCriteriaService.GetRequiredTestCountsAsync(syllabusId);
-
             var key = (category.ToString(), testType.ToString());
             if (!requiredTestCounts.TryGetValue(key, out var requiredCount))
                 return false; // Không có yêu cầu => không vượt quá
 
             var addedTests = await _syllabusScheduleTestRepository.GetTestsBySyllabusIdAsync(syllabusId);
-            var addedCount = addedTests.Count(t =>
-                t.TestCategory == category.ToString() && t.TestType == testType.ToString());
+
+            // Debug: In ra để xem dữ liệu
+            Console.WriteLine($"Checking limit for: {category} - {testType}");
+            Console.WriteLine($"Required count: {requiredCount}");
+            Console.WriteLine($"ExcludeId: {excludeId}");
+
+            var addedCount = addedTests.Count(t => {
+                var matchCategory = t.TestCategory == category.ToString();
+                var matchType = t.TestType == testType.ToString();
+                var notExcluded = (excludeId == null || t.ID != excludeId);
+
+                Console.WriteLine($"Test ID: {t.ID}, Category: {t.TestCategory}, Type: {t.TestType}, Match: {matchCategory && matchType && notExcluded}");
+
+                return matchCategory && matchType && notExcluded;
+            });
+
+            Console.WriteLine($"Added count: {addedCount}");
+            Console.WriteLine($"Is over limit: {addedCount >= requiredCount}");
 
             return addedCount >= requiredCount;
         }
@@ -154,6 +169,20 @@ namespace Infrastructure.Services
             bien.TestType = Enum.Parse<TestType>(addTestSchedulesToSlotsCommand.TestType, true);
             bien.IsActive = true;
             return await _syllabusScheduleTestRepository.AddAsync(bien);
+        }
+        public async Task<bool> UpdateTestToSyllabusAsync(UpdateTestSchedulesToSlotsCommand updateTestSchedulesToSlotsCommand)
+        {
+            // Lấy record cần update theo ID
+            var existingTest = await _syllabusScheduleTestRepository.GetByIdAsync(updateTestSchedulesToSlotsCommand.SyllabusScheduleTestsId);
+
+            // Update các thuộc tính
+            existingTest.ID = updateTestSchedulesToSlotsCommand.SyllabusScheduleTestsId;
+            existingTest.TestCategory = Enum.Parse<TestCategory>(updateTestSchedulesToSlotsCommand.TestCategory, true);
+            existingTest.TestType = Enum.Parse<TestType>(updateTestSchedulesToSlotsCommand.TestType, true);
+            existingTest.IsActive = true;
+
+            // Gọi UpdateAsync thay vì AddAsync
+            return await _syllabusScheduleTestRepository.UpdateAsync(existingTest);
         }
 
         public async Task<bool> HasTestAsync(string syllabusScheduleId)
