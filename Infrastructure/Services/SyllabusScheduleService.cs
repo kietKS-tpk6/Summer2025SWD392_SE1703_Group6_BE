@@ -136,6 +136,8 @@ namespace Infrastructure.Services
 
             return await _syllabusScheduleRepository.ValidateTestPositionAsync(syllabusId, syllabusScheduleId, normalizedTestCategory.Value);
         }
+       
+
 
         //public Task AddTestSchedulesToSlotsAsync(string syllabusId, TestCategory category, TestType testType)
         //{

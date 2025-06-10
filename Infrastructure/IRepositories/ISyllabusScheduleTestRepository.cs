@@ -18,6 +18,8 @@ namespace Infrastructure.IRepositories
         Task<bool> HasTestAsync(string syllabusScheduleId);
         Task<bool> RemoveTestFromSlotAsyncs(string syllabusScheduleId);
         Task<SyllabusScheduleTest> GetByIdAsync(int SyllabusScheduleTestID);
+        Task<List<SyllabusScheduleTestDTO>> GetExamAddedToSyllabusAsync(List<string> slotAllowToTest);
+
 
     }
 }

@@ -7,6 +7,7 @@ using Infrastructure.Services;
 using Domain.Enums;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Threading;
+using Domain.Entities;
 namespace HangulLearningSystem.WebAPI.Controllers
 {
     [Route("api/[controller]")]
@@ -120,5 +121,13 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(new { message = result });
         }
+        [HttpGet("get-test-added")]
+        public async Task<IActionResult> GetExamAddedAsync([FromQuery] string subject)
+        {
+            var result = await _syllabusScheduleTestService.GetExamAddedAsync(subject);
+
+            return Ok( result );
+        }
+
     }
 }

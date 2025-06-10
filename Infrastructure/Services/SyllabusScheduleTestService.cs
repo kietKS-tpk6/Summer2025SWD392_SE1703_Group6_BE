@@ -9,6 +9,7 @@ using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
 {
@@ -16,11 +17,14 @@ namespace Infrastructure.Services
     {
         private readonly IAssessmentCriteriaService _assessmentCriteriaService;
         private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestRepository;
+        private readonly ISyllabusScheduleRepository _syllabusScheduleRepository;
 
-        public SyllabusScheduleTestService(IAssessmentCriteriaService assessmentCriteriaService, ISyllabusScheduleTestRepository syllabusScheduleTestRepository)
+
+        public SyllabusScheduleTestService(IAssessmentCriteriaService assessmentCriteriaService, ISyllabusScheduleTestRepository syllabusScheduleTestRepository, ISyllabusScheduleRepository syllabusScheduleRepository)
         {
             _assessmentCriteriaService = assessmentCriteriaService;
             _syllabusScheduleTestRepository = syllabusScheduleTestRepository;
+            _syllabusScheduleRepository = syllabusScheduleRepository;
         }
 
         public async Task<AssessmentCompletenessResultDTO> CheckAddAssessmentCompletenessAsync(string syllabusId)
@@ -194,5 +198,25 @@ namespace Infrastructure.Services
         {
             return await _syllabusScheduleTestRepository.RemoveTestFromSlotAsyncs(syllabusScheduleId);
         }
+
+        public async Task<List<SyllabusScheduleTestDTO>> GetExamAddedAsync(string subject)
+        {
+            // Lấy danh sách các schedule theo syllabus
+            var allSchedules = await _syllabusScheduleRepository.GetSyllabusSchedulesBySyllabusIdAsync(subject);
+
+            // Lọc ra các slot có HasTest = true và lấy SyllabusScheduleID
+            var slotsHaveExam = allSchedules
+                .Where(x => x.HasTest == true && x.IsActive == true)
+                .Select(x => x.SyllabusScheduleID)
+                .ToList();
+
+            // Truyền danh sách slot vào hàm GetExamAddedToSyllabusAsync
+            var examTests = await _syllabusScheduleTestRepository.GetExamAddedToSyllabusAsync(slotsHaveExam);
+
+            // Trả về danh sách SyllabusScheduleTest
+            return examTests;
+        }
+
+
     }
 }

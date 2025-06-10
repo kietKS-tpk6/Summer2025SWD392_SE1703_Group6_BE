@@ -20,6 +20,10 @@ namespace Infrastructure.Repositories
             _dbContext = context;
         }
 
+        public SyllabusScheduleTestRepository()
+        {
+        }
+
         public async Task<bool> AddAsync(SyllabusScheduleTest entity)
         {
             _dbContext.SyllabusScheduleTests.Add(entity);
@@ -78,6 +82,31 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.SyllabusScheduleTests
                             .FirstOrDefaultAsync(x => x.ID == SyllabusScheduleTestID);
+        }
+
+        public async Task<List<SyllabusScheduleTestDTO>> GetExamAddedToSyllabusAsync(List<string> slotAllowToTest)
+        {
+            var query = _dbContext.SyllabusScheduleTests
+                .Where(x => x.IsActive == true);
+
+            if (slotAllowToTest != null && slotAllowToTest.Count > 0)
+            {
+                // Lọc các SyllabusScheduleTests có SyllabusSchedulesID nằm trong danh sách slotAllowToTest
+                query = query.Where(x => slotAllowToTest.Contains(x.SyllabusSchedulesID));
+            }
+
+            var result = await query
+                 .Select(x => new SyllabusScheduleTestDTO
+                 {
+                     ID = x.ID,
+                     SyllabusSchedulesID = x.SyllabusSchedulesID,
+                     TestCategory = x.TestCategory.ToString(),  // Lấy trực tiếp string
+                     TestType = x.TestType.ToString(),          // Lấy trực tiếp string  
+                     IsActive = x.IsActive
+                 })
+                 .ToListAsync();
+
+            return result;
         }
     }
 }

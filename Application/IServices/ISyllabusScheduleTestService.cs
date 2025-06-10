@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.DTOs;
 using Application.Usecases.Command;
+using Domain.Entities;
 using Domain.Enums;
 
 
@@ -24,6 +25,7 @@ namespace Application.IServices
         Task<bool> HasTestAsync(string syllabusScheduleId);
         Task<bool> RemoveTestFromSlotAsyncs(string syllabusScheduleId);
 
-        
+        Task<List<SyllabusScheduleTestDTO>> GetExamAddedAsync(string subject);
+
     }
 }
