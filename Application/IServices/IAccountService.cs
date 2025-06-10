@@ -20,8 +20,10 @@ namespace Application.IServices
         public Task<bool> CreateAccountByManager(CreateAccountCommand createAccountCommand);
 
         public Task<PagedResult<AccountForManageDTO>> GetPaginatedAccountListAsync(int page, int pageSize, string? role, string? gender, string? status);
+        public Task<bool> CheckEmailExistAsync(string email);
 
-
+        public Task<bool> CheckPhoneExistAsync(string phone);
+      
 
     }
 }

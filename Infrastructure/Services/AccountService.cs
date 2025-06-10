@@ -116,17 +116,23 @@ namespace Infrastructure.Services
                 return false;
             }
         }
-
+        public async Task<bool> CheckEmailExistAsync(string email)
+        {
+            var accByEmail = await _accountRepository.GetAccountsByEmailAsync(email);
+            if (accByEmail != null)
+                return true;
+            return false;
+        }
+        public async Task<bool> CheckPhoneExistAsync(string phone)
+        {
+            var accByPhone = await _accountRepository.GetAccountsByPhoneAsync(phone);
+            if (accByPhone != null)
+                return true;
+            return false;
+        }
         public async Task<bool> CreateAccountByManager(CreateAccountCommand createAccountCommand)
         {
-            var accByEmail = await _accountRepository.GetAccountsByEmailAsync(createAccountCommand.Email);
-            if (accByEmail != null)
-                throw new ArgumentException("Email đã được sử dụng, vui lòng chọn email khác.");
-
-            var accByPhone = await _accountRepository.GetAccountsByPhoneAsync(createAccountCommand.PhoneNumber);
-            if (accByPhone != null)
-                throw new ArgumentException("Số điện thoại đã được sử dụng, vui lòng chọn số điện thoại khác.");
-
+         
             var newAcc = new Account();
             var numberOfAcc = (await _accountRepository.GetNumbeOfAccountsAsync());
             string newAccountId = "A" + numberOfAcc.ToString("D5");
