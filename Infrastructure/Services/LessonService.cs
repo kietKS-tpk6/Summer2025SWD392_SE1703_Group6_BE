@@ -117,16 +117,16 @@ namespace Infrastructure.Services
         }
 
         public async Task<bool> CreateLessonsFromSchedulesAsync(
-              string classId,
-              string lecturerId,
-              TimeOnly startHour,
-              List<DayOfWeek> selectedDays,
-              List<SyllabusScheduleCreateLessonDTO> schedules,
-              DateTime StartTime
-        )
+       string classId,
+       string lecturerId,
+       TimeOnly startHour,
+       List<DayOfWeek> selectedDays,
+       List<SyllabusScheduleCreateLessonDTO> schedules,
+       DateTime StartTime
+   )
         {
             var lessonsToCreate = new List<Lesson>();
-            var startDate = StartTime;
+            var startDate = StartTime.Date;
             int currentScheduleIndex = 0;
             int currentWeek = schedules.Min(s => s.Week);
             var totalSchedules = schedules.Count;
@@ -138,14 +138,16 @@ namespace Infrastructure.Services
                     if (currentScheduleIndex >= totalSchedules) break;
 
                     var schedule = schedules[currentScheduleIndex];
+
                     DateTime targetDate;
                     if (currentScheduleIndex == 0)
                     {
-                        targetDate = StartTime.Date;
+                        targetDate = startDate;
                     }
                     else
                     {
-                        targetDate = GetDateByWeekAndDay(startDate, schedule.Week, day);
+                        targetDate = startDate.AddDays((int)day - (int)startDate.DayOfWeek);
+                        targetDate = targetDate.AddDays(7 * (schedule.Week - currentWeek));
                     }
 
                     var numLesson = await _lessonRepository.CountAsync();
@@ -158,9 +160,7 @@ namespace Infrastructure.Services
                         ClassID = classId,
                         LecturerID = lecturerId,
                         SyllabusScheduleID = schedule.SyllabusScheduleId,
-                        StartTime = currentScheduleIndex == 0
-                                    ? StartTime
-                                    : targetDate.Add(startHour.ToTimeSpan()),
+                        StartTime = targetDate.Add(startHour.ToTimeSpan()),
                         LinkMeetURL = roomUrl,
                         IsActive = true
                     });
