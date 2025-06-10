@@ -22,7 +22,8 @@ namespace Application.IServices
             string lecturerId,
             TimeOnly startHour,
             List<DayOfWeek> selectedDays,
-            List<SyllabusScheduleCreateLessonDTO> schedules
+            List<SyllabusScheduleCreateLessonDTO> schedules,
+            DateTime StartTime
         );
 
     }
