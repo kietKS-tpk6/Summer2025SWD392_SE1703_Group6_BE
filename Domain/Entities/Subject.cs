@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -21,7 +22,8 @@ namespace Domain.Entities
         [MaxLength(255)]
         public string Description { get; set; }
 
-        public bool IsActive { get; set; }
+        public SubjectStatus Status { get; set; }
+        public bool IsActive { get; set; }  
 
         public DateTime CreateAt { get; set; }
 
