@@ -63,6 +63,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                     return NotFound(new { message = "Payment not found" });
                 }
 
+                // Sử dụng decimal thay vì cast sang decimal từ float
                 var qrUrl = _paymentService.GetQrCodeUrl(paymentId, (decimal)payment.Total);
                 return Ok(new { qrCodeUrl = qrUrl });
             }
@@ -72,27 +73,55 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        [HttpPost("webhook")]
-        public async Task<IActionResult> ProcessWebhook([FromBody] TransactionDTO transaction)
-        {
-            try
-            {
-                var command = new ProcessWebhookCommand { Transaction = transaction };
-                var result = await _mediator.Send(command);
-
-                return Ok(result);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = ex.Message });
-            }
-        }
-
         [HttpGet("webhook-url")]
         public IActionResult GetWebhookUrl()
         {
             var webhookUrl = _paymentService.GetWebhookUrl();
             return Ok(new { webhookUrl });
+        }
+    }
+
+    // Tạo controller riêng cho webhook để tránh conflict
+    [Route("api/webhooks")]
+    [ApiController]
+    public class WebhookController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+        private readonly ILogger<WebhookController> _logger;
+
+        public WebhookController(IMediator mediator, ILogger<WebhookController> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
+
+        [HttpPost("payment")]
+        public async Task<IActionResult> ProcessPaymentWebhook([FromBody] TransactionDTO transaction)
+        {
+            try
+            {
+                _logger.LogInformation($"Received webhook for transaction: {transaction?.Id}");
+                _logger.LogInformation($"Transaction content: {transaction?.Content}");
+                _logger.LogInformation($"Transaction description: {transaction?.Description}");
+
+                if (transaction == null)
+                {
+                    _logger.LogWarning("Received null transaction data");
+                    return BadRequest(new { success = false, message = "Invalid transaction data" });
+                }
+
+                var command = new ProcessWebhookCommand { Transaction = transaction };
+                var result = await _mediator.Send(command);
+
+                _logger.LogInformation($"Webhook processed successfully: {result.Success}, Message: {result.Message}");
+
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Error processing webhook");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
         }
     }
 }
