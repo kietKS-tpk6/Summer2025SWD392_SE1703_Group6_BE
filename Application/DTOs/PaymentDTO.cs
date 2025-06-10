@@ -79,15 +79,6 @@ namespace Application.DTOs
         public string Message { get; set; }
     }
 
-    public class PaymentSettings
-    {
-        public string BankName { get; set; }
-        public string AccountNumber { get; set; }
-        public string AccountName { get; set; }
-        public string WebhookEndpoint { get; set; }
-        public string ApiKey { get; set; }
-        public string SubAccount { get; set; }
-    }
 
     public class ClassDetailForPaymentDTO
     {
