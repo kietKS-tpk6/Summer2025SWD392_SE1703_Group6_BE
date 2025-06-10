@@ -168,6 +168,10 @@ namespace Infrastructure.Services
                 PageSize = pageSize
             };
         }
+        public Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days)
+        {
+            return _accountRepository.IsLectureFree(lecturerId, time, days);
+        }
 
         #region Private Normalization Methods
 

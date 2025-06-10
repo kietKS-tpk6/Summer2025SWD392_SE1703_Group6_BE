@@ -21,6 +21,7 @@ namespace Application.IServices
 
         public Task<PagedResult<AccountForManageDTO>> GetPaginatedAccountListAsync(int page, int pageSize, string? role, string? gender, string? status);
 
+        public Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days);
 
 
     }
