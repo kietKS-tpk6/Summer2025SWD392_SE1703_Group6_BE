@@ -44,7 +44,8 @@ namespace Application.Usecases.CommandHandler
                 ClassDTO.LecturerID,
                 request.StartHour,
                 request.DaysOfWeek,
-                schedules
+                schedules,
+                ClassDTO.StartTime
                 );
 
         }

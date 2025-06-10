@@ -283,7 +283,8 @@ namespace Infrastructure.Repositories
                                 {
                                     SubjectId = c.SubjectID,
                                     LecturerID = c.LecturerID,
-                                    SyllabusID = s.SyllabusID
+                                    SyllabusID = s.SyllabusID,
+                                    StartTime = c.TeachingStartTime
                                 }).FirstOrDefaultAsync();
 
             return result;
