@@ -30,7 +30,7 @@ namespace Infrastructure.Repositories
         public async Task<List<SyllabusScheduleTestDTO>> GetTestsBySyllabusIdAsync(string syllabusId)
         {
             var result = await _dbContext.SyllabusScheduleTests
-                .Where(t => t.SyllabusSchedule.SyllabusID == syllabusId)
+                .Where(t => t.SyllabusSchedule.SyllabusID == syllabusId && t.IsActive == true)
                 .Select(t => new SyllabusScheduleTestDTO
                 {
                     ID = t.ID,
@@ -42,12 +42,30 @@ namespace Infrastructure.Repositories
 
             return result;
         }
-
         public async Task<bool> HasTestAsync(string syllabusScheduleId)
         {
             return await _dbContext.SyllabusScheduleTests
-                .AnyAsync(t => t.SyllabusSchedulesID == syllabusScheduleId);
+                .AnyAsync(t => t.SyllabusSchedulesID == syllabusScheduleId && t.IsActive);
         }
 
+        public async Task<bool> RemoveTestFromSlotAsyncs(string syllabusScheduleId)
+        {
+            var testsToUpdate = await _dbContext.SyllabusScheduleTests
+                .Where(t => t.SyllabusSchedulesID == syllabusScheduleId && t.IsActive)
+                .ToListAsync();
+
+            if (!testsToUpdate.Any())
+                return false;
+
+            foreach (var test in testsToUpdate)
+            {
+                test.IsActive = false;
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
+       
     }
 }

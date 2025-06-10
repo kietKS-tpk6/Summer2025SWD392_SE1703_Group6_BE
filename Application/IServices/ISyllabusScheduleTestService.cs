@@ -21,6 +21,8 @@ namespace Application.IServices
         Task<bool> AddTestToSyllabusAsync(AddTestSchedulesToSlotsCommand addTestSchedulesToSlotsCommand);
 
         Task<bool> HasTestAsync(string syllabusScheduleId);
+        Task<bool> RemoveTestFromSlotAsyncs(string syllabusScheduleId);
 
+        
     }
 }

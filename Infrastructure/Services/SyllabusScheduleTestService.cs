@@ -152,15 +152,18 @@ namespace Infrastructure.Services
             bien.SyllabusSchedulesID = addTestSchedulesToSlotsCommand.SyllabusScheduleID;
             bien.TestCategory = Enum.Parse<TestCategory>(addTestSchedulesToSlotsCommand.TestCategory, true);
             bien.TestType = Enum.Parse<TestType>(addTestSchedulesToSlotsCommand.TestType, true);
+            bien.IsActive = true;
             return await _syllabusScheduleTestRepository.AddAsync(bien);
         }
 
         public async Task<bool> HasTestAsync(string syllabusScheduleId)
         {
-            if (string.IsNullOrEmpty(syllabusScheduleId))
-                return false;
-
             return await _syllabusScheduleTestRepository.HasTestAsync(syllabusScheduleId);
+        }
+
+        public async Task<bool> RemoveTestFromSlotAsyncs(string syllabusScheduleId)
+        {
+            return await _syllabusScheduleTestRepository.RemoveTestFromSlotAsyncs(syllabusScheduleId);
         }
     }
 }

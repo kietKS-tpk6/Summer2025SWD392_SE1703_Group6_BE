@@ -23,6 +23,8 @@ namespace Domain.Entities
         public TestType TestType { get; set; }
 
         [Required]
+        public bool IsActive { get; set; }
+        [Required]
         public virtual SyllabusSchedule SyllabusSchedule { get; set; }
     }
 }

@@ -97,5 +97,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(new { message = result });
         }
 
+
+        [HttpGet("remove-test-from-slot")]
+        public async Task<IActionResult> RemoveTestFromSlot([FromQuery] string SyllabusScheduleID)
+        {
+            if (string.IsNullOrWhiteSpace(SyllabusScheduleID))
+            {
+                return BadRequest("syllabusId is required.");
+            }
+
+            var result = await _syllabusScheduleTestService.RemoveTestFromSlotAsyncs(SyllabusScheduleID);
+
+            return Ok(new { message = result });
+        }
+
     }
 }
