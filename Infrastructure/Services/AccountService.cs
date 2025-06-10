@@ -123,6 +123,11 @@ namespace Infrastructure.Services
                 return true;
             return false;
         }
+        public async Task<string> GetAccountNameByIDAsync(string accountID)
+        {
+             return await _accountRepository.GetAccountNameByIDAsync(accountID);
+            
+        }
         public async Task<bool> CheckPhoneExistAsync(string phone)
         {
             var accByPhone = await _accountRepository.GetAccountsByPhoneAsync(phone);

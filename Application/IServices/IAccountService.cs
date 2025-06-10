@@ -23,7 +23,8 @@ namespace Application.IServices
         public Task<bool> CheckEmailExistAsync(string email);
 
         public Task<bool> CheckPhoneExistAsync(string phone);
-      
+
+        public Task<string> GetAccountNameByIDAsync(string accountID);
 
     }
 }

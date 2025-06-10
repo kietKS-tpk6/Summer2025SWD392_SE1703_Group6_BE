@@ -67,9 +67,20 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Accounts.CountAsync();
         }
+        public async Task<string> GetAccountNameByIDAsync(string accountID)
+        {
+            var account = await _dbContext.Accounts
+                .Where(a => a.AccountID == accountID)
+                .Select(a => new { a.FirstName, a.LastName })
+                .FirstOrDefaultAsync();
 
-       
-             public async Task<string?> GetHassPassAccountWithEmailAsync(LoginCommand loginCommand)
+            if (account == null)
+                return null;
+
+            return $"{account.LastName} {account.FirstName}".Trim();
+        }
+
+        public async Task<string?> GetHassPassAccountWithEmailAsync(LoginCommand loginCommand)
         {
             var account = await _dbContext.Accounts
            .FirstOrDefaultAsync(x => x.Email == loginCommand.Email);

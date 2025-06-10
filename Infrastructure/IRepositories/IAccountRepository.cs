@@ -22,5 +22,8 @@ namespace Infrastructure.IRepositories
         Task<int> GetNumbeOfAccountsAsync();
         Task<(List<AccountForManageDTO> Items, int TotalCount)> GetPaginatedAccountListAsync(int page, int pageSize, AccountRole? role = null, Gender? gender = null, AccountStatus? status = null);
         Task<List<Account>> GetAllAccountsAsync();
+        Task<string> GetAccountNameByIDAsync(string accountID);
+
+        
     }
 }

@@ -12,8 +12,12 @@ namespace Application.DTOs
         public string SyllabusID { get; set; }
         public string SubjectID { get; set; }
         public string CreateBy { get; set; }
+        public string CreateByName { get; set; }
+
         public DateTime CreateAt { get; set; }
         public string? UpdateBy { get; set; }
+        public string? UpdateByName { get; set; }
+
         public DateTime? UpdateAt { get; set; }
         public string Description { get; set; }
         public string Note { get; set; }

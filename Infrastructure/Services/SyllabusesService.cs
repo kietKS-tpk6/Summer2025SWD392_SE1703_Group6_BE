@@ -17,12 +17,14 @@ namespace Infrastructure.Services
     {
         private readonly ISyllabusesRepository _iSyllabusesRepository;
         private readonly ISubjectRepository _iSubjectRepository;
+        private readonly IAccountService _accountService;
 
 
-        public SyllabusesService(ISyllabusesRepository syllabusesRepository, ISubjectRepository subjectRepository)
+        public SyllabusesService(ISyllabusesRepository syllabusesRepository, ISubjectRepository subjectRepository, IAccountService accountService)
         {
             _iSyllabusesRepository = syllabusesRepository;
             _iSubjectRepository = subjectRepository;
+            _accountService = accountService;
         }
 
         public async Task<bool> IsValidSyllabusStatusForSubjectAsync(string subjectID)
@@ -107,9 +109,15 @@ namespace Infrastructure.Services
             throw new ArgumentException($"Status '{status}' không hợp lệ");
         }
 
-        public Task<SyllabusDTO> getSyllabusBySubjectID(string SyllabusID)
+        public async Task<SyllabusDTO> getSyllabusBySubjectID(string SyllabusID)
         {
-            return _iSyllabusesRepository.getSyllabusBySubjectID(SyllabusID);
+            var res = await _iSyllabusesRepository.getSyllabusBySubjectID(SyllabusID);
+         var createByName = await _accountService.GetAccountNameByIDAsync(res.CreateBy);
+            var updateByName = await _accountService.GetAccountNameByIDAsync(res.UpdateBy);
+            res.UpdateByName = updateByName;
+            res.CreateByName = createByName;
+
+            return res;
         }
 
         public Task<bool> DeleteSyllabusById(string SyllabusID)
