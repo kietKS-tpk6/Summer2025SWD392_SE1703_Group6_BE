@@ -35,13 +35,15 @@ namespace Infrastructure.Services
         //    newAssCri.IsActive = true;
         //    return  await _assessmentCriteriaRepository.CreateAsync(newAssCri);
         //}
-        public async Task<string> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command)
+        public async Task<OperationResult<bool>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command)
         {
             var existing = await _assessmentCriteriaRepository.GetByIdAsync(command.AssessmentCriteriaID);
+
             if (existing == null)
             {
-                return OperationMessages.UpdateFail; 
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("tiêu chí đánh giá"));
             }
+
             existing.SubjectID = command.SubjectID;
             existing.WeightPercent = command.WeightPercent;
             existing.Category = (AssessmentCategory)command.Category;
@@ -51,8 +53,9 @@ namespace Infrastructure.Services
             existing.Note = command.Note;
             existing.MinPassingScore = command.MinPassingScore;
 
-            return await _assessmentCriteriaRepository.UpdateAsync(existing);
+            return await _assessmentCriteriaRepository.UpdateAsync(existing); 
         }
+
         //public async Task<PagedResult<AssessmentCriteriaDTO>> GetPaginatedListAsync(int page, int pageSize)
         //{
         //    var (items, total) = await _assessmentCriteriaRepository.GetPaginatedListAsync(page, pageSize);
@@ -65,10 +68,24 @@ namespace Infrastructure.Services
         //    };
         //}
 
-        public async Task<List<AssessmentCriteriaDTO>> GetListBySubjectIdAsync(string subjectId)
+        public async Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectId)
         {
-            return await _assessmentCriteriaRepository.GetListBySubjectIdAsync(subjectId) ;
+            var result = await _assessmentCriteriaRepository.GetListBySubjectIdAsync(subjectId);
+
+            if (result == null || !result.Any())
+            {
+                return OperationResult<List<AssessmentCriteriaDTO>>.Fail(
+                    OperationMessages.NotFound("tiêu chí đánh giá")
+                );
+            }
+
+            return OperationResult<List<AssessmentCriteriaDTO>>.Ok(
+                result,
+                OperationMessages.RetrieveSuccess("tiêu chí đánh giá")
+            );
         }
+
+
         //public async Task<bool> DeleteAsync(string id)
         //{
         //    return await _assessmentCriteriaRepository.DeleteAsync(id);
@@ -94,7 +111,7 @@ namespace Infrastructure.Services
         //    return await _assessmentCriteriaRepository.IsTestDefinedInCriteriaAsync( syllabusId, stringCategory, stringTestType);
 
         //}
-        public async Task<string> SetupAssessmentCriteria(AssessmentCriteriaSetupCommand request)
+        public async Task<OperationResult<int>> SetupAssessmentCriteria(AssessmentCriteriaSetupCommand request)
         {
             var numberInDb = await _assessmentCriteriaRepository.CountAsync();
             var newList = new List<AssessmentCriteria>();
@@ -120,7 +137,7 @@ namespace Infrastructure.Services
                 newList.Add(newAssCri);
             }
 
-            var result = await _assessmentCriteriaRepository.CreateManyAsync(newList, request.NumberAssessmentCriteria);
+            var result = await _assessmentCriteriaRepository.CreateManyAsync(newList);
             return result;
         }
 

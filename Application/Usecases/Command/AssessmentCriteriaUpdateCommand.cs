@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Domain.Enums;
 using MediatR;
 namespace Application.Usecases.Command
 {
-    public class AssessmentCriteriaUpdateCommand :  IRequest<string>
+    public class AssessmentCriteriaUpdateCommand : IRequest<OperationResult<bool>>
     {
         public string AssessmentCriteriaID { get; set; }
         public string SubjectID { get; set; }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.DTOs;
 using Domain.Entities;
 using Domain.Enums;
@@ -11,8 +12,8 @@ namespace Infrastructure.IRepositories
 {
     public interface IAssessmentCriteriaRepository
     {
-        Task<string> CreateManyAsync(List<AssessmentCriteria> list, int numbers);
-        Task<string> UpdateAsync(AssessmentCriteria assessmentCriteria);
+        Task<OperationResult<int>> CreateManyAsync(List<AssessmentCriteria> list);
+        Task<OperationResult<bool>> UpdateAsync(AssessmentCriteria assessmentCriteria);
 
         Task<List<AssessmentCriteriaDTO>> GetListBySubjectIdAsync(string subjectID);
 

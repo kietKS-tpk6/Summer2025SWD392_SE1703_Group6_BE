@@ -34,20 +34,36 @@ namespace HangulLearningSystem.WebAPI.Controllers
         //        return BadRequest(OperationMessages.CreateFail);
         //    }
         //}
+        [HttpPost("create-many")]
+        public async Task<IActionResult> CreateMany([FromBody] AssessmentCriteriaSetupCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            if (result.Success)
+            {
+                return Ok(result); 
+            }
+            else
+            {
+                return BadRequest(result); 
+            }
+
+
+        }
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody] AssessmentCriteriaUpdateCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
 
-            if (result == OperationMessages.UpdateSuccess)
+            if (result.Success)
             {
-                return Ok(OperationMessages.UpdateSuccess);
+                return Ok(result);
             }
             else
             {
-                return BadRequest(OperationMessages.UpdateFail);
+                return BadRequest(result); 
             }
         }
+
         //[HttpGet("get-all-paginated")]
         //public async Task<IActionResult> GetPaginatedList([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         //{
@@ -80,14 +96,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             var result = await _assessmentCriteriaService.GetListBySubjectIdAsync(subjectId);
 
-            if (result == null || !result.Any())
+            if (!result.Success)
             {
-                return NotFound(new { message = OperationMessages.NotFound });
+                return NotFound(result);
             }
 
             return Ok(result);
         }
-     
+
+
 
 
     }

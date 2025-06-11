@@ -20,34 +20,46 @@ namespace Infrastructure.Repositories
         {
             _dbContext = dbContext;
         }
-        public async Task<string> CreateManyAsync(List<AssessmentCriteria> entities, int numbers)
+        public async Task<OperationResult<int>> CreateManyAsync(List<AssessmentCriteria> entities)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
             try
             {
                 await _dbContext.AssessmentCriteria.AddRangeAsync(entities);
-                await _dbContext.SaveChangesAsync();
+                var saved = await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return $"Đã tạo thành công {numbers} tiêu chí đánh giá.";
+
+                var message = OperationMessages.CreateSuccess($"{saved} tiêu chí đánh giá");
+                return OperationResult<int>.Ok(saved, message);
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return "Đã xảy ra lỗi trong quá trình tạo tiêu chí đánh giá. Vui lòng liên hệ quản trị viên nếu lỗi vẫn tiếp diễn.";
+
+                var message = OperationMessages.CreateFail("tiêu chí đánh giá");
+                return OperationResult<int>.Fail(message);
             }
         }
 
-        public async Task<string> UpdateAsync(AssessmentCriteria assessmentCriteria)
+        public async Task<OperationResult<bool>> UpdateAsync(AssessmentCriteria assessmentCriteria)
         {
             _dbContext.AssessmentCriteria.Update(assessmentCriteria);
             var result = await _dbContext.SaveChangesAsync();
-            if (result > 0) return OperationMessages.UpdateSuccess;
-            else return OperationMessages.UpdateFail;
+
+            if (result > 0)
+            {
+                return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
+            }
+            else
+            {
+                return OperationResult<bool>.Fail(OperationMessages.UpdateFail("tiêu chí đánh giá"));
+            }
         }
+
         public async Task<List<AssessmentCriteriaDTO>> GetListBySubjectIdAsync(string subjectID)
         {
-            var items = await _dbContext.AssessmentCriteria
+            return await _dbContext.AssessmentCriteria
                 .Where(x => x.SubjectID == subjectID && x.IsActive)
                 .Select(x => new AssessmentCriteriaDTO
                 {
@@ -63,11 +75,8 @@ namespace Infrastructure.Repositories
                     MinPassingScore = x.MinPassingScore
                 })
                 .ToListAsync();
-
-            return items;
         }
 
-    
 
         public async Task<bool> DeleteAsync(string id)
         {
