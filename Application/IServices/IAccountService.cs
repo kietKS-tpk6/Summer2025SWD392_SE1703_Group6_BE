@@ -23,6 +23,6 @@ namespace Application.IServices
 
         public Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days);
 
-
+        public Task<List<TeachingScheduleDTO>> GetTeachingSchedule();
     }
 }
