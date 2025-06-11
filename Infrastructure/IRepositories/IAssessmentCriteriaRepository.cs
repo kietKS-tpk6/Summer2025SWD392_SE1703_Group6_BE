@@ -11,15 +11,20 @@ namespace Infrastructure.IRepositories
 {
     public interface IAssessmentCriteriaRepository
     {
+        Task<string> CreateManyAsync(List<AssessmentCriteria> list, int numbers);
+        Task<string> UpdateAsync(AssessmentCriteria assessmentCriteria);
+
+        Task<List<AssessmentCriteriaDTO>> GetListBySubjectIdAsync(string subjectID);
+
         Task<List<AssessmentCriteria>> GetAllAsync();
-        Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId);
-        Task<(List<AssessmentCriteriaDTO> Items, int TotalCount)> GetPaginatedListAsync(int page, int pageSize);
-        Task<AssessmentCriteria?> GetByIdAsync(string id);
-        Task<bool> CreateAsync(AssessmentCriteria assessmentCriteria);
-        Task<bool> UpdateAsync(AssessmentCriteria assessmentCriteria);
-        Task<bool> DeleteAsync(string id);
         Task<int> CountAsync();
-        Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, string category, string testType);
+        Task<AssessmentCriteria?> GetByIdAsync(string id);
+        //Task<bool> CreateAsync(AssessmentCriteria assessmentCriteria);
+        //Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId);
+        //Task<bool> DeleteAsync(string id);
+       
+        //Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, string category, string testType);
+
 
     }
 }

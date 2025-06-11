@@ -20,26 +20,26 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _assessmentCriteriaService = assessmentCriteriaService;
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] AssessmentCriteriaCreateCommand command, CancellationToken cancellationToken)
-        {
-            var result = await _mediator.Send(command, cancellationToken);
+        //[HttpPost("create")]
+        //public async Task<IActionResult> Create([FromBody] AssessmentCriteriaCreateCommand command, CancellationToken cancellationToken)
+        //{
+        //    var result = await _mediator.Send(command, cancellationToken);
 
-            if (result)
-            {
-                return Ok(OperationMessages.CreateSuccess);
-            }
-            else
-            {
-                return BadRequest(OperationMessages.CreateFail);
-            }
-        }
-        [HttpPut("update/{id}")]
+        //    if (result)
+        //    {
+        //        return Ok(OperationMessages.CreateSuccess);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(OperationMessages.CreateFail);
+        //    }
+        //}
+        [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody] AssessmentCriteriaUpdateCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
 
-            if (result)
+            if (result == OperationMessages.UpdateSuccess)
             {
                 return Ok(OperationMessages.UpdateSuccess);
             }
@@ -61,24 +61,24 @@ namespace HangulLearningSystem.WebAPI.Controllers
         //        return StatusCode(500, new { message = $"Lỗi server: {ex.Message}" });
         //    }
         //}
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(string id)
-        {
-            var success = await _assessmentCriteriaService.DeleteAsync(id);
+        //[HttpDelete("delete/{id}")]
+        //public async Task<IActionResult> Delete(string id)
+        //{
+        //    var success = await _assessmentCriteriaService.DeleteAsync(id);
 
-            if (success)
-            {
-                return Ok(OperationMessages.DeleteSuccess);
-            }
-            else
-            {
-                return NotFound(OperationMessages.DeleteFail);
-            }
-        }
-        [HttpGet("get-by-syllabus/{syllabusId}")]
-        public async Task<IActionResult> GetBySyllabusId(string syllabusId)
+        //    if (success)
+        //    {
+        //        return Ok(OperationMessages.DeleteSuccess);
+        //    }
+        //    else
+        //    {
+        //        return NotFound(OperationMessages.DeleteFail);
+        //    }
+        //}
+        [HttpGet("get-by-subject/{subjectId}")]
+        public async Task<IActionResult> GetBySyllabusId(string subjectId)
         {
-            var result = await _assessmentCriteriaService.GetListBySyllabusIdAsync(syllabusId);
+            var result = await _assessmentCriteriaService.GetListBySubjectIdAsync(subjectId);
 
             if (result == null || !result.Any())
             {
