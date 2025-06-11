@@ -33,7 +33,7 @@ namespace Application.DTOs
 
     public class TransactionDTO
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
 
        
         public string Gateway { get; set; }
@@ -42,7 +42,7 @@ namespace Application.DTOs
 
         public string AccountNumber { get; set; }
 
-        public string Code { get; set; }
+        public string ?Code { get; set; }
 
         public string Content { get; set; }
 

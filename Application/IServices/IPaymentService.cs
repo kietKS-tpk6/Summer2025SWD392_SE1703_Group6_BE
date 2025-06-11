@@ -11,9 +11,9 @@ namespace Application.IServices
         Task<PaymentStatusDTO> CheckPaymentStatusAsync(string paymentId);
         Task<string> GenerateNextPaymentIdAsync();
         Task<WebhookResponseDTO> ProcessWebhookAsync(TransactionDTO transaction);
-        Task<bool> UpdatePaymentStatusAsync(string paymentId, decimal amountReceived, int? transactionId = null);
+        Task<bool> UpdatePaymentStatusAsync(string paymentId, decimal amountReceived);
         Task<Payment> GetPaymentAsync(string paymentId);
-        string GetQrCodeUrl(string paymentId, decimal amount);
+        string GetQrCodeUrl(string paymentId, decimal total);
         string GetWebhookUrl();
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using System.Reflection;
+using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.CommandHandler;
 using Infrastructure.Data;
@@ -61,8 +62,14 @@ namespace Infrastructure
             services.AddScoped<CreateSubjectCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
+            services.AddScoped<ProcessWebhookCommandHandler>();
 
-            
+            services.AddMediatR(cfg =>
+           cfg.RegisterServicesFromAssembly(Assembly.Load("Application"))
+       );
+
+
+
             services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));
 
             return services;

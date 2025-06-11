@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
+using Domain.Entities;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;

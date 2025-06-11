@@ -4,6 +4,7 @@ using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
+
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _paymentRepository;
@@ -134,9 +136,10 @@ namespace Infrastructure.Services
                 PaidDate = payment.Status == PaymentStatus.Paid ? payment.DayCreate : null
             };
         }
-
         public async Task<WebhookResponseDTO> ProcessWebhookAsync(TransactionDTO transaction)
         {
+            _logger.LogInformation($"Received webhook for transaction ID: {transaction.Id} with amount: {transaction.TransferAmount} and type: {transaction.TransferType}");
+            decimal amountReceived = (transaction.TransferAmount) / 100;
             try
             {
                 _logger.LogInformation($"Processing webhook for transaction ID: {transaction.Id}");
@@ -145,8 +148,8 @@ namespace Infrastructure.Services
                 _logger.LogInformation($"Transaction description: {transaction.Description}");
 
                 // Lưu transaction trước
-                var savedTransactionId = await SaveTransactionAsync(transaction);
-                _logger.LogInformation($"Transaction saved with ID: {savedTransactionId}");
+                //var savedTransactionId = await SaveTransactionAsync(transaction);
+                //_logger.LogInformation($"Transaction saved with ID: {savedTransactionId}");
 
                 // Extract PaymentID từ nhiều nguồn
                 string paymentId = ExtractPaymentIdFromTransaction(transaction);
@@ -161,11 +164,10 @@ namespace Infrastructure.Services
                         Message = "Payment ID not found in transaction"
                     };
                 }
-
+                
                 // Chỉ xử lý transaction IN (nhận tiền)
                 if (transaction.TransferType?.ToLower() != "in")
                 {
-                    _logger.LogInformation($"Ignoring outgoing transaction for Payment ID: {paymentId}");
                     return new WebhookResponseDTO
                     {
                         Success = true,
@@ -173,9 +175,9 @@ namespace Infrastructure.Services
                     };
                 }
 
-                decimal amountReceived = transaction.TransferAmount / 100;
+                
 
-                bool updated = await UpdatePaymentStatusAsync(paymentId, amountReceived, savedTransactionId);
+                bool updated = await UpdatePaymentStatusAsync(paymentId, amountReceived);
 
                 if (updated)
                 {
@@ -207,10 +209,9 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<bool> UpdatePaymentStatusAsync(string paymentId, decimal amountReceived, int? transactionId = null)
+        public async Task<bool> UpdatePaymentStatusAsync(string paymentId, decimal amountReceived)
         {
             _logger.LogInformation($"Attempting to update payment {paymentId} with amount {amountReceived}");
-            amountReceived = amountReceived / 10;
             var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
 
             if (payment == null)
@@ -228,7 +229,7 @@ namespace Infrastructure.Services
             _logger.LogInformation($"Payment found. Expected amount: {payment.Total}, Received: {amountReceived}");
             
             // Kiểm tra số tiền (cho phép sai lệch nhỏ do làm tròn)
-            decimal expectedAmount = payment.Total;
+            decimal expectedAmount = payment.Total/100;
             if (Math.Abs(expectedAmount  - amountReceived) > 1m) // Cho phép sai lệch 1 VND
             {
                 _logger.LogWarning($"Amount mismatch for payment {paymentId}. Expected: {expectedAmount}, Received: {amountReceived}");
@@ -240,10 +241,10 @@ namespace Infrastructure.Services
             }
 
             payment.Status = PaymentStatus.Paid;
-            if (transactionId.HasValue)
-            {
-                payment.TransactionID = transactionId.Value;
-            }
+            //if (transactionId.HasValue)
+            //{
+            //    payment.TransactionID = transactionId.Value;
+            //}
 
             var updateResult = await _paymentRepository.UpdatePaymentAsync(payment);
             _logger.LogInformation($"Payment update result: {updateResult}");
@@ -256,18 +257,15 @@ namespace Infrastructure.Services
             return await _paymentRepository.GetPaymentByIdAsync(paymentId);
         }
 
-        public string GetQrCodeUrl(string paymentId, decimal amount)
+        public string GetQrCodeUrl(string paymentId, decimal total)
         {
             var sepayConfig = _configuration.GetSection("SepaySettings");
             var bankName = sepayConfig["BankName"] ?? "OCB";
             var subAccount = sepayConfig["SubAccount"] ?? "SEPEIC2025";
 
-            _logger.LogInformation($"Generating QR for Payment {paymentId} with input amount: {amount}");
+            _logger.LogInformation($"Generating QR for Payment {paymentId} with input amount: {total}");
 
-            // REVERT VỀ FORMAT CŨ TẠM THỜI ĐỂ WEBHOOK HOẠT ĐỘNG
-            var qrUrl = $"https://qr.sepay.vn/img?acc={subAccount}&bank={bankName}&amount={amount * 10}&des=ID_{paymentId}";
-
-            _logger.LogInformation($"Generated QR URL (OLD FORMAT): {qrUrl}");
+            var qrUrl = $"https://qr.sepay.vn/img?acc={subAccount}&bank={bankName}&amount={total/100}&des=ID_{paymentId}";
 
             return qrUrl;
         }
@@ -283,6 +281,7 @@ namespace Infrastructure.Services
             }
 
             var webhookEndpoint = _configuration["SepaySettings:WebhookEndpoint"] ?? "/api/webhooks/payment";
+            Console.WriteLine("webhook link: " + $"{baseUrl.TrimEnd('/')}{webhookEndpoint}");
             return $"{baseUrl.TrimEnd('/')}{webhookEndpoint}";
         }
 
@@ -290,8 +289,10 @@ namespace Infrastructure.Services
         {
             try
             {
+                _logger.LogInformation($"start saved transaction with ID: {transaction.Id}");
                 var transactionEntity = new Transaction
                 {
+                    TransactionID = transaction.Id,
                     Gateway = transaction.Gateway,
                     TransactionDate = DateTime.ParseExact(transaction.TransactionDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                     AccountNumber = transaction.AccountNumber,
@@ -336,7 +337,7 @@ namespace Infrastructure.Services
             }
 
             // Thử extract từ ReferenceCode
-            paymentId = ExtractPaymentIdFromDescription(transaction.ReferenceCode);
+            //paymentId = ExtractPaymentIdFromDescription(transaction.ReferenceCode);
 
             return paymentId ?? string.Empty;
         }
@@ -347,28 +348,15 @@ namespace Infrastructure.Services
                 return string.Empty;
 
             // Pattern để tìm PM theo sau bởi 4 chữ số
-            string pattern = @"(?:ID_)?(?:Ma_giao_dich_)?(?:Payment_)?(?:PM)?(\d{4})|PM(\d{4})";
-            Match match = Regex.Match(description, pattern, RegexOptions.IgnoreCase);
+            string pattern = @"PM\d{4}";
+
+            Match match = Regex.Match(description, pattern);
+            _logger.LogInformation($"description -------> {description}");
+            _logger.LogInformation($"{match.Success}");
 
             if (match.Success)
             {
-                // Lấy group đầu tiên có giá trị
-                for (int i = 1; i < match.Groups.Count; i++)
-                {
-                    if (!string.IsNullOrEmpty(match.Groups[i].Value))
-                    {
-                        return $"PM{match.Groups[i].Value}";
-                    }
-                }
-            }
-
-            // Fallback: tìm pattern PM + 4 số
-            pattern = @"(PM\d{4})";
-            match = Regex.Match(description, pattern, RegexOptions.IgnoreCase);
-
-            if (match.Success)
-            {
-                return match.Groups[1].Value.ToUpper();
+                return match.Value;
             }
 
             return string.Empty;
