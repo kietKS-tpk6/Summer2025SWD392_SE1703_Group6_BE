@@ -63,8 +63,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                     return NotFound(new { message = "Payment not found" });
                 }
 
-                // Sử dụng decimal thay vì cast sang decimal từ float
-                var qrUrl = _paymentService.GetQrCodeUrl(paymentId, (decimal)payment.Total);
+                var qrUrl = _paymentService.GetQrCodeUrl(paymentId, payment.Total);
                 return Ok(new { qrCodeUrl = qrUrl });
             }
             catch (System.Exception ex)
@@ -81,7 +80,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         }
     }
 
-    // Tạo controller riêng cho webhook để tránh conflict
+   
     [Route("api/webhooks")]
     [ApiController]
     public class WebhookController : ControllerBase

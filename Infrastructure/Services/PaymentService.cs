@@ -83,7 +83,7 @@ namespace Infrastructure.Services
                     PaymentID = paymentId,
                     AccountID = command.AccountID,
                     ClassID = command.ClassID,
-                    Total = (float)classEntity.PriceOfClass, // Ép kiểu trực tiếp thay vì Convert.ToSingle
+                    Total = classEntity.PriceOfClass, 
                     DayCreate = DateTime.UtcNow,
                     Status = PaymentStatus.Pending,
                     TransactionID = null
@@ -96,9 +96,7 @@ namespace Infrastructure.Services
                 if (!result.Contains("successfully", StringComparison.OrdinalIgnoreCase))
                     throw new Exception($"Failed to create payment: {result}");
 
-                _logger.LogInformation($"Creating QR for payment {paymentId} with class price: {classEntity.PriceOfClass}");
-                // Sử dụng giá trị decimal gốc để tạo QR, không dùng giá trị đã convert
-                var qrCodeUrl = GetQrCodeUrl(paymentId, classEntity.PriceOfClass);
+                
 
                 return new PaymentResponseDTO
                 {
@@ -106,7 +104,7 @@ namespace Infrastructure.Services
                     ClassID = command.ClassID,
                     ClassName = classEntity.ClassName,
                     Total = classEntity.PriceOfClass,
-                    QRCodeUrl = qrCodeUrl,
+                   
                     Status = PaymentStatus.Pending,
                     DayCreate = payment.DayCreate,
                     Description = command.Description ?? $"Payment for {classEntity.ClassName}"
@@ -132,7 +130,7 @@ namespace Infrastructure.Services
             {
                 PaymentID = paymentId,
                 Status = payment.Status,
-                Total = (decimal)payment.Total,
+                Total = payment.Total,
                 PaidDate = payment.Status == PaymentStatus.Paid ? payment.DayCreate : null
             };
         }
@@ -175,7 +173,7 @@ namespace Infrastructure.Services
                     };
                 }
 
-                decimal amountReceived = transaction.TransferAmount;
+                decimal amountReceived = transaction.TransferAmount / 100;
 
                 bool updated = await UpdatePaymentStatusAsync(paymentId, amountReceived, savedTransactionId);
 
@@ -212,7 +210,7 @@ namespace Infrastructure.Services
         public async Task<bool> UpdatePaymentStatusAsync(string paymentId, decimal amountReceived, int? transactionId = null)
         {
             _logger.LogInformation($"Attempting to update payment {paymentId} with amount {amountReceived}");
-
+            amountReceived = amountReceived / 10;
             var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
 
             if (payment == null)
@@ -228,10 +226,10 @@ namespace Infrastructure.Services
             }
 
             _logger.LogInformation($"Payment found. Expected amount: {payment.Total}, Received: {amountReceived}");
-
+            
             // Kiểm tra số tiền (cho phép sai lệch nhỏ do làm tròn)
-            decimal expectedAmount = (decimal)payment.Total;
-            if (Math.Abs(expectedAmount - amountReceived) > 1m) // Cho phép sai lệch 1 VND
+            decimal expectedAmount = payment.Total;
+            if (Math.Abs(expectedAmount  - amountReceived) > 1m) // Cho phép sai lệch 1 VND
             {
                 _logger.LogWarning($"Amount mismatch for payment {paymentId}. Expected: {expectedAmount}, Received: {amountReceived}");
                 // Vẫn cập nhật nếu số tiền nhận được >= số tiền yêu cầu
@@ -267,13 +265,13 @@ namespace Infrastructure.Services
             _logger.LogInformation($"Generating QR for Payment {paymentId} with input amount: {amount}");
 
             // REVERT VỀ FORMAT CŨ TẠM THỜI ĐỂ WEBHOOK HOẠT ĐỘNG
-            var qrUrl = $"https://qr.sepay.vn/img?acc={subAccount}&bank={bankName}&amount={amount * 1000}&des=ID_{paymentId}";
+            var qrUrl = $"https://qr.sepay.vn/img?acc={subAccount}&bank={bankName}&amount={amount * 10}&des=ID_{paymentId}";
 
             _logger.LogInformation($"Generated QR URL (OLD FORMAT): {qrUrl}");
 
             return qrUrl;
         }
-
+        
         public string GetWebhookUrl()
         {
             string baseUrl = _configuration["ApplicationUrl"];

@@ -26,7 +26,7 @@ namespace Domain.Entities
         [MaxLength(6)]
         public string ClassID { get; set; }
 
-        public double Total { get; set; }
+        public decimal Total { get; set; }
 
         public DateTime DayCreate { get; set; }
 
@@ -38,3 +38,5 @@ namespace Domain.Entities
         public virtual Class Class { get; set; }
     }
 }
+
+
