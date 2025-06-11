@@ -109,16 +109,24 @@ namespace Infrastructure.Services
             throw new ArgumentException($"Status '{status}' không hợp lệ");
         }
 
-        public async Task<SyllabusDTO> getSyllabusBySubjectID(string SyllabusID)
+        public async Task<SyllabusDTO?> getSyllabusBySubjectID(string SyllabusID)
         {
             var res = await _iSyllabusesRepository.getSyllabusBySubjectID(SyllabusID);
-         var createByName = await _accountService.GetAccountNameByIDAsync(res.CreateBy);
+
+            if (res == null)
+            {
+                return null;
+            }
+
+            var createByName = await _accountService.GetAccountNameByIDAsync(res.CreateBy);
             var updateByName = await _accountService.GetAccountNameByIDAsync(res.UpdateBy);
+
             res.UpdateByName = updateByName;
             res.CreateByName = createByName;
 
             return res;
         }
+
 
         public Task<bool> DeleteSyllabusById(string SyllabusID)
         {
