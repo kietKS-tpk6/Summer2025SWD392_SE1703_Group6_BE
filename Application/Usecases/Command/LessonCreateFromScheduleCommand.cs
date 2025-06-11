@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Usecases.Command
 {
-    public class LessonCreateFromScheduleCommand : IRequest<bool>
+    public class LessonCreateFromScheduleCommand : IRequest<string>
     {
         public string ClassId { get; set; }
         public TimeOnly StartHour { get; set; }

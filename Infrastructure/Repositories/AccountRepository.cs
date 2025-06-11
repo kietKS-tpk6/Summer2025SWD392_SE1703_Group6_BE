@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Shared;
@@ -175,5 +176,64 @@ namespace Infrastructure.Repositories
 
             return (items, totalItems);
         }
+        public async Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days)
+        {
+            var targetTime = time.ToTimeSpan();
+
+            var query = from lesson in _dbContext.Lesson
+                        join @class in _dbContext.Class on lesson.ClassID equals @class.ClassID
+                        join syllabus in _dbContext.Syllabus on @class.SubjectID equals syllabus.SubjectID
+                        join schedule in _dbContext.SyllabusSchedule on lesson.SyllabusScheduleID equals schedule.SyllabusScheduleID
+                        where lesson.LecturerID == lecturerId
+                              && lesson.IsActive
+                              && syllabus.Status == SyllabusStatus.Published
+                        select new
+                        {
+                            lesson.StartTime,
+                            schedule.DurationMinutes
+                        };
+
+            var lessonList = await query.ToListAsync();
+
+            var conflictCount = lessonList
+                .Where(l =>
+                    days.Contains(l.StartTime.DayOfWeek)
+                    && targetTime >= l.StartTime.TimeOfDay
+                    && targetTime < l.StartTime.TimeOfDay + TimeSpan.FromMinutes(l.DurationMinutes)
+                )
+                .Count();
+
+            return conflictCount == 0;
+        }
+
+        public async Task<List<TeachingScheduleDTO>> GetTeachingSchedule()
+        {
+            var result = await (
+                 from lesson in _dbContext.Lesson
+                 join @class in _dbContext.Class on lesson.ClassID equals @class.ClassID
+                 join subject in _dbContext.Subject on @class.SubjectID equals subject.SubjectID
+                 join syllabus in _dbContext.Syllabus on subject.SubjectID equals syllabus.SubjectID
+                 join schedule in _dbContext.SyllabusSchedule on lesson.SyllabusScheduleID equals schedule.SyllabusScheduleID
+                 join account in _dbContext.Accounts on lesson.LecturerID equals account.AccountID
+                 where lesson.IsActive && syllabus.Status == SyllabusStatus.Published
+                 select new TeachingScheduleDTO
+                 {
+                     LecturerID = lesson.LecturerID,
+                     LecturerName = account.LastName + " " + account.FirstName,
+                     TeachingDay = (int)lesson.StartTime.DayOfWeek,
+                     StartTime = lesson.StartTime.TimeOfDay,
+                     EndTime = lesson.StartTime.TimeOfDay.Add(TimeSpan.FromMinutes((double)schedule.DurationMinutes))
+                 }
+             ).ToListAsync();
+
+            var distinctResult = result
+                .DistinctBy(x => new { x.LecturerID, x.TeachingDay, x.StartTime, x.EndTime })
+                .ToList();
+
+            return distinctResult;
+        }
+
+
+
     }
 }

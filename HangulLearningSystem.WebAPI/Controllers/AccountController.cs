@@ -15,9 +15,10 @@ namespace HangulLearningSystem.WebAPI.Controllers
         private readonly IMediator _mediator;
         private readonly IAccountService _accountService;
 
-        public AccountController(IMediator mediator)
+        public AccountController(IMediator mediator, IAccountService accountService)
         {
             _mediator = mediator;
+            _accountService = accountService;
         }
         [HttpPost("create-account")]
         public async Task<IActionResult> Create([FromBody] CreateAccountCommand command, CancellationToken cancellationToken)
@@ -74,5 +75,23 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
+        [HttpGet("teaching-schedule")]
+        public async Task<IActionResult> GetTeachingSchedule()
+        {
+            try
+            {
+                var schedules = await _accountService.GetTeachingSchedule();
+                return Ok(schedules);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Có lỗi xảy ra khi lấy danh sách làm việc của các giảng viên",
+                    Error = ex.Message
+                });
+            }
+        }
     }
 }

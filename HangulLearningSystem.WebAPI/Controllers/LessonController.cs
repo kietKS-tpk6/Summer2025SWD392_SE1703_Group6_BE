@@ -15,31 +15,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
             _lessonService = lessonService;
         }
+
         [HttpPost("create-from-schedule")]
         public async Task<IActionResult> CreateFromSchedule([FromBody] LessonCreateFromScheduleCommand command, CancellationToken cancellationToken)
         {
-            try
-            {
                 var result = await _mediator.Send(command, cancellationToken);
-                if (result)
+                if(result == OperationMessages.CreateSuccess)
                 {
                     return Ok(OperationMessages.CreateSuccess);
                 }
-                else
-                {
-                    return BadRequest(OperationMessages.CreateFail);
-                }
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception)
-            {
-                // Log exception ở đây nếu cần
-                return StatusCode(500, "Có lỗi xảy ra trong quá trình tạo lesson.");
-            }
+                else return BadRequest(result);
         }
+
+
         [HttpPost("create-detail")]
         public async Task<IActionResult> Create([FromBody] LessonCreateCommand command, CancellationToken cancellationToken)
         {
