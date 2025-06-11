@@ -16,9 +16,9 @@ namespace Domain.Entities
         [MaxLength(6)]
         public string AssessmentCriteriaID { get; set; }
 
-        [ForeignKey("Syllabus")]
+        [ForeignKey("Subject")]
         [MaxLength(6)]
-        public string SyllabusID { get; set; }
+        public string SubjectID { get; set; }
 
         public double WeightPercent { get; set; }
 
@@ -37,6 +37,6 @@ namespace Domain.Entities
 
         public double MinPassingScore { get; set; }
 
-        public virtual Syllabus Syllabus { get; set; }
+        public virtual Subject Subject { get; set; }
     }
 }

@@ -16,8 +16,8 @@ namespace Domain.Entities
         public string SyllabusScheduleID { get; set; }
 
         [MaxLength(6)]
-        [ForeignKey("Syllabus")]
-        public string SyllabusID { get; set; }
+        [ForeignKey("Subject")]
+        public string SubjectID { get; set; }
 
         [MaxLength(255)]
         public string Content { get; set; }
@@ -33,6 +33,6 @@ namespace Domain.Entities
 
         public bool IsActive { get; set; }
         public bool HasTest { get; set; }
-        public virtual Syllabus Syllabus { get; set; }
+        public virtual Subject Subject { get; set; }
     }
 }

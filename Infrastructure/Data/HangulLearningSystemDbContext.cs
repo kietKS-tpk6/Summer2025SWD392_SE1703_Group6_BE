@@ -49,9 +49,6 @@ namespace Infrastructure.Data
             modelBuilder.Entity<StudentTest>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
-            modelBuilder.Entity<Syllabus>()
-                .Property(a => a.Status)
-                .HasConversion<string>();
             modelBuilder.Entity<Test>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
@@ -94,7 +91,6 @@ namespace Infrastructure.Data
         public DbSet<ScheduleWork> ScheduleWork { get; set; }
         public DbSet<StudentTest> StudentTest { get; set; }
         public DbSet<Subject> Subject { get; set; }
-        public DbSet<Syllabus> Syllabus { get; set; }
         public DbSet<SyllabusSchedule> SyllabusSchedule { get; set; }
         public DbSet<WorkTask> WorkTasks { get; set; }
         public DbSet<Test> Test { get; set; }

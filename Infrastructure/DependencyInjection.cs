@@ -39,8 +39,6 @@ namespace Infrastructure
             services.AddScoped<LessonCreateFromScheduleCommandHandler>();
             //Other
             services.AddScoped<SendOTPViaEmailCommandHandler>();
-            services.AddScoped<CreateSyllabusesCommandHandler>();
-            services.AddScoped<SyllabusScheduleCreateCommandHandler>();
 
             //Services 
             services.AddScoped<ILessonService, LessonService>();
@@ -51,7 +49,6 @@ namespace Infrastructure
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IAssessmentCriteriaService, AssessmentCriteriaService>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<ISyllabusesService, SyllabusesService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IClassService, ClassService>();
             services.AddScoped<ISubjectService, SubjectService>();
@@ -61,7 +58,6 @@ namespace Infrastructure
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
-            services.AddScoped<ISyllabusesRepository, SyllabusesRepository>();
             services.AddScoped<IAssessmentCriteriaRepository, AssessmentCriteriaRepository>();
             services.AddScoped<IClassRepository, ClassRepository>();
             services.AddScoped<IOTPRepository, OTPRepository>();
