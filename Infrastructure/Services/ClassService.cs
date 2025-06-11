@@ -15,9 +15,13 @@ namespace Infrastructure.Services
     public class ClassService : IClassService
     {
         private readonly IClassRepository _classRepository;
-        public ClassService(IClassRepository classRepository)
+        private readonly ISubjectRepository _subjectRepository;
+        private readonly IEnrollmentRepository _enrollmentRepository;
+        public ClassService(IClassRepository classRepository, ISubjectRepository subjectRepository, IEnrollmentRepository enrollmentRepository)
         {
             _classRepository = classRepository;
+            _subjectRepository = subjectRepository;
+            _enrollmentRepository = enrollmentRepository;
         }
 
         public async Task<bool> CreateClassAsync(ClassCreateCommand classCreateCommand)

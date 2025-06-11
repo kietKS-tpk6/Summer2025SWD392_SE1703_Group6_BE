@@ -20,13 +20,13 @@ namespace Domain.Entities
         public string AccountID { get; set; }
 
         [ForeignKey("Transaction")]
-        public int TransactionID { get; set; }
+        public int ?TransactionID { get; set; }
 
         [ForeignKey("Class")]
         [MaxLength(6)]
         public string ClassID { get; set; }
 
-        public float Total { get; set; }
+        public decimal Total { get; set; }
 
         public DateTime DayCreate { get; set; }
 
@@ -38,3 +38,5 @@ namespace Domain.Entities
         public virtual Class Class { get; set; }
     }
 }
+
+
