@@ -24,39 +24,41 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.AssessmentCriteria.ToListAsync();
         }
-        public async Task<(List<AssessmentCriteriaDTO> Items, int TotalCount)> GetPaginatedListAsync(int page, int pageSize)
-        {
-            var query = _dbContext.AssessmentCriteria.AsQueryable();
-            var totalCount = await query.CountAsync();
+        //public async Task<(List<AssessmentCriteriaDTO> Items, int TotalCount)> GetPaginatedListAsync(int page, int pageSize)
+        //{
+        //    var query = _dbContext.AssessmentCriteria.AsQueryable();
+        //    var totalCount = await query.CountAsync();
 
-            var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(x => new AssessmentCriteriaDTO
-                {
-                    AssessmentCriteriaID = x.AssessmentCriteriaID,
-                    SyllabusID = x.SyllabusID,
-                    WeightPercent = x.WeightPercent,
-                    Category = x.Category,
-                    RequiredCount = x.RequiredCount,
-                    Duration = x.Duration,
-                    TestType = x.TestType,
-                    Note = x.Note,
-                    IsActive = x.IsActive,
-                    MinPassingScore = x.MinPassingScore
-                })
-                .ToListAsync();
+        //    var items = await query
+        //        .Skip((page - 1) * pageSize)
+        //        .Take(pageSize)
+        //        .Select(x => new AssessmentCriteriaDTO
+        //        {
+        //            AssessmentCriteriaID = x.AssessmentCriteriaID,
+        //            SyllabusID = x.SyllabusID,
+        //            WeightPercent = x.WeightPercent,
+        //            Category = x.Category,
+        //            RequiredCount = x.RequiredCount,
+        //            Duration = x.Duration,
+        //            TestType = x.TestType,
+        //            Note = x.Note,
+        //            IsActive = x.IsActive,
+        //            MinPassingScore = x.MinPassingScore
+        //        })
+        //        .ToListAsync();
 
-            return (items, totalCount);
-        }
-        public async Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId)
+        //    return (items, totalCount);
+        //}
+
+        //KIỆT: HÀM CỦA KIỆT
+        public async Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string subjectID)
         {
             var items = await _dbContext.AssessmentCriteria
-                .Where(x => x.SyllabusID == syllabusId && x.IsActive)
+                .Where(x => x.SubjectID == subjectID && x.IsActive)
                 .Select(x => new AssessmentCriteriaDTO
                 {
                     AssessmentCriteriaID = x.AssessmentCriteriaID,
-                    SyllabusID = x.SyllabusID,
+                    SubjectID = x.SubjectID,
                     WeightPercent = x.WeightPercent,
                     Category = x.Category,
                     RequiredCount = x.RequiredCount,
@@ -108,22 +110,23 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.AssessmentCriteria.CountAsync();
         }
-        public async Task<Dictionary<string, int>> GetAssessmentCountByCategoryAsync(string syllabusId)
-        {
-            var result = await _dbContext.AssessmentCriteria
-                .Where(x => x.SyllabusID == syllabusId && x.IsActive)
-                .GroupBy(x => x.Category)
-                .Select(g => new
-                {
-                    Category = g.Key.ToString(),
-                    Count = g.Count()
-                })
-                .ToDictionaryAsync(x => x.Category, x => x.Count);
+        //public async Task<Dictionary<string, int>> GetAssessmentCountByCategoryAsync(string syllabusId)
+        //{
+        //    var result = await _dbContext.AssessmentCriteria
+        //        .Where(x => x.SyllabusID == syllabusId && x.IsActive)
+        //        .GroupBy(x => x.Category)
+        //        .Select(g => new
+        //        {
+        //            Category = g.Key.ToString(),
+        //            Count = g.Count()
+        //        })
+        //        .ToDictionaryAsync(x => x.Category, x => x.Count);
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public async Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, string category, string testType)
+        //KIỆT :HÀM CỦA KIỆT
+        public async Task<bool> IsTestDefinedInCriteriaAsync(string subjectID, string category, string testType)
         {
             if (!Enum.TryParse<AssessmentCategory>(category, true, out var categoryEnum))
             {
@@ -136,10 +139,11 @@ namespace Infrastructure.Repositories
             }
 
             return await _dbContext.AssessmentCriteria
-                .AnyAsync(ac => ac.SyllabusID == syllabusId
+                .AnyAsync(ac => ac.SubjectID == subjectID
                              && ac.Category == categoryEnum
                              && ac.TestType == testTypeEnum
                              && ac.IsActive);
         }
+
     }
 }

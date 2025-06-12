@@ -26,40 +26,42 @@ namespace Application.Usecases.CommandHandler
         }
         public async Task<string> Handle(LessonCreateFromScheduleCommand request, CancellationToken cancellationToken)
         {
-            var ClassDTO = await _classService.GetClassCreateLessonDTOByIdAsync(request.ClassId);
-            if (ClassDTO == null)
-            {
-                return "Không tìm thấy lớp học.";
-            }
+            //var ClassDTO = await _classService.GetClassCreateLessonDTOByIdAsync(request.ClassId);
+            //if (ClassDTO == null)
+            //{
+            //    return "Không tìm thấy lớp học.";
+            //}
 
-            var requiredDays = await _syllabusScheduleService.GetMaxSlotPerWeekAsync(ClassDTO.SyllabusID);
-            if (request.DaysOfWeek.Count != requiredDays)
-            {
-                return $"Không đủ thứ để gán cho tất cả lịch học. Cần chọn đủ {requiredDays} thứ trong tuần.";
-            }
+            //var requiredDays = await _syllabusScheduleService.GetMaxSlotPerWeekAsync(ClassDTO.SyllabusID);
+            //if (request.DaysOfWeek.Count != requiredDays)
+            //{
+            //    return $"Không đủ thứ để gán cho tất cả lịch học. Cần chọn đủ {requiredDays} thứ trong tuần.";
+            //}
 
-            var schedules = await _syllabusScheduleService.GetPublishedSchedulesBySyllabusIdAsync(ClassDTO.SyllabusID);
-            if (schedules == null || !schedules.Any())
-            {
-                return "Không có lịch học nào trong giáo trình.";
-            }
+            //var schedules = await _syllabusScheduleService.GetPublishedSchedulesBySyllabusIdAsync(ClassDTO.SyllabusID);
+            //if (schedules == null || !schedules.Any())
+            //{
+            //    return "Không có lịch học nào trong giáo trình.";
+            //}
 
-            var isLecturerFree = await _accountService.IsLectureFree(ClassDTO.LecturerID, request.StartHour, request.DaysOfWeek);
-            if (!isLecturerFree)
-            {
-                return "Giảng viên bị trùng lịch dạy với thời gian này. Vui lòng chọn thời gian khác.";
-            }
+            //var isLecturerFree = await _accountService.IsLectureFree(ClassDTO.LecturerID, request.StartHour, request.DaysOfWeek);
+            //if (!isLecturerFree)
+            //{
+            //    return "Giảng viên bị trùng lịch dạy với thời gian này. Vui lòng chọn thời gian khác.";
+            //}
 
-            var result = await _lessonService.CreateLessonsFromSchedulesAsync(
-                request.ClassId,
-                ClassDTO.LecturerID,
-                request.StartHour,
-                request.DaysOfWeek,
-                schedules,
-                ClassDTO.StartTime
-            );
+            //var result = await _lessonService.CreateLessonsFromSchedulesAsync(
+            //    request.ClassId,
+            //    ClassDTO.LecturerID,
+            //    request.StartHour,
+            //    request.DaysOfWeek,
+            //    schedules,
+            //    ClassDTO.StartTime
+            //);
 
-            return result ? OperationMessages.CreateSuccess : OperationMessages.CreateFail;
+            
+           // return result ? OperationMessages.CreateSuccess : OperationMessages.CreateFail;
+            return "sua lại hàm";
         }
     }
 }

@@ -12,12 +12,15 @@ namespace Application.IServices
 {
     public interface IAssessmentCriteriaService
     {
-        public Task<bool> CreateAssessmentCriteriaAsync(AssessmentCriteriaCreateCommand request);
-        public Task<bool> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand request);
-        public Task<PagedResult<AssessmentCriteriaDTO>> GetPaginatedListAsync(int page, int pageSize);
-        public Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId);
-        public Task<bool> DeleteAsync(string id);
+        //  public Task<bool> CreateAssessmentCriteriaAsync(AssessmentCriteriaCreateCommand request);
+        //public Task<bool> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand request);
+        // public Task<PagedResult<AssessmentCriteriaDTO>> GetPaginatedListAsync(int page, int pageSize);
+        //public Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId);
+        //public Task<bool> DeleteAsync(string id);
+
+        //KIỆT :HÀM CỦA KIỆT
         Task<Dictionary<(string Category, string TestType), int>> GetRequiredTestCountsAsync(string syllabusId);
+        //KIỆT :HÀM CỦA KIỆT
         Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType);
 
     }

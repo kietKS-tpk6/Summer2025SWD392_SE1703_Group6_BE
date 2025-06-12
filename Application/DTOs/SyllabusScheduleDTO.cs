@@ -14,7 +14,7 @@ namespace Application.DTOs
         public string SyllabusScheduleID { get; set; }
 
         public string Slot { get; set; }
-        public string SyllabusID { get; set; }
+        public string SubjectID { get; set; }
 
         public string Content { get; set; }
 

@@ -13,37 +13,21 @@ namespace Application.Validators
     {
         public SyllabusScheduleCreateCommandValidator()
         {
-            RuleFor(o => o.Content)
+            RuleFor(o => o.SlotInWeek)
              .NotEmpty()
              .WithErrorCode(nameof(ErrorCodes.DataIsEmpty))
                  .WithMessage(ValidationMessages.DataIsEmpty);
 
-            RuleFor(o => o.DurationMinutes)
-            .NotEmpty()
-            .WithErrorCode(nameof(ErrorCodes.DataIsEmpty))
-                .WithMessage(ValidationMessages.DataIsEmpty);
-            
-
-            RuleFor(o => o.LessonTitle)
-            .NotEmpty()
-            .WithErrorCode(nameof(ErrorCodes.DataIsEmpty))
-                .WithMessage(ValidationMessages.DataIsEmpty);
-
-            RuleFor(o => o.SyllabusID)
-           .NotEmpty()
-           .WithErrorCode(nameof(ErrorCodes.DataIsEmpty))
-            .WithMessage(ValidationMessages.DataIsEmpty);
 
             RuleFor(o => o.Week)
              .NotEmpty()
              .WithErrorCode(nameof(ErrorCodes.DataIsEmpty))
              .WithMessage(ValidationMessages.DataIsEmpty);
-
-
-            RuleFor(o => o.Resources)
+            RuleFor(o => o.SubjectID)
             .NotEmpty()
             .WithErrorCode(nameof(ErrorCodes.DataIsEmpty))
             .WithMessage(ValidationMessages.DataIsEmpty);
+
 
 
 

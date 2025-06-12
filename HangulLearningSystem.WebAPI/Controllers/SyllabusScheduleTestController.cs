@@ -20,22 +20,23 @@ namespace HangulLearningSystem.WebAPI.Controllers
         private readonly ISyllabusScheduleService _syllabusScheduleService;
 
 
-        public SyllabusScheduleTestController(IMediator mediator, ISyllabusScheduleTestService syllabusScheduleTestService, IAssessmentCriteriaService assessmentCriteriaService, ISyllabusScheduleService syllabusScheduleService)
+        public SyllabusScheduleTestController(IMediator mediator, ISyllabusScheduleTestService syllabusScheduleTestService , ISyllabusScheduleService syllabusScheduleService, IAssessmentCriteriaService assessmentCriteriaService)
         {
             _mediator = mediator;
             _syllabusScheduleTestService = syllabusScheduleTestService;
             _assessmentCriteriaService = assessmentCriteriaService;
             _syllabusScheduleService = syllabusScheduleService;
+            _assessmentCriteriaService = assessmentCriteriaService;
         }
         [HttpGet("check-completeness")]
-        public async Task<IActionResult> CheckCompleteness([FromQuery] string syllabusId)
+        public async Task<IActionResult> CheckCompleteness([FromQuery] string subjectID)
         {
-            if (string.IsNullOrWhiteSpace(syllabusId))
+            if (string.IsNullOrWhiteSpace(subjectID))
             {
-                return BadRequest("syllabusId is required.");
+                return BadRequest("subjectID is required.");
             }
 
-            var result = await _syllabusScheduleTestService.CheckAddAssessmentCompletenessAsync(syllabusId);
+            var result = await _syllabusScheduleTestService.CheckAddAssessmentCompletenessAsync(subjectID);
 
             return Ok(new { message = result });
         }
@@ -49,7 +50,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest("TestCategory is required.");
             if (string.IsNullOrWhiteSpace(command.TestType))
                 return BadRequest("TestType is required.");
-            if (string.IsNullOrWhiteSpace(command.syllabusId))
+            if (string.IsNullOrWhiteSpace(command.subjectID))
                 return BadRequest("SyllabusId is required.");
 
             // Bước 1: Chuẩn hóa enums
@@ -75,15 +76,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest("Slot is not active or does not allow test.");
 
             // Bước 3: Kiểm tra bài test có trong AssessmentCriteria không
-            var isDefined = await _assessmentCriteriaService.IsTestDefinedInCriteriaAsync(command.syllabusId, parsedCategory.Value, parsedType.Value);
+            var isDefined = await _assessmentCriteriaService.IsTestDefinedInCriteriaAsync(command.subjectID, parsedCategory.Value, parsedType.Value);
             if (!isDefined)
                 return BadRequest("This test is not defined in the assessment criteria.");
 
-            // Bước 4: Kiểm tra bài test có vượt quá số lượng cho phép không
-            var isOverLimit = await _syllabusScheduleTestService.IsTestOverLimitAsync(command.syllabusId, parsedCategory.Value, parsedType.Value);
+           // Bước 4: Kiểm tra bài test có vượt quá số lượng cho phép không
+            var isOverLimit = await _syllabusScheduleTestService.IsTestOverLimitAsync(command.subjectID, parsedCategory.Value, parsedType.Value);
             if (isOverLimit)
                 return BadRequest("Test count exceeds the required count defined in assessment criteria.");
-         
+
 
             // Bước 5: Kiểm tra xem slot đó có bài kiểm tra nào chưa
             var hasExistingTest = await _syllabusScheduleTestService.HasTestAsync(command.SyllabusScheduleID);
@@ -91,7 +92,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest("This schedule slot already has a test. Cannot add another test to the same slot.");
 
             // Bước 6: Kiểm tra thứ tự test
-            var isOrderValid = await _syllabusScheduleService.ValidateTestPositionAsync(command.syllabusId,command.SyllabusScheduleID, command.TestCategory);
+            var isOrderValid = await _syllabusScheduleService.ValidateTestPositionAsync(command.subjectID,command.SyllabusScheduleID, command.TestCategory);
             if (!isOrderValid)
                 return BadRequest("Test order is invalid: Final must come after all other tests, and Midterm must appear before Final.");
             

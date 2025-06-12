@@ -20,16 +20,16 @@ namespace Domain.Entities
         public string SubjectID { get; set; }
 
         [MaxLength(255)]
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
-        public int Week { get; set; }
+        public int? Week { get; set; }
 
-        public string Resources { get; set; }
+        public string? Resources { get; set; }
 
         [MaxLength(100)]
-        public string LessonTitle { get; set; }
+        public string? LessonTitle { get; set; }
 
-        public int DurationMinutes { get; set; }
+        public int? DurationMinutes { get; set; }
 
         public bool IsActive { get; set; }
         public bool HasTest { get; set; }

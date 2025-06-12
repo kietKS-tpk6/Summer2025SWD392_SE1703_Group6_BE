@@ -16,10 +16,10 @@ namespace Application.Usecases.CommandHandler
         private readonly IAssessmentCriteriaService _assessmentCriteriaService;
         private readonly ISyllabusScheduleService _syllabusScheduleService;
 
-        public UpdateTestSchedulesToSlotsCommandHandler(ISyllabusScheduleTestService syllabusScheduleTestService, IAssessmentCriteriaService assessmentCriteriaService, ISyllabusScheduleService syllabusScheduleService )
+        public UpdateTestSchedulesToSlotsCommandHandler(ISyllabusScheduleTestService syllabusScheduleTestService, IAssessmentCriteriaService assessmentCriteriaService, ISyllabusScheduleService syllabusScheduleService)
         {
             _syllabusScheduleTestService = syllabusScheduleTestService;
-               _assessmentCriteriaService = assessmentCriteriaService;
+            _assessmentCriteriaService = assessmentCriteriaService;
             _syllabusScheduleService = syllabusScheduleService;
         }
 

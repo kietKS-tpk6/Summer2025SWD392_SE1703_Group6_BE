@@ -13,13 +13,14 @@ namespace Infrastructure.IRepositories
     {
         Task<List<AssessmentCriteria>> GetAllAsync();
         Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId);
-        Task<(List<AssessmentCriteriaDTO> Items, int TotalCount)> GetPaginatedListAsync(int page, int pageSize);
+       // Task<(List<AssessmentCriteriaDTO> Items, int TotalCount)> GetPaginatedListAsync(int page, int pageSize);
         Task<AssessmentCriteria?> GetByIdAsync(string id);
         Task<bool> CreateAsync(AssessmentCriteria assessmentCriteria);
         Task<bool> UpdateAsync(AssessmentCriteria assessmentCriteria);
         Task<bool> DeleteAsync(string id);
         Task<int> CountAsync();
-        Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, string category, string testType);
+        //KIỆT :HÀM CỦA KIỆT
+        Task<bool> IsTestDefinedInCriteriaAsync(string subjectID, string category, string testType);
 
     }
 }

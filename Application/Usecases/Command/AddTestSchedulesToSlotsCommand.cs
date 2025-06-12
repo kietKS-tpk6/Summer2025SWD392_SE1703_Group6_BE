@@ -13,7 +13,7 @@ namespace Application.Usecases.Command
         public string TestCategory  { get; set; }
         public string TestType { get; set; }
 
-        public string syllabusId { get; set; }
+        public string subjectID { get; set; }
 
 
     }

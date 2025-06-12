@@ -27,8 +27,8 @@ namespace Infrastructure
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
                 //AssessmentCriteria 
-            services.AddScoped<AssessmentCriteriaCreateCommandHandler>();
-            services.AddScoped<AssessmentCriteriaUpdateCommandHandler>();
+            //services.AddScoped<AssessmentCriteriaCreateCommandHandler>();
+            //services.AddScoped<AssessmentCriteriaUpdateCommandHandler>();
             services.AddScoped<SendOTPViaEmailCommandHandler>();
                 //Class
             services.AddScoped<ClassCreateCommandHandler>();
@@ -54,7 +54,7 @@ namespace Infrastructure
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<ISyllabusScheduleService, SyllabusScheduleService>();
             services.AddScoped<ISyllabusScheduleTestService, SyllabusScheduleTestService>();
-
+            services.AddScoped<ILessonRepository, LessonRepository>();
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();

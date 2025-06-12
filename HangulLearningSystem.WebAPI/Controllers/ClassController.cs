@@ -133,23 +133,23 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = $"Lỗi server: {ex.Message}" });
             }
         }
-        [HttpGet("get-by-id")]
-        public async Task<IActionResult> GetClassById([FromQuery] string id)
-        {
-            try
-            {
-                var result = await _classService.GetClassDTOByIDAsync(id);
-                if (result == null)
-                {
-                    return NotFound(OperationMessages.NotFound);
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = $"Lỗi server: {ex.Message}" });
-            }
-        }
+        //[HttpGet("get-by-id")]
+        //public async Task<IActionResult> GetClassById([FromQuery] string id)
+        //{
+        //    try
+        //    {
+        //        var result = await _classService.GetClassDTOByIDAsync(id);
+        //        if (result == null)
+        //        {
+        //            return NotFound(OperationMessages.NotFound);
+        //        }
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = $"Lỗi server: {ex.Message}" });
+        //    }
+        //}
 
         [HttpGet("search")]
         public async Task<IActionResult> SearchClass([FromQuery] string keyword)

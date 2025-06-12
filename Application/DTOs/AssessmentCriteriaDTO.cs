@@ -10,7 +10,7 @@ namespace Application.DTOs
     public class AssessmentCriteriaDTO
     {
         public string AssessmentCriteriaID { get; set; }
-        public string SyllabusID { get; set; }
+        public string SubjectID { get; set; }
         public double WeightPercent { get; set; }
         public int RequiredCount { get; set; }
         public int Duration { get; set; }

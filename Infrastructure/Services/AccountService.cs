@@ -179,14 +179,14 @@ namespace Infrastructure.Services
                 PageSize = pageSize
             };
         }
-        public async Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days)
-        {
-            return await _accountRepository.IsLectureFree(lecturerId, time, days);
-        }
-        public async Task<List<TeachingScheduleDTO>> GetTeachingSchedule()
-        {
-            return await _accountRepository.GetTeachingSchedule();
-        }
+        //public async Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days)
+        //{
+        //    return await _accountRepository.IsLectureFree(lecturerId, time, days);
+        //}
+        //public async Task<List<TeachingScheduleDTO>> GetTeachingSchedule()
+        //{
+        //    return await _accountRepository.GetTeachingSchedule();
+        //}
         #region Private Normalization Methods
 
         /// <summary>
