@@ -29,6 +29,6 @@ namespace Application.IServices
 
         public Task<string> GetAccountNameByIDAsync(string accountID);
 
-      //  public Task<List<TeachingScheduleDTO>> GetTeachingSchedule();
+        Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule();
     }
 }

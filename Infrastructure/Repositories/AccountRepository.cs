@@ -225,32 +225,36 @@ namespace Infrastructure.Repositories
         }
 
 
-        //public async Task<List<TeachingScheduleDTO>> GetTeachingSchedule()
-        //{
-        //    var result = await (
-        //         from lesson in _dbContext.Lesson
-        //         join @class in _dbContext.Class on lesson.ClassID equals @class.ClassID
-        //         join subject in _dbContext.Subject on @class.SubjectID equals subject.SubjectID
-        //         join syllabus in _dbContext.Syllabus on subject.SubjectID equals syllabus.SubjectID
-        //         join schedule in _dbContext.SyllabusSchedule on lesson.SyllabusScheduleID equals schedule.SyllabusScheduleID
-        //         join account in _dbContext.Accounts on lesson.LecturerID equals account.AccountID
-        //         where lesson.IsActive && syllabus.Status == SyllabusStatus.Published
-        //         select new TeachingScheduleDTO
-        //         {
-        //             LecturerID = lesson.LecturerID,
-        //             LecturerName = account.LastName + " " + account.FirstName,
-        //             TeachingDay = (int)lesson.StartTime.DayOfWeek,
-        //             StartTime = lesson.StartTime.TimeOfDay,
-        //             EndTime = lesson.StartTime.TimeOfDay.Add(TimeSpan.FromMinutes((double)schedule.DurationMinutes))
-        //         }
-        //     ).ToListAsync();
+        public async Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule()
+        {
+            try
+            {
+                var result = await _dbContext.Lesson
+                    .Where(l => l.IsActive)
+                    .Select(l => new TeachingScheduleDTO
+                    {
+                        LecturerID = l.LecturerID,
+                        LecturerName = l.Lecturer.LastName + " " + l.Lecturer.FirstName,
+                        TeachingDay = (int)l.StartTime.DayOfWeek,
+                        StartTime = l.StartTime.TimeOfDay,
+                        EndTime = l.StartTime.TimeOfDay.Add(
+                            TimeSpan.FromMinutes((double)(l.SyllabusSchedule.DurationMinutes ?? 0))
+                        )
+                    })
+                    .ToListAsync();
 
-        //    var distinctResult = result
-        //        .DistinctBy(x => new { x.LecturerID, x.TeachingDay, x.StartTime, x.EndTime })
-        //        .ToList();
+                var distinctResult = result
+                    .DistinctBy(x => new { x.LecturerID, x.TeachingDay, x.StartTime, x.EndTime })
+                    .ToList();
 
-        //    return distinctResult;
-        //}
+                return OperationResult<List<TeachingScheduleDTO>>.Ok(distinctResult, OperationMessages.RetrieveSuccess("lịch giảng dạy"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<TeachingScheduleDTO>>.Fail($"Lỗi khi truy xuất lịch giảng dạy: {ex.Message}");
+            }
+        }
+
 
 
 

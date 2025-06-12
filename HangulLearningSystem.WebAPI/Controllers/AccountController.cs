@@ -75,23 +75,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        //[HttpGet("teaching-schedule")]
-        //public async Task<IActionResult> GetTeachingSchedule()
-        //{
-        //    try
-        //    {
-        //        var schedules = await _accountService.GetTeachingSchedule();
-        //        return Ok(schedules);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new
-        //        {
-        //            Success = false,
-        //            Message = "Có lỗi xảy ra khi lấy danh sách làm việc của các giảng viên",
-        //            Error = ex.Message
-        //        });
-        //    }
-        //}
+        [HttpGet("teaching-schedule")]
+        public async Task<IActionResult> GetTeachingSchedule()
+        {
+            var result = await _accountService.GetTeachingSchedule();
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
+
     }
 }

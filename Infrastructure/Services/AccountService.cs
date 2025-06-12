@@ -185,10 +185,11 @@ namespace Infrastructure.Services
             return await _accountRepository.IsLectureFreeAsync(lecturerId, subjectId, time, days);
         }
 
-        //public async Task<List<TeachingScheduleDTO>> GetTeachingSchedule()
-        //{
-        //    return await _accountRepository.GetTeachingSchedule();
-        //}
+        public async Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule()
+        {
+            return await _accountRepository.GetTeachingSchedule();
+        }
+
         #region Private Normalization Methods
 
         /// <summary>

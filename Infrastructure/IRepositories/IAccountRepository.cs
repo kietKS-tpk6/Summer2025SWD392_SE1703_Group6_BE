@@ -27,6 +27,6 @@ namespace Infrastructure.IRepositories
 
 
         Task<OperationResult<bool>> IsLectureFreeAsync(string lecturerId, string subjectId, TimeOnly time, List<DayOfWeek> days);
-        //Task<List<TeachingScheduleDTO>> GetTeachingSchedule();
+        Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule();
     }
 }
