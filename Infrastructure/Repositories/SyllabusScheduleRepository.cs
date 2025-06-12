@@ -28,7 +28,7 @@ namespace Infrastructure.Repositories
             {
                 var weeks = await _dbContext.SyllabusSchedule
                     .Where(s => s.SubjectID == subjectId)
-                    .Select(s => s.Week) // Nếu Week là int?, giữ nguyên: .Select(s => s.Week ?? 0)
+                    .Select(s => s.Week ?? 0 )
                     .ToListAsync();
 
                 return OperationResult<List<int>>.Ok(weeks, OperationMessages.RetrieveSuccess("tuần học"));
@@ -104,8 +104,9 @@ namespace Infrastructure.Repositories
                 .Select(s => new SyllabusScheduleCreateLessonDTO
                 {
                     SyllabusScheduleId = s.SyllabusScheduleID,
-                    Week = s.Week,
-                    DurationMinutes = s.DurationMinutes
+                    Week = (int)s.Week,
+                    DurationMinutes = (int)s.DurationMinutes
+
                 })
                 .ToListAsync();
         }

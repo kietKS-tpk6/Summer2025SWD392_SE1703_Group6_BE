@@ -202,10 +202,11 @@ namespace Infrastructure.Repositories
                     if (days.Contains(lesson.StartTime.DayOfWeek))
                     {
                         var lessonStart = lesson.StartTime.TimeOfDay;
-                        var lessonEnd = lessonStart + TimeSpan.FromMinutes(lesson.DurationMinutes);
+                        var duration = lesson.DurationMinutes ?? 0;
+                        var lessonEnd = lessonStart + TimeSpan.FromMinutes(duration);
 
                         var proposedStart = targetTime;
-                        var proposedEnd = proposedStart + TimeSpan.FromMinutes(lesson.DurationMinutes);
+                        var proposedEnd = proposedStart + TimeSpan.FromMinutes(duration);
 
                         if (proposedStart < lessonEnd && lessonStart < proposedEnd)
                         {
@@ -213,6 +214,7 @@ namespace Infrastructure.Repositories
                         }
                     }
                 }
+
 
                 return OperationResult<bool>.Ok(true, "Giảng viên rảnh trong khung giờ này.");
             }

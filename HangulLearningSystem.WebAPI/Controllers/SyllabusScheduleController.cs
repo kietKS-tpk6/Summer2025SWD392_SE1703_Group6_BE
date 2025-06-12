@@ -46,20 +46,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(maxSlot);
         }
-
-        [HttpGet("schedules/{subject}")]
-        public async Task<IActionResult> GetSyllabusSchedulesBySyllabusIdAsync(string subject)
-        {
-            if (string.IsNullOrEmpty(subject))
-            {
-                return BadRequest("SyllabusId không được để trống.");
-            }
-
-            var result = await _syllabusScheduleService.GetSyllabusSchedulesBySyllabusIdAsync(subject);
-
-            return Ok(result);
-        }
-
         [HttpGet("get-schedule-by-subject")]
         public async Task<IActionResult> GetScheduleBySubject(string subject, int? week)
         {

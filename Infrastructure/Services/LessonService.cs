@@ -18,7 +18,7 @@ namespace Infrastructure.Services
         {
             _lessonRepository = lessonRepository;
         }
-        public async Task<bool> CreateLessonAsync(LessonCreateCommand request)
+        public async Task<OperationResult<bool>> CreateLessonAsync(LessonCreateCommand request)
         {
             var numLesson = await _lessonRepository.CountAsync();
             string newLessonID = "L" + numLesson.ToString("D6");
@@ -26,6 +26,7 @@ namespace Infrastructure.Services
             string prefix = "hangullearningsystem/";
             string baseUrl = "https://meet.jit.si/";
             string roomUrl = baseUrl + prefix + randomGuid16;
+
             var newLesson = new Lesson
             {
                 ClassLessonID = newLessonID,
@@ -35,9 +36,14 @@ namespace Infrastructure.Services
                 StartTime = request.StartTime,
                 LinkMeetURL = roomUrl
             };
-            return await _lessonRepository.CreateAsync(newLesson);
+
+            var success = await _lessonRepository.CreateAsync(newLesson);
+            return success
+                ? OperationResult<bool>.Ok(true, OperationMessages.CreateSuccess("tiết học"))
+                : OperationResult<bool>.Fail(OperationMessages.CreateFail("tiết học"));
         }
-        public async Task<bool> UpdateLessonAsync(LessonUpdateCommand request)
+
+        public async Task<OperationResult<bool>> UpdateLessonAsync(LessonUpdateCommand request)
         {
             var updateLesson = new Lesson
             {
@@ -47,12 +53,16 @@ namespace Infrastructure.Services
                 SyllabusScheduleID = request.SyllabusScheduleID,
                 StartTime = request.StartTime,
             };
-            return await _lessonRepository.UpdateAsync(updateLesson);
+
+            var success = await _lessonRepository.UpdateAsync(updateLesson);
+            return success
+                ? OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("tiết học"))
+                : OperationResult<bool>.Fail(OperationMessages.UpdateFail("tiết học"));
         }
-        public async Task<List<LessonDTO>> GetLessonsByClassID(string classID)
+
+        public async Task<OperationResult<List<LessonDTO>>> GetLessonsByClassID(string classID)
         {
             var lessons = await _lessonRepository.GetLessonsByClassIDAsync(classID);
-
             var result = lessons.Select(lesson => new LessonDTO
             {
                 ClassLessonID = lesson.ClassLessonID,
@@ -65,12 +75,12 @@ namespace Infrastructure.Services
                 SubjectName = lesson.Class?.Subject?.SubjectName
             }).ToList();
 
-            return result;
+            return OperationResult<List<LessonDTO>>.Ok(result, OperationMessages.RetrieveSuccess("tiết học"));
         }
-        public async Task<List<LessonDTO>> GetLessonsByStudentID(string studentID)
+
+        public async Task<OperationResult<List<LessonDTO>>> GetLessonsByStudentID(string studentID)
         {
             var lessons = await _lessonRepository.GetLessonsByStudentIDAsync(studentID);
-
             var result = lessons.Select(lesson => new LessonDTO
             {
                 ClassLessonID = lesson.ClassLessonID,
@@ -83,13 +93,13 @@ namespace Infrastructure.Services
                 SubjectName = lesson.Class?.Subject?.SubjectName
             }).ToList();
 
-            return result;
+            return OperationResult<List<LessonDTO>>.Ok(result, OperationMessages.RetrieveSuccess("tiết học"));
         }
-        public async Task<List<LessonDTO>> GetLessonsByLecturerID(string lecturerID)
+
+        public async Task<OperationResult<List<LessonDTO>>> GetLessonsByLecturerID(string lecturerID)
         {
             var lessons = await _lessonRepository.GetLessonsByLecturerIDAsync(lecturerID);
-
-            return lessons.Select(lesson => new LessonDTO
+            var result = lessons.Select(lesson => new LessonDTO
             {
                 ClassLessonID = lesson.ClassLessonID,
                 ClassID = lesson.ClassID,
@@ -100,22 +110,29 @@ namespace Infrastructure.Services
                 LinkMeetURL = lesson.LinkMeetURL,
                 SubjectName = lesson.Class?.Subject?.SubjectName
             }).ToList();
-        }
-        public async Task<bool> DeleteLessonAsync(string classLessonID)
-        {
-            return await _lessonRepository.DeleteAsync(classLessonID);
-        }
-        public async Task<LessonDetailDTO> GetLessonDetailByLessonIDAsync(string classLessonID)
-        {
-            return await _lessonRepository.GetLessonDetailByLessonIDAsync(classLessonID);
-        }
-        private DateTime GetDateByWeekAndDay(DateTime startDate, int week, DayOfWeek day)
-        {
-            var baseMonday = startDate.AddDays(-(int)startDate.DayOfWeek + (int)DayOfWeek.Monday);
 
-            var targetDate = baseMonday.AddDays(7 * (week - 1) + (int)day);
-            return targetDate;
+            return OperationResult<List<LessonDTO>>.Ok(result, OperationMessages.RetrieveSuccess("tiết học"));
         }
+
+        public async Task<OperationResult<bool>> DeleteLessonAsync(string classLessonID)
+        {
+            var success = await _lessonRepository.DeleteAsync(classLessonID);
+            return success
+                ? OperationResult<bool>.Ok(true, OperationMessages.DeleteSuccess("tiết học"))
+                : OperationResult<bool>.Fail(OperationMessages.DeleteFail("tiết học"));
+        }
+
+        public async Task<OperationResult<LessonDetailDTO>> GetLessonDetailByLessonIDAsync(string classLessonID)
+        {
+            var lesson = await _lessonRepository.GetLessonDetailByLessonIDAsync(classLessonID);
+            if (lesson == null)
+            {
+                return OperationResult<LessonDetailDTO>.Fail(OperationMessages.NotFound("tiết học"));
+            }
+
+            return OperationResult<LessonDetailDTO>.Ok(lesson, OperationMessages.RetrieveSuccess("tiết học"));
+        }
+
 
         public async Task<OperationResult<bool>> CreateLessonsFromSchedulesAsync(
             string classId,

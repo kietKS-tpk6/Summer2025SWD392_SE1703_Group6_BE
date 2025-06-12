@@ -81,7 +81,11 @@ namespace Application.Usecases.CommandHandler
                 return OperationResult<string>.Fail(createResult.Message ?? OperationMessages.CreateFail("tiết học"));
             }
 
-            return OperationResult<string>.Ok(OperationMessages.CreateSuccess("tiết học"));
+            return OperationResult<string>.Ok(
+                OperationMessages.CreateSuccess("tiết học"),
+                OperationMessages.CreateSuccess("tiết học")
+            );
+
         }
 
     }
