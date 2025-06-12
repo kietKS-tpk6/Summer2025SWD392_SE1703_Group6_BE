@@ -1,5 +1,7 @@
-﻿using Application.DTOs;
+﻿using Application.Common.Constants;
+using Application.DTOs;
 using Application.Usecases.Command;
+using Domain.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,5 +19,7 @@ namespace Application.IServices
         Task<string> DeleteSubjectAsync(string subjectId);
         Task<string> GenerateNextSubjectIdAsync();
 
+        //Khoa làm
+        Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus);
     }
 }

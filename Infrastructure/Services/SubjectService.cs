@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Application.Common.Constants;
+using Domain.Enums;
 
 namespace Infrastructure.Services
 {
@@ -134,6 +136,10 @@ namespace Infrastructure.Services
             }
 
             return await _subjectRepository.DeleteSubjectAsync(subjectId);
+        }
+        public async Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus)
+        {
+            return await _subjectRepository.GetSubjectByStatusAsync(subjectStatus);
         }
     }
 }

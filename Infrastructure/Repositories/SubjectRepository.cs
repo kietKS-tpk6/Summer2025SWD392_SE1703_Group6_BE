@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Application.Common.Constants;
+using Application.DTOs;
+using Domain.Enums;
 
 namespace Infrastructure.Repositories
 {
@@ -97,7 +100,35 @@ namespace Infrastructure.Repositories
             return await _dbContext.Subject.CountAsync();
         }
 
-        
-        
+        public async Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus)
+        {
+            try
+            {
+                var subjects = await _dbContext.Subject
+                    .Where(s => s.Status == subjectStatus) 
+                    .Select(s => new SubjectCreateClassDTO
+                    {
+                        SubjectID = s.SubjectID,
+                        SubjectName = s.SubjectName,
+                        Description = s.Description,
+                        IsActive = s.IsActive,
+                        CreateAt = s.CreateAt,
+                        MinAverageScoreToPass = s.MinAverageScoreToPass,
+                        Status = s.Status
+                    })
+                    .ToListAsync();
+
+                return OperationResult<List<SubjectCreateClassDTO>>.Ok(
+                    subjects,
+                    OperationMessages.RetrieveSuccess("môn học")
+                );
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<SubjectCreateClassDTO>>.Fail($"Lỗi khi truy xuất môn học: {ex.Message}");
+            }
+        }
+
+
     }
 }
