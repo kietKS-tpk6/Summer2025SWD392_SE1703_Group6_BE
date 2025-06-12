@@ -52,7 +52,7 @@ namespace Infrastructure.Services
                 return "Student is already enrolled in this class";
             }
 
-            var classEntity = await _classRepository.GetClassByIdAsync(command.ClassID);
+            var classEntity = await _classRepository.GetByIdAsync(command.ClassID);
             if (classEntity == null)
             {
                 return "Class not found";
@@ -93,7 +93,7 @@ namespace Infrastructure.Services
 
             foreach (var enrollment in enrollments)
             {
-                var classEntity = await _classRepository.GetClassByIdAsync(enrollment.ClassID);
+                var classEntity = await _classRepository.GetByIdAsync(enrollment.ClassID);
                 if (classEntity != null)
                 {
                     var payment = await _paymentRepository.GetPaymentByIdAsync(
