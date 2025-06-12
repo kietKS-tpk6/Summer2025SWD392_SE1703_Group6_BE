@@ -10,7 +10,6 @@ namespace Application.DTOs
     {
         public string SubjectId { get; set; }
         public string LecturerID { get; set; }
-        public string SyllabusID { get; set; }
         public DateTime StartTime { get; set; }
     }
 }

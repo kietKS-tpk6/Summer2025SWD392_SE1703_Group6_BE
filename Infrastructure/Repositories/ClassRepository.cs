@@ -195,20 +195,17 @@ namespace Infrastructure.Repositories
             return OperationResult<List<ClassDTO>>.Ok(result);
         }
 
-        public async Task<OperationResult<ClassCreateLessonDTO>> GetClassCreateLessonDTOByIdAsync(string classId)
+        public async Task<ClassCreateLessonDTO?> GetClassCreateLessonDTOByIdAsync(string classId)
         {
-            var dto = await _dbContext.Class
+            return await _dbContext.Class
                 .Where(c => c.ClassID == classId)
                 .Select(c => new ClassCreateLessonDTO
                 {
                     SubjectId = c.SubjectID,
                     LecturerID = c.LecturerID,
                     StartTime = c.TeachingStartTime
-                }).FirstOrDefaultAsync();
-
-            return dto == null
-                ? OperationResult<ClassCreateLessonDTO>.Fail(OperationMessages.NotFound("Lớp học"))
-                : OperationResult<ClassCreateLessonDTO>.Ok(dto);
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<OperationResult<ClassDTO?>> GetClassDTOByIdAsync(string id)

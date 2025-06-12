@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Application.Common.Shared;
 using Infrastructure.Repositories;
 using System.Data;
+using Application.Common.Constants;
 
 namespace Infrastructure.Services
 {
@@ -179,10 +180,11 @@ namespace Infrastructure.Services
                 PageSize = pageSize
             };
         }
-        //public async Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days)
-        //{
-        //    return await _accountRepository.IsLectureFree(lecturerId, time, days);
-        //}
+        public async Task<OperationResult<bool>> IsLectureFreeAsync(string lecturerId, string subjectId, TimeOnly time, List<DayOfWeek> days)
+        {
+            return await _accountRepository.IsLectureFreeAsync(lecturerId, subjectId, time, days);
+        }
+
         //public async Task<List<TeachingScheduleDTO>> GetTeachingSchedule()
         //{
         //    return await _accountRepository.GetTeachingSchedule();

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Enums;
 using Application.DTOs;
 using Application.Usecases.Command;
+using Application.Common.Constants;
 namespace Infrastructure.Repositories
 {
     public class SyllabusScheduleRepository : ISyllabusScheduleRepository
@@ -21,15 +22,23 @@ namespace Infrastructure.Repositories
             _dbContext = context;
         }
 
-        public async Task<List<int>> GetWeeksBySubjectIdAsync(string SubjectID)
+        public async Task<OperationResult<List<int>>> GetWeeksBySubjectIdAsync(string subjectId)
         {
-            var weeks = await _dbContext.SyllabusSchedule
-                            .Where(s => s.SubjectID == SubjectID)
-                            .Select(s => s.Week ?? 0) // Or any default value
-                            .ToListAsync();
+            try
+            {
+                var weeks = await _dbContext.SyllabusSchedule
+                    .Where(s => s.SubjectID == subjectId)
+                    .Select(s => s.Week) // Nếu Week là int?, giữ nguyên: .Select(s => s.Week ?? 0)
+                    .ToListAsync();
 
-            return weeks;
+                return OperationResult<List<int>>.Ok(weeks, OperationMessages.RetrieveSuccess("tuần học"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<int>>.Fail($"Lỗi khi truy xuất tuần học: {ex.Message}");
+            }
         }
+
 
         public async Task<bool> CreateMultipleSyllabusesScheduleAsync(List<SyllabusSchedule> syllabusSchedules)
         {
@@ -88,20 +97,18 @@ namespace Infrastructure.Repositories
                 throw;
             }
         }
-        //public async Task<List<SyllabusScheduleCreateLessonDTO>> GetPublishedSchedulesBySyllabusIdAsync(string syllabusId)
-        //    {
-        //    var result = await _dbContext.SyllabusSchedule
-        //        .Where(ss => ss.SyllabusID == syllabusId)
-        //        .Select(ss => new SyllabusScheduleCreateLessonDTO
-        //    {
-        //            SyllabusScheduleId = ss.SyllabusScheduleID,
-        //            Week = ss.Week,
-        //            DurationMinutes = ss.DurationMinutes
-        //        })
-        //        .ToListAsync();
-
-        //    return result;
-        //}
+        public async Task<List<SyllabusScheduleCreateLessonDTO>> GetSchedulesBySubjectIdAsync(string subjectId)
+        {
+            return await _dbContext.SyllabusSchedule
+                .Where(s => s.SubjectID == subjectId && s.IsActive)
+                .Select(s => new SyllabusScheduleCreateLessonDTO
+                {
+                    SyllabusScheduleId = s.SyllabusScheduleID,
+                    Week = s.Week,
+                    DurationMinutes = s.DurationMinutes
+                })
+                .ToListAsync();
+        }
         public async Task<int> GetNumbeOfSyllabusScheduleAsync()
         {
             return await _dbContext.SyllabusSchedule.CountAsync() + 1;
@@ -243,12 +250,13 @@ namespace Infrastructure.Repositories
                           && t.SyllabusSchedule.IsActive == true)
                  .OrderBy(t => t.SyllabusSchedule.Week)
                  .ThenBy(t => t.SyllabusSchedule.SyllabusScheduleID)
-                 .Select(t => new
-                 {
-                     Week = t.SyllabusSchedule.Week,
-                     TestType = t.TestType.ToString().ToLower(),
-                     TestCategory = t.TestCategory
-                 })
+                .Select(t => new
+                {
+                    Week = (int?)t.SyllabusSchedule.Week,
+                    TestType = t.TestType.ToString().ToLower(),
+                    TestCategory = t.TestCategory
+                })
+
                  .ToListAsync();
 
             return tempList.Select(t => (t.Week, t.TestType, t.TestCategory)).ToList();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
@@ -29,18 +30,36 @@ namespace Infrastructure.Services
             _syllabusScheduleTestService= syllabusScheduleTestService;
         }
 
-        public async Task<int> GetMaxSlotPerWeekAsync(string subjectId)
+        public async Task<OperationResult<int>> GetMaxSlotPerWeekAsync(string subjectId)
         {
-            var weeks = await _syllabusScheduleRepository.GetWeeksBySubjectIdAsync(subjectId);
+            var result = await _syllabusScheduleRepository.GetWeeksBySubjectIdAsync(subjectId);
+
+            if (!result.Success || result.Data == null)
+                return OperationResult<int>.Fail(result.Message ?? "Không thể lấy danh sách tuần học");
+
+            var weeks = result.Data;
+
             var grouped = weeks.GroupBy(w => w)
                                .Select(g => g.Count());
 
-            return grouped.Any() ? grouped.Max() : 0;
+            int max = grouped.Any() ? grouped.Max() : 0;
+
+            return OperationResult<int>.Ok(max, OperationMessages.RetrieveSuccess("số tiết tối đa mỗi tuần"));
         }
-        //public async Task<List<SyllabusScheduleCreateLessonDTO>> GetPublishedSchedulesBySyllabusIdAsync(string syllabusId)
-        //{
-        //    return await _syllabusScheduleRepository.GetPublishedSchedulesBySyllabusIdAsync(syllabusId);
-        //}
+
+        public async Task<OperationResult<List<SyllabusScheduleCreateLessonDTO>>> GetSchedulesBySubjectIdAsync(string subjectId)
+        {
+            var schedules = await _syllabusScheduleRepository.GetSchedulesBySubjectIdAsync(subjectId);
+
+            if (schedules == null || !schedules.Any())
+            {
+                return OperationResult<List<SyllabusScheduleCreateLessonDTO>>
+                    .Fail(OperationMessages.NotFound("lịch học"));
+            }
+
+            return OperationResult<List<SyllabusScheduleCreateLessonDTO>>
+                .Ok(schedules, OperationMessages.RetrieveSuccess("lịch học"));
+        }
 
 
         public async Task<bool> CreateEmptySyllabusScheduleAyncs(SyllabusScheduleCreateCommand command)
@@ -84,39 +103,8 @@ namespace Infrastructure.Services
         //public async Task<bool> IsMaxSlotInWeek(string subjectID, int week)
         // {
         //     return await _syllabusScheduleRepository.IsMaxSlotInWeek(subjectID, week);
-
-
         //     }
-        public async Task<List<SyllabusScheduleDTO>> GetSyllabusSchedulesBySyllabusIdAsync(string syllabusId)
-        {
-            var schedules = await _syllabusScheduleRepository.GetSyllabusSchedulesBySyllabusIdAsync(syllabusId);
-            var res = new List<SyllabusScheduleDTO>();
 
-            int slotNumber = 1;
-
-            foreach (var s in schedules)
-            {
-                var dto = new SyllabusScheduleDTO
-                {
-                    SyllabusScheduleID = s.SyllabusScheduleID,
-                    SubjectID = s.SubjectID,
-                    Content = s.Content,
-                    //
-                    Week = s.Week.GetValueOrDefault(),
-                    Resources = s.Resources,
-                    LessonTitle = s.LessonTitle,
-                    //
-                    DurationMinutes = s.DurationMinutes.GetValueOrDefault(),
-                    IsActive = s.IsActive,
-                    HasTest = s.HasTest,
-                    Slot = $"Slot {slotNumber++}"
-                };
-
-                res.Add(dto);
-            }
-
-            return res;
-        }
 
         //kiểm tra slot đó cos được thêm bài kiểm tra hay ko
           public async Task<bool> slotAllowToTestAsync(string syllabusSchedulesID)

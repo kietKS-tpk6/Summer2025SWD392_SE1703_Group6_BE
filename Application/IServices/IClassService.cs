@@ -25,5 +25,7 @@ namespace Application.IServices
 
         Task<OperationResult<List<ClassDTO>>> SearchClassAsync(string keyword);
         Task<OperationResult<ClassDTO?>> GetClassDTOByIDAsync(string classId);
+
+        Task<OperationResult<ClassCreateLessonDTO>> GetClassCreateLessonDTOByIdAsync(string classId);
     }
 }

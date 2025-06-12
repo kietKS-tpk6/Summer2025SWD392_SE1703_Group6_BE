@@ -8,6 +8,7 @@ using Application.Usecases.Command;
 using Infrastructure.IRepositories;
 using Domain.Entities;
 using Application.DTOs;
+using Application.Common.Constants;
 namespace Infrastructure.Services
 {
     public class LessonService : ILessonService
@@ -116,61 +117,73 @@ namespace Infrastructure.Services
             return targetDate;
         }
 
-        public async Task<bool> CreateLessonsFromSchedulesAsync(
-       string classId,
-       string lecturerId,
-       TimeOnly startHour,
-       List<DayOfWeek> selectedDays,
-       List<SyllabusScheduleCreateLessonDTO> schedules,
-       DateTime StartTime
-   )
+        public async Task<OperationResult<bool>> CreateLessonsFromSchedulesAsync(
+            string classId,
+            string lecturerId,
+            TimeOnly startHour,
+            List<DayOfWeek> selectedDays,
+            List<SyllabusScheduleCreateLessonDTO> schedules,
+            DateTime startTime
+        )
         {
-            var lessonsToCreate = new List<Lesson>();
-            var startDate = StartTime.Date;
-            int currentScheduleIndex = 0;
-            int currentWeek = schedules.Min(s => s.Week);
-            var totalSchedules = schedules.Count;
-
-            while (currentScheduleIndex < totalSchedules)
+            try
             {
-                foreach (var day in selectedDays)
+                var lessonsToCreate = new List<Lesson>();
+                var startDate = startTime.Date;
+                int currentScheduleIndex = 0;
+                int currentWeek = schedules.Min(s => s.Week);
+                var totalSchedules = schedules.Count;
+
+                while (currentScheduleIndex < totalSchedules)
                 {
-                    if (currentScheduleIndex >= totalSchedules) break;
-
-                    var schedule = schedules[currentScheduleIndex];
-
-                    DateTime targetDate;
-                    if (currentScheduleIndex == 0)
+                    foreach (var day in selectedDays)
                     {
-                        targetDate = startDate;
+                        if (currentScheduleIndex >= totalSchedules) break;
+
+                        var schedule = schedules[currentScheduleIndex];
+
+                        DateTime targetDate;
+                        if (currentScheduleIndex == 0)
+                        {
+                            targetDate = startDate;
+                        }
+                        else
+                        {
+                            targetDate = startDate.AddDays((int)day - (int)startDate.DayOfWeek);
+                            targetDate = targetDate.AddDays(7 * (schedule.Week - currentWeek));
+                        }
+
+                        var numLesson = await _lessonRepository.CountAsync();
+                        string newLessonID = "L" + (numLesson + lessonsToCreate.Count).ToString("D6");
+                        string roomUrl = "https://meet.jit.si/hangullearningsystem/" + Guid.NewGuid().ToString("N").Substring(0, 16);
+
+                        lessonsToCreate.Add(new Lesson
+                        {
+                            ClassLessonID = newLessonID,
+                            ClassID = classId,
+                            LecturerID = lecturerId,
+                            SyllabusScheduleID = schedule.SyllabusScheduleId,
+                            StartTime = targetDate.Add(startHour.ToTimeSpan()),
+                            LinkMeetURL = roomUrl,
+                            IsActive = true
+                        });
+
+                        currentScheduleIndex++;
                     }
-                    else
-                    {
-                        targetDate = startDate.AddDays((int)day - (int)startDate.DayOfWeek);
-                        targetDate = targetDate.AddDays(7 * (schedule.Week - currentWeek));
-                    }
-
-                    var numLesson = await _lessonRepository.CountAsync();
-                    string newLessonID = "L" + (numLesson + lessonsToCreate.Count).ToString("D6");
-                    string roomUrl = "https://meet.jit.si/hangullearningsystem/" + Guid.NewGuid().ToString("N").Substring(0, 16);
-
-                    lessonsToCreate.Add(new Lesson
-                    {
-                        ClassLessonID = newLessonID,
-                        ClassID = classId,
-                        LecturerID = lecturerId,
-                        SyllabusScheduleID = schedule.SyllabusScheduleId,
-                        StartTime = targetDate.Add(startHour.ToTimeSpan()),
-                        LinkMeetURL = roomUrl,
-                        IsActive = true
-                    });
-
-                    currentScheduleIndex++;
                 }
-            }
 
-            return await _lessonRepository.CreateManyAsync(lessonsToCreate);
+                var saveResult = await _lessonRepository.CreateManyAsync(lessonsToCreate);
+                if (!saveResult)
+                    return OperationResult<bool>.Fail(OperationMessages.CreateFail("buổi học"));
+
+                return OperationResult<bool>.Ok(true, OperationMessages.CreateSuccess("buổi học"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<bool>.Fail($"Lỗi tạo buổi học: {ex.Message}");
+            }
         }
+
 
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.DTOs;
 using Application.Usecases.Command;
 using Domain.Entities;
@@ -12,9 +13,10 @@ namespace Infrastructure.IRepositories
 {
     public interface ISyllabusScheduleRepository
     {
-        Task<List<int>> GetWeeksBySubjectIdAsync(string subjectId);
-        //Task<List<SyllabusScheduleCreateLessonDTO>> GetPublishedSchedulesBySyllabusIdAsync(string syllabusId);
-      
+        Task<OperationResult<List<int>>> GetWeeksBySubjectIdAsync(string subjectId);
+        Task<List<SyllabusScheduleCreateLessonDTO>> GetSchedulesBySubjectIdAsync(string subjectId);
+
+
         Task<bool> CreateSyllabusesScheduleAsync(SyllabusSchedule syllabusSchedule);
         Task<int> GetNumbeOfSyllabusScheduleAsync();
 

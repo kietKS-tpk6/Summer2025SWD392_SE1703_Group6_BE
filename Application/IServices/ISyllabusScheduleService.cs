@@ -7,6 +7,7 @@ using Application.DTOs;
 using Domain.Entities;
 using Application.Usecases.Command;
 using Domain.Enums;
+using Application.Common.Constants;
 
 namespace Application.IServices
 {
@@ -14,10 +15,10 @@ namespace Application.IServices
     {
         public Task<bool> CreateEmptySyllabusScheduleAyncs(SyllabusScheduleCreateCommand Command);
 
-        //Task<List<SyllabusScheduleCreateLessonDTO>> GetPublishedSchedulesBySyllabusIdAsync(string syllabusId);
-        Task<int> GetMaxSlotPerWeekAsync(string subjectId);
+        Task<OperationResult<List<SyllabusScheduleCreateLessonDTO>>> GetSchedulesBySubjectIdAsync(string subjectId);
+
+        Task<OperationResult<int>> GetMaxSlotPerWeekAsync(string subjectId);
       //  Task<bool> IsMaxSlotInWeek(string syllabusId,int week);
-        Task<List<SyllabusScheduleDTO>> GetSyllabusSchedulesBySyllabusIdAsync(string syllabusId);
         //Task AddTestSchedulesToSlotsAsync(string syllabusId,TestCategory category,TestType testType);
         Task<bool> slotAllowToTestAsync(string syllabusSchedulesID);
         Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, string testCategory);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.DTOs;
 using Application.Usecases.Command;
 
@@ -17,14 +18,16 @@ namespace Application.IServices
         Task<List<LessonDTO>> GetLessonsByStudentID(string studentID);
         Task<List<LessonDTO>> GetLessonsByLecturerID(string lecturerID);
         Task<LessonDetailDTO> GetLessonDetailByLessonIDAsync(string classLessonID);
-        Task<bool> CreateLessonsFromSchedulesAsync(
+        Task<OperationResult<bool>> CreateLessonsFromSchedulesAsync
+        (
             string classId,
             string lecturerId,
             TimeOnly startHour,
             List<DayOfWeek> selectedDays,
             List<SyllabusScheduleCreateLessonDTO> schedules,
-            DateTime StartTime
+            DateTime startTime
         );
+
 
     }
 }

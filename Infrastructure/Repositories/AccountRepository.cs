@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.Common.Shared;
 using Application.DTOs;
 using Application.Usecases.Command;
@@ -176,35 +177,51 @@ namespace Infrastructure.Repositories
 
             return (items, totalItems);
         }
-        //public async Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days)
-        //{
-        //    var targetTime = time.ToTimeSpan();
+        public async Task<OperationResult<bool>> IsLectureFreeAsync(string lecturerId, string subjectId, TimeOnly time, List<DayOfWeek> days)
+        {
+            try
+            {
+                var targetTime = time.ToTimeSpan();
 
-        //    var query = from lesson in _dbContext.Lesson
-        //                join @class in _dbContext.Class on lesson.ClassID equals @class.ClassID
-        //                join syllabus in _dbContext.Syllabus on @class.SubjectID equals syllabus.SubjectID
-        //                join schedule in _dbContext.SyllabusSchedule on lesson.SyllabusScheduleID equals schedule.SyllabusScheduleID
-        //                where lesson.LecturerID == lecturerId
-        //                      && lesson.IsActive
-        //                      && syllabus.Status == SyllabusStatus.Published
-        //                select new
-        //                {
-        //                    lesson.StartTime,
-        //                    schedule.DurationMinutes
-        //                };
+                var query = from lesson in _dbContext.Lesson
+                            join @class in _dbContext.Class on lesson.ClassID equals @class.ClassID
+                            join schedule in _dbContext.SyllabusSchedule on lesson.SyllabusScheduleID equals schedule.SyllabusScheduleID
+                            where lesson.LecturerID == lecturerId
+                                  && lesson.IsActive
+                                  && schedule.SubjectID == subjectId
+                            select new
+                            {
+                                lesson.StartTime,
+                                schedule.DurationMinutes
+                            };
 
-        //    var lessonList = await query.ToListAsync();
+                var lessons = await query.ToListAsync();
 
-        //    var conflictCount = lessonList
-        //        .Where(l =>
-        //            days.Contains(l.StartTime.DayOfWeek)
-        //            && targetTime >= l.StartTime.TimeOfDay
-        //            && targetTime < l.StartTime.TimeOfDay + TimeSpan.FromMinutes(l.DurationMinutes)
-        //        )
-        //        .Count();
+                foreach (var lesson in lessons)
+                {
+                    if (days.Contains(lesson.StartTime.DayOfWeek))
+                    {
+                        var lessonStart = lesson.StartTime.TimeOfDay;
+                        var lessonEnd = lessonStart + TimeSpan.FromMinutes(lesson.DurationMinutes);
 
-        //    return conflictCount == 0;
-        //}
+                        var proposedStart = targetTime;
+                        var proposedEnd = proposedStart + TimeSpan.FromMinutes(lesson.DurationMinutes);
+
+                        if (proposedStart < lessonEnd && lessonStart < proposedEnd)
+                        {
+                            return OperationResult<bool>.Ok(false, "Giảng viên đang có lớp trùng thời gian.");
+                        }
+                    }
+                }
+
+                return OperationResult<bool>.Ok(true, "Giảng viên rảnh trong khung giờ này.");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<bool>.Fail($"Lỗi kiểm tra lịch giảng viên: {ex.Message}");
+            }
+        }
+
 
         //public async Task<List<TeachingScheduleDTO>> GetTeachingSchedule()
         //{

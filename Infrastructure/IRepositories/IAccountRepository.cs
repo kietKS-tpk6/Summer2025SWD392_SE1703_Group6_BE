@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.DTOs;
 using Application.Usecases.Command;
 using Domain.Entities;
@@ -24,8 +25,8 @@ namespace Infrastructure.IRepositories
         Task<List<Account>> GetAllAccountsAsync();
         Task<string> GetAccountNameByIDAsync(string accountID);
 
-        
-        //Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days);
+
+        Task<OperationResult<bool>> IsLectureFreeAsync(string lecturerId, string subjectId, TimeOnly time, List<DayOfWeek> days);
         //Task<List<TeachingScheduleDTO>> GetTeachingSchedule();
     }
 }

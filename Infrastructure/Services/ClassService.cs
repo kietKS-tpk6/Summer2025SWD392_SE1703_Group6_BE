@@ -197,15 +197,14 @@ namespace Infrastructure.Services
 
             return OperationResult<ClassDTO?>.Ok(result.Data, OperationMessages.RetrieveSuccess("lớp học"));
         }
-
-        public async Task<OperationResult<ClassCreateLessonDTO?>> GetClassCreateLessonDTOByIdAsync(string classId)
+        public async Task<OperationResult<ClassCreateLessonDTO>> GetClassCreateLessonDTOByIdAsync(string classId)
         {
             var result = await _classRepository.GetClassCreateLessonDTOByIdAsync(classId);
 
-            if (!result.Success || result.Data == null)
-                return OperationResult<ClassCreateLessonDTO?>.Fail(OperationMessages.NotFound("Lớp học"));
+            if (result == null)
+                return OperationResult<ClassCreateLessonDTO>.Fail(OperationMessages.NotFound("Lớp học"));
 
-            return OperationResult<ClassCreateLessonDTO?>.Ok(result.Data, OperationMessages.RetrieveSuccess("lớp học để tạo buổi học"));
+            return OperationResult<ClassCreateLessonDTO>.Ok(result, OperationMessages.RetrieveSuccess("lớp học để tạo buổi học"));
         }
 
     }
