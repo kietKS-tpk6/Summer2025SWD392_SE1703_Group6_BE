@@ -7,6 +7,7 @@ using Application.Common.Constants;
 using Application.Common.Shared;
 using Application.DTOs;
 using Application.Usecases.Command;
+using Domain.Enums;
 
 namespace Application.IServices
 {
@@ -30,5 +31,6 @@ namespace Application.IServices
         public Task<string> GetAccountNameByIDAsync(string accountID);
 
         Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule();
+        Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole);
     }
 }

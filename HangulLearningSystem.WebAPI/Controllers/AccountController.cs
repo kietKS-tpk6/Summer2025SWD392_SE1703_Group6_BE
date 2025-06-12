@@ -3,6 +3,7 @@ using Application.Common.Shared;
 using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
+using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -85,6 +86,17 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result.Data);
         }
+        [HttpGet("get-by-role-actived")]
+        public async Task<IActionResult> GetAccountsByRole([FromQuery] AccountRole role)
+        {
+            var result = await _accountService.GetListAccountByRoleAsync(role);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
+
 
     }
 }

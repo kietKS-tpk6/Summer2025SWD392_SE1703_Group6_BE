@@ -223,8 +223,6 @@ namespace Infrastructure.Repositories
                 return OperationResult<bool>.Fail($"Lỗi kiểm tra lịch giảng viên: {ex.Message}");
             }
         }
-
-
         public async Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule()
         {
             try
@@ -254,6 +252,40 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<TeachingScheduleDTO>>.Fail($"Lỗi khi truy xuất lịch giảng dạy: {ex.Message}");
             }
         }
+        public async Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole)
+        {
+            try
+            {
+                var accounts = await _dbContext.Accounts
+                    .Where(x => x.Role == accountRole && x.Status == AccountStatus.Active)
+                    .Select(x => new AccountDTO
+                    {
+                        AccountID = x.AccountID,
+                        LastName = x.LastName,
+                        FirstName = x.FirstName,
+                        Gender = x.Gender,
+                        PhoneNumber = x.PhoneNumber,
+                        Email = x.Email,
+                        BirthDate = x.BirthDate,
+                        Role = x.Role,
+                        Status = x.Status
+                    })
+                    .ToListAsync();
+
+                return OperationResult<List<AccountDTO>>.Ok(
+                    accounts,
+                    OperationMessages.RetrieveSuccess("tài khoản")
+                );
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<AccountDTO>>.Fail($"Lỗi khi truy xuất danh sách tài khoản: {ex.Message}");
+            }
+        }
+
+
+
+
 
 
 

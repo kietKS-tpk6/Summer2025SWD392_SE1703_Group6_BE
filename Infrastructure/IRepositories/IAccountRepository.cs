@@ -28,5 +28,7 @@ namespace Infrastructure.IRepositories
 
         Task<OperationResult<bool>> IsLectureFreeAsync(string lecturerId, string subjectId, TimeOnly time, List<DayOfWeek> days);
         Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule();
+        Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole);
+
     }
 }

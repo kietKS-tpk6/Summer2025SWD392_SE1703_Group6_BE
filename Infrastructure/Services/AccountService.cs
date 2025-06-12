@@ -189,6 +189,10 @@ namespace Infrastructure.Services
         {
             return await _accountRepository.GetTeachingSchedule();
         }
+        public async Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole)
+        {
+            return await _accountRepository.GetListAccountByRoleAsync(accountRole);
+        }
 
         #region Private Normalization Methods
 
