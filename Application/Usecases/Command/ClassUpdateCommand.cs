@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Domain.Enums;
 using MediatR;
 
 namespace Application.Usecases.Command
 {
-    public class ClassUpdateCommand : IRequest<bool>
+    public class ClassUpdateCommand : IRequest<OperationResult<bool>>
     {
         public string ClassID { get; set; }
         public string LecturerID { get; set; }

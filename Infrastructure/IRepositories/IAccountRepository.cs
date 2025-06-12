@@ -25,7 +25,7 @@ namespace Infrastructure.IRepositories
         Task<string> GetAccountNameByIDAsync(string accountID);
 
         
-       // Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days);
+        //Task<bool> IsLectureFree(string lecturerId, TimeOnly time, List<DayOfWeek> days);
         //Task<List<TeachingScheduleDTO>> GetTeachingSchedule();
     }
 }

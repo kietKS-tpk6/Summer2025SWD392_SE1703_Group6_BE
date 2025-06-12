@@ -16,16 +16,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _lessonService = lessonService;
         }
 
-        [HttpPost("create-from-schedule")]
-        public async Task<IActionResult> CreateFromSchedule([FromBody] LessonCreateFromScheduleCommand command, CancellationToken cancellationToken)
-        {
-                var result = await _mediator.Send(command, cancellationToken);
-                if(result == OperationMessages.CreateSuccess)
-                {
-                    return Ok(OperationMessages.CreateSuccess);
-                }
-                else return BadRequest(result);
-        }
+        //[HttpPost("create-from-schedule")]
+        //public async Task<IActionResult> CreateFromSchedule([FromBody] LessonCreateFromScheduleCommand command, CancellationToken cancellationToken)
+        //{
+        //        var result = await _mediator.Send(command, cancellationToken);
+        //        if(result == OperationMessages.CreateSuccess)
+        //        {
+        //            return Ok(OperationMessages.CreateSuccess);
+        //        }
+        //        else return BadRequest(result);
+        //}
 
 
         [HttpPost("create-detail")]

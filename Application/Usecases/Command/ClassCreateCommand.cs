@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using MediatR;
 
 namespace Application.Usecases.Command
 {
-    public class ClassCreateCommand : IRequest<bool>
+    public class ClassCreateCommand : IRequest<OperationResult<bool>>
     {
         public string LecturerID { get; set; }
         public string SubjectID { get; set; }
