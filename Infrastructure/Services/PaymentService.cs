@@ -56,7 +56,8 @@ namespace Infrastructure.Services
                     throw new ArgumentException("AccountID is required");
 
                 // Kiểm tra AccountID và ClassID có tồn tại không
-                var classEntity = await _classRepository.GetByIdAsync(command.ClassID);
+                var classResult = await _classRepository.GetByIdAsync(command.ClassID);
+                var classEntity = classResult.Data;
                 if (classEntity == null)
                     throw new ArgumentException("Class not found");
 

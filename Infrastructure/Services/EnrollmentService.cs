@@ -59,7 +59,7 @@ namespace Infrastructure.Services
             }
 
             var currentEnrollments = await _enrollmentRepository.GetClassCurrentEnrollmentsAsync(command.ClassID);
-            if (currentEnrollments >= classEntity.MaxStudentAcp)
+            if (currentEnrollments >= classEntity.Data.MaxStudentAcp)
             {
                 return "Class is full";
             }
@@ -93,7 +93,8 @@ namespace Infrastructure.Services
 
             foreach (var enrollment in enrollments)
             {
-                var classEntity = await _classRepository.GetByIdAsync(enrollment.ClassID);
+                var classResult = await _classRepository.GetByIdAsync(enrollment.ClassID);
+                var classEntity = classResult.Data;
                 if (classEntity != null)
                 {
                     var payment = await _paymentRepository.GetPaymentByIdAsync(
