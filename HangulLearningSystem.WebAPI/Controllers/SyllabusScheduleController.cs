@@ -34,7 +34,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("max-slot/{syllabusId}")]
+        [HttpGet("max-slot/{subjectId}")]
         public async Task<IActionResult> GetMaxSlotPerWeek(string subjectId)
         {
             if (string.IsNullOrEmpty(subjectId))
