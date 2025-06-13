@@ -148,8 +148,8 @@ namespace Infrastructure.Services
                 _logger.LogInformation($"Transaction description: {transaction.Description}");
 
                 // Lưu transaction trước
-                //var savedTransactionId = await SaveTransactionAsync(transaction);
-                //_logger.LogInformation($"Transaction saved with ID: {savedTransactionId}");
+                var savedTransactionId = await SaveTransactionAsync(transaction);
+                _logger.LogInformation($"Transaction saved with ID: {savedTransactionId}");
 
                 // Extract PaymentID từ nhiều nguồn
                 string paymentId = ExtractPaymentIdFromTransaction(transaction);
