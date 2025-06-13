@@ -1,4 +1,6 @@
-﻿using Application.IServices;
+﻿using System.Reflection;
+using Application.DTOs;
+using Application.IServices;
 using Application.Usecases.Command;
 using Application.Usecases.CommandHandler;
 using Infrastructure.Data;
@@ -51,6 +53,9 @@ namespace Infrastructure
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IClassService, ClassService>();
+            services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IEnrollmentService, EnrollmentService>();
+
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<ISyllabusScheduleService, SyllabusScheduleService>();
             services.AddScoped<ISyllabusScheduleTestService, SyllabusScheduleTestService>();
@@ -76,6 +81,25 @@ namespace Infrastructure
             services.AddScoped<SyllabusScheduleCreateCommand>();
             
                             
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
+
+
+            //CommandHandler
+            services.AddScoped<CreateSubjectCommandHandler>();
+            services.AddScoped<UpdateSubjectCommandHandler>();
+            services.AddScoped<DeleteSubjectCommandHandler>();
+            services.AddScoped<ProcessWebhookCommandHandler>();
+
+            services.AddMediatR(cfg =>
+           cfg.RegisterServicesFromAssembly(Assembly.Load("Application"))
+       );
+
+
+
+            services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));
+
             return services;
         }
     }
