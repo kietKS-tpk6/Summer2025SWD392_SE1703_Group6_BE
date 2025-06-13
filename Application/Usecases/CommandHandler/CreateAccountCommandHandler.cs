@@ -19,6 +19,17 @@ namespace Application.Usecases.CommandHandler
         }
         public async Task<bool> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
+            // Kiểm tra email đã tồn tại chưa
+            var accByEmail = await _accountService.CheckEmailExistAsync(request.Email);
+            if (accByEmail)
+                throw new ArgumentException("Email đã được sử dụng, vui lòng chọn email khác.");
+
+            // Kiểm tra số điện thoại đã tồn tại chưa
+            var accByPhone = await _accountService.CheckPhoneExistAsync(request.PhoneNumber);
+            if (accByPhone )
+                throw new ArgumentException("Số điện thoại đã được sử dụng, vui lòng chọn số điện thoại khác.");
+
+            // Tạo tài khoản
             return await _accountService.CreateAccountByManager(request);
         }
 

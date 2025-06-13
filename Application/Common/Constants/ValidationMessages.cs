@@ -8,6 +8,11 @@ namespace Application.Common.Constants
 {
     public static class ValidationMessages
     {
+
+        public const string DataIsEmpty = "Dữ liệu {PropertyName} truyền vào bị trống.";
+        public const string WrongDataType = "Dữ liệu {PropertyName} không đúng kiểu.";
+
+
         // Email
         public const string AccountIDIsEmpty = "AccountID không được để trống.";
         public const string EmailIsEmpty = "Email không được để trống.";

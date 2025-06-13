@@ -24,7 +24,7 @@ namespace Domain.Entities
         [MaxLength(6)]
         public string SubjectID { get; set; }
 
-        [MaxLength(20)]
+        [MaxLength(255)]
         public string ClassName { get; set; }
 
         public int MinStudentAcp { get; set; }

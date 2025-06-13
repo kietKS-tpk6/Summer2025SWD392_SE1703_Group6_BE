@@ -1,4 +1,7 @@
-﻿using Domain.Entities;
+﻿using Application.Common.Constants;
+using Application.DTOs;
+using Domain.Entities;
+using Domain.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,5 +16,8 @@ namespace Infrastructure.IRepositories
         Task<string> DeleteSubjectAsync(string subjectId);
         Task<bool> SubjectExistsAsync(string subjectId);
         Task<int> GetTotalSubjectsCountAsync();
+
+        //KHO
+        Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus);
     }
 }

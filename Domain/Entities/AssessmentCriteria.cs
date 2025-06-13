@@ -16,27 +16,27 @@ namespace Domain.Entities
         [MaxLength(6)]
         public string AssessmentCriteriaID { get; set; }
 
-        [ForeignKey("Syllabus")]
+        [ForeignKey("Subject")]
         [MaxLength(6)]
-        public string SyllabusID { get; set; }
+        public string SubjectID { get; set; }
 
-        public double WeightPercent { get; set; }
+        public double? WeightPercent { get; set; }
 
-        public AssessmentCategory Category { get; set; }
+        public AssessmentCategory? Category { get; set; }
 
-        public int RequiredCount { get; set; }
+        public int? RequiredCount { get; set; }
 
-        public int Duration { get; set; }
+        public int? Duration { get; set; }
 
-        public TestType TestType { get; set; }
+        public TestType? TestType { get; set; }
 
         [MaxLength(255)]
         public string? Note { get; set; }
 
         public bool IsActive { get; set; }
 
-        public double MinPassingScore { get; set; }
+        public double? MinPassingScore { get; set; }
 
-        public virtual Syllabus Syllabus { get; set; }
+        public virtual Subject Subject { get; set; }
     }
 }

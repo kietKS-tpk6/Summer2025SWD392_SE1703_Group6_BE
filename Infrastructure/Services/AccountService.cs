@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Application.Common.Shared;
 using Infrastructure.Repositories;
 using System.Data;
+using Application.Common.Constants;
 
 namespace Infrastructure.Services
 {
@@ -116,17 +117,28 @@ namespace Infrastructure.Services
                 return false;
             }
         }
-
+        public async Task<bool> CheckEmailExistAsync(string email)
+        {
+            var accByEmail = await _accountRepository.GetAccountsByEmailAsync(email);
+            if (accByEmail != null)
+                return true;
+            return false;
+        }
+        public async Task<string> GetAccountNameByIDAsync(string accountID)
+        {
+             return await _accountRepository.GetAccountNameByIDAsync(accountID);
+            
+        }
+        public async Task<bool> CheckPhoneExistAsync(string phone)
+        {
+            var accByPhone = await _accountRepository.GetAccountsByPhoneAsync(phone);
+            if (accByPhone != null)
+                return true;
+            return false;
+        }
         public async Task<bool> CreateAccountByManager(CreateAccountCommand createAccountCommand)
         {
-            var accByEmail = await _accountRepository.GetAccountsByEmailAsync(createAccountCommand.Email);
-            if (accByEmail != null)
-                throw new ArgumentException("Email đã được sử dụng, vui lòng chọn email khác.");
-
-            var accByPhone = await _accountRepository.GetAccountsByPhoneAsync(createAccountCommand.PhoneNumber);
-            if (accByPhone != null)
-                throw new ArgumentException("Số điện thoại đã được sử dụng, vui lòng chọn số điện thoại khác.");
-
+         
             var newAcc = new Account();
             var numberOfAcc = (await _accountRepository.GetNumbeOfAccountsAsync());
             string newAccountId = "A" + numberOfAcc.ToString("D5");
@@ -167,6 +179,19 @@ namespace Infrastructure.Services
                 PageNumber = page,
                 PageSize = pageSize
             };
+        }
+        public async Task<OperationResult<bool>> IsLectureFreeAsync(string lecturerId, string subjectId, TimeOnly time, List<DayOfWeek> days)
+        {
+            return await _accountRepository.IsLectureFreeAsync(lecturerId, subjectId, time, days);
+        }
+
+        public async Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule()
+        {
+            return await _accountRepository.GetTeachingSchedule();
+        }
+        public async Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole)
+        {
+            return await _accountRepository.GetListAccountByRoleAsync(accountRole);
         }
 
         #region Private Normalization Methods

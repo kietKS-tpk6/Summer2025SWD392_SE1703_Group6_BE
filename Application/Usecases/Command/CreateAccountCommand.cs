@@ -11,7 +11,6 @@ namespace Application.Usecases.Command
 {
     public class CreateAccountCommand : IRequest<bool>
     {
-        public string LecterID { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string Gender { get; set; } 

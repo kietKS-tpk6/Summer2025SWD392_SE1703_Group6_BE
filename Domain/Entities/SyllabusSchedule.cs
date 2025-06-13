@@ -16,21 +16,23 @@ namespace Domain.Entities
         public string SyllabusScheduleID { get; set; }
 
         [MaxLength(6)]
-        [ForeignKey("Syllabus")]
-        public string SyllabusID { get; set; }
+        [ForeignKey("Subject")]
+        public string SubjectID { get; set; }
 
         [MaxLength(255)]
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
-        public int Week { get; set; }
+        public int? Week { get; set; }
 
-        public string Resources { get; set; }
+        public string? Resources { get; set; }
 
         [MaxLength(100)]
-        public string LessonTitle { get; set; }
+        public string? LessonTitle { get; set; }
 
-        public int DurationMinutes { get; set; }
+        public int? DurationMinutes { get; set; }
 
-        public virtual Syllabus Syllabus { get; set; }
+        public bool IsActive { get; set; }
+        public bool HasTest { get; set; }
+        public virtual Subject Subject { get; set; }
     }
 }
