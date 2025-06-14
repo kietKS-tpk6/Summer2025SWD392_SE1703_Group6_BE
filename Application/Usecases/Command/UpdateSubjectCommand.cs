@@ -1,5 +1,4 @@
-﻿using Domain.Enums;
-using MediatR;
+﻿using MediatR;
 
 namespace Application.Usecases.Command
 {
@@ -8,7 +7,7 @@ namespace Application.Usecases.Command
         public string SubjectID { get; set; }
         public string SubjectName { get; set; }
         public string Description { get; set; }
-        public SubjectStatus Status { get; set; }
+        public bool IsActive { get; set; }
         public double MinAverageScoreToPass { get; set; }
     }
 }
