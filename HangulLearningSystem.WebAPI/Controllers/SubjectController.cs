@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
+using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -92,5 +93,17 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var exists = await _subjectService.SubjectExistsAsync(id);
             return Ok(exists);
         }
+
+        [HttpGet("get-by-status")]
+        public async Task<IActionResult> GetSubjectsByStatus([FromQuery] SubjectStatus status)
+        {
+            var result = await _subjectService.GetSubjectByStatusAsync(status);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
+
     }
 }

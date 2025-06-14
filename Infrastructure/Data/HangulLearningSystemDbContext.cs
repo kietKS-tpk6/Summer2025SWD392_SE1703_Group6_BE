@@ -49,9 +49,6 @@ namespace Infrastructure.Data
             modelBuilder.Entity<StudentTest>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
-            modelBuilder.Entity<Syllabus>()
-                .Property(a => a.Status)
-                .HasConversion<string>();
             modelBuilder.Entity<Test>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
@@ -65,6 +62,18 @@ namespace Infrastructure.Data
                 .Property(a => a.Category)
                 .HasConversion<string>();
             modelBuilder.Entity<TestEvent>()
+                .Property(a => a.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<SyllabusScheduleTest>()
+                .Property(a => a.TestCategory)
+                .HasConversion<string>();
+            modelBuilder.Entity<SyllabusScheduleTest>()
+                .Property(a => a.TestType)
+                .HasConversion<string>();
+            modelBuilder.Entity<SyllabusScheduleTest>()
+              .Property(s => s.IsActive)
+                 .HasDefaultValue(true);
+            modelBuilder.Entity<Subject>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
         }
@@ -82,13 +91,13 @@ namespace Infrastructure.Data
         public DbSet<ScheduleWork> ScheduleWork { get; set; }
         public DbSet<StudentTest> StudentTest { get; set; }
         public DbSet<Subject> Subject { get; set; }
-        public DbSet<Syllabus> Syllabus { get; set; }
         public DbSet<SyllabusSchedule> SyllabusSchedule { get; set; }
         public DbSet<WorkTask> WorkTasks { get; set; }
         public DbSet<Test> Test { get; set; }
         public DbSet<TestEvent> TestEvent { get; set; }
         public DbSet<TestSection> TestSection { get; set; }
         public DbSet<Transaction> Transaction { get; set; }
+        public DbSet<SyllabusScheduleTest> SyllabusScheduleTests { get; set; }
 
     }
 }

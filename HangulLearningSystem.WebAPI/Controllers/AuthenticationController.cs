@@ -19,20 +19,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
         }
 
-        //        [HttpPost("login")]
-        //        public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken cancellationToken))
-        //        {
-        //            var result = await _mediator.Send(command, cancellationToken);
-        //            if (result)
-        //            {
-        //                return Ok(OperationMessages.CreateSuccess);
-        //    }
-        //            else
-        //            {
-        //                return BadRequest(OperationMessages.CreateFail);
-        //}
-        //        }
-
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken cancellationToken)

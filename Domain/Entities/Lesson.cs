@@ -30,6 +30,7 @@ namespace Domain.Entities
         public DateTime StartTime { get; set; }
 
         public string LinkMeetURL { get; set; }
+        public bool IsActive { get; set; }
 
         public virtual Class Class { get; set; }
 

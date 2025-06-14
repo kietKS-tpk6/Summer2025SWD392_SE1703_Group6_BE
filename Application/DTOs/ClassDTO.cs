@@ -15,6 +15,7 @@ namespace Application.DTOs
         public string ClassName { get; set; }
         public int MinStudentAcp { get; set; }
         public int MaxStudentAcp { get; set; }
+        public int NumberStudentEnroll { get; set; }
         public decimal PriceOfClass { get; set; }
         public ClassStatus Status { get; set; }
         public DateTime CreateAt { get; set; }
