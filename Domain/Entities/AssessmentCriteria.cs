@@ -20,6 +20,10 @@ namespace Domain.Entities
         [MaxLength(6)]
         public string SubjectID { get; set; }
 
+        [ForeignKey("Assessment")]
+        [MaxLength(6)]
+        public string AssessmentID { get; set; }
+
         public double? WeightPercent { get; set; }
 
         public AssessmentCategory? Category { get; set; }
