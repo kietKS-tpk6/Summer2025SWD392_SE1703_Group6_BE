@@ -22,6 +22,7 @@ namespace Infrastructure.Repositories
             _dbContext = context;
         }
 
+       
         public async Task<OperationResult<List<int>>> GetWeeksBySubjectIdAsync(string subjectId)
         {
             try
@@ -38,31 +39,67 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<int>>.Fail($"Lỗi khi truy xuất tuần học: {ex.Message}");
             }
         }
+        public async Task<List<SyllabusSchedule>> GetSyllabusSchedulesBySubjectIdAsync(string subjectId)
+        {
+            return await _dbContext.SyllabusSchedule
+                                     .Where(s => s.SubjectID == subjectId && s.IsActive)
+                                     .OrderBy(s => s.Week)
+                                     .ToListAsync();
+        }
+        public async Task<bool> CreateOrRemoveSyllabusSchedulesAsync(string subjectId, List<SyllabusSchedule> schedulesToAdd, List<string> idsToRemove)
+        {
+            if (schedulesToAdd.Any())
+            {
+                await _dbContext.SyllabusSchedule.AddRangeAsync(schedulesToAdd);
+            }
+            if (idsToRemove.Any())
+            {
+                var toRemove = _dbContext.SyllabusSchedule.Where(s => idsToRemove.Contains(s.SyllabusScheduleID));
+                _dbContext.SyllabusSchedule.RemoveRange(toRemove);
+            }
+            await _dbContext.SaveChangesAsync();
 
+            return true;
+        }
 
-        public async Task<bool> CreateMultipleSyllabusesScheduleAsync(List<SyllabusSchedule> syllabusSchedules)
+        public async Task RemoveSyllabusesScheduleAsync(List<string> idsToRemove)
+        {
+            var schedules = _dbContext.SyllabusSchedule
+                .Where(s => idsToRemove.Contains(s.SyllabusScheduleID))
+                .ToList();
+
+            foreach (var s in schedules)
+            {
+                s.IsActive = false;
+            }
+
+            await _dbContext.SaveChangesAsync();
+        }
+        public async Task<OperationResult<bool>> CreateMultipleSyllabusesScheduleAsync(List<SyllabusSchedule> syllabusSchedules)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
             try
             {
-                // Thêm tất cả SyllabusSchedule vào context
                 await _dbContext.SyllabusSchedule.AddRangeAsync(syllabusSchedules);
-
-                // Lưu thay đổi
                 int result = await _dbContext.SaveChangesAsync();
 
-                // Commit transaction nếu thành công
-                await transaction.CommitAsync();
-
-                return result > 0;
+                if (result > 0)
+                {
+                    await transaction.CommitAsync();
+                    return OperationResult<bool>.Ok(true, "Đã thêm các SyllabusSchedule.");
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                    return OperationResult<bool>.Fail("Không thêm được SyllabusSchedule.");
+                }
             }
             catch (Exception ex)
             {
-                // Rollback transaction nếu có lỗi
                 await transaction.RollbackAsync();
+                return OperationResult<bool>.Fail($"Lỗi khi thêm SyllabusSchedule: {ex.Message}");
 
-
-                return false;
             }
         }
 

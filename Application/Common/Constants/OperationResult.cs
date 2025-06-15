@@ -17,6 +17,12 @@ namespace Application.Common.Constants
 
         public static OperationResult<T> Fail(string message) =>
             new() { Success = false, Message = message };
+
+        //public static OperationResult<T> Fail(string message)
+        //{
+        //    Console.WriteLine($"Fail called with message:{message}"); // debug
+        //    return new OperationResult<T> { Success = false, Message = message };
+        //}
     }
 
 }

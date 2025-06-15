@@ -13,7 +13,7 @@ namespace Application.IServices
 {
     public interface ISyllabusScheduleService
     {
-        public Task<bool> CreateEmptySyllabusScheduleAyncs(SyllabusScheduleCreateCommand Command);
+        Task<OperationResult<List<SyllabusScheduleWithSlotDto>>> CreateEmptySyllabusScheduleAyncs(SyllabusScheduleCreateCommand command);
 
         Task<OperationResult<List<SyllabusScheduleCreateLessonDTO>>> GetSchedulesBySubjectIdAsync(string subjectId);
 
