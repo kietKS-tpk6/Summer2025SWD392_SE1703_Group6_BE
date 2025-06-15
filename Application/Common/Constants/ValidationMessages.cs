@@ -14,6 +14,8 @@ namespace Application.Common.Constants
         public const string SubjectNameExceedReqCharacters = "Dữ liệu {PropertyName} vượt quá 40 ký tự.";
         public const string ScoreMustBeNonNegative = "Dữ liệu {PropertyName} phải lớn hơn hoặc bằng 0.";
         public const string ScoreMustNotExceed10 = "Dữ liệu {PropertyName} phải bé hơn hoặc bằng 10.";
+        public const string NotAllow0 = "Dữ liệu {PropertyName} không được phép bằng 0.";
+
         public const string exceed255Characters = "Dữ liệu {PropertyName} vượt quá 255 ký tự.";
         // Email
         public const string AccountIDIsEmpty = "AccountID không được để trống.";

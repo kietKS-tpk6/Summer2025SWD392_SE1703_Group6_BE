@@ -16,6 +16,7 @@ namespace Application.Common.Constants
         public const string EmailIsEmpty = "EmailIsEmpty";
             public const string EmailIsNull = "EmailIsNull";
             public const string EmailInvalidFormat = "EmailInvalidFormat";
+        public const string NotAllow0 = "notAllow0";
 
             public const string PasswordIsEmpty = "PasswordIsEmpty";
             public const string PasswordIsNull = "PasswordIsNull";
