@@ -13,7 +13,7 @@ namespace Infrastructure.IRepositories
     public interface IAssessmentCriteriaRepository
     {
         Task<OperationResult<List<AssessmentCriteriaSetupDTO>>> CreateManyAsync(List<AssessmentCriteria> list);
-        Task<OperationResult<bool>> UpdateAsync(AssessmentCriteria assessmentCriteria);
+        Task<OperationResult<AssessmentCriteria>> UpdateAsync(AssessmentCriteria assessmentCriteria);
 
         Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectID);
         Task<List<AssessmentCriteria>> GetAllAsync();

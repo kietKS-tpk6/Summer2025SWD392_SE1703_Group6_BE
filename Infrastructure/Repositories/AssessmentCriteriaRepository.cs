@@ -69,18 +69,18 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.AssessmentCriteria.ToListAsync();
         }
-        public async Task<OperationResult<bool>> UpdateAsync(AssessmentCriteria assessmentCriteria)
+        public async Task<OperationResult<AssessmentCriteria>> UpdateAsync(AssessmentCriteria assessmentCriteria)
         {
             _dbContext.AssessmentCriteria.Update(assessmentCriteria);
             var result = await _dbContext.SaveChangesAsync();
 
             if (result > 0)
             {
-                return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
+                return OperationResult<AssessmentCriteria>.Ok(assessmentCriteria, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
             }
             else
             {
-                return OperationResult<bool>.Fail(OperationMessages.UpdateFail("tiêu chí đánh giá"));
+                return OperationResult<AssessmentCriteria>.Fail(OperationMessages.UpdateFail("tiêu chí đánh giá"));
             }
         }
         public async Task<OperationResult<bool>> SoftDeleteAsync(string id)

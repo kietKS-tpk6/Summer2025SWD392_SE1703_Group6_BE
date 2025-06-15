@@ -47,7 +47,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result); 
             }
 
-
         }
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody] AssessmentCriteriaUpdateCommand command, CancellationToken cancellationToken)

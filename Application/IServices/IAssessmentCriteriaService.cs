@@ -15,7 +15,7 @@ namespace Application.IServices
     public interface IAssessmentCriteriaService
     {
         Task<OperationResult<AssessmentCriteria>> GetByIdAsync(string assessmentCriteriaId);
-        Task<OperationResult<bool>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command);
+        Task<OperationResult<AssessmentCriteriaUpdateDto>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand cmd);
         Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectId);
         Task<OperationResult<List<AssessmentCriteriaSetupDTO>>> SetupAssessmentCriteria(AssessmentCriteriaSetupCommand request);
         //Lỗi nên tạm comment - Kho

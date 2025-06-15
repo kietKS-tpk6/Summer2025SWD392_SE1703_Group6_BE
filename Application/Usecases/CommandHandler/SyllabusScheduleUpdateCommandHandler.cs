@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.IServices;
 using Application.Usecases.Command;
 using MediatR;
 
 namespace Application.Usecases.CommandHandler
 {
-    public class SyllabusScheduleUpdateCommandHandler : IRequestHandler<SyllabusScheduleUpdateCommand, bool>
+    public class SyllabusScheduleUpdateCommandHandler : IRequestHandler<SyllabusScheduleUpdateCommand, OperationResult<bool>>
     {
 
         private readonly ISyllabusScheduleService _syllabusScheduleService;
@@ -20,18 +21,18 @@ namespace Application.Usecases.CommandHandler
             _syllabusScheduleService = syllabusScheduleService;
             _subjectService = subjectService;
         }
-        public async Task<bool> Handle(SyllabusScheduleUpdateCommand req, CancellationToken cancellationToken)
+        public async Task<OperationResult<bool>> Handle(SyllabusScheduleUpdateCommand req, CancellationToken cancellationToken)
         {
-           
-            //check danh sach slot do co ton tai hay k
-            var res = await _syllabusScheduleService.CheckListSyllabusScheduleAsync(req.Items);
-            if(res == false)
+            var res = await _syllabusScheduleService.UpdateSyllabusSchedulesAsync(req);
+            if (res)
             {
-                return false;
+                return OperationResult<bool>.Ok(true);
             }
-
-            return await _syllabusScheduleService.UpdateSyllabusSchedulesAsync(req);
-
+            else
+            {
+                return OperationResult<bool>.Fail("Cập nhật SyllabusSchedule thất bại.");
+            }
         }
+
     }
 }

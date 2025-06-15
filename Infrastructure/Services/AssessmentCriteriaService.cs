@@ -21,19 +21,19 @@ namespace Infrastructure.Services
             _assessmentCriteriaRepository = assessmentCriteriaRepository;
         }
 
-        public async Task<OperationResult<bool>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command)
+        public async Task<OperationResult<AssessmentCriteriaUpdateDto>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command)
         {
             var result = await _assessmentCriteriaRepository.GetByIdAsync(command.AssessmentCriteriaID);
-
             if (!result.Success || result.Data == null)
             {
-                return OperationResult<bool>.Fail(OperationMessages.NotFound("tiêu chí đánh giá"));
+                return OperationResult<AssessmentCriteriaUpdateDto>.Fail(OperationMessages.NotFound("tiêu chí đánh giá"));
             }
 
             var existing = result.Data;
             existing.WeightPercent = command.WeightPercent;
             existing.Category = (AssessmentCategory)command.Category;
-            if (existing.Category == AssessmentCategory.Presentation || existing.Category == AssessmentCategory.Attendance 
+
+            if (existing.Category == AssessmentCategory.Presentation || existing.Category == AssessmentCategory.Attendance
                 || existing.Category == AssessmentCategory.ClassParticipation
                 || existing.Category == AssessmentCategory.Assignment)
             {
@@ -43,9 +43,27 @@ namespace Infrastructure.Services
             {
                 existing.RequiredTestCount = command.RequiredTestCount;
             }
+
             existing.Note = command.Note;
             existing.MinPassingScore = command.MinPassingScore;
-            return await _assessmentCriteriaRepository.UpdateAsync(existing);
+
+            var updateResult = await _assessmentCriteriaRepository.UpdateAsync(existing);
+
+            if (!updateResult.Success)
+            {
+                return OperationResult<AssessmentCriteriaUpdateDto>.Fail(updateResult.Message);
+            }
+
+            // Map entity to DTO
+            var dto = new AssessmentCriteriaUpdateDto
+            {
+                Order = 1,
+                AssessmentCriteriaID = existing.AssessmentCriteriaID,
+                Category = existing.Category?.ToString(),
+                RequireCount = existing.RequiredTestCount
+            };
+
+            return OperationResult<AssessmentCriteriaUpdateDto>.Ok(dto, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
         }
 
         public async Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectId)
