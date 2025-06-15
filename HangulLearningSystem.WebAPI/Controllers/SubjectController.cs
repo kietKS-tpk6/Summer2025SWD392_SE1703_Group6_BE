@@ -27,11 +27,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             var result = await _mediator.Send(command);
 
-            if (result.Contains("successfully"))
+            if (result?.Success == true)
+            {
                 return Ok(new { message = result });
-
-            return BadRequest(new { message = result });
+            }
+            else
+            {
+                return BadRequest(new { message = result });
+            }
         }
+
 
         [HttpGet("get-all")]
         public async Task<ActionResult<List<SubjectDTO>>> GetAllSubjects([FromQuery] bool? isActive = true)

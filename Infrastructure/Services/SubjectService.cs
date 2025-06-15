@@ -47,29 +47,40 @@ namespace Infrastructure.Services
 
             return $"SJ{(maxId + 1):D4}"; 
         }
-
-        public async Task<string> CreateSubjectAsync(CreateSubjectCommand command)
+        public DateTime GetVietnamTime()
         {
-            var subjectId = await GenerateNextSubjectIdAsync();
-
-            var subject = new Subject
+            return DateTime.UtcNow.AddHours(7);
+        }
+        public async Task<OperationResult<string>> CreateSubjectAsync(Subject subject)
+        {
+            try
             {
-                SubjectID = subjectId,                          
-                SubjectName = command.SubjectName,
-                Description = command.Description,
-                IsActive = true,                                
-                CreateAt = DateTime.Now,                         
-                MinAverageScoreToPass = command.MinAverageScoreToPass
-            };
+                if (string.IsNullOrWhiteSpace(subject.SubjectID))
+                {
+                    subject.SubjectID = await GenerateNextSubjectIdAsync();
+                }
 
-            var result = await _subjectRepository.CreateSubjectAsync(subject);
+                subject.CreateAt = GetVietnamTime();
 
-            if (result.Contains("successfully"))
-            {
-                return $"Subject created successfully with ID: {subjectId}";
+                await _subjectRepository.CreateSubjectAsync(subject);
+                return OperationResult<string>.Ok($"Đã thêm môn học {subject.SubjectID} thành công.");
             }
+            catch (Exception ex)
+            {
+                return OperationResult<string>.Fail($"Không thể thêm môn học. Lỗi: {ex.Message}");
 
-            return result;
+            }
+        }
+
+
+        public async Task<bool> SubjectNameExistsAsync(string subjectName)
+        {
+            return await _subjectRepository.ExistsByIdAsync(subjectName);
+        }
+
+        public async Task<bool> DescriptionExistsAsync(string description)
+        {
+            return await _subjectRepository.ExistsByDescriptionAsync(description);
         }
 
         public async Task<List<SubjectDTO>> GetAllSubjectsAsync(bool? isActive = null)
