@@ -58,14 +58,15 @@ namespace Infrastructure.Services
             var existingList = existingResult.Data ?? new List<AssessmentCriteriaDTO>();
             int currentCount = existingList.Count;
             int targetCount = request.NumberAssessmentCriteria;
+
             if (currentCount == targetCount)
             {
                 var resultList = existingList
                     .OrderBy(x => x.AssessmentCriteriaID)
                     .Select((x, index) => new AssessmentCriteriaSetupDTO
                     {
-                        AssessmentCriteriaID = x.AssessmentCriteriaID,
-                        numOfAssessment = index + 1
+                        Stt = index + 1,
+                        AssessmentCriteriaID = x.AssessmentCriteriaID
                     })
                     .ToList();
 
@@ -74,6 +75,7 @@ namespace Infrastructure.Services
                     OperationMessages.RetrieveSuccess("tiêu chí đánh giá")
                 );
             }
+
             if (currentCount < targetCount)
             {
                 int numberToCreate = targetCount - currentCount;
@@ -83,7 +85,7 @@ namespace Infrastructure.Services
 
                 for (int i = 0; i < numberToCreate; i++)
                 {
-                    string newId = "AC" + (totalInDb + i).ToString("D4");
+                    string newId = "AC" + (totalInDb + i + 1).ToString("D4");
 
                     var newAssCri = new AssessmentCriteria
                     {
@@ -94,7 +96,7 @@ namespace Infrastructure.Services
                         RequiredTestCount = null,
                         Note = null,
                         MinPassingScore = null,
-                        IsActive = true
+                        IsActive = true // Luôn set là true khi tạo mới
                     };
 
                     newList.Add(newAssCri);
@@ -111,8 +113,8 @@ namespace Infrastructure.Services
                     .OrderBy(x => x.AssessmentCriteriaID)
                     .Select((x, index) => new AssessmentCriteriaSetupDTO
                     {
-                        AssessmentCriteriaID = x.AssessmentCriteriaID,
-                        numOfAssessment = index + 1
+                        Stt = index + 1,
+                        AssessmentCriteriaID = x.AssessmentCriteriaID
                     })
                     .ToList();
 
@@ -121,7 +123,7 @@ namespace Infrastructure.Services
                     OperationMessages.CreateSuccess($"{numberToCreate} tiêu chí đánh giá mới")
                 );
             }
-            else 
+            else
             {
                 int numberToRemove = currentCount - targetCount;
 
@@ -138,8 +140,8 @@ namespace Infrastructure.Services
                     .OrderBy(x => x.AssessmentCriteriaID)
                     .Select((x, index) => new AssessmentCriteriaSetupDTO
                     {
-                        AssessmentCriteriaID = x.AssessmentCriteriaID,
-                        numOfAssessment = index + 1
+                        Stt = index + 1,
+                        AssessmentCriteriaID = x.AssessmentCriteriaID
                     })
                     .ToList();
 
@@ -149,6 +151,8 @@ namespace Infrastructure.Services
                 );
             }
         }
+
+
         public async Task<OperationResult<AssessmentCriteria>> GetByIdAsync(string assessmentCriteriaId)
         {
             return await _assessmentCriteriaRepository.GetByIdAsync(assessmentCriteriaId);

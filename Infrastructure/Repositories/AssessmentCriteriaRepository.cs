@@ -45,19 +45,16 @@ namespace Infrastructure.Repositories
         public async Task<OperationResult<List<AssessmentCriteriaSetupDTO>>> CreateManyAsync(List<AssessmentCriteria> entities)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
             try
             {
                 await _dbContext.AssessmentCriteria.AddRangeAsync(entities);
                 var saved = await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-
                 var resultList = entities.Select((x, index) => new AssessmentCriteriaSetupDTO
                 {
                     AssessmentCriteriaID = x.AssessmentCriteriaID,
-                    numOfAssessment = index + 1
+                    Stt = index + 1  // Đổi từ numOfAssessment thành Stt
                 }).ToList();
-
                 var message = OperationMessages.CreateSuccess($"{saved} tiêu chí đánh giá");
                 return OperationResult<List<AssessmentCriteriaSetupDTO>>.Ok(resultList, message);
             }
