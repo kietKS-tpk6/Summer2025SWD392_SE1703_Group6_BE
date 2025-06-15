@@ -12,6 +12,8 @@ namespace Application.IServices
         Task<bool> SendOtpEmailAsync(string toEmail);
         Task<bool> SendEmailAsync(string toEmail, string subject, string body, bool isHtml = true);
         Task<bool> SendWelcomeEmailAsync(string toEmail, string userName);
+        Task<bool> SendWelcomeEmailWithPassAsync(string toEmail, string userName,string pass);
+        
         Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetLink);
     }
 }

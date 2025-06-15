@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.IServices;
 using Domain.Entities;
+using Infrastructure.IRepositories;
+using Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -18,10 +20,12 @@ namespace Infrastructure.Services
         private readonly string _fromEmail;
         private readonly string _fromName;
         private readonly ILogger<EmailService> _logger;
-
-        public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+        private readonly IOTPRepository _OTPRepository;
+        private const int TIME_TO_USE_OTP_MINUTES = 5;
+        public EmailService(IConfiguration configuration, ILogger<EmailService> logger, IOTPRepository oTPRepository)
         {
             _logger = logger;
+            _OTPRepository = oTPRepository;
             var emailSettings = configuration.GetSection("EmailSettings");
 
             _fromEmail = emailSettings["FromEmail"];
@@ -34,6 +38,7 @@ namespace Infrastructure.Services
                 EnableSsl = bool.Parse(emailSettings["EnableSsl"] ?? "true"),
                 Timeout = 30000 // 30 seconds timeout
             };
+
         }
 
         private string GenerateOtpCode(int length = 6)
@@ -58,7 +63,18 @@ namespace Infrastructure.Services
                 string otpCode = GenerateOtpCode();
                 var subject = "Mã xác thực OTP";
                 string emailBody = CreateOtpEmailTemplate(otpCode);
-                return await SendEmailAsync(toEmail, subject, emailBody, true);
+               var otp = new OTP();
+                otp.ExpirationTime = DateTime.UtcNow;
+                otp.OTPCode = otpCode;
+                otp.PhoneNumber = null;
+                otp.Email = toEmail;
+                otp.ExpirationTime = TimeZoneInfo.ConvertTimeFromUtc(
+                    DateTime.UtcNow.AddMinutes(TIME_TO_USE_OTP_MINUTES),
+                    TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")
+                );
+                var res = await _OTPRepository.createOTP(otp);
+                if (res) return await SendEmailAsync(toEmail, subject, emailBody, true);
+               return false;
             }
             catch (Exception ex)
             {
@@ -129,6 +145,7 @@ namespace Infrastructure.Services
 
         #region Email Templates
 
+        
         private string CreateOtpEmailTemplate(string otpCode)
         {
             return $@"
@@ -299,6 +316,91 @@ namespace Infrastructure.Services
         public void Dispose()
         {
             _smtpClient?.Dispose();
+        }
+        public async Task<bool> SendWelcomeEmailWithPassAsync(string toEmail, string userName, string pass)
+        {
+            try
+            {
+                string subject = "Chào mừng bạn đến với HangulLearning System!";
+                string emailBody = CreateWelcomeEmailWithPassTemplate(userName, password: pass, email: toEmail);
+                return await SendEmailAsync(toEmail, subject, emailBody, true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send welcome email with password to {Email}", toEmail);
+                return false;
+            }
+        }
+
+        private string CreateWelcomeEmailWithPassTemplate(string userName, string password, string email)
+        {
+            return $@"
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>Chào mừng đến với HangulLearning</title>
+    </head>
+    <body style='margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;'>
+        <div style='max-width: 600px; margin: 0 auto; background-color: white;'>
+            <!-- Header -->
+            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;'>
+                <h1 style='color: white; margin: 0; font-size: 28px;'>🎉 Chào mừng đến với HangulLearning!</h1>
+            </div>
+            
+            <!-- Content -->
+            <div style='padding: 40px 30px;'>
+                <h2 style='color: #333; margin: 0 0 20px 0;'>Xin chào {userName}!</h2>
+                <p style='color: #666; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;'>
+                    Cảm ơn bạn đã đăng ký tài khoản tại HangulLearning System. Chúng tôi rất vui mừng chào đón bạn!
+                </p>
+                
+                <!-- Login Credentials -->
+                <div style='background-color: #f8f9ff; border: 2px solid #667eea; border-radius: 12px; padding: 25px; margin: 25px 0;'>
+                    <h3 style='color: #667eea; margin: 0 0 15px 0; text-align: center;'>🔐 Thông tin đăng nhập</h3>
+                    <div style='background-color: white; border-radius: 8px; padding: 20px;'>
+                        <p style='color: #333; margin: 0 0 10px 0; font-size: 14px;'><strong>Email:</strong> {email}</p>
+                        <p style='color: #333; margin: 0; font-size: 14px;'><strong>Mật khẩu:</strong> 
+                            <span style='background-color: #f1f3f4; padding: 8px 12px; border-radius: 4px; font-family: ""Courier New"", monospace; font-weight: bold; color: #667eea;'>{password}</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div style='background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 20px 0;'>
+                    <p style='color: #856404; margin: 0; font-size: 14px; text-align: center;'>
+                        ⚠️ <strong>Bảo mật:</strong> Vui lòng đổi mật khẩu sau lần đăng nhập đầu tiên để đảm bảo an toàn tài khoản
+                    </p>
+                </div>
+                
+                <div style='background-color: #f8f9ff; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0;'>
+                    <h3 style='color: #667eea; margin: 0 0 10px 0;'>🚀 Bắt đầu hành trình học tiếng Hàn:</h3>
+                    <ul style='color: #666; margin: 0; padding-left: 20px;'>
+                        <li>Học bảng chữ cái Hangul cơ bản</li>
+                        <li>Luyện tập từ vựng hàng ngày</li>
+                        <li>Thực hành ngữ pháp với bài tập</li>
+                        <li>Theo dõi tiến độ học tập</li>
+                    </ul>
+                </div>
+                
+                <div style='text-align: center; margin: 30px 0;'>
+                    <a href='#' style='background-color: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;'>Đăng nhập và bắt đầu học</a>
+                </div>
+                
+                <p style='color: #666; font-size: 14px;'>
+                    Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với chúng tôi!
+                </p>
+            </div>
+            
+            <!-- Footer -->
+            <div style='background-color: #f8f9fa; padding: 20px 30px; text-align: center;'>
+                <p style='color: #6c757d; font-size: 12px; margin: 0;'>
+                    © 2025 HangulLearning System. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>";
         }
     }
 }

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
+using Application.Common.Shared;
 using Application.DTOs;
 using Application.Usecases.Command;
+using Domain.Enums;
 
 namespace Application.IServices
 {
@@ -12,9 +15,22 @@ namespace Application.IServices
     {
         public Task<LoginDTO> Login(LoginCommand loginCommand);
 
-        public Task<string> Register(RegisterCommand registerCommand);
-        
+        public Task<bool> Register(RegisterCommand registerCommand);
 
-        
+        public Task<bool> VerifyOTPByEmail(VerifyOTPCommand verifyOTPCommand);
+
+        public Task<bool> CreateAccountByManager(CreateAccountCommand createAccountCommand);
+
+        public Task<PagedResult<AccountForManageDTO>> GetPaginatedAccountListAsync(int page, int pageSize, string? role, string? gender, string? status);
+        public Task<bool> CheckEmailExistAsync(string email);
+
+        Task<OperationResult<bool>> IsLectureFreeAsync(string lecturerId, string subjectId, TimeOnly time, List<DayOfWeek> days);
+
+        public Task<bool> CheckPhoneExistAsync(string phone);
+
+        public Task<string> GetAccountNameByIDAsync(string accountID);
+
+        Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule();
+        Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole);
     }
 }

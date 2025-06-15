@@ -19,20 +19,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
         }
 
-        //        [HttpPost("login")]
-        //        public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken cancellationToken))
-        //        {
-        //            var result = await _mediator.Send(command, cancellationToken);
-        //            if (result)
-        //            {
-        //                return Ok(OperationMessages.CreateSuccess);
-        //    }
-        //            else
-        //            {
-        //                return BadRequest(OperationMessages.CreateFail);
-        //}
-        //        }
-
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken cancellationToken)
@@ -59,6 +45,22 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
             return Ok(result);
         }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOTP([FromBody] VerifyOTPCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (!string.IsNullOrEmpty(result))
+            {
+                return Ok(result); // Xác thực thành công, trả về message
+            }
+            else
+            {
+                return BadRequest(OperationMessages.CreateFail); // Xác thực thất bại
+            }
+        }
+
     }
 
 }

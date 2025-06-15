@@ -20,34 +20,50 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _assessmentCriteriaService = assessmentCriteriaService;
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] AssessmentCriteriaCreateCommand command, CancellationToken cancellationToken)
+        //[HttpPost("create")]
+        //public async Task<IActionResult> Create([FromBody] AssessmentCriteriaCreateCommand command, CancellationToken cancellationToken)
+        //{
+        //    var result = await _mediator.Send(command, cancellationToken);
+
+        //    if (result)
+        //    {
+        //        return Ok(OperationMessages.CreateSuccess);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(OperationMessages.CreateFail);
+        //    }
+        //}
+        [HttpPost("create-many")]
+        public async Task<IActionResult> CreateMany([FromBody] AssessmentCriteriaSetupCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-
-            if (result)
+            if (result.Success)
             {
-                return Ok(OperationMessages.CreateSuccess);
+                return Ok(result); 
             }
             else
             {
-                return BadRequest(OperationMessages.CreateFail);
+                return BadRequest(result); 
             }
+
+
         }
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody] AssessmentCriteriaUpdateCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
 
-            if (result)
+            if (result.Success)
             {
-                return Ok(OperationMessages.UpdateSuccess);
+                return Ok(result);
             }
             else
             {
-                return BadRequest(OperationMessages.UpdateFail);
+                return BadRequest(result); 
             }
         }
+
         //[HttpGet("get-all-paginated")]
         //public async Task<IActionResult> GetPaginatedList([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         //{
@@ -61,32 +77,34 @@ namespace HangulLearningSystem.WebAPI.Controllers
         //        return StatusCode(500, new { message = $"Lỗi server: {ex.Message}" });
         //    }
         //}
-        [HttpGet("get-by-syllabus/{syllabusId}")]
-        public async Task<IActionResult> GetBySyllabusId(string syllabusId)
-        {
-            var result = await _assessmentCriteriaService.GetListBySyllabusIdAsync(syllabusId);
+        //[HttpDelete("delete/{id}")]
+        //public async Task<IActionResult> Delete(string id)
+        //{
+        //    var success = await _assessmentCriteriaService.DeleteAsync(id);
 
-            if (result == null || !result.Any())
+        //    if (success)
+        //    {
+        //        return Ok(OperationMessages.DeleteSuccess);
+        //    }
+        //    else
+        //    {
+        //        return NotFound(OperationMessages.DeleteFail);
+        //    }
+        //}
+        [HttpGet("get-by-subject/{subjectId}")]
+        public async Task<IActionResult> GetBySyllabusId(string subjectId)
+        {
+            var result = await _assessmentCriteriaService.GetListBySubjectIdAsync(subjectId);
+
+            if (!result.Success)
             {
-                return NotFound(new { message = OperationMessages.NotFound });
+                return NotFound(result);
             }
 
             return Ok(result);
         }
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(string id)
-        {
-            var success = await _assessmentCriteriaService.DeleteAsync(id);
 
-            if (success)
-            {
-                return Ok(OperationMessages.DeleteSuccess);
-            }
-            else
-            {
-                return NotFound(OperationMessages.DeleteFail);
-            }
-        }
+
 
 
     }

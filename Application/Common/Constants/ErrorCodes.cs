@@ -8,9 +8,12 @@ namespace Application.Common.Constants
 {
     public  class ErrorCodes
     {
+
+        
+            public const string DataIsEmpty = "DataIsEmpty";
         //LoginCommand
 
-            public const string EmailIsEmpty = "EmailIsEmpty";
+        public const string EmailIsEmpty = "EmailIsEmpty";
             public const string EmailIsNull = "EmailIsNull";
             public const string EmailInvalidFormat = "EmailInvalidFormat";
 
@@ -50,6 +53,12 @@ namespace Application.Common.Constants
             public const string GenderInvalid = "GenderInvalid";
 
             public const string UserNotFound = "UserNotFound";
+        //OTP
+        public const string OTPIsEmpty = "OTPIsEmpty";
+
+        //Syllabus
+        public const string AccountIDIsEmpty = "AccountIDIsEmpty";
+
         //AssessmentCriteriaCreateCommand
         public const string AssessmentCriteriaIDIsEmpty = "AssessmentCriteriaIDIsEmpty";
         public const string SyllabusIDIsEmpty = "SyllabusIDIsEmpty";
@@ -73,8 +82,12 @@ namespace Application.Common.Constants
         public const string MinStudentAcpInvalid = "MinStudentAcpInvalid";
         public const string MaxStudentAcpInvalid = "MaxStudentAcpInvalid";
         public const string MaxLessThanMin = "MaxLessThanMin";
+        public const string ClassIDIsEmpty = "ClassIDIsEmpty";
 
-
-
+        //Lesson
+        public const string LessonIDIsEmpty = "LessonIDIsEmpty";
+        public const string LessonStartTimeInvalid = "LessonStartTimeInvalid";
+        public const string SyllabusScheduleIDIsEmpty = "SyllabusScheduleIDIsEmpty";
+        public const string ClassLessonIDIsEmpty = "ClassLessonIDIsEmpty";
     }
 }

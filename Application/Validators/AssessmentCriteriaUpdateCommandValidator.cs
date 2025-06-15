@@ -6,15 +6,15 @@ public class AssessmentCriteriaUpdateCommandValidator : AbstractValidator<Assess
 {
     public AssessmentCriteriaUpdateCommandValidator()
     {
-        RuleFor(x => x.AssessmentCriteriaID)
-            .NotEmpty()
-            .WithErrorCode(nameof(ErrorCodes.AssessmentCriteriaIDIsEmpty))
-            .WithMessage(ValidationMessages.AssessmentCriteriaIDIsEmpty);
+        //RuleFor(x => x.AssessmentCriteriaID)
+        //    .NotEmpty()
+        //    .WithErrorCode(nameof(ErrorCodes.AssessmentCriteriaIDIsEmpty))
+        //    //.WithMessage(ValidationMessages.AssessmentCriteriaIDIsEmpty);
 
-        RuleFor(x => x.SyllabusID)
+        RuleFor(x => x.SubjectID)
             .NotEmpty()
-            .WithErrorCode(nameof(ErrorCodes.SyllabusIDIsEmpty))
-            .WithMessage(ValidationMessages.SyllabusIDIsEmpty);
+            .WithErrorCode(nameof(ErrorCodes.SubjectIDIsEmpty))
+            .WithMessage(ValidationMessages.SubjectIDIsEmpty);
 
         RuleFor(x => x.WeightPercent)
             .NotNull()
