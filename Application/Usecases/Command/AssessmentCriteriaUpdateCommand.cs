@@ -11,13 +11,10 @@ namespace Application.Usecases.Command
     public class AssessmentCriteriaUpdateCommand : IRequest<OperationResult<bool>>
     {
         public string AssessmentCriteriaID { get; set; }
-        public string SubjectID { get; set; }
         public double WeightPercent { get; set; }
-        public TestCategory Category { get; set; }
-        public int RequiredCount { get; set; }
-        public int Duration { get; set; }
-        public TestType TestType { get; set; }
+        public AssessmentCategory Category { get; set; }
+        public int RequiredTestCount { get; set; }
         public string? Note { get; set; }
-        public double MinPassingScore { get; set; }
+        public decimal MinPassingScore { get; set; }
     }
 }

@@ -6,16 +6,7 @@ public class AssessmentCriteriaUpdateCommandValidator : AbstractValidator<Assess
 {
     public AssessmentCriteriaUpdateCommandValidator()
     {
-        //RuleFor(x => x.AssessmentCriteriaID)
-        //    .NotEmpty()
-        //    .WithErrorCode(nameof(ErrorCodes.AssessmentCriteriaIDIsEmpty))
-        //    //.WithMessage(ValidationMessages.AssessmentCriteriaIDIsEmpty);
-
-        RuleFor(x => x.SubjectID)
-            .NotEmpty()
-            .WithErrorCode(nameof(ErrorCodes.SubjectIDIsEmpty))
-            .WithMessage(ValidationMessages.SubjectIDIsEmpty);
-
+        
         RuleFor(x => x.WeightPercent)
             .NotNull()
             .WithErrorCode(nameof(ErrorCodes.WeightPercentWrongType))
@@ -24,7 +15,7 @@ public class AssessmentCriteriaUpdateCommandValidator : AbstractValidator<Assess
             .WithErrorCode(nameof(ErrorCodes.WeightPercentInvalid))
             .WithMessage(ValidationMessages.WeightPercentInvalid);
 
-        RuleFor(x => x.RequiredCount)
+        RuleFor(x => x.RequiredTestCount)
             .NotNull()
             .WithErrorCode(nameof(ErrorCodes.RequiredCountWrongType))
             .WithMessage(ValidationMessages.RequiredCountWrongType)
@@ -36,20 +27,6 @@ public class AssessmentCriteriaUpdateCommandValidator : AbstractValidator<Assess
             .IsInEnum()
             .WithErrorCode(nameof(ErrorCodes.CategoryInvalid))
             .WithMessage(ValidationMessages.CategoryInvalid);
-
-        RuleFor(x => x.Duration)
-            .NotNull()
-            .WithErrorCode(nameof(ErrorCodes.DurationWrongType))
-            .WithMessage(ValidationMessages.DurationWrongType)
-            .GreaterThan(0)
-            .WithErrorCode(nameof(ErrorCodes.DurationInvalid))
-            .WithMessage(ValidationMessages.DurationInvalid);
-
-        RuleFor(x => x.TestType)
-            .IsInEnum()
-            .WithErrorCode(nameof(ErrorCodes.TestTypeInvalid))
-            .WithMessage(ValidationMessages.TestTypeInvalid);
-
         RuleFor(x => x.MinPassingScore)
             .NotNull()
             .WithErrorCode(nameof(ErrorCodes.MinPassingScoreWrongType))

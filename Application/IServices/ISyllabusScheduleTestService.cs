@@ -13,9 +13,9 @@ namespace Application.IServices
 {
     public interface ISyllabusScheduleTestService
     {
-        Task<AssessmentCompletenessResultDTO> CheckAddAssessmentCompletenessAsync(string syllabusId);
+        //Task<AssessmentCompletenessResultDTO> CheckAddAssessmentCompletenessAsync(string syllabusId);
         Task<List<(string Category, string TestType)>> GetAddedTestsAsync(string syllabusId);
-        Task<bool> IsTestOverLimitAsync(string syllabusId, TestCategory category, TestType testType, int? excludeId = null);
+        //Task<bool> IsTestOverLimitAsync(string syllabusId, TestCategory category, TestType testType, int? excludeId = null);
         Domain.Enums.TestType? NormalizeTestType(string type, bool isRequired = true);
         Domain.Enums.TestCategory? NormalizeTestCategory(string category, bool isRequired = true);
 
