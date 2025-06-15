@@ -28,9 +28,6 @@ namespace Infrastructure.Data
             modelBuilder.Entity<AssessmentCriteria>()
                 .Property(a => a.Category)
                 .HasConversion<string>();
-            modelBuilder.Entity<AssessmentCriteria>()
-                .Property(a => a.TestType)
-                .HasConversion<string>();
             modelBuilder.Entity<AttendanceRecord>()
                 .Property(a => a.Status)
                 .HasConversion<string>();

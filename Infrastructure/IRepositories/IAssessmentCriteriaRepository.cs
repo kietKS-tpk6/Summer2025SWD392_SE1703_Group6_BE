@@ -12,25 +12,17 @@ namespace Infrastructure.IRepositories
 {
     public interface IAssessmentCriteriaRepository
     {
-        Task<OperationResult<int>> CreateManyAsync(List<AssessmentCriteria> list);
+        Task<OperationResult<List<AssessmentCriteriaSetupDTO>>> CreateManyAsync(List<AssessmentCriteria> list);
         Task<OperationResult<bool>> UpdateAsync(AssessmentCriteria assessmentCriteria);
 
-        Task<List<AssessmentCriteriaDTO>> GetListBySubjectIdAsync(string subjectID);
-
+        Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectID);
         Task<List<AssessmentCriteria>> GetAllAsync();
-        //Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId);
-       // Task<(List<AssessmentCriteriaDTO> Items, int TotalCount)> GetPaginatedListAsync(int page, int pageSize);
-        Task<int> CountAsync();
-        Task<AssessmentCriteria?> GetByIdAsync(string id);
-        //Task<bool> CreateAsync(AssessmentCriteria assessmentCriteria);
-        //Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId);
-        //Task<bool> DeleteAsync(string id);
-       
-        //Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, string category, string testType);
-
-        Task<bool> DeleteAsync(string id);
-        //KIỆT :HÀM CỦA KIỆT
-        Task<bool> IsTestDefinedInCriteriaAsync(string subjectID, string category, string testType);
+         Task<int> CountAsync();
+        Task<OperationResult<AssessmentCriteria>> GetByIdAsync(string assessmentCriteriaId);
+        Task<OperationResult<bool>> SoftDeleteAsync(string id);
+        Task<OperationResult<bool>> SoftDeleteByIdsAsync(List<string> id);
+        //KIỆT :HÀM CỦA KIỆT (Lỗi nên tạm comment - Kho)
+        //Task<bool> IsTestDefinedInCriteriaAsync(string subjectID, string category, string testType);
 
     }
 }
