@@ -19,11 +19,6 @@ namespace Infrastructure.Repositories
         {
             _dbContext = context;
         }
-
-        public SyllabusScheduleTestRepository()
-        {
-        }
-
         public async Task<bool> AddAsync(SyllabusScheduleTest entity)
         {
             _dbContext.SyllabusScheduleTests.Add(entity);
@@ -108,6 +103,14 @@ namespace Infrastructure.Repositories
                  .ToListAsync();
 
             return result;
+        }
+
+
+        //Hàm cụa Kho
+        public async Task<SyllabusScheduleTest?> GetSyllabusScheduleTestByIdAsync(string scheduleId)
+        {
+            return await _dbContext.SyllabusScheduleTests
+                .FirstOrDefaultAsync(t => t.SyllabusSchedulesID == scheduleId && t.IsActive);
         }
     }
 }
