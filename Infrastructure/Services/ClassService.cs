@@ -32,8 +32,11 @@ namespace Infrastructure.Services
 
         public async Task<OperationResult<bool>> CreateClassAsync(ClassCreateCommand request)
         {
-            var count = await _classRepository.CountAsync();
-            var newClassId = "CL" + Convert.ToInt32(count).ToString("D4");
+            var countResult = await _classRepository.CountAsync();
+            if (!countResult.Success)
+                return OperationResult<bool>.Fail(countResult.Message);
+
+            var newClassId = "CL" + countResult.Data.ToString("D4");
 
             var newClass = new Class
             {
