@@ -19,7 +19,7 @@ namespace Domain.Entities
             [Required]
             [MaxLength(6)]
             [ForeignKey("Test")]
-            public string TestID { get; set; }
+            public string? TestID { get; set; }
 
             public string? Description { get; set; }
 
@@ -48,7 +48,7 @@ namespace Domain.Entities
             [ForeignKey("Lesson")]
             public string ClassLessonID { get; set; }
 
-            public virtual Test Test { get; set; }
+            public virtual Test? Test { get; set; }
             public virtual Lesson Lesson { get; set; }
             public virtual SyllabusScheduleTest? ScheduleTest { get; set; }
         }
