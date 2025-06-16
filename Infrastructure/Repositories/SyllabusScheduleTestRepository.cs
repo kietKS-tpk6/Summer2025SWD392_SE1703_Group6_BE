@@ -107,10 +107,10 @@ namespace Infrastructure.Repositories
 
 
         //Hàm cụa Kho
-        public async Task<SyllabusScheduleTest?> GetSyllabusScheduleTestByIdAsync(string scheduleId)
+        public async Task<SyllabusScheduleTest?> GetSyllabusScheduleTestBySyllabusScheduleIdAsync(string syllabusScheduleID)
         {
             return await _dbContext.SyllabusScheduleTests
-                .FirstOrDefaultAsync(t => t.SyllabusSchedulesID == scheduleId && t.IsActive);
+                .FirstOrDefaultAsync(t => t.SyllabusScheduleID == syllabusScheduleID && t.IsActive);
         }
     }
 }

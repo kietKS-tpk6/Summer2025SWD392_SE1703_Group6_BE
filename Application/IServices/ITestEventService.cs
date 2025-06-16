@@ -10,6 +10,6 @@ namespace Application.IServices
     public interface ITestEventService
     {
         //Hàm của Kho - làm create class 
-        Task<OperationResult<bool>> CreateTestEventForCreateClassAsync(string lessonID);
+        Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID);
     }
 }
