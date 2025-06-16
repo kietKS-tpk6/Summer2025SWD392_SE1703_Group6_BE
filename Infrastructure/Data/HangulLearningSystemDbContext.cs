@@ -59,9 +59,6 @@ namespace Infrastructure.Data
                 .Property(a => a.Status)
                 .HasConversion<string>();
             modelBuilder.Entity<SyllabusScheduleTest>()
-                .Property(a => a.TestCategory)
-                .HasConversion<string>();
-            modelBuilder.Entity<SyllabusScheduleTest>()
                 .Property(a => a.TestType)
                 .HasConversion<string>();
             modelBuilder.Entity<SyllabusScheduleTest>()
