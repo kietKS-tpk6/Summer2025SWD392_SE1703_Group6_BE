@@ -186,22 +186,10 @@ namespace Infrastructure.Services
                             LinkMeetURL = roomUrl,
                             IsActive = true
                         });
-                        if (schedule.HasTest)
-                        {
-                            var createTestEventResult = await _testEventService.CreateTestEventForCreateClassAsync(newLessonID);
-
-                            if (!createTestEventResult.Success)
-                            {
-                                return OperationResult<bool>.Fail(
-                                    OperationMessages.CreateFail($"buổi kiểm tra cho buổi học {newLessonID}") +
-                                    $" - {createTestEventResult.Message}"
-                                );
-                            }
-                        }
+                        
                         currentScheduleIndex++;
                     }
                 }
-
                 var saveResult = await _lessonRepository.CreateManyAsync(lessonsToCreate);
                 if (!saveResult)
                     return OperationResult<bool>.Fail(OperationMessages.CreateFail("buổi học"));
