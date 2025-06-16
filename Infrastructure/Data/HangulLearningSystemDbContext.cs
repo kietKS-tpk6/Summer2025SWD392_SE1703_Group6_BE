@@ -53,10 +53,7 @@ namespace Infrastructure.Data
                 .Property(a => a.Status)
                 .HasConversion<string>();
             modelBuilder.Entity<TestEvent>()
-                .Property(a => a.GradingMethod)
-                .HasConversion<string>();
-            modelBuilder.Entity<TestEvent>()
-                .Property(a => a.Category)
+                .Property(a => a.TestType)
                 .HasConversion<string>();
             modelBuilder.Entity<TestEvent>()
                 .Property(a => a.Status)
