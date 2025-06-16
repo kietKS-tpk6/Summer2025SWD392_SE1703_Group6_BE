@@ -189,6 +189,10 @@ namespace Infrastructure.Services
         {
             return await _accountRepository.GetTeachingSchedule();
         }
+        public async Task<OperationResult<List<TeachingScheduleDetailDTO>>> GetTeachingScheduleDetailByID(string accountID)
+        {
+            return await _accountRepository.GetTeachingScheduleDetailByID(accountID);
+        }
         public async Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole)
         {
             return await _accountRepository.GetListAccountByRoleAsync(accountRole);

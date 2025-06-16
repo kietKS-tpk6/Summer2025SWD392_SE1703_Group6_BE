@@ -29,8 +29,10 @@ namespace Application.IServices
         public Task<bool> CheckPhoneExistAsync(string phone);
 
         public Task<string> GetAccountNameByIDAsync(string accountID);
-
+        //Hàm của Kho
         Task<OperationResult<List<TeachingScheduleDTO>>> GetTeachingSchedule();
+        //Hàm của Kho
+        Task<OperationResult<List<TeachingScheduleDetailDTO>>> GetTeachingScheduleDetailByID(string accountID);
         Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole);
     }
 }
