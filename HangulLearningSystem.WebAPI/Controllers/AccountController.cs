@@ -84,7 +84,17 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            return Ok(result.Data);
+            return Ok(result);
+        }
+        [HttpGet("teaching-schedule-detail/{accountId}")]
+        public async Task<IActionResult> GetTeachingScheduleDetailByID(string accountId)
+        {
+            var result = await _accountService.GetTeachingScheduleDetailByID(accountId);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
         }
         [HttpGet("get-by-role-actived")]
         public async Task<IActionResult> GetAccountsByRole([FromQuery] AccountRole role)

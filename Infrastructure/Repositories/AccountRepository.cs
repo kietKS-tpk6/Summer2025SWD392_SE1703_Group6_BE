@@ -252,6 +252,41 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<TeachingScheduleDTO>>.Fail($"Lỗi khi truy xuất lịch giảng dạy: {ex.Message}");
             }
         }
+        public async Task<OperationResult<List<TeachingScheduleDetailDTO>>> GetTeachingScheduleDetailByID(string accountID)
+        {
+            try
+            {
+                var now = DateTime.Now;
+
+                var result = await _dbContext.Lesson
+                    .Where(l => l.IsActive &&
+                                l.LecturerID == accountID &&
+                                l.StartTime >= now)
+                    .Select(l => new TeachingScheduleDetailDTO
+                    {
+                        TeachingDay = DateOnly.FromDateTime(l.StartTime),
+                        StartTime = l.StartTime.TimeOfDay,
+                        EndTime = l.StartTime.TimeOfDay.Add(
+                            TimeSpan.FromMinutes((double)(l.SyllabusSchedule.DurationMinutes ?? 0))
+                        )
+                    })
+                    .OrderBy(x => x.TeachingDay)
+                    .ThenBy(x => x.StartTime)
+                    .ToListAsync();
+
+                return OperationResult<List<TeachingScheduleDetailDTO>>.Ok(
+                    result,
+                    OperationMessages.RetrieveSuccess("lịch dạy chi tiết")
+                );
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<TeachingScheduleDetailDTO>>.Fail(
+                    $"Lỗi khi truy xuất lịch dạy chi tiết: {ex.Message}"
+                );
+            }
+        }
+
         public async Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole)
         {
             try
