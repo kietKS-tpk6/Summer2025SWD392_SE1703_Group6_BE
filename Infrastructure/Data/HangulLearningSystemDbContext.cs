@@ -95,6 +95,7 @@ namespace Infrastructure.Data
         public DbSet<TestSection> TestSection { get; set; }
         public DbSet<Transaction> Transaction { get; set; }
         public DbSet<SyllabusScheduleTest> SyllabusScheduleTests { get; set; }
+        public DbSet<SystemConfig> SystemConfig { get; set; }
 
     }
 }
