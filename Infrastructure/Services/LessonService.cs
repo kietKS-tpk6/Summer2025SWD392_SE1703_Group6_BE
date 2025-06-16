@@ -9,11 +9,13 @@ using Infrastructure.IRepositories;
 using Domain.Entities;
 using Application.DTOs;
 using Application.Common.Constants;
+using Infrastructure.Repositories;
 namespace Infrastructure.Services
 {
     public class LessonService : ILessonService
     {
         private readonly ILessonRepository _lessonRepository;
+        private readonly ITestEventService _testEventService;
         public LessonService(ILessonRepository lessonRepository)
         {
             _lessonRepository = lessonRepository;
@@ -184,7 +186,18 @@ namespace Infrastructure.Services
                             LinkMeetURL = roomUrl,
                             IsActive = true
                         });
+                        if (schedule.HasTest)
+                        {
+                            var createTestEventResult = await _testEventService.CreateTestEventForCreateClassAsync(newLessonID);
 
+                            if (!createTestEventResult.Success)
+                            {
+                                return OperationResult<bool>.Fail(
+                                    OperationMessages.CreateFail($"buổi kiểm tra cho buổi học {newLessonID}") +
+                                    $" - {createTestEventResult.Message}"
+                                );
+                            }
+                        }
                         currentScheduleIndex++;
                     }
                 }
