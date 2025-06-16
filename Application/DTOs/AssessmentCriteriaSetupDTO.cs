@@ -9,7 +9,8 @@ namespace Application.DTOs
     public class AssessmentCriteriaSetupDTO
     {
         public string AssessmentCriteriaID { get; set; }
-        public int Stt { get; set; }
-    
+        public int numOfAssessment { get; set; }
+
+
     }
 }

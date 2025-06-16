@@ -83,7 +83,7 @@ namespace Infrastructure.Services
                     .OrderBy(x => x.AssessmentCriteriaID)
                     .Select((x, index) => new AssessmentCriteriaSetupDTO
                     {
-                        Stt = index + 1,
+                        numOfAssessment = index + 1,
                         AssessmentCriteriaID = x.AssessmentCriteriaID
                     })
                     .ToList();
@@ -114,7 +114,7 @@ namespace Infrastructure.Services
                         RequiredTestCount = null,
                         Note = null,
                         MinPassingScore = null,
-                        IsActive = true // Luôn set là true khi tạo mới
+                        IsActive = true 
                     };
 
                     newList.Add(newAssCri);
@@ -131,7 +131,7 @@ namespace Infrastructure.Services
                     .OrderBy(x => x.AssessmentCriteriaID)
                     .Select((x, index) => new AssessmentCriteriaSetupDTO
                     {
-                        Stt = index + 1,
+                        numOfAssessment = index + 1,
                         AssessmentCriteriaID = x.AssessmentCriteriaID
                     })
                     .ToList();
@@ -158,7 +158,7 @@ namespace Infrastructure.Services
                     .OrderBy(x => x.AssessmentCriteriaID)
                     .Select((x, index) => new AssessmentCriteriaSetupDTO
                     {
-                        Stt = index + 1,
+                        numOfAssessment = index + 1,
                         AssessmentCriteriaID = x.AssessmentCriteriaID
                     })
                     .ToList();
