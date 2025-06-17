@@ -69,6 +69,25 @@ namespace Infrastructure.Services
                 return OperationResult<AssessmentCriteriaUpdateDto>.Fail(updateResult.Message);
             }
 
+            // Map entity to DTO
+            var dto = new AssessmentCriteriaUpdateDto
+            {
+                Order = 1,
+                AssessmentCriteriaID = existing.AssessmentCriteriaID,
+                Category = existing.Category?.ToString(),
+                RequireCount = existing.RequiredTestCount
+            };
+
+            return OperationResult<AssessmentCriteriaUpdateDto>.Ok(dto, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
+        }
+
+            var updateResult = await _assessmentCriteriaRepository.UpdateAsync(existing);
+
+            if (!updateResult.Success)
+            {
+                return OperationResult<AssessmentCriteriaUpdateDto>.Fail(updateResult.Message);
+            }
+
             var dto = new AssessmentCriteriaUpdateDto
             {
                 Order = 1, 
@@ -97,7 +116,7 @@ namespace Infrastructure.Services
                     .OrderBy(x => x.AssessmentCriteriaID)
                     .Select((x, index) => new AssessmentCriteriaSetupDTO
                     {
-                        Stt = index + 1,
+                        numOfAssessment = index + 1,
                         AssessmentCriteriaID = x.AssessmentCriteriaID
                     })
                     .ToList();
@@ -128,7 +147,7 @@ namespace Infrastructure.Services
                         RequiredTestCount = null,
                         Note = null,
                         MinPassingScore = null,
-                        IsActive = true // Luôn set là true khi tạo mới
+                        IsActive = true 
                     };
 
                     newList.Add(newAssCri);
@@ -145,7 +164,7 @@ namespace Infrastructure.Services
                     .OrderBy(x => x.AssessmentCriteriaID)
                     .Select((x, index) => new AssessmentCriteriaSetupDTO
                     {
-                        Stt = index + 1,
+                        numOfAssessment = index + 1,
                         AssessmentCriteriaID = x.AssessmentCriteriaID
                     })
                     .ToList();
@@ -172,7 +191,7 @@ namespace Infrastructure.Services
                     .OrderBy(x => x.AssessmentCriteriaID)
                     .Select((x, index) => new AssessmentCriteriaSetupDTO
                     {
-                        Stt = index + 1,
+                        numOfAssessment = index + 1,
                         AssessmentCriteriaID = x.AssessmentCriteriaID
                     })
                     .ToList();

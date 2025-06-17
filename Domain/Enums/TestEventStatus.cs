@@ -8,8 +8,16 @@ namespace Domain.Enums
 {
     public enum TestEventStatus
     {
+        //Hiển thị trên UI
+        //Bản nháp (này là TestID = null)
+        Draft,
+        //Chưa bắt đầu (thời gian chưa tới)
         NotStarted,
+        //Đang diễn ra  
         Ongoing,
-        Ended
+        //Đã kết thúc
+        Ended,
+        //Không hoạt động
+        Deleted
     }
 }

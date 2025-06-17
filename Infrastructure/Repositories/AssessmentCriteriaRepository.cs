@@ -53,7 +53,7 @@ namespace Infrastructure.Repositories
                 var resultList = entities.Select((x, index) => new AssessmentCriteriaSetupDTO
                 {
                     AssessmentCriteriaID = x.AssessmentCriteriaID,
-                    Stt = index + 1  // Đổi từ numOfAssessment thành Stt
+                    numOfAssessment = index + 1  // Đổi từ numOfAssessment thành Stt
                 }).ToList();
                 var message = OperationMessages.CreateSuccess($"{saved} tiêu chí đánh giá");
                 return OperationResult<List<AssessmentCriteriaSetupDTO>>.Ok(resultList, message);
