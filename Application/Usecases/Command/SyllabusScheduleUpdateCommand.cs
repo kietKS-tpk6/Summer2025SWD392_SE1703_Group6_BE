@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using MediatR;
 
 namespace Application.Usecases.Command
 {
-    public class SyllabusScheduleUpdateCommand : IRequest<bool>
+    public class SyllabusScheduleUpdateCommand : IRequest<OperationResult<bool>>
     {
         public List<SyllabusScheduleUpdateItem> Items { get; set; }
     }

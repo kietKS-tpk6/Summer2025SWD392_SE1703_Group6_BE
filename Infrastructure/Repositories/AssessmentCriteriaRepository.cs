@@ -69,20 +69,46 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.AssessmentCriteria.ToListAsync();
         }
-        public async Task<OperationResult<bool>> UpdateAsync(AssessmentCriteria assessmentCriteria)
+        public async Task<OperationResult<AssessmentCriteria>> UpdateAsync(AssessmentCriteria assessmentCriteria)
         {
             _dbContext.AssessmentCriteria.Update(assessmentCriteria);
             var result = await _dbContext.SaveChangesAsync();
 
             if (result > 0)
             {
-                return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
+                return OperationResult<AssessmentCriteria>.Ok(assessmentCriteria, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
             }
             else
             {
-                return OperationResult<bool>.Fail(OperationMessages.UpdateFail("tiêu chí đánh giá"));
+                return OperationResult<AssessmentCriteria>.Fail(OperationMessages.UpdateFail("tiêu chí đánh giá"));
             }
         }
+        public async Task<OperationResult<bool>> CheckDuplicateCategoryInSubjectAsync(string subjectId, AssessmentCategory category, string excludeAssessmentCriteriaId, int checkOnlyActive)
+        {
+            try
+            {
+                IQueryable<AssessmentCriteria> query = _dbContext.AssessmentCriteria
+                    .Where(ac => ac.SubjectID == subjectId
+                              && ac.Category == category
+                              && ac.AssessmentCriteriaID != excludeAssessmentCriteriaId);
+
+                // Nếu checkOnlyActive = 1 thì chỉ check với IsActive = true
+                // Nếu checkOnlyActive = 0 thì check cả IsActive = false và true
+                if (checkOnlyActive == 1)
+                {
+                    query = query.Where(ac => ac.IsActive == true);
+                }
+
+                var exists = await query.AnyAsync();
+
+                return OperationResult<bool>.Ok(exists);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<bool>.Fail($"Lỗi khi kiểm tra duplicate category: {ex.Message}");
+            }
+        }
+
         public async Task<OperationResult<bool>> SoftDeleteAsync(string id)
         {
             var entity = await _dbContext.AssessmentCriteria.FindAsync(id);

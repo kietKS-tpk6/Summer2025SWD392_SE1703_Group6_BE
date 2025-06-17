@@ -13,7 +13,7 @@ namespace Infrastructure.IRepositories
     public interface IAssessmentCriteriaRepository
     {
         Task<OperationResult<List<AssessmentCriteriaSetupDTO>>> CreateManyAsync(List<AssessmentCriteria> list);
-        Task<OperationResult<bool>> UpdateAsync(AssessmentCriteria assessmentCriteria);
+        Task<OperationResult<AssessmentCriteria>> UpdateAsync(AssessmentCriteria assessmentCriteria);
 
         Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectID);
         Task<List<AssessmentCriteria>> GetAllAsync();
@@ -23,6 +23,8 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<bool>> SoftDeleteByIdsAsync(List<string> id);
         //KIỆT :HÀM CỦA KIỆT (Lỗi nên tạm comment - Kho)
         //Task<bool> IsTestDefinedInCriteriaAsync(string subjectID, string category, string testType);
+        //KIỆT 
+        Task<OperationResult<bool>> CheckDuplicateCategoryInSubjectAsync(string subjectId, AssessmentCategory category, string excludeAssessmentCriteriaId, int checkOnlyActive);
 
     }
 }
