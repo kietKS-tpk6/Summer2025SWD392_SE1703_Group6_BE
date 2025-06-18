@@ -14,18 +14,18 @@ namespace Application.IServices
     public interface ISyllabusScheduleTestService
     {
         //Task<AssessmentCompletenessResultDTO> CheckAddAssessmentCompletenessAsync(string syllabusId);
-        Task<List<(string Category, string TestType)>> GetAddedTestsAsync(string syllabusId);
+        //Task<List<(string Category, string TestType)>> GetAddedTestsAsync(string syllabusId);
         //Task<bool> IsTestOverLimitAsync(string syllabusId, TestCategory category, TestType testType, int? excludeId = null);
         Domain.Enums.TestType? NormalizeTestType(string type, bool isRequired = true);
         Domain.Enums.TestCategory? NormalizeTestCategory(string category, bool isRequired = true);
 
-        Task<bool> AddTestToSyllabusAsync(AddTestSchedulesToSlotsCommand addTestSchedulesToSlotsCommand);
-        Task<bool> UpdateTestToSyllabusAsync(UpdateTestSchedulesToSlotsCommand updateTestSchedulesToSlotsCommand);
+        //Task<bool> AddTestToSyllabusAsync(AddTestSchedulesToSlotsCommand addTestSchedulesToSlotsCommand);
+        //Task<bool> UpdateTestToSyllabusAsync(UpdateTestSchedulesToSlotsCommand updateTestSchedulesToSlotsCommand);
 
-        Task<bool> HasTestAsync(string syllabusScheduleId);
-        Task<bool> RemoveTestFromSlotAsyncs(string syllabusScheduleId);
+        //Task<bool> HasTestAsync(string syllabusScheduleId);
+        //Task<bool> RemoveTestFromSlotAsyncs(string syllabusScheduleId);
 
-        Task<List<SyllabusScheduleTestDTO>> GetExamAddedAsync(string subject);
+        //Task<List<SyllabusScheduleTestDTO>> GetExamAddedAsync(string subject);
 
     }
 }

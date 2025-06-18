@@ -21,7 +21,7 @@ namespace Application.IServices
       //  Task<bool> IsMaxSlotInWeek(string syllabusId,int week);
         //Task AddTestSchedulesToSlotsAsync(string syllabusId,TestCategory category,TestType testType);
         Task<bool> slotAllowToTestAsync(string syllabusSchedulesID);
-        Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, string testCategory);
+        //Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, string testCategory);
         Task<bool> CheckListSyllabusScheduleAsync(List<SyllabusScheduleUpdateItem> items);
         Task<bool> UpdateSyllabusSchedulesAsync(SyllabusScheduleUpdateCommand command);
         Task<List<SyllabusScheduleDTO>> GetScheduleBySubjectAndWeekAsync(string subjectId, int? week);

@@ -65,11 +65,11 @@ namespace Infrastructure.Services
         //}
 
 
-        public async Task<List<(string Category, string TestType)>> GetAddedTestsAsync(string syllabusId)
-        {
-            var added = await _syllabusScheduleTestRepository.GetTestsBySyllabusIdAsync(syllabusId);
-            return added.Select(x => (x.TestCategory, x.TestType)).ToList();
-        }
+        //public async Task<List<(string Category, string TestType)>> GetAddedTestsAsync(string syllabusId)
+        //{
+        //    var added = await _syllabusScheduleTestRepository.GetTestsBySyllabusIdAsync(syllabusId);
+        //    return added.Select(x => (x.TestCategory, x.TestType)).ToList();
+        //}
         //kiểm tra số lượng bài
         //public async Task<bool> IsTestOverLimitAsync(string subjectID, TestCategory category, TestType testType, int? excludeId = null)
         //{
@@ -166,57 +166,57 @@ namespace Infrastructure.Services
             throw new ArgumentException($"Loại bài kiểm tra '{type}' không hợp lệ. Chỉ chấp nhận: MCQ, Writing, Speaking, Listening, Reading, Mix, Other.");
         }
 
-        public async Task<bool> AddTestToSyllabusAsync(AddTestSchedulesToSlotsCommand addTestSchedulesToSlotsCommand)
-        {
-            var bien = new SyllabusScheduleTest();
-            bien.SyllabusSchedulesID = addTestSchedulesToSlotsCommand.SyllabusScheduleID;
-            bien.TestCategory = Enum.Parse<TestCategory>(addTestSchedulesToSlotsCommand.TestCategory, true);
-            bien.TestType = Enum.Parse<TestType>(addTestSchedulesToSlotsCommand.TestType, true);
-            bien.IsActive = true;
-            return await _syllabusScheduleTestRepository.AddAsync(bien);
-        }
-        public async Task<bool> UpdateTestToSyllabusAsync(UpdateTestSchedulesToSlotsCommand updateTestSchedulesToSlotsCommand)
-        {
-            // Lấy record cần update theo ID
-            var existingTest = await _syllabusScheduleTestRepository.GetByIdAsync(updateTestSchedulesToSlotsCommand.SyllabusScheduleTestsId);
+        //public async Task<bool> AddTestToSyllabusAsync(AddTestSchedulesToSlotsCommand addTestSchedulesToSlotsCommand)
+        //{
+        //    var bien = new SyllabusScheduleTest();
+        //    bien.SyllabusSchedulesID = addTestSchedulesToSlotsCommand.SyllabusScheduleID;
+        //    bien.TestCategory = Enum.Parse<TestCategory>(addTestSchedulesToSlotsCommand.TestCategory, true);
+        //    bien.TestType = Enum.Parse<TestType>(addTestSchedulesToSlotsCommand.TestType, true);
+        //    bien.IsActive = true;
+        //    return await _syllabusScheduleTestRepository.AddAsync(bien);
+        //}
+        //public async Task<bool> UpdateTestToSyllabusAsync(UpdateTestSchedulesToSlotsCommand updateTestSchedulesToSlotsCommand)
+        //{
+        //    // Lấy record cần update theo ID
+        //    var existingTest = await _syllabusScheduleTestRepository.GetByIdAsync(updateTestSchedulesToSlotsCommand.SyllabusScheduleTestsId);
 
-            // Update các thuộc tính
-            existingTest.ID = updateTestSchedulesToSlotsCommand.SyllabusScheduleTestsId;
-            existingTest.TestCategory = Enum.Parse<TestCategory>(updateTestSchedulesToSlotsCommand.TestCategory, true);
-            existingTest.TestType = Enum.Parse<TestType>(updateTestSchedulesToSlotsCommand.TestType, true);
-            existingTest.IsActive = true;
+        //    // Update các thuộc tính
+        //    existingTest.ID = updateTestSchedulesToSlotsCommand.SyllabusScheduleTestsId;
+        //    existingTest.TestCategory = Enum.Parse<TestCategory>(updateTestSchedulesToSlotsCommand.TestCategory, true);
+        //    existingTest.TestType = Enum.Parse<TestType>(updateTestSchedulesToSlotsCommand.TestType, true);
+        //    existingTest.IsActive = true;
 
-            // Gọi UpdateAsync thay vì AddAsync
-            return await _syllabusScheduleTestRepository.UpdateAsync(existingTest);
-        }
+        //    // Gọi UpdateAsync thay vì AddAsync
+        //    return await _syllabusScheduleTestRepository.UpdateAsync(existingTest);
+        //}
 
-        public async Task<bool> HasTestAsync(string syllabusScheduleId)
-        {
-            return await _syllabusScheduleTestRepository.HasTestAsync(syllabusScheduleId);
-        }
+        //public async Task<bool> HasTestAsync(string syllabusScheduleId)
+        //{
+        //    return await _syllabusScheduleTestRepository.HasTestAsync(syllabusScheduleId);
+        //}
 
-        public async Task<bool> RemoveTestFromSlotAsyncs(string syllabusScheduleId)
-        {
-            return await _syllabusScheduleTestRepository.RemoveTestFromSlotAsyncs(syllabusScheduleId);
-        }
+        //public async Task<bool> RemoveTestFromSlotAsyncs(string syllabusScheduleId)
+        //{
+        //    return await _syllabusScheduleTestRepository.RemoveTestFromSlotAsyncs(syllabusScheduleId);
+        //}
 
-        public async Task<List<SyllabusScheduleTestDTO>> GetExamAddedAsync(string subject)
-        {
-            // Lấy danh sách các schedule theo syllabus
-            var allSchedules = await _syllabusScheduleRepository.GetSyllabusSchedulesBySyllabusIdAsync(subject);
+        //public async Task<List<SyllabusScheduleTestDTO>> GetExamAddedAsync(string subject)
+        //{
+        //    // Lấy danh sách các schedule theo syllabus
+        //    var allSchedules = await _syllabusScheduleRepository.GetSyllabusSchedulesBySyllabusIdAsync(subject);
 
-            // Lọc ra các slot có HasTest = true và lấy SyllabusScheduleID
-            var slotsHaveExam = allSchedules
-                .Where(x => x.HasTest == true && x.IsActive == true)
-                .Select(x => x.SyllabusScheduleID)
-                .ToList();
+        //    // Lọc ra các slot có HasTest = true và lấy SyllabusScheduleID
+        //    var slotsHaveExam = allSchedules
+        //        .Where(x => x.HasTest == true && x.IsActive == true)
+        //        .Select(x => x.SyllabusScheduleID)
+        //        .ToList();
 
-            // Truyền danh sách slot vào hàm GetExamAddedToSyllabusAsync
-            var examTests = await _syllabusScheduleTestRepository.GetExamAddedToSyllabusAsync(slotsHaveExam);
+        //    // Truyền danh sách slot vào hàm GetExamAddedToSyllabusAsync
+        //    var examTests = await _syllabusScheduleTestRepository.GetExamAddedToSyllabusAsync(slotsHaveExam);
 
-            // Trả về danh sách SyllabusScheduleTest
-            return examTests;
-        }
+        //    // Trả về danh sách SyllabusScheduleTest
+        //    return examTests;
+        //}
 
 
     }

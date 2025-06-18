@@ -30,7 +30,7 @@ namespace Infrastructure.IRepositories
         Task<List<SyllabusSchedule>> GetSyllabusSchedulesBySyllabusIdAsync(string syllabusId);
         Task<bool> SlotAllowToTestAsync( string syllabusId);
         // Task<List<(int Week, string TestType)>> GetActiveTestsOrderedByWeekAsync(string syllabusId);
-        Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, TestCategory testCategory);
+        //Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, TestCategory testCategory);
         Task<bool> UpdateSyllabusScheduleListWithTransactionAsync(List<SyllabusScheduleUpdateItem> items);
 
         Task<List<SyllabusSchedule>> GetSyllabusSchedulesByIdsAsync(List<string> ids);

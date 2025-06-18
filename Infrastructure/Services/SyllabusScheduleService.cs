@@ -64,17 +64,17 @@ namespace Infrastructure.Services
             return await _syllabusScheduleRepository.SlotAllowToTestAsync(syllabusSchedulesID);
         }
 
-        public async Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, string testCategory)
-        {
-            var normalizedTestCategory = _syllabusScheduleTestService.NormalizeTestCategory(testCategory);
+        //public async Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, string testCategory)
+        //{
+        //    var normalizedTestCategory = _syllabusScheduleTestService.NormalizeTestCategory(testCategory);
 
-            if (normalizedTestCategory == null)
-            {
-                return false;
-            }
+        //    if (normalizedTestCategory == null)
+        //    {
+        //        return false;
+        //    }
 
-            return await _syllabusScheduleRepository.ValidateTestPositionAsync(syllabusId, syllabusScheduleId, normalizedTestCategory.Value);
-        }
+        //    return await _syllabusScheduleRepository.ValidateTestPositionAsync(syllabusId, syllabusScheduleId, normalizedTestCategory.Value);
+        //}
 
         public async Task<bool> CheckListSyllabusScheduleAsync(List<SyllabusScheduleUpdateItem> items)
         {
