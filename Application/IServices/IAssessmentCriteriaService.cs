@@ -23,6 +23,9 @@ namespace Application.IServices
         //Task<Dictionary<(string Category, string TestType), int>> GetRequiredTestCountsAsync(string syllabusId);
         ////KIỆT :HÀM CỦA KIỆT
         //Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType);
+        OperationResult<bool> CheckDuplicateCategory(List<AssessmentCriteriaUpdateCommand> items);
+        Task<OperationResult<List<AssessmentCriteriaUpdateDto>>> UpdateAssessmentCriteriaListAsync(List<AssessmentCriteriaUpdateCommand> items);
+        OperationResult<bool> CheckRequiredTestCountRule(List<AssessmentCriteriaUpdateCommand> items);
 
     }
 }

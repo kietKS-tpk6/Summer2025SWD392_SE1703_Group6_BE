@@ -11,6 +11,7 @@ using Domain.Enums;
 using Application.Common.Shared;
 using Application.DTOs;
 using Application.Common.Constants;
+using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Services
 {
     public class AssessmentCriteriaService : IAssessmentCriteriaService
@@ -176,7 +177,84 @@ namespace Infrastructure.Services
             return await _assessmentCriteriaRepository.GetByIdAsync(assessmentCriteriaId);
         }
 
+        public OperationResult<bool> CheckDuplicateCategory(List<AssessmentCriteriaUpdateCommand> items)
+        {
+            var duplicates = items
+                .GroupBy(x => x.Category)
+                .Where(g => g.Count() > 1)
+                .ToList();
 
+            if (duplicates.Any())
+            {
+                var dups = string.Join(", ", duplicates.Select(g => g.Key.ToString()));
+                return OperationResult<bool>.Fail($"Category bị trùng: {dups}");
+            }
+
+            return OperationResult<bool>.Ok(true);
+        }
+        public OperationResult<bool> CheckRequiredTestCountRule(List<AssessmentCriteriaUpdateCommand> items)
+        {
+            var autoZeroCategories = new[]
+            {
+        AssessmentCategory.Presentation,
+        AssessmentCategory.Attendance,
+        AssessmentCategory.Assignment,
+        AssessmentCategory.ClassParticipation
+    };
+
+            var violations = items
+                .Where(x => autoZeroCategories.Contains(x.Category) && x.RequiredTestCount > 0)
+                .Select(x => $"ID: {x.AssessmentCriteriaID}, Category: {x.Category}, RequireCount: {x.RequiredTestCount}")
+                .ToList();
+
+            if (violations.Any())
+            {
+                var msg = "Các mục sau có RequiredTestCount > 0 không hợp lệ:\n" + string.Join("\n", violations);
+                return OperationResult<bool>.Fail(msg);
+            }
+
+            return OperationResult<bool>.Ok(true);
+        }
+
+        public async Task<OperationResult<List<AssessmentCriteriaUpdateDto>>> UpdateAssessmentCriteriaListAsync(List<AssessmentCriteriaUpdateCommand> items)
+        {
+            var updatedEntities = new List<AssessmentCriteria>();
+
+            foreach (var item in items)
+            {
+                var entityResult = await _assessmentCriteriaRepository.GetByIdAsync(item.AssessmentCriteriaID);
+                if (!entityResult.Success || entityResult.Data == null)
+                    return OperationResult<List<AssessmentCriteriaUpdateDto>>.Fail($"Không tìm thấy ID {item.AssessmentCriteriaID}");
+
+                var existing = entityResult.Data;
+                existing.WeightPercent = item.WeightPercent;
+                existing.Category = item.Category;
+                existing.Note = item.Note;
+                existing.MinPassingScore = item.MinPassingScore;
+                existing.RequiredTestCount =
+                    (item.Category == AssessmentCategory.Presentation ||
+                     item.Category == AssessmentCategory.Attendance ||
+                     item.Category == AssessmentCategory.ClassParticipation ||
+                     item.Category == AssessmentCategory.Assignment)
+                    ? 0 : item.RequiredTestCount;
+
+                updatedEntities.Add(existing);
+            }
+
+            var updateResult = await _assessmentCriteriaRepository.UpdateRangeAsync(updatedEntities);
+            if (!updateResult.Success)
+                return OperationResult<List<AssessmentCriteriaUpdateDto>>.Fail(updateResult.Message);
+
+            var dtos = updatedEntities.Select(x => new AssessmentCriteriaUpdateDto
+            {
+                AssessmentCriteriaID = x.AssessmentCriteriaID,
+                Category = x.Category.ToString(),
+                RequireCount = x.RequiredTestCount,
+                Order = 1
+            }).ToList();
+
+            return OperationResult<List<AssessmentCriteriaUpdateDto>>.Ok(dtos);
+        }
         //Lỗi nên tạm comment - Kho
 
         ////KIỆT :HÀM CỦA KIỆT
