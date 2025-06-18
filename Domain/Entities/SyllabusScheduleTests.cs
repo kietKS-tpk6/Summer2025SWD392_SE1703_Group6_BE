@@ -8,16 +8,12 @@ namespace Domain.Entities
     public class SyllabusScheduleTest
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ID { get; set; }
+        public string ScheduleTestID { get; set; }
 
         [Required]
         [MaxLength(20)] // nếu đúng là string
         [ForeignKey("SyllabusSchedule")]
-        public string SyllabusSchedulesID { get; set; }
-
-        [Required]
-        public TestCategory TestCategory { get; set; }
+        public string SyllabusScheduleID { get; set; }
 
         [Required]
         public TestType TestType { get; set; }

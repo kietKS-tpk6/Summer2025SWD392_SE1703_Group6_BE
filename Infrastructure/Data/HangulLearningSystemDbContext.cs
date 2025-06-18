@@ -52,17 +52,11 @@ namespace Infrastructure.Data
             modelBuilder.Entity<Test>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
-            //modelBuilder.Entity<TestEvent>()
-            //    .Property(a => a.GradingMethod)
-            //    .HasConversion<string>();
-            //modelBuilder.Entity<TestEvent>()
-            //    .Property(a => a.Category)
-              //  .HasConversion<string>();
+            modelBuilder.Entity<TestEvent>()
+                .Property(a => a.TestType)
+                .HasConversion<string>();
             modelBuilder.Entity<TestEvent>()
                 .Property(a => a.Status)
-                .HasConversion<string>();
-            modelBuilder.Entity<SyllabusScheduleTest>()
-                .Property(a => a.TestCategory)
                 .HasConversion<string>();
             modelBuilder.Entity<SyllabusScheduleTest>()
                 .Property(a => a.TestType)

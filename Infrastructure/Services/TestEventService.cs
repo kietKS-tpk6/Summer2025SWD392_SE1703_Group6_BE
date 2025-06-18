@@ -1,0 +1,89 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Application.Common.Constants;
+using Application.IServices;
+using Domain.Entities;
+using Domain.Enums;
+using Infrastructure.IRepositories;
+using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+
+namespace Infrastructure.Services
+{
+    public class TestEventService : ITestEventService
+    {
+        private readonly ITestEventRepository _testEventRepository;
+        private readonly IClassRepository _classRepository;
+        private readonly ILessonRepository _lessonRepository;
+        private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestRepository;
+        public TestEventService(ITestEventRepository testEventRepository, IClassRepository classRepository, ILessonRepository lessonRepository, ISyllabusScheduleTestRepository syllabusScheduleTestRepository)
+        {
+            _testEventRepository = testEventRepository;
+            _classRepository = classRepository;
+            _lessonRepository = lessonRepository;
+            _syllabusScheduleTestRepository = syllabusScheduleTestRepository;
+
+        }
+        public async Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID)
+        {
+            var classes = await _classRepository.GetByIdAsync(classID);
+            if (classes == null)
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("lớp học"));
+
+            var lessons = await _lessonRepository.GetLessonsByClassIDAsync(classID);
+            if (lessons == null || !lessons.Any())
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("tiết học trong lớp"));
+
+            int createdCount = 0;
+
+            foreach (var lesson in lessons)
+            {
+                if (lesson?.SyllabusSchedule == null || !lesson.SyllabusSchedule.HasTest)
+                    continue;
+
+                var scheduleTest = await _syllabusScheduleTestRepository
+                    .GetSyllabusScheduleTestBySyllabusScheduleIdAsync(lesson.SyllabusScheduleID);
+
+                if (scheduleTest == null)
+                    continue;
+
+                var countResult = await _testEventRepository.CountTestEventAsync();
+                if (!countResult.Success)
+                    return OperationResult<bool>.Fail(countResult.Message);
+                var newTestEventId = "TE" + countResult.Data.ToString("D4"); 
+                var randomPassword = Guid.NewGuid().ToString("N")[..10];
+
+                var newTestEvent = new TestEvent
+                {
+                    TestEventID = newTestEventId,
+                    TestID = null,
+                    Description = null,
+                    StartAt = null,
+                    EndAt = null,
+                    DurationMinutes = lesson.SyllabusSchedule.DurationMinutes ?? 60,
+                    TestType = scheduleTest.TestType,
+                    Status = TestEventStatus.Draft,
+                    ScheduleTestID = scheduleTest.ScheduleTestID,
+                    AttemptLimit = 1,
+                    Password = randomPassword,
+                    ClassLessonID = lesson.ClassLessonID
+                };
+
+                await _testEventRepository.CreateTestEventForCreateClassAsync(newTestEvent);
+                createdCount++;
+            }
+
+            if (createdCount == 0)
+                return OperationResult<bool>.Fail("Không có buổi học nào có kiểm tra để tạo sự kiện.");
+
+            return OperationResult<bool>.Ok(true, $"Đã tạo {createdCount} sự kiện kiểm tra cho lớp.");
+        }
+
+
+
+
+    }
+}

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 namespace HangulLearningSystem.WebAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class LessonController : ControllerBase
     {
         private readonly IMediator _mediator;

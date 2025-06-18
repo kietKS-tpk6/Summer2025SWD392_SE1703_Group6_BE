@@ -115,7 +115,12 @@ namespace Infrastructure.Repositories
             return await _dbContext.SaveChangesAsync() > 0;
         }
 
-
+        public async Task<Lesson?> GetLessonByClassLessonIDAsync(string classLessonID)
+        {
+            return await _dbContext.Lesson
+                .Include(l => l.SyllabusSchedule)
+                .FirstOrDefaultAsync(l => l.ClassLessonID == classLessonID && l.IsActive);
+        }
 
 
     }

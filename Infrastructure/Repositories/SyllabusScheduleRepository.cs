@@ -142,7 +142,7 @@ namespace Infrastructure.Repositories
                 {
                     SyllabusScheduleId = s.SyllabusScheduleID,
                     Week = (int)s.Week,
-                    DurationMinutes = (int)s.DurationMinutes
+                    DurationMinutes = (int)s.DurationMinutes,
 
                 })
                 .ToListAsync();

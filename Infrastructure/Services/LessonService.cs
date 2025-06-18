@@ -9,11 +9,13 @@ using Infrastructure.IRepositories;
 using Domain.Entities;
 using Application.DTOs;
 using Application.Common.Constants;
+using Infrastructure.Repositories;
 namespace Infrastructure.Services
 {
     public class LessonService : ILessonService
     {
         private readonly ILessonRepository _lessonRepository;
+        private readonly ITestEventService _testEventService;
         public LessonService(ILessonRepository lessonRepository)
         {
             _lessonRepository = lessonRepository;
@@ -184,11 +186,10 @@ namespace Infrastructure.Services
                             LinkMeetURL = roomUrl,
                             IsActive = true
                         });
-
+                        
                         currentScheduleIndex++;
                     }
                 }
-
                 var saveResult = await _lessonRepository.CreateManyAsync(lessonsToCreate);
                 if (!saveResult)
                     return OperationResult<bool>.Fail(OperationMessages.CreateFail("buổi học"));

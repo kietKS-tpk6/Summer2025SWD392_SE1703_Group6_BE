@@ -20,6 +20,8 @@ namespace Infrastructure.IRepositories
         Task<SyllabusScheduleTest> GetByIdAsync(int SyllabusScheduleTestID);
         Task<List<SyllabusScheduleTestDTO>> GetExamAddedToSyllabusAsync(List<string> slotAllowToTest);
 
+        //Hàm cụa Kho - 
+        Task<SyllabusScheduleTest?> GetSyllabusScheduleTestBySyllabusScheduleIdAsync(string syllabusScheduleID);
 
     }
 }
