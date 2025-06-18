@@ -41,14 +41,16 @@ namespace Infrastructure.Repositories
                 : OperationResult<Class?>.Ok(result);
         }
 
-        public async Task<OperationResult<bool>> CreateAsync(Class classCreate)
+        public async Task<OperationResult<string?>> CreateAsync(Class classCreate)
         {
             _dbContext.Class.Add(classCreate);
             var result = await _dbContext.SaveChangesAsync();
+
             return result > 0
-                ? OperationResult<bool>.Ok(true, OperationMessages.CreateSuccess("lớp học"))
-                : OperationResult<bool>.Fail(OperationMessages.CreateFail("lớp học"));
+                ? OperationResult<string?>.Ok(classCreate.ClassID, OperationMessages.CreateSuccess("lớp học"))
+                : OperationResult<string?>.Fail(OperationMessages.CreateFail("lớp học"));
         }
+
 
         public async Task<OperationResult<bool>> UpdateAsync(Class classUpdate)
         {

@@ -30,11 +30,11 @@ namespace Infrastructure.Services
             return await _classRepository.GetEnrollmentCountAsync(classId);
         }
 
-        public async Task<OperationResult<bool>> CreateClassAsync(ClassCreateCommand request)
+        public async Task<OperationResult<string?>> CreateClassAsync(ClassCreateCommand request)
         {
             var countResult = await _classRepository.CountAsync();
             if (!countResult.Success)
-                return OperationResult<bool>.Fail(countResult.Message);
+                return OperationResult<string>.Fail(countResult.Message);
 
             var newClassId = "CL" + countResult.Data.ToString("D4");
 

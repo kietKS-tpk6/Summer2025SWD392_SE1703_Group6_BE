@@ -15,7 +15,7 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<Class?>> GetByIdAsync(string id);
         Task<ClassCreateLessonDTO> GetClassCreateLessonDTOByIdAsync(string id);
 
-        Task<OperationResult<bool>> CreateAsync(Class classCreate);
+        Task<OperationResult<string?>> CreateAsync(Class classCreate);
         Task<OperationResult<bool>> UpdateAsync(Class classUpdate);
         Task<OperationResult<bool>> DeleteAsync(string id);
 

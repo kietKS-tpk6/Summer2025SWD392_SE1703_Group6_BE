@@ -30,7 +30,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if (!result.Success)
                 return BadRequest(result.Message);
 
-            return Ok(result.Message);
+            return Ok(result);
         }
 
         [HttpPut("update")]
