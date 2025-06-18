@@ -23,9 +23,6 @@ namespace Infrastructure.Services
 
         public async Task<OperationResult<AssessmentCriteriaUpdateDto>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command)
         {
-            // Biến để điều khiển validation: 1 = chỉ check IsActive = 1, 0 = check cả IsActive = 0 và 1
-            const int checkOnlyActive = 1;
-
             var result = await _assessmentCriteriaRepository.GetByIdAsync(command.AssessmentCriteriaID);
             if (!result.Success || result.Data == null)
             {
@@ -33,18 +30,6 @@ namespace Infrastructure.Services
             }
 
             var existing = result.Data;
-
-            var duplicateCategory = await _assessmentCriteriaRepository.CheckDuplicateCategoryInSubjectAsync(
-                existing.SubjectID,
-                (AssessmentCategory)command.Category,
-                command.AssessmentCriteriaID,
-                checkOnlyActive);
-
-            if (duplicateCategory.Success && duplicateCategory.Data)
-            {
-                return OperationResult<AssessmentCriteriaUpdateDto>.Fail($"Category '{(AssessmentCategory)command.Category}' đã tồn tại trong Subject này");
-            }
-
             existing.WeightPercent = command.WeightPercent;
             existing.Category = (AssessmentCategory)command.Category;
 
@@ -81,24 +66,6 @@ namespace Infrastructure.Services
             return OperationResult<AssessmentCriteriaUpdateDto>.Ok(dto, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
         }
 
-            var updateResult = await _assessmentCriteriaRepository.UpdateAsync(existing);
-
-            if (!updateResult.Success)
-            {
-                return OperationResult<AssessmentCriteriaUpdateDto>.Fail(updateResult.Message);
-            }
-
-            var dto = new AssessmentCriteriaUpdateDto
-            {
-                Order = 1, 
-                AssessmentCriteriaID = existing.AssessmentCriteriaID,
-                Category = existing.Category.ToString(),
-                RequireCount = existing.RequiredTestCount
-            };
-
-            return OperationResult<AssessmentCriteriaUpdateDto>.Ok(dto, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
-        }
-       
         public async Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectId)
         {
             return await _assessmentCriteriaRepository.GetListBySubjectIdAsync(subjectId);
@@ -147,7 +114,7 @@ namespace Infrastructure.Services
                         RequiredTestCount = null,
                         Note = null,
                         MinPassingScore = null,
-                        IsActive = true 
+                        IsActive = true // Luôn set là true khi tạo mới
                     };
 
                     newList.Add(newAssCri);
