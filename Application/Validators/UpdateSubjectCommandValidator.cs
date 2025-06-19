@@ -29,6 +29,5 @@ namespace Application.Validators
                 .LessThanOrEqualTo(10)
                 .WithMessage("Minimum average score must be <= 10");
         }
-   
     }
 }

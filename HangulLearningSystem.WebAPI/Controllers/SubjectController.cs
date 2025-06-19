@@ -37,11 +37,18 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-
         [HttpGet("get-all")]
-        public async Task<ActionResult<List<SubjectDTO>>> GetAllSubjects([FromQuery] bool? isActive = true)
+        public async Task<ActionResult<List<SubjectDTO>>> GetAllSubjects([FromQuery] SubjectStatus? status = null)
         {
-            var subjects = await _subjectService.GetAllSubjectsAsync(isActive);
+            SubjectStatus? filterStatus = status;
+            var subjects = await _subjectService.GetAllSubjectsAsync();
+
+            // Filter by status if provided
+            if (filterStatus.HasValue)
+            {
+                subjects = subjects.Where(s => s.Status == filterStatus.Value).ToList();
+            }
+
             return Ok(subjects);
         }
 
@@ -58,6 +65,20 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
         [HttpPut("update")]
         public async Task<IActionResult> UpdateSubject([FromBody] UpdateSubjectCommand command)
+        {
+            var result = await _mediator.Send(command);
+
+            if (result.Contains("successfully"))
+                return Ok(new { message = result });
+
+            if (result.Contains("not found"))
+                return NotFound(new { message = result });
+
+            return BadRequest(new { message = result });
+        }
+
+        [HttpPut("update-status")]
+        public async Task<IActionResult> UpdateSubjectStatus([FromBody] UpdateSubjectStatusCommand command)
         {
             var result = await _mediator.Send(command);
 
@@ -110,5 +131,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(result.Data);
         }
 
+        [HttpPost("try-activate/{id}")]
+        public async Task<IActionResult> TryActivateSubject(string id)
+        {
+            var result = await _subjectService.TryActivateSubjectAsync(id);
+
+            if (result.Contains("successfully") || result.Contains("already active"))
+                return Ok(new { message = result });
+
+            return BadRequest(new { message = result });
+        }
     }
 }

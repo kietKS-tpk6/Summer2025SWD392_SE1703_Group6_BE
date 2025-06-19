@@ -33,13 +33,13 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(s => s.SubjectID == subjectId);
         }
 
-        public async Task<List<Subject>> GetAllSubjectsAsync(bool? isActive = null)
+        public async Task<List<Subject>> GetAllSubjectsAsync(SubjectStatus? status = null)
         {
             var query = _dbContext.Subject.AsQueryable();
 
-            if (isActive.HasValue)
+            if (status.HasValue)
             {
-                query = query.Where(s => s.IsActive == isActive.Value);
+                query = query.Where(s => s.Status == status.Value);
             }
 
             return await query
@@ -68,8 +68,8 @@ namespace Infrastructure.Repositories
                 var subject = await GetSubjectByIdAsync(subjectId);
                 if (subject != null)
                 {
-                    subject.IsActive = false;
-                    _dbContext.Subject.Update(subject); 
+                    subject.Status = SubjectStatus.Deleted;
+                    _dbContext.Subject.Update(subject);
                     await _dbContext.SaveChangesAsync();
                     return "Subject deleted successfully";
                 }
@@ -84,34 +84,77 @@ namespace Infrastructure.Repositories
         public async Task<bool> SubjectExistsAsync(string subjectId)
         {
             return await _dbContext.Subject
-                .AnyAsync(s => s.SubjectID == subjectId);
+                .AnyAsync(s => s.SubjectID == subjectId && s.Status != SubjectStatus.Deleted);
         }
 
         public async Task<int> GetTotalSubjectsCountAsync()
         {
-            return await _dbContext.Subject.CountAsync();
+            return await _dbContext.Subject
+                .CountAsync(s => s.Status != SubjectStatus.Deleted);
         }
+        public async Task<bool> HasCompleteScheduleAsync(string subjectId)
+        {
+            var schedules = await _dbContext.SyllabusSchedule
+                .Where(s => s.SubjectID == subjectId && s.IsActive == true)
+                .ToListAsync();
+
+            if (!schedules.Any())
+                return false;
+
+            return true;
+        }
+
+        public async Task<bool> HasCompleteAssessmentCriteriaAsync(string subjectId)
+        {
+            var criteria = await _dbContext.AssessmentCriteria
+                .Where(a => a.SubjectID == subjectId && a.IsActive == true)
+                .ToListAsync();
+
+            if (!criteria.Any())
+                return false;
+
+            return true;
+        }
+
+        public async Task<List<string>> GetMissingFieldsAsync(string subjectId)
+        {
+            var missingFields = new List<string>();
+
+            if (!await HasCompleteScheduleAsync(subjectId))
+            {
+                missingFields.Add("SyllabusSchedule");
+            }
+
+            if (!await HasCompleteAssessmentCriteriaAsync(subjectId))
+            {
+                missingFields.Add("AssessmentCriteria");
+            }
+
+            return missingFields;
+        }
+
         public async Task<bool> ExistsByIdAsync(string subjectName)
         {
-            return await _dbContext.Subject.AnyAsync(s => s.SubjectName == subjectName);
+            return await _dbContext.Subject.AnyAsync(s => s.SubjectName == subjectName && s.Status != SubjectStatus.Deleted);
         }
 
         public async Task<bool> ExistsByDescriptionAsync(string description)
         {
-            return await _dbContext.Subject.AnyAsync(s => s.Description == description);
+            return await _dbContext.Subject.AnyAsync(s => s.Description == description && s.Status != SubjectStatus.Deleted);
         }
+
         public async Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus)
         {
             try
             {
                 var subjects = await _dbContext.Subject
-                    .Where(s => s.Status == subjectStatus) 
+                    .Where(s => s.Status == subjectStatus)
                     .Select(s => new SubjectCreateClassDTO
                     {
                         SubjectID = s.SubjectID,
                         SubjectName = s.SubjectName,
                         Description = s.Description,
-                        IsActive = s.IsActive,
+                        IsActive = s.Status == SubjectStatus.Active,
                         CreateAt = s.CreateAt,
                         MinAverageScoreToPass = s.MinAverageScoreToPass,
                         Status = s.Status
@@ -128,7 +171,5 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<SubjectCreateClassDTO>>.Fail($"Lỗi khi truy xuất môn học: {ex.Message}");
             }
         }
-
-
     }
 }

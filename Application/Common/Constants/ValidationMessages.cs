@@ -88,6 +88,11 @@ namespace Application.Common.Constants
         public const string LessonStartTimeInvalid = "Thời gian bắt đầu buổi học phải lớn hơn thời điểm hiện tại.";
         // General
         public const string UserNotFound = "Người dùng không tồn tại.";
+
+        // Subject
+        public const string SubjectCannotActivate = "Không thể kích hoạt môn học này do thiếu thông tin bắt buộc.";
+        public const string ScheduleIncomplete = "Môn học chưa có đầy đủ lịch học.";
+        public const string AssessmentCriteriaIncomplete = "Môn học chưa có đầy đủ tiêu chí đánh giá.";
     }
 }
 
