@@ -13,8 +13,9 @@ namespace Application.IServices
     public interface IClassService
     {
         Task<int> GetEnrollmentCountAsync(string classId);
-        Task<OperationResult<bool>> CreateClassAsync(ClassCreateCommand request);
+        Task<OperationResult<string?>> CreateClassAsync(ClassCreateCommand request);
         Task<OperationResult<bool>> UpdateClassAsync(ClassUpdateCommand request);
+        Task<OperationResult<bool>> UpdateStatusAsync(ClassUpdateStatusCommand request);
         Task<OperationResult<bool>> DeleteClassAsync(string classId);
 
         Task<OperationResult<PagedResult<ClassDTO>>> GetListAsync(int page, int pageSize);

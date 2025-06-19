@@ -9,7 +9,7 @@ using Application.Usecases.Command;
 using MediatR;
 namespace Application.Usecases.CommandHandler
 {
-    public class ClassCreateCommandHandler : IRequestHandler<ClassCreateCommand, OperationResult<bool>>
+    public class ClassCreateCommandHandler : IRequestHandler<ClassCreateCommand, OperationResult<string?>>
     {
         private readonly IClassService _classService;
 
@@ -17,7 +17,7 @@ namespace Application.Usecases.CommandHandler
         {
             _classService = classService;
         }
-        public async Task<OperationResult<bool>> Handle(ClassCreateCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<string?>> Handle(ClassCreateCommand request, CancellationToken cancellationToken)
         {
             return await _classService.CreateClassAsync(request);
         }

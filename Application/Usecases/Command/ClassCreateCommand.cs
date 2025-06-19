@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Usecases.Command
 {
-    public class ClassCreateCommand : IRequest<OperationResult<bool>>
+    public class ClassCreateCommand : IRequest<OperationResult<string?>>
     {
         public string LecturerID { get; set; }
         public string SubjectID { get; set; }

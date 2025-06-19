@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
+using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
@@ -41,14 +42,16 @@ namespace Infrastructure.Repositories
                 : OperationResult<Class?>.Ok(result);
         }
 
-        public async Task<OperationResult<bool>> CreateAsync(Class classCreate)
+        public async Task<OperationResult<string?>> CreateAsync(Class classCreate)
         {
             _dbContext.Class.Add(classCreate);
             var result = await _dbContext.SaveChangesAsync();
+
             return result > 0
-                ? OperationResult<bool>.Ok(true, OperationMessages.CreateSuccess("lớp học"))
-                : OperationResult<bool>.Fail(OperationMessages.CreateFail("lớp học"));
+                ? OperationResult<string?>.Ok(classCreate.ClassID, OperationMessages.CreateSuccess("lớp học"))
+                : OperationResult<string?>.Fail(OperationMessages.CreateFail("lớp học"));
         }
+
 
         public async Task<OperationResult<bool>> UpdateAsync(Class classUpdate)
         {
@@ -57,6 +60,16 @@ namespace Infrastructure.Repositories
             return result > 0
                 ? OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("lớp học"))
                 : OperationResult<bool>.Fail(OperationMessages.UpdateFail("lớp học"));
+        }
+        public async Task<OperationResult<bool>> UpdateStatusAsync(ClassUpdateStatusCommand request)
+        {
+            var classEntity = await _dbContext.Class.FindAsync(request.ClassId);
+            classEntity.Status = request.ClassStatus;
+            _dbContext.Class.Update(classEntity);
+            var result = await _dbContext.SaveChangesAsync();
+            return result > 0
+                ? OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("trạng thái lớp học"))
+                : OperationResult<bool>.Fail(OperationMessages.UpdateFail("trạng thái lớp học"));
         }
 
         public async Task<OperationResult<bool>> DeleteAsync(string id)
