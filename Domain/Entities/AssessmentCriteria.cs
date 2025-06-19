@@ -32,18 +32,12 @@ namespace Domain.Entities
 
         public AssessmentCategory? Category { get; set; }
 
-        public int? RequiredCount { get; set; }
-
-        public int? Duration { get; set; }
-
-        public TestType? TestType { get; set; }
+        public int? RequiredTestCount { get; set; }
 
         [MaxLength(255)]
         public string? Note { get; set; }
-
         public bool IsActive { get; set; }
-
-        public double? MinPassingScore { get; set; }
+        public decimal? MinPassingScore { get; set; }
 
         public virtual Subject Subject { get; set; }
     }

@@ -1,6 +1,7 @@
 ﻿using Application.Common.Constants;
 using Application.DTOs;
 using Application.Usecases.Command;
+using Domain.Entities;
 using Domain.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,11 +15,17 @@ namespace Application.IServices
         Task<bool> SubjectExistsAsync(string subjectId);
         Task<int> GetTotalSubjectsCountAsync();
 
-        Task<string> CreateSubjectAsync(CreateSubjectCommand command);
+        Task<OperationResult<string>> CreateSubjectAsync(Subject subject);
         Task<string> UpdateSubjectAsync(UpdateSubjectCommand command);
         Task<string> UpdateSubjectStatusAsync(UpdateSubjectStatusCommand command);
         Task<string> DeleteSubjectAsync(string subjectId);
         Task<string> GenerateNextSubjectIdAsync();
+        //kiệt
+        Task<bool> SubjectNameExistsAsync(string subjectName);
+
+        //kiệt
+        Task<bool> DescriptionExistsAsync(string description);
+        
 
         Task<SubjectStatusCheckResult> CheckSubjectStatusAsync(string subjectId);
         Task<string> TryActivateSubjectAsync(string subjectId);

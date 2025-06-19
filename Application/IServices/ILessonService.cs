@@ -14,6 +14,7 @@ namespace Application.IServices
         Task<OperationResult<bool>> CreateLessonAsync(LessonCreateCommand request);
         Task<OperationResult<bool>> UpdateLessonAsync(LessonUpdateCommand request);
         Task<OperationResult<bool>> DeleteLessonAsync(string id);
+        Task<OperationResult<bool>> DeleteLessonByClassIDAsync (string classID);
 
         Task<OperationResult<List<LessonDTO>>> GetLessonsByClassID(string classID);
         Task<OperationResult<List<LessonDTO>>> GetLessonsByStudentID(string studentID);

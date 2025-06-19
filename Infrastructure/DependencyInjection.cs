@@ -44,9 +44,6 @@ namespace Infrastructure
 
             //Services 
             services.AddScoped<ILessonService, LessonService>();
-
-
-            // Services - Business logic cho Read operations
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IAssessmentCriteriaService, AssessmentCriteriaService>();
@@ -55,11 +52,11 @@ namespace Infrastructure
             services.AddScoped<IClassService, ClassService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IEnrollmentService, EnrollmentService>();
-
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<ISyllabusScheduleService, SyllabusScheduleService>();
             services.AddScoped<ISyllabusScheduleTestService, SyllabusScheduleTestService>();
-            services.AddScoped<ILessonRepository, LessonRepository>();
+            services.AddScoped<ISystemConfigService, SystemConfigService>();
+            services.AddScoped<ITestEventService, TestEventService>();
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -69,9 +66,9 @@ namespace Infrastructure
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<ISyllabusScheduleRepository, SyllabusScheduleRepository>();
             services.AddScoped<ISyllabusScheduleTestRepository, SyllabusScheduleTestRepository>();
-
-
-
+            services.AddScoped<ILessonRepository, LessonRepository>();
+            services.AddScoped<ISystemConfigRepository, SystemConfigRepository>();
+            services.AddScoped<ITestEventRepository, TestEventRepository>();
 
 
             //CommandHandler

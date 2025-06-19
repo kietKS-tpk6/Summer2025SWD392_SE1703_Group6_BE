@@ -10,13 +10,19 @@ namespace Infrastructure.IRepositories
 {
     public interface ISubjectRepository
     {
-        Task<string> CreateSubjectAsync(Subject subject);
+       
+        Task CreateSubjectAsync(Subject subject);
         Task<Subject?> GetSubjectByIdAsync(string subjectId);
         Task<List<Subject>> GetAllSubjectsAsync(SubjectStatus? status = null);
         Task<string> UpdateSubjectAsync(Subject subject);
         Task<string> DeleteSubjectAsync(string subjectId);
         Task<bool> SubjectExistsAsync(string subjectId);
         Task<int> GetTotalSubjectsCountAsync();
+        //kiệt
+        Task<bool> ExistsByIdAsync(string subjectId);
+        //kiệt
+        Task<bool> ExistsByDescriptionAsync(string description);
+
 
         Task<bool> HasCompleteScheduleAsync(string subjectId);
         Task<bool> HasCompleteAssessmentCriteriaAsync(string subjectId);

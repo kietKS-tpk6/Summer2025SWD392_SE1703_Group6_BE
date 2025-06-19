@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 namespace HangulLearningSystem.WebAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class LessonController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -26,7 +28,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result.Message);
             }
 
-            return Ok(result.Message);
+            return Ok(result);
         }
 
 
@@ -42,7 +44,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
             else
             {
-                return BadRequest(result.Message);
+                return BadRequest(result);
             }
         }
 
@@ -53,11 +55,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             if (result.Success && result.Data)
             {
-                return Ok(result.Message);
+                return Ok(result);
             }
             else
             {
-                return BadRequest(result.Message);
+                return BadRequest(result);
             }
         }
 
@@ -68,7 +70,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             if (result.Success && result.Data)
             {
-                return Ok(result.Message);
+                return Ok(result);
             }
             else
             {

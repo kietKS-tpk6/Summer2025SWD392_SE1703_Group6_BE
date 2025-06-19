@@ -21,18 +21,10 @@ namespace Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<string> CreateSubjectAsync(Subject subject)
+        public async Task CreateSubjectAsync(Subject subject)
         {
-            try
-            {
-                _dbContext.Subject.Add(subject);
-                await _dbContext.SaveChangesAsync();
-                return "Subject created successfully";
-            }
-            catch (Exception ex)
-            {
-                return $"Error creating subject: {ex.Message}";
-            }
+            _dbContext.Subject.Add(subject);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<Subject?> GetSubjectByIdAsync(string subjectId)
@@ -178,7 +170,15 @@ namespace Infrastructure.Repositories
 
             return missingFields;
         }
+        public async Task<bool> ExistsByIdAsync(string subjectName)
+        {
+            return await _dbContext.Subject.AnyAsync(s => s.SubjectName == subjectName);
+        }
 
+        public async Task<bool> ExistsByDescriptionAsync(string description)
+        {
+            return await _dbContext.Subject.AnyAsync(s => s.Description == description);
+        }
         public async Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus)
         {
             try

@@ -47,7 +47,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result); 
             }
 
-
         }
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody] AssessmentCriteriaUpdateCommand command, CancellationToken cancellationToken)
@@ -62,6 +61,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             {
                 return BadRequest(result); 
             }
+        }
+        [HttpPut("update-list")]
+        public async Task<IActionResult> UpdateList([FromBody] AssessmentCriteriaUpdateListCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
 
         //[HttpGet("get-all-paginated")]

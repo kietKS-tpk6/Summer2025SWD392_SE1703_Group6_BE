@@ -28,9 +28,6 @@ namespace Infrastructure.Data
             modelBuilder.Entity<AssessmentCriteria>()
                 .Property(a => a.Category)
                 .HasConversion<string>();
-            modelBuilder.Entity<AssessmentCriteria>()
-                .Property(a => a.TestType)
-                .HasConversion<string>();
             modelBuilder.Entity<AttendanceRecord>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
@@ -56,16 +53,10 @@ namespace Infrastructure.Data
                 .Property(a => a.Status)
                 .HasConversion<string>();
             modelBuilder.Entity<TestEvent>()
-                .Property(a => a.GradingMethod)
-                .HasConversion<string>();
-            modelBuilder.Entity<TestEvent>()
-                .Property(a => a.Category)
+                .Property(a => a.TestType)
                 .HasConversion<string>();
             modelBuilder.Entity<TestEvent>()
                 .Property(a => a.Status)
-                .HasConversion<string>();
-            modelBuilder.Entity<SyllabusScheduleTest>()
-                .Property(a => a.TestCategory)
                 .HasConversion<string>();
             modelBuilder.Entity<SyllabusScheduleTest>()
                 .Property(a => a.TestType)
@@ -98,6 +89,7 @@ namespace Infrastructure.Data
         public DbSet<TestSection> TestSection { get; set; }
         public DbSet<Transaction> Transaction { get; set; }
         public DbSet<SyllabusScheduleTest> SyllabusScheduleTests { get; set; }
+        public DbSet<SystemConfig> SystemConfig { get; set; }
 
     }
 }

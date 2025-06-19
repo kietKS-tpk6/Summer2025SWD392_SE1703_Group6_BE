@@ -13,7 +13,7 @@ namespace Application.IServices
 {
     public interface ISyllabusScheduleService
     {
-        public Task<bool> CreateEmptySyllabusScheduleAyncs(SyllabusScheduleCreateCommand Command);
+        Task<OperationResult<List<SyllabusScheduleWithSlotDto>>> CreateEmptySyllabusScheduleAyncs(SyllabusScheduleCreateCommand command);
 
         Task<OperationResult<List<SyllabusScheduleCreateLessonDTO>>> GetSchedulesBySubjectIdAsync(string subjectId);
 
@@ -21,10 +21,11 @@ namespace Application.IServices
       //  Task<bool> IsMaxSlotInWeek(string syllabusId,int week);
         //Task AddTestSchedulesToSlotsAsync(string syllabusId,TestCategory category,TestType testType);
         Task<bool> slotAllowToTestAsync(string syllabusSchedulesID);
-        Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, string testCategory);
+        //Task<bool> ValidateTestPositionAsync(string syllabusId, string syllabusScheduleId, string testCategory);
         Task<bool> CheckListSyllabusScheduleAsync(List<SyllabusScheduleUpdateItem> items);
         Task<bool> UpdateSyllabusSchedulesAsync(SyllabusScheduleUpdateCommand command);
         Task<List<SyllabusScheduleDTO>> GetScheduleBySubjectAndWeekAsync(string subjectId, int? week);
-
+        Task<OperationResult<bool>> UpdateBulkScheduleWithTestAsync(string subjectId, List<SyllabusScheduleUpdateItemDto> scheduleItems);
+        OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDto> items);
     }
 }

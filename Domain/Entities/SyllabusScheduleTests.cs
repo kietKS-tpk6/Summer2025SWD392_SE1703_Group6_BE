@@ -8,22 +8,30 @@ namespace Domain.Entities
     public class SyllabusScheduleTest
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ID { get; set; }
+        [MaxLength(6)] 
+        public string ScheduleTestID { get; set; }
 
         [Required]
-        [MaxLength(20)] // nếu đúng là string
+        [MaxLength(7)]
         [ForeignKey("SyllabusSchedule")]
-        public string SyllabusSchedulesID { get; set; }
+        public string SyllabusScheduleID { get; set; }
 
         [Required]
-        public TestCategory TestCategory { get; set; }
-
-        [Required]
-        public TestType TestType { get; set; }
+        [MaxLength(50)] 
+        public TestType  TestType { get; set; }
 
         [Required]
         public bool IsActive { get; set; }
+
+        [Required]
+        public bool AllowMultipleAttempts { get; set; } 
+
+        public int? DurationMinutes { get; set; } 
+
+        [Required]
+        [MaxLength(6)] // ✅ Đã thêm trường mới
+        public string AssessmentCriteriaID { get; set; } 
+
         [Required]
         public virtual SyllabusSchedule SyllabusSchedule { get; set; }
     }

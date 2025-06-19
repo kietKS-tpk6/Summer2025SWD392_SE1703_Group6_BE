@@ -11,6 +11,7 @@ using Domain.Enums;
 using Application.Common.Shared;
 using Application.DTOs;
 using Application.Common.Constants;
+using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Services
 {
     public class AssessmentCriteriaService : IAssessmentCriteriaService
@@ -20,163 +21,300 @@ namespace Infrastructure.Services
         {
             _assessmentCriteriaRepository = assessmentCriteriaRepository;
         }
-        //public async Task<bool> CreateAssessmentCriteriaAsync(AssessmentCriteriaCreateCommand assessmentCriteriaCreateCommand) {
-        //    var numberOfAssCri = await _assessmentCriteriaRepository.CountAsync();
-        //    string newAssessmentCriteriaID = "AC" + numberOfAssCri.ToString("D4");
-        //    var newAssCri = new AssessmentCriteria();
-        //    newAssCri.AssessmentCriteriaID = newAssessmentCriteriaID;
-        //    newAssCri.SyllabusID = assessmentCriteriaCreateCommand.SyllabusID;
-        //    newAssCri.WeightPercent = assessmentCriteriaCreateCommand.WeightPercent;
-        //    newAssCri.Category = (AssessmentCategory)assessmentCriteriaCreateCommand.Category;
-        //    newAssCri.RequiredCount = assessmentCriteriaCreateCommand.RequiredCount;
-        //    newAssCri.Duration = assessmentCriteriaCreateCommand.Duration;
-        //    newAssCri.TestType = (TestType)assessmentCriteriaCreateCommand.TestType;
-        //    newAssCri.Note = assessmentCriteriaCreateCommand.Note;
-        //    newAssCri.MinPassingScore = assessmentCriteriaCreateCommand.MinPassingScore;
-        //    newAssCri.IsActive = true;
-        //    return  await _assessmentCriteriaRepository.CreateAsync(newAssCri);
-        //}
-        public async Task<OperationResult<bool>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command)
+        public async Task<OperationResult<string>> GetAssessmentCriteriaIdBySubjectAndOrderAsync(string subjectId, int order)
         {
-            var existing = await _assessmentCriteriaRepository.GetByIdAsync(command.AssessmentCriteriaID);
+            var list = await _assessmentCriteriaRepository.GetBySubjectIdAsync(subjectId);
+            if (!list.Success || list.Data == null)
+                return OperationResult<string>.Fail("Không tìm thấy danh sách tiêu chí.");
 
-            if (existing == null)
+            var matched = list.Data.OrderBy(x => x.AssessmentCriteriaID).ElementAtOrDefault(order - 1);
+            if (matched == null)
+                return OperationResult<string>.Fail("Không tìm thấy tiêu chí với thứ tự order tương ứng.");
+
+            return OperationResult<string>.Ok(matched.AssessmentCriteriaID);
+        }
+        public async Task<OperationResult<AssessmentCriteriaUpdateDto>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command)
+        {
+            var result = await _assessmentCriteriaRepository.GetByIdAsync(command.AssessmentCriteriaID);
+            if (!result.Success || result.Data == null)
             {
-                return OperationResult<bool>.Fail(OperationMessages.NotFound("tiêu chí đánh giá"));
+                return OperationResult<AssessmentCriteriaUpdateDto>.Fail(OperationMessages.NotFound("tiêu chí đánh giá"));
             }
 
-            existing.SubjectID = command.SubjectID;
+            var existing = result.Data;
             existing.WeightPercent = command.WeightPercent;
             existing.Category = (AssessmentCategory)command.Category;
-            existing.RequiredCount = command.RequiredCount;
-            existing.Duration = command.Duration;
-            existing.TestType = (TestType)command.TestType;
+
+            if (existing.Category == AssessmentCategory.Presentation || existing.Category == AssessmentCategory.Attendance
+                || existing.Category == AssessmentCategory.ClassParticipation
+                || existing.Category == AssessmentCategory.Assignment)
+            {
+                existing.RequiredTestCount = 0;
+            }
+            else
+            {
+                existing.RequiredTestCount = command.RequiredTestCount;
+            }
+
             existing.Note = command.Note;
             existing.MinPassingScore = command.MinPassingScore;
 
-            return await _assessmentCriteriaRepository.UpdateAsync(existing);
+            var updateResult = await _assessmentCriteriaRepository.UpdateAsync(existing);
+
+            if (!updateResult.Success)
+            {
+                return OperationResult<AssessmentCriteriaUpdateDto>.Fail(updateResult.Message);
+            }
+
+            // Map entity to DTO
+            var dto = new AssessmentCriteriaUpdateDto
+            {
+                Order = 1,
+                AssessmentCriteriaID = existing.AssessmentCriteriaID,
+                Category = existing.Category?.ToString(),
+                RequireCount = existing.RequiredTestCount
+            };
+
+            return OperationResult<AssessmentCriteriaUpdateDto>.Ok(dto, OperationMessages.UpdateSuccess("tiêu chí đánh giá"));
         }
 
-        //public async Task<PagedResult<AssessmentCriteriaDTO>> GetPaginatedListAsync(int page, int pageSize)
-        //{
-        //    var (items, total) = await _assessmentCriteriaRepository.GetPaginatedListAsync(page, pageSize);
-        //    return new PagedResult<AssessmentCriteriaDTO>
-        //    {
-        //        Items = items,
-        //        TotalItems = total,
-        //        PageNumber = page,
-        //        PageSize = pageSize
-        //    };
-        //}
-
-        //public async Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId)
-        //{
-        //    return await _assessmentCriteriaRepository.GetListBySyllabusIdAsync(syllabusId);
-        //}
-        //public async Task<bool> DeleteAsync(string id)
-        //{
-        //    return await _assessmentCriteriaRepository.DeleteAsync(id);
-        //}
-
-
-
-        
-        //KIỆT :HÀM CỦA KIỆT
-        public async Task<Dictionary<(string Category, string TestType), int>> GetRequiredTestCountsAsync(string syllabusId)
-        {
-            var result = await _assessmentCriteriaRepository.GetListBySubjectIdAsync(syllabusId);
-
-            return result
-                .GroupBy(x => (x.Category.ToString(), x.TestType.ToString()))
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Sum(x => x.RequiredCount ?? 0)
-                );
-        }
-
-
-        //kiểm tra bài kiểm tra được thêm vào
-        //có nằm trong danh sách các bài kiểm tra của môn đó không
-        //KIỆT :HÀM CỦA KIỆT
-
-        public async Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType)
-        {
-            var stringCategory = category.ToString();
-            var stringTestType = testType.ToString();
-            return await _assessmentCriteriaRepository.IsTestDefinedInCriteriaAsync(syllabusId, stringCategory, stringTestType);
-        }
         public async Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectId)
         {
-            var result = await _assessmentCriteriaRepository.GetListBySubjectIdAsync(subjectId);
+            return await _assessmentCriteriaRepository.GetListBySubjectIdAsync(subjectId);
+        }
+        public async Task<OperationResult<List<AssessmentCriteriaSetupDTO>>> SetupAssessmentCriteria(AssessmentCriteriaSetupCommand request)
+        {
+            var existingResult = await _assessmentCriteriaRepository.GetListBySubjectIdAsync(request.SubjectID);
+            var existingList = existingResult.Data ?? new List<AssessmentCriteriaDTO>();
+            int currentCount = existingList.Count;
+            int targetCount = request.NumberAssessmentCriteria;
 
-            if (result == null || !result.Any())
+            if (currentCount == targetCount)
             {
-                return OperationResult<List<AssessmentCriteriaDTO>>.Fail(
-                    OperationMessages.NotFound("tiêu chí đánh giá")
+                var resultList = existingList
+                    .OrderBy(x => x.AssessmentCriteriaID)
+                    .Select((x, index) => new AssessmentCriteriaSetupDTO
+                    {
+                        numOfAssessment = index + 1,
+                        AssessmentCriteriaID = x.AssessmentCriteriaID
+                    })
+                    .ToList();
+
+                return OperationResult<List<AssessmentCriteriaSetupDTO>>.Ok(
+                    resultList,
+                    OperationMessages.RetrieveSuccess("tiêu chí đánh giá")
                 );
             }
 
-            return OperationResult<List<AssessmentCriteriaDTO>>.Ok(
-                result,
-                OperationMessages.RetrieveSuccess("tiêu chí đánh giá")
-            );
+            if (currentCount < targetCount)
+            {
+                int numberToCreate = targetCount - currentCount;
+
+                var totalInDb = await _assessmentCriteriaRepository.CountAsync();
+                var newList = new List<AssessmentCriteria>();
+
+                for (int i = 0; i < numberToCreate; i++)
+                {
+                    string newId = "AC" + (totalInDb + i + 1).ToString("D4");
+
+                    var newAssCri = new AssessmentCriteria
+                    {
+                        AssessmentCriteriaID = newId,
+                        SubjectID = request.SubjectID,
+                        WeightPercent = null,
+                        Category = null,
+                        RequiredTestCount = null,
+                        Note = null,
+                        MinPassingScore = null,
+                        IsActive = true // Luôn set là true khi tạo mới
+                    };
+
+                    newList.Add(newAssCri);
+                }
+
+                var createResult = await _assessmentCriteriaRepository.CreateManyAsync(newList);
+                var merged = existingList
+                    .Concat(createResult.Data.Select(x => new AssessmentCriteriaDTO
+                    {
+                        AssessmentCriteriaID = x.AssessmentCriteriaID,
+                        SubjectID = request.SubjectID,
+                        IsActive = true
+                    }))
+                    .OrderBy(x => x.AssessmentCriteriaID)
+                    .Select((x, index) => new AssessmentCriteriaSetupDTO
+                    {
+                        numOfAssessment = index + 1,
+                        AssessmentCriteriaID = x.AssessmentCriteriaID
+                    })
+                    .ToList();
+
+                return OperationResult<List<AssessmentCriteriaSetupDTO>>.Ok(
+                    merged,
+                    OperationMessages.CreateSuccess($"{numberToCreate} tiêu chí đánh giá mới")
+                );
+            }
+            else
+            {
+                int numberToRemove = currentCount - targetCount;
+
+                var toRemoveIds = existingList
+                    .OrderByDescending(x => x.AssessmentCriteriaID)
+                    .Take(numberToRemove)
+                    .Select(x => x.AssessmentCriteriaID)
+                    .ToList();
+
+                var deleteResult = await _assessmentCriteriaRepository.SoftDeleteByIdsAsync(toRemoveIds);
+
+                var updatedList = existingList
+                    .Where(x => !toRemoveIds.Contains(x.AssessmentCriteriaID))
+                    .OrderBy(x => x.AssessmentCriteriaID)
+                    .Select((x, index) => new AssessmentCriteriaSetupDTO
+                    {
+                        numOfAssessment = index + 1,
+                        AssessmentCriteriaID = x.AssessmentCriteriaID
+                    })
+                    .ToList();
+
+                return OperationResult<List<AssessmentCriteriaSetupDTO>>.Ok(
+                    updatedList,
+                    OperationMessages.DeleteSuccess($"{numberToRemove} tiêu chí đánh giá đã xoá")
+                );
+            }
         }
 
 
-        //public async Task<bool> DeleteAsync(string id)
-        //{
-        //    return await _assessmentCriteriaRepository.DeleteAsync(id);
-        //}
+        public async Task<OperationResult<AssessmentCriteria>> GetByIdAsync(string assessmentCriteriaId)
+        {
+            return await _assessmentCriteriaRepository.GetByIdAsync(assessmentCriteriaId);
+        }
+
+        public OperationResult<bool> CheckDuplicateCategory(List<AssessmentCriteriaUpdateCommand> items)
+        {
+            var duplicates = items
+                .GroupBy(x => x.Category)
+                .Where(g => g.Count() > 1)
+                .ToList();
+
+            if (duplicates.Any())
+            {
+                var dups = string.Join(", ", duplicates.Select(g => g.Key.ToString()));
+                return OperationResult<bool>.Fail($"Category bị trùng: {dups}");
+            }
+
+            return OperationResult<bool>.Ok(true);
+        }
 
 
+        public OperationResult<bool> CheckRequiredTestCountRule(List<AssessmentCriteriaUpdateCommand> items)
+        {
+            var autoZeroCategories = new[]
+            {
+        AssessmentCategory.Presentation,
+        AssessmentCategory.Attendance,
+        AssessmentCategory.Assignment,
+        AssessmentCategory.ClassParticipation
+    };
+
+            var violations = items
+                .Where(x => autoZeroCategories.Contains(x.Category) && x.RequiredTestCount > 0)
+                .Select(x => $"ID: {x.AssessmentCriteriaID}, Category: {x.Category}, RequireCount: {x.RequiredTestCount}")
+                .ToList();
+
+            if (violations.Any())
+            {
+                var msg = "Các mục sau có RequiredTestCount > 0 không hợp lệ:\n" + string.Join("\n", violations);
+                return OperationResult<bool>.Fail(msg);
+            }
+
+            return OperationResult<bool>.Ok(true);
+        }
+
+        public async Task<OperationResult<List<AssessmentCriteriaUpdateDto>>> UpdateAssessmentCriteriaListAsync(List<AssessmentCriteriaUpdateCommand> items)
+        {
+            var updatedEntities = new List<AssessmentCriteria>();
+
+            foreach (var item in items)
+            {
+                var entityResult = await _assessmentCriteriaRepository.GetByIdAsync(item.AssessmentCriteriaID);
+                if (!entityResult.Success || entityResult.Data == null)
+                    return OperationResult<List<AssessmentCriteriaUpdateDto>>.Fail($"Không tìm thấy ID {item.AssessmentCriteriaID}");
+
+                var existing = entityResult.Data;
+                existing.WeightPercent = item.WeightPercent;
+                existing.Category = item.Category;
+                existing.Note = item.Note;
+                existing.MinPassingScore = item.MinPassingScore;
+                existing.RequiredTestCount =
+                    (item.Category == AssessmentCategory.Presentation ||
+                     item.Category == AssessmentCategory.Attendance ||
+                     item.Category == AssessmentCategory.ClassParticipation ||
+                     item.Category == AssessmentCategory.Assignment)
+                    ? 0 : item.RequiredTestCount;
+
+                updatedEntities.Add(existing);
+            }
+
+            var updateResult = await _assessmentCriteriaRepository.UpdateRangeAsync(updatedEntities);
+            if (!updateResult.Success)
+                return OperationResult<List<AssessmentCriteriaUpdateDto>>.Fail(updateResult.Message);
+
+            var dtos = updatedEntities.Select(x => new AssessmentCriteriaUpdateDto
+            {
+                AssessmentCriteriaID = x.AssessmentCriteriaID,
+                Category = x.Category.ToString(),
+                RequireCount = x.RequiredTestCount,
+                Order = 1
+            }).ToList();
+
+            return OperationResult<List<AssessmentCriteriaUpdateDto>>.Ok(dtos);
+        }
+        //Lỗi nên tạm comment - Kho
+
+        ////KIỆT :HÀM CỦA KIỆT
         //public async Task<Dictionary<(string Category, string TestType), int>> GetRequiredTestCountsAsync(string syllabusId)
         //{
-        //    var result = await _assessmentCriteriaRepository.GetListBySyllabusIdAsync(syllabusId);
+        //    var result = await _assessmentCriteriaRepository.GetListBySubjectIdAsync(syllabusId);
 
         //    return result
         //        .GroupBy(x => (x.Category.ToString(), x.TestType.ToString()))
         //        .ToDictionary(
         //            g => g.Key,
-        //            g => g.Sum(x => x.RequiredCount)
+        //            g => g.Sum(x => x.RequiredCount ?? 0)
         //        );
         //}
-        //public async Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId,TestCategory category, TestType testType)
+
+
+        ////kiểm tra bài kiểm tra được thêm vào
+        ////có nằm trong danh sách các bài kiểm tra của môn đó không
+        ////KIỆT :HÀM CỦA KIỆT
+
+        //public async Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType)
         //{
         //    var stringCategory = category.ToString();
         //    var stringTestType = testType.ToString();
-
-        //    return await _assessmentCriteriaRepository.IsTestDefinedInCriteriaAsync( syllabusId, stringCategory, stringTestType);
-
+        //    return await _assessmentCriteriaRepository.IsTestDefinedInCriteriaAsync(syllabusId, stringCategory, stringTestType);
         //}
-        public async Task<OperationResult<int>> SetupAssessmentCriteria(AssessmentCriteriaSetupCommand request)
-        {
-            var numberInDb = await _assessmentCriteriaRepository.CountAsync();
-            var newList = new List<AssessmentCriteria>();
+        //public async Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectId)
+        //{
+        //    var result = await _assessmentCriteriaRepository.GetListBySubjectIdAsync(subjectId);
 
-            for (int i = 0; i < request.NumberAssessmentCriteria; i++)
-            {
-                string newId = "AC" + (numberInDb + i).ToString("D4");
+        //    if (result == null || !result.Any())
+        //    {
+        //        return OperationResult<List<AssessmentCriteriaDTO>>.Fail(
+        //            OperationMessages.NotFound("tiêu chí đánh giá")
+        //        );
+        //    }
 
-                var newAssCri = new AssessmentCriteria
-                {
-                    AssessmentCriteriaID = newId,
-                    SubjectID = request.SubjectID,
-                    WeightPercent = null,
-                    Category = null,
-                    RequiredCount = null,
-                    Duration = null,
-                    TestType = null,
-                    Note = null,
-                    MinPassingScore = null,
-                    IsActive = true
-                };
+        //    return OperationResult<List<AssessmentCriteriaDTO>>.Ok(
+        //        result,
+        //        OperationMessages.RetrieveSuccess("tiêu chí đánh giá")
+        //    );
+        //}
 
-                newList.Add(newAssCri);
-            }
 
-            var result = await _assessmentCriteriaRepository.CreateManyAsync(newList);
-            return result;
-        }
+
+
+
 
     }
 }

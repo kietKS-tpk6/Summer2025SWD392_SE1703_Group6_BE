@@ -22,6 +22,7 @@ namespace Infrastructure.Repositories
             _dbContext = context;
         }
 
+       
         public async Task<OperationResult<List<int>>> GetWeeksBySubjectIdAsync(string subjectId)
         {
             try
@@ -38,31 +39,67 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<int>>.Fail($"Lỗi khi truy xuất tuần học: {ex.Message}");
             }
         }
+        public async Task<List<SyllabusSchedule>> GetSyllabusSchedulesBySubjectIdAsync(string subjectId)
+        {
+            return await _dbContext.SyllabusSchedule
+                                     .Where(s => s.SubjectID == subjectId && s.IsActive)
+                                     .OrderBy(s => s.Week)
+                                     .ToListAsync();
+        }
+        public async Task<bool> CreateOrRemoveSyllabusSchedulesAsync(string subjectId, List<SyllabusSchedule> schedulesToAdd, List<string> idsToRemove)
+        {
+            if (schedulesToAdd.Any())
+            {
+                await _dbContext.SyllabusSchedule.AddRangeAsync(schedulesToAdd);
+            }
+            if (idsToRemove.Any())
+            {
+                var toRemove = _dbContext.SyllabusSchedule.Where(s => idsToRemove.Contains(s.SyllabusScheduleID));
+                _dbContext.SyllabusSchedule.RemoveRange(toRemove);
+            }
+            await _dbContext.SaveChangesAsync();
 
+            return true;
+        }
 
-        public async Task<bool> CreateMultipleSyllabusesScheduleAsync(List<SyllabusSchedule> syllabusSchedules)
+        public async Task RemoveSyllabusesScheduleAsync(List<string> idsToRemove)
+        {
+            var schedules = _dbContext.SyllabusSchedule
+                .Where(s => idsToRemove.Contains(s.SyllabusScheduleID))
+                .ToList();
+
+            foreach (var s in schedules)
+            {
+                s.IsActive = false;
+            }
+
+            await _dbContext.SaveChangesAsync();
+        }
+        public async Task<OperationResult<bool>> CreateMultipleSyllabusesScheduleAsync(List<SyllabusSchedule> syllabusSchedules)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
             try
             {
-                // Thêm tất cả SyllabusSchedule vào context
                 await _dbContext.SyllabusSchedule.AddRangeAsync(syllabusSchedules);
-
-                // Lưu thay đổi
                 int result = await _dbContext.SaveChangesAsync();
 
-                // Commit transaction nếu thành công
-                await transaction.CommitAsync();
-
-                return result > 0;
+                if (result > 0)
+                {
+                    await transaction.CommitAsync();
+                    return OperationResult<bool>.Ok(true, "Đã thêm các SyllabusSchedule.");
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                    return OperationResult<bool>.Fail("Không thêm được SyllabusSchedule.");
+                }
             }
             catch (Exception ex)
             {
-                // Rollback transaction nếu có lỗi
                 await transaction.RollbackAsync();
+                return OperationResult<bool>.Fail($"Lỗi khi thêm SyllabusSchedule: {ex.Message}");
 
-
-                return false;
             }
         }
 
@@ -105,7 +142,7 @@ namespace Infrastructure.Repositories
                 {
                     SyllabusScheduleId = s.SyllabusScheduleID,
                     Week = (int)s.Week,
-                    DurationMinutes = (int)s.DurationMinutes
+                    DurationMinutes = (int)s.DurationMinutes,
 
                 })
                 .ToListAsync();
@@ -151,117 +188,149 @@ namespace Infrastructure.Repositories
                                  && (x.HasTest == false));
         }
 
-
-
-        public async Task<bool> ValidateTestPositionAsync(string subjectID, string syllabusScheduleId, TestCategory testCategory)
+        public async Task<OperationResult<SyllabusSchedule>> GetByIdAsync(string syllabusScheduleId)
         {
-            // Lấy tất cả syllabus schedules đang active và có thứ tự
-            var syllabusSchedules = await _dbContext.SyllabusSchedule
-                         .Where(s => s.SubjectID == subjectID && s.IsActive == true)
-                         .OrderBy(s => s.Week)
-                         .ThenBy(s => s.SyllabusScheduleID)
-                         .Select(s => new
-                         {
-                             s.SyllabusScheduleID,
-                             s.Week
-                         })
-                         .ToListAsync();
-
-            if (!syllabusSchedules.Any())
-                return false;
-
-            // Tìm vị trí của schedule hiện tại
-            var currentScheduleIndex = syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == syllabusScheduleId);
-            if (currentScheduleIndex == -1)
-                return false;
-
-            var isFirstSlot = currentScheduleIndex == 0;
-
-            // Lấy thông tin về các bài kiểm tra hiện có
-            var existingTests = await _dbContext.SyllabusScheduleTests
-                .Where(t => t.SyllabusSchedule.SubjectID == subjectID && t.SyllabusSchedule.IsActive)
-                .Select(t => new
-                {
-                    t.TestCategory,
-                    ScheduleId = t.SyllabusSchedule.SyllabusScheduleID
-                })
-                .ToListAsync();
-
-            var midtermTests = existingTests.Where(t => t.TestCategory == TestCategory.Midterm).ToList();
-            var finalTests = existingTests.Where(t => t.TestCategory == TestCategory.Final).ToList();
-
-            switch (testCategory)
+            try
             {
-                case TestCategory.Midterm:
-                    // Midterm không được ở đầu hoặc cuối
-                    if (currentScheduleIndex == 0 || currentScheduleIndex == syllabusSchedules.Count - 1)
-                        return false;
+                var schedule = await _dbContext.SyllabusSchedule
+                    .FirstOrDefaultAsync(s => s.SyllabusScheduleID == syllabusScheduleId);
 
-                    // Midterm không được nằm sau bất kỳ Final nào
-                    if (finalTests.Any())
-                    {
-                        var earliestFinalIndex = finalTests
-                            .Select(f => syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == f.ScheduleId))
-                            .Min();
+                if (schedule == null)
+                    return OperationResult<SyllabusSchedule>.Fail(OperationMessages.NotFound("slot"));
 
-                        if (currentScheduleIndex >= earliestFinalIndex)
-                            return false;
-                    }
-                    break;
-
-                case TestCategory.Final:
-                    // ❌ Không được ở slot đầu tiên
-                    if (isFirstSlot)
-                        return false;
-
-                    // ✅ Phải nằm sau tất cả Midterm (nếu có)
-                    if (midtermTests.Any())
-                    {
-                        var latestMidtermIndex = midtermTests
-                            .Select(m => syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == m.ScheduleId))
-                            .Max();
-
-                        if (currentScheduleIndex <= latestMidtermIndex)
-                            return false;
-                    }
-                    break;
-
-                default:
-                    // Các test khác phải nằm trước tất cả bài Final
-                    if (finalTests.Any())
-                    {
-                        var earliestFinalIndex = finalTests
-                            .Select(f => syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == f.ScheduleId))
-                            .Min();
-
-                        if (currentScheduleIndex >= earliestFinalIndex)
-                            return false;
-                    }
-                    break;
+                return OperationResult<SyllabusSchedule>.Ok(schedule, OperationMessages.RetrieveSuccess("slot"));
             }
-
-            return true;
+            catch (Exception ex)
+            {
+                return OperationResult<SyllabusSchedule>.Fail("Lỗi khi truy xuất slot: " + ex.Message);
+            }
         }
+        public async Task<OperationResult<bool>> UpdateAsync(SyllabusSchedule schedule)
+        {
+            try
+            {
+                _dbContext.SyllabusSchedule.Update(schedule);
+                await _dbContext.SaveChangesAsync();
+                return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("slot"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<bool>.Fail("Lỗi khi cập nhật slot: " + ex.Message);
+            }
+        }
+      
+        //Bug
+        //public async Task<bool> ValidateTestPositionAsync(string subjectID, string syllabusScheduleId, TestCategory testCategory)
+        //{
+        //    // Lấy tất cả syllabus schedules đang active và có thứ tự
+        //    var syllabusSchedules = await _dbContext.SyllabusSchedule
+        //                 .Where(s => s.SubjectID == subjectID && s.IsActive == true)
+        //                 .OrderBy(s => s.Week)
+        //                 .ThenBy(s => s.SyllabusScheduleID)
+        //                 .Select(s => new
+        //                 {
+        //                     s.SyllabusScheduleID,
+        //                     s.Week
+        //                 })
+        //                 .ToListAsync();
+
+        //    if (!syllabusSchedules.Any())
+        //        return false;
+
+        //    // Tìm vị trí của schedule hiện tại
+        //    var currentScheduleIndex = syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == syllabusScheduleId);
+        //    if (currentScheduleIndex == -1)
+        //        return false;
+
+        //    var isFirstSlot = currentScheduleIndex == 0;
+
+        //    // Lấy thông tin về các bài kiểm tra hiện có
+        //    var existingTests = await _dbContext.SyllabusScheduleTests
+        //        .Where(t => t.SyllabusSchedule.SubjectID == subjectID && t.SyllabusSchedule.IsActive)
+        //        .Select(t => new
+        //        {
+        //            t.TestCategory,
+        //            ScheduleId = t.SyllabusSchedule.SyllabusScheduleID
+        //        })
+        //        .ToListAsync();
+
+        //    var midtermTests = existingTests.Where(t => t.TestCategory == TestCategory.Midterm).ToList();
+        //    var finalTests = existingTests.Where(t => t.TestCategory == TestCategory.Final).ToList();
+
+        //    switch (testCategory)
+        //    {
+        //        case TestCategory.Midterm:
+        //            // Midterm không được ở đầu hoặc cuối
+        //            if (currentScheduleIndex == 0 || currentScheduleIndex == syllabusSchedules.Count - 1)
+        //                return false;
+
+        //            // Midterm không được nằm sau bất kỳ Final nào
+        //            if (finalTests.Any())
+        //            {
+        //                var earliestFinalIndex = finalTests
+        //                    .Select(f => syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == f.ScheduleId))
+        //                    .Min();
+
+        //                if (currentScheduleIndex >= earliestFinalIndex)
+        //                    return false;
+        //            }
+        //            break;
+
+        //        case TestCategory.Final:
+        //            // ❌ Không được ở slot đầu tiên
+        //            if (isFirstSlot)
+        //                return false;
+
+        //            // ✅ Phải nằm sau tất cả Midterm (nếu có)
+        //            if (midtermTests.Any())
+        //            {
+        //                var latestMidtermIndex = midtermTests
+        //                    .Select(m => syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == m.ScheduleId))
+        //                    .Max();
+
+        //                if (currentScheduleIndex <= latestMidtermIndex)
+        //                    return false;
+        //            }
+        //            break;
+
+        //        default:
+        //            // Các test khác phải nằm trước tất cả bài Final
+        //            if (finalTests.Any())
+        //            {
+        //                var earliestFinalIndex = finalTests
+        //                    .Select(f => syllabusSchedules.FindIndex(s => s.SyllabusScheduleID == f.ScheduleId))
+        //                    .Min();
+
+        //                if (currentScheduleIndex >= earliestFinalIndex)
+        //                    return false;
+        //            }
+        //            break;
+        //    }
+
+        //    return true;
+        //}
 
         // Method phụ trợ để lấy danh sách tests theo thứ tự (đã sửa đổi từ method gốc)
-        public async Task<List<(int? Week, string TestType, TestCategory TestCategory)>> GetActiveTestsOrderedByWeekAsync(string subjectID)
-        {
-            var tempList = await _dbContext.SyllabusScheduleTests
-                 .Where(t => t.SyllabusSchedule.SubjectID == subjectID
-                          && t.SyllabusSchedule.IsActive == true)
-                 .OrderBy(t => t.SyllabusSchedule.Week)
-                 .ThenBy(t => t.SyllabusSchedule.SyllabusScheduleID)
-                .Select(t => new
-                {
-                    Week = (int?)t.SyllabusSchedule.Week,
-                    TestType = t.TestType.ToString().ToLower(),
-                    TestCategory = t.TestCategory
-                })
 
-                 .ToListAsync();
+        //Bug
+        //public async Task<List<(int? Week, string TestType, TestCategory TestCategory)>> GetActiveTestsOrderedByWeekAsync(string subjectID)
+        //{
+        //    var tempList = await _dbContext.SyllabusScheduleTests
+        //         .Where(t => t.SyllabusSchedule.SubjectID == subjectID
+        //                  && t.SyllabusSchedule.IsActive == true)
+        //         .OrderBy(t => t.SyllabusSchedule.Week)
+        //         .ThenBy(t => t.SyllabusSchedule.SyllabusScheduleID)
+        //        .Select(t => new
+        //        {
+        //            Week = (int?)t.SyllabusSchedule.Week,
+        //            TestType = t.TestType.ToString().ToLower(),
+        //            TestCategory = t.TestCategory
+        //        })
 
-            return tempList.Select(t => (t.Week, t.TestType, t.TestCategory)).ToList();
-        }
+        //         .ToListAsync();
+
+        //    return tempList.Select(t => (t.Week, t.TestType, t.TestCategory)).ToList();
+        //}
 
 
 
@@ -305,5 +374,29 @@ namespace Infrastructure.Repositories
 
             return await query.OrderBy(s => s.Week).ThenBy(s => s.SyllabusScheduleID).ToListAsync();
         }
+
+        public OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDto> items)
+        {
+            var testByCriteria = new Dictionary<(int order, TestType testType), int>();
+
+            foreach (var item in items)
+            {
+                if (item.HasTest && item.ItemsAssessmentCriteria != null)
+                {
+                    var key = (order: item.ItemsAssessmentCriteria.Order, testType: (TestType)item.ItemsAssessmentCriteria.TestType);
+
+                    if (testByCriteria.ContainsKey(key))
+                    {
+                        return OperationResult<bool>.Fail(
+                            $"TestType '{key.testType}' bị trùng trong tiêu chí đánh giá có order {key.order}");
+                    }
+
+                    testByCriteria[key] = 1;
+                }
+            }
+
+            return OperationResult<bool>.Ok(true);
+        }
+
     }
 }

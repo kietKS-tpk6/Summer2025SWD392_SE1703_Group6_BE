@@ -9,11 +9,13 @@ using Infrastructure.IRepositories;
 using Domain.Entities;
 using Application.DTOs;
 using Application.Common.Constants;
+using Infrastructure.Repositories;
 namespace Infrastructure.Services
 {
     public class LessonService : ILessonService
     {
         private readonly ILessonRepository _lessonRepository;
+        private readonly ITestEventService _testEventService;
         public LessonService(ILessonRepository lessonRepository)
         {
             _lessonRepository = lessonRepository;
@@ -121,6 +123,10 @@ namespace Infrastructure.Services
                 ? OperationResult<bool>.Ok(true, OperationMessages.DeleteSuccess("tiết học"))
                 : OperationResult<bool>.Fail(OperationMessages.DeleteFail("tiết học"));
         }
+        public async Task<OperationResult<bool>> DeleteLessonByClassIDAsync(string classID)
+        {
+            return await _lessonRepository.DeleteLessonByClassIDAsync(classID);
+        }
 
         public async Task<OperationResult<LessonDetailDTO>> GetLessonDetailByLessonIDAsync(string classLessonID)
         {
@@ -184,11 +190,10 @@ namespace Infrastructure.Services
                             LinkMeetURL = roomUrl,
                             IsActive = true
                         });
-
+                        
                         currentScheduleIndex++;
                     }
                 }
-
                 var saveResult = await _lessonRepository.CreateManyAsync(lessonsToCreate);
                 if (!saveResult)
                     return OperationResult<bool>.Fail(OperationMessages.CreateFail("buổi học"));

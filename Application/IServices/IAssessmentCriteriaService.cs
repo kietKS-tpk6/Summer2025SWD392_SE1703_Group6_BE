@@ -9,28 +9,24 @@ using Application.DTOs;
 using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
+using MediatR;
 namespace Application.IServices
 {
     public interface IAssessmentCriteriaService
     {
-        //public Task<bool> CreateAssessmentCriteriaAsync(AssessmentCriteriaCreateCommand request);
-        Task<OperationResult<bool>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command);
-        //public Task<PagedResult<AssessmentCriteriaDTO>> GetPaginatedListAsync(int page, int pageSize);
-        public Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectId);
-        //public Task<bool> DeleteAsync(string id);
+        Task<OperationResult<AssessmentCriteria>> GetByIdAsync(string assessmentCriteriaId);
+        Task<OperationResult<AssessmentCriteriaUpdateDto>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand cmd);
+        Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectId);
+        Task<OperationResult<List<AssessmentCriteriaSetupDTO>>> SetupAssessmentCriteria(AssessmentCriteriaSetupCommand request);
+        //Lỗi nên tạm comment - Kho
+        ////KIỆT :HÀM CỦA KIỆT
         //Task<Dictionary<(string Category, string TestType), int>> GetRequiredTestCountsAsync(string syllabusId);
+        ////KIỆT :HÀM CỦA KIỆT
         //Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType);
-        public Task<OperationResult<int>> SetupAssessmentCriteria(AssessmentCriteriaSetupCommand request);
-        //  public Task<bool> CreateAssessmentCriteriaAsync(AssessmentCriteriaCreateCommand request);
-        //public Task<bool> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand request);
-        // public Task<PagedResult<AssessmentCriteriaDTO>> GetPaginatedListAsync(int page, int pageSize);
-        //public Task<List<AssessmentCriteriaDTO>> GetListBySyllabusIdAsync(string syllabusId);
-        //public Task<bool> DeleteAsync(string id);
-
-        //KIỆT :HÀM CỦA KIỆT
-        Task<Dictionary<(string Category, string TestType), int>> GetRequiredTestCountsAsync(string syllabusId);
-        //KIỆT :HÀM CỦA KIỆT
-        Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType);
+        OperationResult<bool> CheckDuplicateCategory(List<AssessmentCriteriaUpdateCommand> items);
+        Task<OperationResult<List<AssessmentCriteriaUpdateDto>>> UpdateAssessmentCriteriaListAsync(List<AssessmentCriteriaUpdateCommand> items);
+        OperationResult<bool> CheckRequiredTestCountRule(List<AssessmentCriteriaUpdateCommand> items);
+        Task<OperationResult<string>> GetAssessmentCriteriaIdBySubjectAndOrderAsync(string subjectId, int order);
 
     }
 }
