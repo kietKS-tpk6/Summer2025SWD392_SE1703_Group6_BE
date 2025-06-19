@@ -9,6 +9,7 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Domain.Enums;
 using Application.DTOs;
+using Application.Common.Constants;
 namespace Infrastructure.Repositories
 {
     public class LessonRepository : ILessonRepository
@@ -46,6 +47,19 @@ namespace Infrastructure.Repositories
             _dbContext.Lesson.Update(entity);
             var result = await _dbContext.SaveChangesAsync();
             return result > 0;
+        }
+        public async Task<OperationResult<bool>> DeleteLessonByClassIDAsync(string classID)
+        {
+            var lessons = await _dbContext.Lesson.Where(cl => cl.ClassID == classID).ToListAsync();
+            foreach (var lesson in lessons)
+            {
+                lesson.IsActive = false;
+                _dbContext.Lesson.Update(lesson);
+            }
+            var result = await _dbContext.SaveChangesAsync();
+            return result > 0
+                ? OperationResult<bool>.Ok(true, OperationMessages.DeleteSuccess("tiết học"))
+                : OperationResult<bool>.Fail(OperationMessages.DeleteFail("tiết học"));
         }
         public async Task<List<Lesson>> GetLessonsByClassIDAsync(string classID)
         {

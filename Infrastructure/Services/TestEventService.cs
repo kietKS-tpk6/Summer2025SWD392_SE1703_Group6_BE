@@ -82,7 +82,10 @@ namespace Infrastructure.Services
             return OperationResult<bool>.Ok(true, $"Đã tạo {createdCount} sự kiện kiểm tra cho lớp.");
         }
 
-
+        public async Task<OperationResult<bool>> DeleteTestEventsByClassIDAsync(string classID)
+        {
+            return await _testEventRepository.DeleteTestEventsByClassIDAsync(classID);
+        }
 
 
     }
