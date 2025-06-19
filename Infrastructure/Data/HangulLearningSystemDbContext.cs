@@ -70,6 +70,12 @@ namespace Infrastructure.Data
             modelBuilder.Entity<TestSection>()
                .Property(a => a.TestSectionType)
                .HasConversion<string>();
+            modelBuilder.Entity<Test>()
+               .Property(a => a.Category)
+               .HasConversion<string>();
+            modelBuilder.Entity<Test>()
+               .Property(a => a.TestType)
+               .HasConversion<string>();
         }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<AssessmentCriteria> AssessmentCriteria { get; set; }

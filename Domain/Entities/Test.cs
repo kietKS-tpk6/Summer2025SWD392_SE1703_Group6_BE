@@ -28,6 +28,8 @@ namespace Domain.Entities
         public DateTime UpdateAt { get; set; }
 
         public TestStatus Status { get; set; }
+        public TestCategory Category { get; set; }
+        public TestType TestType { get; set; }  
 
         public virtual Account Account { get; set; }
 
