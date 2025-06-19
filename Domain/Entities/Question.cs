@@ -27,7 +27,7 @@ namespace Domain.Entities
 
         public string AudioURL { get; set; }
 
-        public QuestionType Type { get; set; }
+        public TestFormatType Type { get; set; }
 
         public virtual TestSection TestSection { get; set; }
     }

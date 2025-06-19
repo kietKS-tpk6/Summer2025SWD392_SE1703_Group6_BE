@@ -28,7 +28,7 @@ namespace Domain.Entities
         [MaxLength(255)]
         public string AudioURL { get; set; }
 
-        public TestSectionType TestSectionType { get; set; }
+        public TestFormatType TestSectionType { get; set; }
 
         public virtual Test Test { get; set; }
     }

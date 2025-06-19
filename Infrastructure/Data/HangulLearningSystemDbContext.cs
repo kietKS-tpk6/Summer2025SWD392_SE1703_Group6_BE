@@ -68,7 +68,7 @@ namespace Infrastructure.Data
                 .Property(a => a.Status)
                 .HasConversion<string>();
             modelBuilder.Entity<TestSection>()
-               .Property(a => a.TestSectionType)
+               .Property(a => a.TestFormatType)
                .HasConversion<string>();
             modelBuilder.Entity<Test>()
                .Property(a => a.Category)
