@@ -68,7 +68,7 @@ namespace Infrastructure.Repositories
                 var subject = await GetSubjectByIdAsync(subjectId);
                 if (subject != null)
                 {
-                    subject.Status = SubjectStatus.Deleted; // Thay đổi status thay vì IsActive
+                    subject.Status = SubjectStatus.Deleted;
                     _dbContext.Subject.Update(subject);
                     await _dbContext.SaveChangesAsync();
                     return "Subject deleted successfully";
@@ -92,11 +92,8 @@ namespace Infrastructure.Repositories
             return await _dbContext.Subject
                 .CountAsync(s => s.Status != SubjectStatus.Deleted);
         }
-
-        // Kiểm tra xem subject có đầy đủ schedule không
         public async Task<bool> HasCompleteScheduleAsync(string subjectId)
         {
-            // Kiểm tra xem có bản ghi nào với SubjectID này và không có field nào null
             var schedules = await _dbContext.SyllabusSchedule
                 .Where(s => s.SubjectID == subjectId && s.IsActive == true)
                 .ToListAsync();
@@ -104,65 +101,30 @@ namespace Infrastructure.Repositories
             if (!schedules.Any())
                 return false;
 
-            // Kiểm tra các field quan trọng không được null hoặc empty
-            foreach (var schedule in schedules)
-            {
-                // Kiểm tra theo cấu trúc thực tế của SyllabusSchedule
-                if (string.IsNullOrEmpty(schedule.LessonTitle) ||
-                    string.IsNullOrEmpty(schedule.Content) ||
-                    !schedule.DurationMinutes.HasValue ||
-                    schedule.DurationMinutes <= 0 ||
-                    !schedule.Week.HasValue ||
-                    schedule.Week <= 0)
-                {
-                    return false;
-                }
-            }
-
             return true;
         }
 
-        // Kiểm tra xem subject có đầy đủ assessment criteria không
         public async Task<bool> HasCompleteAssessmentCriteriaAsync(string subjectId)
         {
-            // Kiểm tra bảng AssessmentCriteria
-            var criteria = await _dbContext.AssessmentCriteria // Cập nhật tên table thực tế
-                .Where(a => a.SyllabusID == subjectId) // Thay đổi theo FK thực tế
+            var criteria = await _dbContext.AssessmentCriteria
+                .Where(a => a.SubjectID == subjectId && a.IsActive == true)
                 .ToListAsync();
 
             if (!criteria.Any())
                 return false;
 
-            // Kiểm tra các field quan trọng không được null hoặc có giá trị hợp lệ
-            foreach (var criterion in criteria)
-            {
-                // Kiểm tra theo cấu trúc thực tế của AssessmentCriteria
-                if (criterion.WeightPercent <= 0 ||
-                    criterion.RequiredCount < 0 ||
-                    criterion.Duration <= 0 ||
-                    criterion.MinPassingScore < 0 ||
-                    string.IsNullOrEmpty(criterion.Category) ||
-                    string.IsNullOrEmpty(criterion.TestType))
-                {
-                    return false;
-                }
-            }
-
             return true;
         }
 
-        // Lấy danh sách các field bị thiếu
         public async Task<List<string>> GetMissingFieldsAsync(string subjectId)
         {
             var missingFields = new List<string>();
 
-            // Kiểm tra Schedule
             if (!await HasCompleteScheduleAsync(subjectId))
             {
-                missingFields.Add("Schedule");
+                missingFields.Add("SyllabusSchedule");
             }
 
-            // Kiểm tra Assessment Criteria
             if (!await HasCompleteAssessmentCriteriaAsync(subjectId))
             {
                 missingFields.Add("AssessmentCriteria");
@@ -170,15 +132,17 @@ namespace Infrastructure.Repositories
 
             return missingFields;
         }
+
         public async Task<bool> ExistsByIdAsync(string subjectName)
         {
-            return await _dbContext.Subject.AnyAsync(s => s.SubjectName == subjectName);
+            return await _dbContext.Subject.AnyAsync(s => s.SubjectName == subjectName && s.Status != SubjectStatus.Deleted);
         }
 
         public async Task<bool> ExistsByDescriptionAsync(string description)
         {
-            return await _dbContext.Subject.AnyAsync(s => s.Description == description);
+            return await _dbContext.Subject.AnyAsync(s => s.Description == description && s.Status != SubjectStatus.Deleted);
         }
+
         public async Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus)
         {
             try
@@ -190,7 +154,7 @@ namespace Infrastructure.Repositories
                         SubjectID = s.SubjectID,
                         SubjectName = s.SubjectName,
                         Description = s.Description,
-                        IsActive = s.Status == SubjectStatus.Active, // Chuyển đổi từ Status
+                        IsActive = s.Status == SubjectStatus.Active,
                         CreateAt = s.CreateAt,
                         MinAverageScoreToPass = s.MinAverageScoreToPass,
                         Status = s.Status
