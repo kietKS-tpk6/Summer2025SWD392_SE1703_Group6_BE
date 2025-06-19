@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Application.DTOs;
 using Domain.Entities;
 using Application.Common.Constants;
+using Application.Usecases.Command;
 
 namespace Infrastructure.IRepositories
 {
@@ -17,6 +18,7 @@ namespace Infrastructure.IRepositories
 
         Task<OperationResult<string?>> CreateAsync(Class classCreate);
         Task<OperationResult<bool>> UpdateAsync(Class classUpdate);
+        Task<OperationResult<bool>> UpdateStatusAsync(ClassUpdateStatusCommand request);
         Task<OperationResult<bool>> DeleteAsync(string id);
 
         Task<OperationResult<int>> CountAsync();

@@ -43,7 +43,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result.Message);
         }
+        [HttpPut("update-status")]
+        public async Task<IActionResult> UpdateStatus([FromBody] ClassUpdateStatusCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
 
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(string id)

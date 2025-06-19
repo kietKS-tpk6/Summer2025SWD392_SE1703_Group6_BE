@@ -82,7 +82,10 @@ namespace Infrastructure.Services
 
             return await _classRepository.UpdateAsync(existing);
         }
-
+        public async Task<OperationResult<bool>> UpdateStatusAsync(ClassUpdateStatusCommand request)
+        {
+            return await _classRepository.UpdateStatusAsync(request); 
+        }
 
         public async Task<OperationResult<bool>> DeleteClassAsync(string classId)
         {
