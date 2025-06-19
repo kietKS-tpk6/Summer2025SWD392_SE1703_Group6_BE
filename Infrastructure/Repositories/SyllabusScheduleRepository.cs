@@ -377,18 +377,26 @@ namespace Infrastructure.Repositories
 
         public OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDto> items)
         {
-            var testByCriteria = new Dictionary<(int order, TestType testType), int>();
+            var testByCriteria = new Dictionary<(string assessmentCriteriaID, TestType testType), int>();
 
             foreach (var item in items)
             {
                 if (item.HasTest && item.ItemsAssessmentCriteria != null)
                 {
-                    var key = (order: item.ItemsAssessmentCriteria.Order, testType: (TestType)item.ItemsAssessmentCriteria.TestType);
+                    var criteriaId = item.ItemsAssessmentCriteria.AssessmentCriteriaID;
+                    var testType = item.ItemsAssessmentCriteria.TestType;
+
+                    if (string.IsNullOrWhiteSpace(criteriaId))
+                    {
+                        return OperationResult<bool>.Fail("Thiếu AssessmentCriteriaID trong input.");
+                    }
+
+                    var key = (criteriaId, testType);
 
                     if (testByCriteria.ContainsKey(key))
                     {
                         return OperationResult<bool>.Fail(
-                            $"TestType '{key.testType}' bị trùng trong tiêu chí đánh giá có order {key.order}");
+                            $"TestType '{testType}' bị trùng trong tiêu chí đánh giá '{criteriaId}'.");
                     }
 
                     testByCriteria[key] = 1;

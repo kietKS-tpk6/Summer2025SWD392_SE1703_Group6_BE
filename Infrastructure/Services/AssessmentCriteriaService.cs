@@ -21,18 +21,7 @@ namespace Infrastructure.Services
         {
             _assessmentCriteriaRepository = assessmentCriteriaRepository;
         }
-        public async Task<OperationResult<string>> GetAssessmentCriteriaIdBySubjectAndOrderAsync(string subjectId, int order)
-        {
-            var list = await _assessmentCriteriaRepository.GetBySubjectIdAsync(subjectId);
-            if (!list.Success || list.Data == null)
-                return OperationResult<string>.Fail("Không tìm thấy danh sách tiêu chí.");
-
-            var matched = list.Data.OrderBy(x => x.AssessmentCriteriaID).ElementAtOrDefault(order - 1);
-            if (matched == null)
-                return OperationResult<string>.Fail("Không tìm thấy tiêu chí với thứ tự order tương ứng.");
-
-            return OperationResult<string>.Ok(matched.AssessmentCriteriaID);
-        }
+       
         public async Task<OperationResult<AssessmentCriteriaUpdateDto>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand command)
         {
             var result = await _assessmentCriteriaRepository.GetByIdAsync(command.AssessmentCriteriaID);

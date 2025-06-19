@@ -8,7 +8,7 @@ namespace Application.DTOs
 {
     public class SyllabusScheduleTestItemDto
     {
-        public int Order { get; set; }
+        public string AssessmentCriteriaID { get; set; }
         public int Duration { get; set; }
         public Domain.Enums.TestType TestType { get; set; }
     }

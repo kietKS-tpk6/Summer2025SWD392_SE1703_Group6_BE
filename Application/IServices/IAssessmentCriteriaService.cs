@@ -26,7 +26,6 @@ namespace Application.IServices
         OperationResult<bool> CheckDuplicateCategory(List<AssessmentCriteriaUpdateCommand> items);
         Task<OperationResult<List<AssessmentCriteriaUpdateDto>>> UpdateAssessmentCriteriaListAsync(List<AssessmentCriteriaUpdateCommand> items);
         OperationResult<bool> CheckRequiredTestCountRule(List<AssessmentCriteriaUpdateCommand> items);
-        Task<OperationResult<string>> GetAssessmentCriteriaIdBySubjectAndOrderAsync(string subjectId, int order);
 
     }
 }

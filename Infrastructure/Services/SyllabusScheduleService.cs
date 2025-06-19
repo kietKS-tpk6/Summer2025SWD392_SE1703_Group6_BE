@@ -385,11 +385,11 @@ namespace Infrastructure.Services
                 })
                 .ToList();
         }
-      
+
 
         public async Task<OperationResult<bool>> UpdateBulkScheduleWithTestAsync(
-    string subjectId,
-    List<SyllabusScheduleUpdateItemDto> scheduleItems)
+         string subjectId,
+         List<SyllabusScheduleUpdateItemDto> scheduleItems)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
@@ -418,28 +418,28 @@ namespace Infrastructure.Services
                     // 3. Nếu có bài kiểm tra
                     if (item.HasTest)
                     {
-                        var criteriaResult = await _assessmentCriteriaService
-                            .GetAssessmentCriteriaIdBySubjectAndOrderAsync(subjectId, item.ItemsAssessmentCriteria.Order);
+                        var criteriaId = item.ItemsAssessmentCriteria.AssessmentCriteriaID;
 
-                        if (!criteriaResult.Success || criteriaResult.Data == null)
-                            return OperationResult<bool>.Fail($"Không tìm thấy tiêu chí đánh giá cho order {item.ItemsAssessmentCriteria.Order}");
-                        
+                        if (string.IsNullOrWhiteSpace(criteriaId))
+                            return OperationResult<bool>.Fail($"AssessmentCriteriaID không được để trống cho slot {item.SyllabusScheduleID}");
+
                         bool isDuplicate = await _syllabusScheduleTestService
-                                  .IsDuplicateTestTypeAsync(criteriaResult.Data, item.ItemsAssessmentCriteria.TestType);
+                            .IsDuplicateTestTypeAsync(criteriaId, item.ItemsAssessmentCriteria.TestType);
 
                         if (isDuplicate)
                         {
                             return OperationResult<bool>.Fail(
-                                $"Bài kiểm tra dạng {item.ItemsAssessmentCriteria.TestType} đã tồn tại cho trong các slot đã thêm ");
+                                $"Bài kiểm tra dạng {item.ItemsAssessmentCriteria.TestType} đã tồn tại cho tiêu chí đánh giá {criteriaId}");
                         }
+
                         var test = new SyllabusScheduleTest
                         {
                             ScheduleTestID = await _syllabusScheduleTestService.GenerateNewScheduleTestIdAsync(),
-                            SyllabusScheduleID = schedule.SyllabusScheduleID,  // Giữ lại dòng này
+                            SyllabusScheduleID = schedule.SyllabusScheduleID,
                             TestType = item.ItemsAssessmentCriteria.TestType,
                             IsActive = true,
                             AllowMultipleAttempts = true,
-                            AssessmentCriteriaID = criteriaResult.Data,
+                            AssessmentCriteriaID = criteriaId,
                             DurationMinutes = item.DurationMinutes
                         };
 
@@ -461,18 +461,26 @@ namespace Infrastructure.Services
 
         public OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDto> items)
         {
-            var testByCriteria = new Dictionary<(int order, TestType testType), int>();
+            var testByCriteria = new Dictionary<(string assessmentCriteriaID, TestType testType), int>();
 
             foreach (var item in items)
             {
                 if (item.HasTest && item.ItemsAssessmentCriteria != null)
                 {
-                    var key = (order: item.ItemsAssessmentCriteria.Order, testType: (TestType)item.ItemsAssessmentCriteria.TestType);
+                    var criteriaId = item.ItemsAssessmentCriteria.AssessmentCriteriaID;
+                    var testType = item.ItemsAssessmentCriteria.TestType;
+
+                    if (string.IsNullOrWhiteSpace(criteriaId))
+                    {
+                        return OperationResult<bool>.Fail("Thiếu AssessmentCriteriaID trong input.");
+                    }
+
+                    var key = (assessmentCriteriaID: criteriaId, testType: testType);
 
                     if (testByCriteria.ContainsKey(key))
                     {
                         return OperationResult<bool>.Fail(
-                            $"TestType '{key.testType}' bị trùng trong tiêu chí đánh giá có order {key.order}");
+                            $"TestType '{key.testType}' bị trùng trong tiêu chí đánh giá '{key.assessmentCriteriaID}'.");
                     }
 
                     testByCriteria[key] = 1;
