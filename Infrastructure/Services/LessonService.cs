@@ -123,6 +123,10 @@ namespace Infrastructure.Services
                 ? OperationResult<bool>.Ok(true, OperationMessages.DeleteSuccess("tiết học"))
                 : OperationResult<bool>.Fail(OperationMessages.DeleteFail("tiết học"));
         }
+        public async Task<OperationResult<bool>> DeleteLessonByClassIDAsync(string classID)
+        {
+            return await _lessonRepository.DeleteLessonByClassIDAsync(classID);
+        }
 
         public async Task<OperationResult<LessonDetailDTO>> GetLessonDetailByLessonIDAsync(string classLessonID)
         {
