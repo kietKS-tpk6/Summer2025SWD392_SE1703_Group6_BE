@@ -25,14 +25,14 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
-        [HttpPut("update-syllabus-schedule")]
-        public async Task<IActionResult> updateSyllabusSchedule([FromBody] SyllabusScheduleUpdateCommand command, CancellationToken cancellationToken)
-        {
+        //[HttpPut("update-syllabus-schedule")]
+        //public async Task<IActionResult> updateSyllabusSchedule([FromBody] SyllabusScheduleUpdateCommand command, CancellationToken cancellationToken)
+        //{
 
 
-            var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
-        }
+        //    var result = await _mediator.Send(command, cancellationToken);
+        //    return Ok(result);
+        //}
 
         [HttpGet("max-slot/{subjectId}")]
         public async Task<IActionResult> GetMaxSlotPerWeek(string subjectId)
