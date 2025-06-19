@@ -188,7 +188,37 @@ namespace Infrastructure.Repositories
                                  && (x.HasTest == false));
         }
 
+        public async Task<OperationResult<SyllabusSchedule>> GetByIdAsync(string syllabusScheduleId)
+        {
+            try
+            {
+                var schedule = await _dbContext.SyllabusSchedule
+                    .FirstOrDefaultAsync(s => s.SyllabusScheduleID == syllabusScheduleId);
 
+                if (schedule == null)
+                    return OperationResult<SyllabusSchedule>.Fail(OperationMessages.NotFound("slot"));
+
+                return OperationResult<SyllabusSchedule>.Ok(schedule, OperationMessages.RetrieveSuccess("slot"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<SyllabusSchedule>.Fail("Lỗi khi truy xuất slot: " + ex.Message);
+            }
+        }
+        public async Task<OperationResult<bool>> UpdateAsync(SyllabusSchedule schedule)
+        {
+            try
+            {
+                _dbContext.SyllabusSchedule.Update(schedule);
+                await _dbContext.SaveChangesAsync();
+                return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("slot"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<bool>.Fail("Lỗi khi cập nhật slot: " + ex.Message);
+            }
+        }
+      
         //Bug
         //public async Task<bool> ValidateTestPositionAsync(string subjectID, string syllabusScheduleId, TestCategory testCategory)
         //{
@@ -281,7 +311,7 @@ namespace Infrastructure.Repositories
         //}
 
         // Method phụ trợ để lấy danh sách tests theo thứ tự (đã sửa đổi từ method gốc)
-        
+
         //Bug
         //public async Task<List<(int? Week, string TestType, TestCategory TestCategory)>> GetActiveTestsOrderedByWeekAsync(string subjectID)
         //{
@@ -344,5 +374,29 @@ namespace Infrastructure.Repositories
 
             return await query.OrderBy(s => s.Week).ThenBy(s => s.SyllabusScheduleID).ToListAsync();
         }
+
+        public OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDto> items)
+        {
+            var testByCriteria = new Dictionary<(int order, TestType testType), int>();
+
+            foreach (var item in items)
+            {
+                if (item.HasTest && item.ItemsAssessmentCriteria != null)
+                {
+                    var key = (order: item.ItemsAssessmentCriteria.Order, testType: (TestType)item.ItemsAssessmentCriteria.TestType);
+
+                    if (testByCriteria.ContainsKey(key))
+                    {
+                        return OperationResult<bool>.Fail(
+                            $"TestType '{key.testType}' bị trùng trong tiêu chí đánh giá có order {key.order}");
+                    }
+
+                    testByCriteria[key] = 1;
+                }
+            }
+
+            return OperationResult<bool>.Ok(true);
+        }
+
     }
 }

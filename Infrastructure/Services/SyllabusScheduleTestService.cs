@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
@@ -27,6 +28,25 @@ namespace Infrastructure.Services
             _syllabusScheduleRepository = syllabusScheduleRepository;
         }
 
+        public async Task<string> GenerateNewScheduleTestIdAsync()
+        {
+            string? lastId = await _syllabusScheduleTestRepository.GetLastIdAsync();
+            int newNumber = 1;
+
+            if (!string.IsNullOrEmpty(lastId) && lastId.StartsWith("ST") && lastId.Length == 6)
+            {
+                if (int.TryParse(lastId.Substring(2), out int parsed))
+                {
+                    newNumber = parsed + 1;
+                }
+            }
+
+            return "ST" + newNumber.ToString("D4");
+        }
+        public async Task<bool> IsDuplicateTestTypeAsync(string assessmentCriteriaId, TestType testType)
+        {
+            return await _syllabusScheduleTestRepository.IsDuplicateTestTypeAsync(assessmentCriteriaId, testType);
+        }
         //public async Task<AssessmentCompletenessResultDTO> CheckAddAssessmentCompletenessAsync(string syllabusId)
         //{
         //    var requiredTests = await _assessmentCriteriaService.GetRequiredTestCountsAsync(syllabusId);
@@ -121,7 +141,10 @@ namespace Infrastructure.Services
             return normalized;
         }
 
-
+        public async Task<OperationResult<SyllabusScheduleTest>> CreateAsync(SyllabusScheduleTest test)
+        {
+            return await _syllabusScheduleTestRepository.CreateAsync(test);
+        }
 
         public Domain.Enums.TestCategory? NormalizeTestCategory(string category, bool isRequired = true)
         {

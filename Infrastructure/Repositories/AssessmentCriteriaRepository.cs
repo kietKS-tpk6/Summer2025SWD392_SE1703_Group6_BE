@@ -223,5 +223,23 @@ namespace Infrastructure.Repositories
                 return OperationResult<bool>.Fail($"Lỗi khi cập nhật hàng loạt: {ex.Message}");
             }
         }
+
+        public async Task<OperationResult<List<AssessmentCriteria>>> GetBySubjectIdAsync(string subjectId)
+        {
+            try
+            {
+                var result = await _dbContext.AssessmentCriteria
+                 .Where(ac => ac.SubjectID == subjectId && ac.IsActive)
+                 .OrderBy(ac => Convert.ToInt32(ac.AssessmentCriteriaID.Substring(2))) // bỏ 2 ký tự đầu "SS"
+                 .ToListAsync();
+
+
+                return OperationResult<List<AssessmentCriteria>>.Ok(result, OperationMessages.RetrieveSuccess("tiêu chí đánh giá"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<AssessmentCriteria>>.Fail("Lỗi khi truy xuất tiêu chí đánh giá: " + ex.Message);
+            }
+        }
     }
 }

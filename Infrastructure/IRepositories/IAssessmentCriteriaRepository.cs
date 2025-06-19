@@ -26,6 +26,7 @@ namespace Infrastructure.IRepositories
         //KIỆT 
         Task<OperationResult<bool>> CheckDuplicateCategoryInSubjectAsync(string subjectId, AssessmentCategory category, string excludeAssessmentCriteriaId, int checkOnlyActive);
         Task<OperationResult<bool>> UpdateRangeAsync(List<AssessmentCriteria> list);
+        Task<OperationResult<List<AssessmentCriteria>>> GetBySubjectIdAsync(string subjectId);
 
     }
 }
