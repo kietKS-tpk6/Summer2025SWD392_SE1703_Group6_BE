@@ -67,6 +67,9 @@ namespace Infrastructure.Data
             modelBuilder.Entity<Subject>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
+            modelBuilder.Entity<TestSection>()
+               .Property(a => a.TestSectionType)
+               .HasConversion<string>();
         }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<AssessmentCriteria> AssessmentCriteria { get; set; }

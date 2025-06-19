@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -26,6 +27,8 @@ namespace Domain.Entities
 
         [MaxLength(255)]
         public string AudioURL { get; set; }
+
+        public TestSectionType TestSectionType { get; set; }
 
         public virtual Test Test { get; set; }
     }
