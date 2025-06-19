@@ -19,11 +19,16 @@ namespace Infrastructure.Services
         private readonly IClassRepository _classRepository;
         private readonly ISubjectRepository _subjectRepository;
         private readonly IEnrollmentRepository _enrollmentRepository;
-        public ClassService(IClassRepository classRepository, ISubjectRepository subjectRepository, IEnrollmentRepository enrollmentRepository)
+        private readonly ILessonService _lessonService;
+        private readonly ITestEventService _testEventService;
+        public ClassService(IClassRepository classRepository, ISubjectRepository subjectRepository,
+            IEnrollmentRepository enrollmentRepository, ILessonService lessonService, ITestEventService testEventService)
         {
             _classRepository = classRepository;
             _subjectRepository = subjectRepository;
             _enrollmentRepository = enrollmentRepository;
+            _lessonService = lessonService;
+            _testEventService = testEventService;
         }
         public async Task<int> GetEnrollmentCountAsync(string classId)
         {
@@ -81,7 +86,20 @@ namespace Infrastructure.Services
 
         public async Task<OperationResult<bool>> DeleteClassAsync(string classId)
         {
+            var classFound = await GetClassDTOByIDAsync(classId);
+            if(!classFound.Success || classFound.Data == null)
+            {
+                return OperationResult<bool>.Fail(classFound.Message?? OperationMessages.NotFound("lớp học"));
+            }
+            if(classFound.Data.Status != ClassStatus.Pending)
+            {
+                return OperationResult<bool>.Fail(OperationMessages.DeleteFail("lớp học"));
+            }
+            await _lessonService.DeleteLessonByClassIDAsync(classId);
+            await _testEventService.DeleteTestEventsByClassIDAsync(classId);
             return await _classRepository.DeleteAsync(classId);
+            
+
         }
 
         public async Task<OperationResult<PagedResult<ClassDTO>>> GetListAsync(int page, int pageSize)
