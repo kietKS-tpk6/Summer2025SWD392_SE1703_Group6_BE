@@ -43,6 +43,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             SubjectStatus? filterStatus = status;
             var subjects = await _subjectService.GetAllSubjectsAsync();
 
+            // Filter by status if provided
             if (filterStatus.HasValue)
             {
                 subjects = subjects.Where(s => s.Status == filterStatus.Value).ToList();
@@ -128,13 +129,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result.Message);
 
             return Ok(result.Data);
-        }
-
-        [HttpGet("check-status/{id}")]
-        public async Task<IActionResult> CheckSubjectStatus(string id)
-        {
-            var result = await _subjectService.CheckSubjectStatusAsync(id);
-            return Ok(result);
         }
 
         [HttpPost("try-activate/{id}")]
