@@ -60,7 +60,7 @@ namespace Infrastructure.Services
                 }
 
                 subject.CreateAt = GetVietnamTime();
-                subject.Status = SubjectStatus.Pending;
+                subject.Status = SubjectStatus.Pending; 
 
                 await _subjectRepository.CreateSubjectAsync(subject);
                 return OperationResult<string>.Ok(subject.SubjectID, OperationMessages.CreateSuccess("môn học"));
@@ -152,10 +152,13 @@ namespace Infrastructure.Services
 
             if (command.Status == SubjectStatus.Active && existingSubject.Status != SubjectStatus.Active)
             {
-                var statusCheck = await CheckSubjectStatusAsync(command.SubjectID);
-                if (!statusCheck.CanActivate)
+                var hasSchedule = await _subjectRepository.HasCompleteScheduleAsync(command.SubjectID);
+                var hasAssessment = await _subjectRepository.HasCompleteAssessmentCriteriaAsync(command.SubjectID);
+
+                if (!hasSchedule || !hasAssessment)
                 {
-                    return ValidationMessages.SubjectCannotActivate + ": " + string.Join(", ", statusCheck.MissingFields);
+                    var missingFields = await _subjectRepository.GetMissingFieldsAsync(command.SubjectID);
+                    return ValidationMessages.SubjectCannotActivate + ": " + string.Join(", ", missingFields);
                 }
             }
 
@@ -207,10 +210,13 @@ namespace Infrastructure.Services
                 return "Subject is already active";
             }
 
-            var statusCheck = await CheckSubjectStatusAsync(subjectId);
-            if (!statusCheck.CanActivate)
+            var hasSchedule = await _subjectRepository.HasCompleteScheduleAsync(subjectId);
+            var hasAssessment = await _subjectRepository.HasCompleteAssessmentCriteriaAsync(subjectId);
+
+            if (!hasSchedule || !hasAssessment)
             {
-                return ValidationMessages.SubjectCannotActivate + ": " + string.Join(", ", statusCheck.MissingFields);
+                var missingFields = await _subjectRepository.GetMissingFieldsAsync(subjectId);
+                return ValidationMessages.SubjectCannotActivate + ": " + string.Join(", ", missingFields);
             }
 
             subject.Status = SubjectStatus.Active;
