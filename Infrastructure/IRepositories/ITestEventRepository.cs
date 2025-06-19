@@ -12,5 +12,6 @@ namespace Infrastructure.IRepositories
     {
         Task<OperationResult<bool>> CreateTestEventForCreateClassAsync(TestEvent testEvent);
         Task<OperationResult<int>> CountTestEventAsync();
+        Task<OperationResult<bool>> DeleteTestEventsByClassIDAsync(string classId);
     }
 }

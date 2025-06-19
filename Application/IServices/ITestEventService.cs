@@ -11,5 +11,7 @@ namespace Application.IServices
     {
         //Hàm của Kho - làm create class 
         Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID);
+        //Hàm của Kho - Xóa Class
+        Task<OperationResult<bool>> DeleteTestEventsByClassIDAsync(string classID);
     }
 }

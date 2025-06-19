@@ -36,5 +36,33 @@ namespace Infrastructure.Repositories
             var count = await _dbContext.TestEvent.CountAsync();
             return OperationResult<int>.Ok(count);
         }
+        public async Task<OperationResult<bool>> DeleteTestEventsByClassIDAsync(string classId)
+        {
+            var lessonIdsWithTest = await (
+                from lesson in _dbContext.Lesson
+                join schedule in _dbContext.SyllabusSchedule
+                    on lesson.SyllabusScheduleID equals schedule.SyllabusScheduleID
+                where lesson.ClassID == classId && schedule.HasTest
+                select lesson.ClassLessonID
+            ).ToListAsync();
+
+            var testEvents = await _dbContext.TestEvent
+                .Where(te => lessonIdsWithTest.Contains(te.ClassLessonID))
+                .ToListAsync();
+
+            foreach (var testEvent in testEvents)
+            {
+                testEvent.Status = TestEventStatus.Deleted;
+                _dbContext.TestEvent.Update(testEvent);
+            }
+
+            var result = await _dbContext.SaveChangesAsync();
+
+            return result > 0
+                ? OperationResult<bool>.Ok(true, OperationMessages.DeleteSuccess("buổi kiểm tra"))
+                : OperationResult<bool>.Fail(OperationMessages.DeleteFail("buổi kiểm tra"));
+        }
+
+
     }
 }
