@@ -63,7 +63,7 @@ namespace Infrastructure.Services
                 subject.CreateAt = GetVietnamTime();
 
                 await _subjectRepository.CreateSubjectAsync(subject);
-                return OperationResult<string>.Ok($"Đã thêm môn học {subject.SubjectID} thành công.");
+                return OperationResult<string>.Ok(subject.SubjectID,OperationMessages.CreateSuccess("môn học"));
             }
             catch (Exception ex)
             {
