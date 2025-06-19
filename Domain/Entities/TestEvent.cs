@@ -16,7 +16,6 @@ namespace Domain.Entities
             [MaxLength(6)]
             public string TestEventID { get; set; }
 
-            [Required]
             [MaxLength(6)]
             [ForeignKey("Test")]
             public string? TestID { get; set; }
