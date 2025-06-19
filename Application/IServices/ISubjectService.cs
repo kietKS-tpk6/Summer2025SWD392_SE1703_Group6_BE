@@ -25,20 +25,10 @@ namespace Application.IServices
         Task<bool> SubjectNameExistsAsync(string subjectName);
         Task<bool> DescriptionExistsAsync(string description);
 
-        // New status management methods
-        Task<SubjectStatusCheckResult> CheckSubjectStatusAsync(string subjectId);
+        // New status management methods - using existing repository methods
         Task<string> TryActivateSubjectAsync(string subjectId);
 
         //Khoa làm
         Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus);
-    }
-
-    // Result class for status checking
-    public class SubjectStatusCheckResult
-    {
-        public bool CanActivate { get; set; }
-        public bool HasCompleteSchedule { get; set; }
-        public bool HasCompleteAssessmentCriteria { get; set; }
-        public List<string> MissingFields { get; set; } = new List<string>();
     }
 }
