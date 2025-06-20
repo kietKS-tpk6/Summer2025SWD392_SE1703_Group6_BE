@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums
 {
-    public enum QuestionType
+    public enum TestFormatType
     {
         Multiple,
         TrueFalse,
