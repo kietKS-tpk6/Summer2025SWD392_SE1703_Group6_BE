@@ -29,8 +29,8 @@ namespace Infrastructure
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
                 //AssessmentCriteria 
-            //services.AddScoped<AssessmentCriteriaCreateCommandHandler>();
-            //services.AddScoped<AssessmentCriteriaUpdateCommandHandler>();
+            services.AddScoped<AssessmentCriteriaSetupCommandHandler>();
+            services.AddScoped<AssessmentCriteriaUpdateCommandHandler>();
             services.AddScoped<SendOTPViaEmailCommandHandler>();
                 //Class
             services.AddScoped<ClassCreateCommandHandler>();
