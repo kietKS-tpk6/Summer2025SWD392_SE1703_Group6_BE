@@ -17,13 +17,13 @@ namespace Domain.Entities
         [ForeignKey("TestSection")]
         public string TestSectionID { get; set; }
 
-        public float Score { get; set; }
+        public decimal Score { get; set; }
 
-        public string Context { get; set; }
+        public string? Context { get; set; }
 
-        public string ImageURL { get; set; }
+        public string? ImageURL { get; set; }
 
-        public string AudioURL { get; set; }
+        public string? AudioURL { get; set; }
 
         public TestFormatType Type { get; set; }
 

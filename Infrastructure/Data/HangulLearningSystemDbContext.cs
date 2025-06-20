@@ -43,6 +43,9 @@ namespace Infrastructure.Data
             modelBuilder.Entity<Question>()
                 .Property(a => a.Type)
                 .HasConversion<string>();
+            modelBuilder.Entity<Question>()
+                  .Property(a => a.Score)
+                  .HasColumnType("decimal(18,2)");
             modelBuilder.Entity<StudentTest>()
                 .Property(a => a.Status)
                 .HasConversion<string>();

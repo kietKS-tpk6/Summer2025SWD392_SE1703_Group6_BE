@@ -37,15 +37,26 @@ namespace Infrastructure.Services
             int current = active.Count;
             int requested = command.NumberOfQuestions;
 
-            float scorePerQuestion = command.FormatType == TestFormatType.Writing
-                ? 100f
-                : command.Score / requested;
+            if (command.FormatType == TestFormatType.Writing && requested != 1)
+                return OperationResult<List<Question>>.Fail("Dạng Writing chỉ được phép có 1 câu hỏi.");
+
+            decimal scorePerQuestion;
+            if (command.FormatType == TestFormatType.Writing)
+            {
+                scorePerQuestion = 100m;
+            }
+            else
+            {
+                if (requested <= 0)
+                    return OperationResult<List<Question>>.Fail("Số lượng câu hỏi phải lớn hơn 0.");
+                scorePerQuestion = (decimal)command.Score / requested;
+            }
 
             int delta = requested - current;
-            int nextIndex = await _questionRepo.GetTotalQuestionCount();
 
             if (delta > 0)
             {
+                int nextIndex = await _questionRepo.GetTotalQuestionCount();
                 var newQuestions = Enumerable.Range(1, delta).Select(i => new Question
                 {
                     QuestionID = "Q" + (nextIndex + i).ToString("D6"),
@@ -60,30 +71,46 @@ namespace Infrastructure.Services
 
                 await _questionRepo.AddRangeAsync(newQuestions);
                 existing.AddRange(newQuestions);
+
+                var allActiveQuestions = existing.Where(q => q.IsActive).ToList();
+                foreach (var q in allActiveQuestions.Where(q => q.Score != scorePerQuestion))
+                {
+                    q.Score = scorePerQuestion;
+                }
+                await _questionRepo.UpdateRangeAsync(allActiveQuestions.Where(q => !newQuestions.Contains(q)).ToList());
             }
             else if (delta < 0)
             {
+                // Cần disable bớt câu hỏi
                 var toDisable = active.Skip(requested).ToList();
                 foreach (var q in toDisable)
                 {
                     q.IsActive = false;
                     q.Score = 0;
                 }
-
                 await _questionRepo.UpdateRangeAsync(toDisable);
-            }
 
-            var updatedActive = existing.Where(q => q.IsActive).ToList();
-            foreach (var q in updatedActive)
+                // Cập nhật điểm cho các câu hỏi còn active
+                var remainingActive = active.Take(requested).ToList();
+                foreach (var q in remainingActive)
+                {
+                    q.Score = scorePerQuestion;
+                }
+                await _questionRepo.UpdateRangeAsync(remainingActive);
+            }
+            else
             {
-                q.Score = scorePerQuestion;
+                // Số lượng không thay đổi nhưng có thể cần cập nhật điểm
+                foreach (var q in active)
+                {
+                    q.Score = scorePerQuestion;
+                }
+                await _questionRepo.UpdateRangeAsync(active);
             }
 
-            await _questionRepo.UpdateRangeAsync(updatedActive);
-
-            return OperationResult<List<Question>>.Ok(updatedActive, "Tạo câu hỏi thành công.");
+            var finalActiveQuestions = existing.Where(q => q.IsActive).ToList();
+            return OperationResult<List<Question>>.Ok(finalActiveQuestions, "Tạo/cập nhật câu hỏi thành công.");
         }
-
         public async Task<bool> IsTestFormatTypeConsistentAsync(string testSectionId, TestFormatType formatType)
         {
             var questions = await _questionRepo.GetQuestionBySectionId(testSectionId);
