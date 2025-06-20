@@ -19,15 +19,6 @@ namespace Domain.Entities
         [ForeignKey("Subject")]
         [MaxLength(6)]
         public string SubjectID { get; set; }
-
-        [ForeignKey("Assessment")]
-        [MaxLength(6)]
-        public string AssessmentID { get; set; }
-
-        [ForeignKey("SyllabusSchedule")]
-        [MaxLength(7)]
-        public string? SyllabusID { get; set; }
-
         public double? WeightPercent { get; set; }
 
         public AssessmentCategory? Category { get; set; }
