@@ -44,7 +44,13 @@ namespace Infrastructure.Repositories
             return null; 
         }
 
-
+        public async Task<decimal?> GetScoreByTestSectionIdAsync(string testSectionId)
+        {
+            return await _dbContext.TestSection
+                .Where(s => s.TestSectionID == testSectionId)
+                .Select(s => (decimal?)s.Score)
+                .FirstOrDefaultAsync();
+        }
     }
 
 }

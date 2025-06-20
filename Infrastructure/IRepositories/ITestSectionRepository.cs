@@ -11,5 +11,7 @@ namespace Infrastructure.IRepositories
     {
         Task<bool> ExistsAsync(string testSectionId);
         Task<TestFormatType?> GetTestSectionTypeAsync(string testSectionId);
+        Task<decimal?> GetScoreByTestSectionIdAsync(string testSectionId);
+
     }
 }

@@ -16,9 +16,7 @@ namespace Application.Validators
                 .GreaterThan(0)
                 .WithMessage("Số lượng câu hỏi phải lớn hơn 0.");
 
-            RuleFor(x => x.Score)
-                .GreaterThan(0)
-                .WithMessage("Điểm phải lớn hơn 0.");
+  
         }
     }
 }
