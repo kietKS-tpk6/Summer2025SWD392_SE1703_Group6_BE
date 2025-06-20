@@ -20,6 +20,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             _mediator = mediator;
         }
-       
+        [HttpPost("generate-empty")]
+        public async Task<IActionResult> CreateEmptyQuestions([FromBody] CreateQuestionsCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
     }
 }
