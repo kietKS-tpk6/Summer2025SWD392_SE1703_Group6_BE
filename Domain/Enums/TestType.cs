@@ -23,6 +23,8 @@ namespace Domain.Enums
         Writing,
         // Tổng hợp (ví dụ: đọc + viết)
         Mix,
+        //Trắc nghiệm 
+        MCQ,
         // Hình thức khác (ghi chú chi tiết nếu cần)
         Other
     }
