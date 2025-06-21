@@ -31,15 +31,25 @@ namespace Infrastructure.Services
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly IOTPRepository _OTPRepository;
+        private readonly ISystemConfigService _configService;
 
-        public AccountService(IAccountRepository accountRepository, ITokenService tokenService, IEmailService emailService, IOTPRepository oTPRepository)
+        public AccountService(IAccountRepository accountRepository, ITokenService tokenService, IEmailService emailService, IOTPRepository oTPRepository, ISystemConfigService configService)
         {
             _accountRepository = accountRepository;
             _tokenService = tokenService;
             _emailService = emailService;
             _OTPRepository = oTPRepository;
+            _configService = configService;
         }
 
+        private async Task<string> GetDefaultPasswordAsync()
+        {
+            var config = await _configService.GetConfig("default_password_for_account");
+            if (config.Success && !string.IsNullOrWhiteSpace(config.Data?.Value))
+                return config.Data.Value;
+
+            return "Hello123"; // fallback nếu không có config
+        }
         public async Task<LoginDTO> Login(LoginCommand loginCommand)
         {
             var accByEmail = await _accountRepository.GetAccountsByEmailAsync(loginCommand.Email);
@@ -77,7 +87,7 @@ namespace Infrastructure.Services
 
             var newAcc = new Account();
             var numberOfAcc = (await _accountRepository.GetNumbeOfAccountsAsync());
-            string newAccountId = "A" + numberOfAcc.ToString("D5"); // D5 = 5 chữ số, vd: 00001
+            string newAccountId = "A" + numberOfAcc.ToString("D5"); 
 
             newAcc.AccountID = newAccountId;
             newAcc.BirthDate = registerCommand.BirthDate;
@@ -156,7 +166,8 @@ namespace Infrastructure.Services
             // Sử dụng NormalizeRole với isRequired = true (mặc định)
             newAcc.Role = NormalizeRole(createAccountCommand.Role).Value; // .Value vì chắc chắn không null
 
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(DEFAULT_PASS);
+            string defaultPass = await GetDefaultPasswordAsync();
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(defaultPass);
             newAcc.HashPass = hashedPassword;
 
             var res = await _accountRepository.CreateAccountAsync(newAcc);
