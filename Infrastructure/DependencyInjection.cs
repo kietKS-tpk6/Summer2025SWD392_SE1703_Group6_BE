@@ -57,8 +57,8 @@ namespace Infrastructure
             services.AddScoped<ISyllabusScheduleTestService, SyllabusScheduleTestService>();
             services.AddScoped<ISystemConfigService, SystemConfigService>();
             services.AddScoped<ITestEventService, TestEventService>();
-            services.AddScoped<IQuestionsService, QuestionsService>();
-
+            services.AddScoped<IQuestionService, QuestionService>();
+            services.AddScoped<ITestSectionService, TestSectionService>();
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -71,11 +71,13 @@ namespace Infrastructure
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<ISystemConfigRepository, SystemConfigRepository>();
             services.AddScoped<ITestEventRepository, TestEventRepository>();
-            services.AddScoped<IQuestionsRepository, QuestionsRepository>();
+            services.AddScoped<IQuestionRepository, QuestionRepository>();
+            services.AddScoped<ITestSectionRepository, TestSectionRepository>();
 
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
+            services.AddScoped<CreateQuestionsCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
             services.AddScoped<SyllabusScheduleCreateCommand>();

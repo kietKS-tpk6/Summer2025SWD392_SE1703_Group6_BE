@@ -30,6 +30,10 @@ namespace Domain.Entities
 
         public TestFormatType TestSectionType { get; set; }
 
+        public decimal Score { get; set; }
+
+        public Boolean IsActive { get; set; } = false;
+
         public virtual Test Test { get; set; }
     }
 }
