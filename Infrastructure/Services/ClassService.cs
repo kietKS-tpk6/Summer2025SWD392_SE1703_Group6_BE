@@ -94,7 +94,7 @@ namespace Infrastructure.Services
             {
                 return OperationResult<bool>.Fail(classFound.Message?? OperationMessages.NotFound("lớp học"));
             }
-            if(classFound.Data.Status != ClassStatus.Pending)
+            if(classFound.Data.Status != ClassStatus.Pending && classFound.Data.Status != ClassStatus.Open)
             {
                 return OperationResult<bool>.Fail(OperationMessages.DeleteFail("lớp học"));
             }
