@@ -22,14 +22,15 @@ namespace Infrastructure.Services
         private readonly ITestSectionRepository _testSectionRepository;
         private readonly IMCQOptionRepository _mCQOptionRepository;
         private readonly HangulLearningSystemDbContext _dbContext;
+        private readonly ISystemConfigService _systemConfigService;
 
-
-        public QuestionService(IQuestionRepository questionRepo, ITestSectionRepository testSectionRepository, IMCQOptionRepository mCQOptionRepository, HangulLearningSystemDbContext dbContext)
+        public QuestionService(IQuestionRepository questionRepo, ITestSectionRepository testSectionRepository, IMCQOptionRepository mCQOptionRepository, HangulLearningSystemDbContext dbContext, ISystemConfigService systemConfigService)
         {
             _questionRepo = questionRepo;
             _testSectionRepository = testSectionRepository;
             _mCQOptionRepository = mCQOptionRepository;
             _dbContext = dbContext;
+            _systemConfigService = systemConfigService;
         }
 
 
@@ -374,6 +375,48 @@ namespace Infrastructure.Services
 
             return OperationResult<List<TestSectionWithQuestionsDto>>.Ok(result);
         }
+
+        public async Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionDto> options)
+        {
+            var configResult = await _systemConfigService.GetConfig("max_mcq_option_per_question");
+
+            if (!configResult.Success || configResult.Data == null)
+            {
+                return OperationResult<bool>.Fail("Không thể lấy cấu hình số lượng đáp án.");
+            }
+
+            if (!int.TryParse(configResult.Data.Value, out int maxCount))
+            {
+                return OperationResult<bool>.Fail("Giá trị cấu hình không hợp lệ.");
+            }
+
+            if (options.Count > maxCount)
+            {
+                return OperationResult<bool>.Fail($"Số lượng đáp án vượt quá giới hạn ({maxCount}).");
+            }
+
+            return OperationResult<bool>.Ok(true);
+        }
+
+        public OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionDto>? options)
+        {
+            if (options == null || !options.Any())
+                return OperationResult<bool>.Fail("Danh sách đáp án không được rỗng.");
+
+            var uniqueSet = new HashSet<string>();
+
+            foreach (var option in options)
+            {
+                string key = $"{option.Context?.Trim()}|{option.ImageURL?.Trim()}|{option.AudioURL?.Trim()}".ToLower();
+                if (!uniqueSet.Add(key))
+                {
+                    return OperationResult<bool>.Fail("Các đáp án không được trùng nhau.");
+                }
+            }
+
+            return OperationResult<bool>.Ok(true, "Không có đáp án trùng nhau.");
+        }
+
 
     }
 

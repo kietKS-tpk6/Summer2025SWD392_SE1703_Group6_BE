@@ -28,14 +28,18 @@ namespace Application.Usecases.CommandHandler
             var contentCheck = _questionService.ValidateExactlyOneContent(request.Context, request.ImageURL, request.AudioURL);
             if (!contentCheck.Success) return contentCheck;
 
-            // Check đáp án nếu là MCQ hoặc TrueFalse
             var question = await _questionService.GetQuestionByIdAsync(request.QuestionID);
             if (question.Type == TestFormatType.Multiple || question.Type == TestFormatType.TrueFalse)
             {
                 var optionsCheck = _questionService.ValidateMCQOptions(request.Options);
                 if (!optionsCheck.Success) return optionsCheck;
-            }
 
+                var duplicateCheck = _questionService.ValidateMCQOptionsNoDuplicate(request.Options);
+                if (!duplicateCheck.Success) return duplicateCheck;
+
+                var limitCheck = await _questionService.ValidateOptionCountLimitAsync(request.Options);
+                if (!limitCheck.Success) return limitCheck;
+            }
             return await _questionService.UpdateQuestionAsync(request);
         }
     }

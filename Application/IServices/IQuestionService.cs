@@ -23,6 +23,8 @@ namespace Application.IServices
         Task<Question?> GetByIdAsync(string questionId);
         Task<Question?> GetQuestionByIdAsync(string questionId);
         Task<OperationResult<List<TestSectionWithQuestionsDto>>> GetQuestionsByTestIdAsync(string testId);
+        Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionDto> options);
+        OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionDto>? options);
 
     }
 }
