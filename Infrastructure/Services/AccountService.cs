@@ -363,7 +363,25 @@ namespace Infrastructure.Services
 
             return OperationResult<AccountDTO>.Ok(dto);
         }
+        public async Task<OperationResult<List<AccountDTO>>> SearchAccountsAsync(SearchAccountsQueryCommand cmd)
+        {
+            var accounts = await _accountRepository.SearchAccountsAsync(cmd);
 
+            var dtos = accounts.Select(a => new AccountDTO
+            {
+                AccountID = a.AccountID,
+                FirstName = a.FirstName,
+                LastName = a.LastName,
+                Email = a.Email,
+                PhoneNumber = a.PhoneNumber,
+                Gender = a.Gender,
+                Role = a.Role,
+                Status = a.Status,
+                BirthDate = a.BirthDate
+            }).ToList();
+
+            return OperationResult<List<AccountDTO>>.Ok(dtos, OperationMessages.RetrieveSuccess("tài khoản"));
+        }
 
 
     }

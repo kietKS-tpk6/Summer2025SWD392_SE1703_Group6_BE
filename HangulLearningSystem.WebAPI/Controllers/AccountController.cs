@@ -115,7 +115,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return BadRequest(result);
         }
-
+        [HttpPost("search")]
+        public async Task<IActionResult> SearchAccounts([FromBody] SearchAccountsQueryCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
         [HttpGet("{accountId}")]
         public async Task<IActionResult> GetById(string accountId)
         {

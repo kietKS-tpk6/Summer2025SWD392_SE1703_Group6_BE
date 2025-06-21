@@ -34,6 +34,7 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole);
         Task<Account?> GetAccountsByIdAsync(string accountId);
         Task<bool> UpdateAccountAsync(Account account);
+        Task<List<Account>> SearchAccountsAsync(SearchAccountsQueryCommand command);
 
     }
 }
