@@ -304,5 +304,56 @@ namespace Infrastructure.Services
         }
 
         #endregion
+        public async Task<OperationResult<bool>> UpdateAccountAsync(UpdateAccountCommand command)
+        {
+            var existingAccount = await _accountRepository.GetAccountsByIdAsync(command.AccountID);
+            if (existingAccount == null)
+                return OperationResult<bool>.Fail("Tài khoản không tồn tại.");
+
+            // Không cập nhật Email và Mật khẩu
+            existingAccount.FirstName = command.FirstName;
+            existingAccount.LastName = command.LastName;
+            existingAccount.PhoneNumber = command.PhoneNumber;
+            existingAccount.BirthDate = command.BirthDate;
+            existingAccount.Image = command.Image;
+            var normalizedRole = NormalizeRole(command.Role);
+            existingAccount.Role = normalizedRole != null ? normalizedRole.Value : existingAccount.Role;
+
+            var normalizedGender = NormalizeGender(command.Gender);
+            existingAccount.Gender = normalizedGender != null ? normalizedGender.Value : existingAccount.Gender;
+
+            var normalizedStatus = NormalizeStatus(command.Status);
+            existingAccount.Status = normalizedStatus != null ? normalizedStatus.Value : existingAccount.Status;
+
+            var updated = await _accountRepository.UpdateAccountAsync(existingAccount);
+            return updated
+                ? OperationResult<bool>.Ok(true, "Cập nhật tài khoản thành công.")
+                : OperationResult<bool>.Fail("Cập nhật tài khoản thất bại.");
+        }
+
+        public async Task<OperationResult<AccountDTO>> GetAccountByIdAsync(string accountId)
+        {
+            var account = await _accountRepository.GetAccountsByIdAsync(accountId);
+            if (account == null)
+                return OperationResult<AccountDTO>.Fail("Không tìm thấy tài khoản.");
+
+            var dto = new AccountDTO
+            {
+                AccountID = account.AccountID,
+                FirstName = account.FirstName,
+                LastName = account.LastName,
+                Gender = account.Gender,
+                PhoneNumber = account.PhoneNumber,
+                Email = account.Email,
+                BirthDate = account.BirthDate,
+                Role = account.Role,
+                Status = account.Status
+            };
+
+            return OperationResult<AccountDTO>.Ok(dto);
+        }
+
+
+
     }
 }

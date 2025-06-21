@@ -14,6 +14,7 @@ namespace Application.IServices
     public interface IAccountService
     {
         public Task<LoginDTO> Login(LoginCommand loginCommand);
+        Task<OperationResult<AccountDTO>> GetAccountByIdAsync(string accountId);
 
         public Task<bool> Register(RegisterCommand registerCommand);
 
@@ -34,5 +35,7 @@ namespace Application.IServices
         //Hàm của Kho
         Task<OperationResult<List<TeachingScheduleDetailDTO>>> GetTeachingScheduleDetailByID(string accountID);
         Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole);
+        Task<OperationResult<bool>> UpdateAccountAsync(UpdateAccountCommand command);
+
     }
 }

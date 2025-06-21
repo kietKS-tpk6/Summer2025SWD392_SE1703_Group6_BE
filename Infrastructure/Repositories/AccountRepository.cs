@@ -319,9 +319,18 @@ namespace Infrastructure.Repositories
         }
 
 
+        public async Task<Account?> GetAccountsByIdAsync(string accountId)
+        {
+            return await _dbContext.Accounts
+                .FirstOrDefaultAsync(a => a.AccountID == accountId);
+        }
 
-
-
+        public async Task<bool> UpdateAccountAsync(Account account)
+        {
+            _dbContext.Accounts.Update(account);
+            var changes = await _dbContext.SaveChangesAsync();
+            return changes > 0;
+        }
 
 
 
