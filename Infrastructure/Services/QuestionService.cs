@@ -10,17 +10,26 @@ using Application.Common.Constants;
 using Application.Usecases.Command;
 using Domain.Enums;
 using Infrastructure.Repositories;
+using Application.DTOs;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
+using Infrastructure.Data;
 namespace Infrastructure.Services
 {
     public class QuestionService : IQuestionService
     {
         private readonly IQuestionRepository _questionRepo;
         private readonly ITestSectionRepository _testSectionRepository;
+        private readonly IMCQOptionRepository _mCQOptionRepository;
+        private readonly HangulLearningSystemDbContext _dbContext;
 
-        public QuestionService(IQuestionRepository questionRepo, ITestSectionRepository testSectionRepository)
+
+        public QuestionService(IQuestionRepository questionRepo, ITestSectionRepository testSectionRepository, IMCQOptionRepository mCQOptionRepository, HangulLearningSystemDbContext dbContext)
         {
             _questionRepo = questionRepo;
             _testSectionRepository = testSectionRepository;
+            _mCQOptionRepository = mCQOptionRepository;
+            _dbContext = dbContext;
         }
 
 
@@ -151,6 +160,163 @@ namespace Infrastructure.Services
                 return true;
 
             return activeQuestions.All(q => q.Type == formatType);
+        }
+
+        public async Task<OperationResult<bool>> UpdateQuestionAsync(UpdateQuestionCommand command)
+        {
+            var question = await _questionRepo.GetByIdAsync(command.QuestionID);
+            if (question == null)
+                return OperationResult<bool>.Fail("Không tìm thấy câu hỏi.");
+
+            var validateContent = ValidateExactlyOneContent(command.Context, command.ImageURL, command.AudioURL);
+            if (!validateContent.Success)
+                return validateContent;
+
+            question.Context = command.Context;
+            question.ImageURL = command.ImageURL;
+            question.AudioURL = command.AudioURL;
+
+            // Nếu là dạng Writing, chỉ cập nhật Questions
+            if (question.Type == TestFormatType.Writing)
+            {
+                await _questionRepo.UpdateAsync(question);
+                return OperationResult<bool>.Ok(true, "Cập nhật câu hỏi dạng Writing thành công.");
+            }
+
+            // Với Multiple/TrueFalse phải có options
+            if (command.Options == null || !command.Options.Any())
+                return OperationResult<bool>.Fail("Câu hỏi dạng trắc nghiệm phải có ít nhất một đáp án.");
+
+            var optionValidation = ValidateMCQOptions(command.Options);
+            if (!optionValidation.Success)
+                return optionValidation;
+
+            // Mở transaction
+            using var transaction = await _dbContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
+
+            try
+            {
+                // Cập nhật câu hỏi chính
+                await _questionRepo.UpdateAsync(question);
+
+                // Xóa đáp án cũ
+                await _mCQOptionRepository.DeleteByQuestionIdAsync(question.QuestionID);
+
+                // Thêm đáp án mới
+                var newOptions = command.Options.Select(opt => new MCQOption
+                {
+                    MCQOptionID = "MO" + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper(),
+                    QuestionID = question.QuestionID,
+                    Context = opt.Context,
+                    ImageURL = opt.ImageURL,
+                    AudioURL = opt.AudioURL,
+                    IsCorrect = opt.IsCorrect
+                }).ToList();
+
+                await _mCQOptionRepository.AddRangeAsync(newOptions);
+
+                // Commit transaction
+                await transaction.CommitAsync();
+                return OperationResult<bool>.Ok(true, "Cập nhật câu hỏi trắc nghiệm thành công.");
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    if (_dbContext.Database.CurrentTransaction != null)
+                        await transaction.RollbackAsync();
+                }
+                catch { }
+
+                return OperationResult<bool>.Fail("Đã xảy ra lỗi khi cập nhật câu hỏi.");
+            }
+        }
+
+
+        public async Task<OperationResult<bool>> ValidateQuestionExistsAsync(string questionId)
+        {
+            var question = await _questionRepo.GetByIdAsync(questionId);
+            if (question == null)
+                return OperationResult<bool>.Fail("Không tìm thấy câu hỏi.");
+
+            return OperationResult<bool>.Ok(true);
+        }
+
+        public OperationResult<bool> ValidateExactlyOneContent(string? context, string? imageUrl, string? audioUrl)
+        {
+            int count = 0;
+            if (!string.IsNullOrEmpty(context)) count++;
+            if (!string.IsNullOrEmpty(imageUrl)) count++;
+            if (!string.IsNullOrEmpty(audioUrl)) count++;
+
+            if (count != 1)
+                return OperationResult<bool>.Fail("Phải có đúng một trong Context, ImageURL hoặc AudioURL.");
+
+            return OperationResult<bool>.Ok(true);
+        }
+
+
+
+        public OperationResult<bool> ValidateMCQOptions(List<MCQOptionDto>? options)
+        {
+            if (options == null || !options.Any())
+                return OperationResult<bool>.Fail("Danh sách đáp án không được rỗng.");
+
+            // Kiểm tra loại nội dung của đáp án đầu tiên
+            string contentType = null;
+
+            foreach (var option in options)
+            {
+                int nonNullCount = 0;
+                string currentType = null;
+
+                if (!string.IsNullOrWhiteSpace(option.Context))
+                {
+                    nonNullCount++;
+                    currentType = "Context";
+                }
+
+                if (!string.IsNullOrWhiteSpace(option.ImageURL))
+                {
+                    nonNullCount++;
+                    currentType = "ImageURL";
+                }
+
+                if (!string.IsNullOrWhiteSpace(option.AudioURL))
+                {
+                    nonNullCount++;
+                    currentType = "AudioURL";
+                }
+
+                if (nonNullCount != 1)
+                {
+                    return OperationResult<bool>.Fail("Mỗi đáp án chỉ được phép có duy nhất một trong Context, ImageURL hoặc AudioURL.");
+                }
+
+                if (contentType == null)
+                {
+                    contentType = currentType;
+                }
+                else if (contentType != currentType)
+                {
+                    return OperationResult<bool>.Fail("Tất cả đáp án phải có cùng một loại nội dung (Context, ImageURL hoặc AudioURL).");
+                }
+            }
+
+            if (!options.Any(o => o.IsCorrect))
+                return OperationResult<bool>.Fail("Phải có ít nhất một đáp án đúng.");
+
+            return OperationResult<bool>.Ok(true, "Danh sách đáp án hợp lệ.");
+        }
+
+        public async Task<Question?> GetByIdAsync(string questionId)
+        {
+            return await _questionRepo.GetByIdAsync(questionId);
+        }
+
+        public async Task<Question?> GetQuestionByIdAsync(string questionId)
+        {
+            return await _questionRepo.GetByIdAsync(questionId);
         }
     }
 

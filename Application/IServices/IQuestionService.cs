@@ -7,6 +7,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Application.Common.Constants;
 using Application.Usecases.Command;
+using Application.DTOs;
 
 namespace Application.IServices
 {
@@ -15,6 +16,12 @@ namespace Application.IServices
         Task<OperationResult<List<Question>>> CreateEmptyQuestionsAsync(CreateQuestionsCommand command);
         Task<bool> IsTestFormatTypeConsistentAsync(string testSectionId, TestFormatType formatType);
         OperationResult<string> ValidateWritingQuestionRule(TestFormatType type, int numberOfQuestions);
+        Task<OperationResult<bool>> UpdateQuestionAsync(UpdateQuestionCommand command);
+        Task<OperationResult<bool>> ValidateQuestionExistsAsync(string questionId);
+        OperationResult<bool> ValidateExactlyOneContent(string? context, string? imageUrl, string? audioUrl);
+        OperationResult<bool> ValidateMCQOptions(List<MCQOptionDto>? options);
+        Task<Question?> GetByIdAsync(string questionId);
+        Task<Question?> GetQuestionByIdAsync(string questionId);
 
     }
 }

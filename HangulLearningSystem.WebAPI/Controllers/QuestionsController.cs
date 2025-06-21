@@ -27,5 +27,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
+
+        [HttpPut("questions/update")]
+        public async Task<IActionResult> UpdateQuestion([FromBody] UpdateQuestionCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

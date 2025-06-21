@@ -34,11 +34,20 @@ namespace Infrastructure.Repositories
             await _dbContext.Question.AddRangeAsync(questions);
             await _dbContext.SaveChangesAsync();
         }
-
+        public async Task UpdateAsync(Question question)
+        {
+            _dbContext.Question.Update(question);
+            await _dbContext.SaveChangesAsync();
+        }
         public async Task UpdateRangeAsync(IEnumerable<Question> questions)
         {
             _dbContext.Question.UpdateRange(questions);
             await _dbContext.SaveChangesAsync();
+        }
+        public async Task<Question?> GetByIdAsync(string questionId)
+        {
+            return await _dbContext.Question
+                .FirstOrDefaultAsync(q => q.QuestionID == questionId);
         }
     }
 }

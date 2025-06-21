@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.Design;
+using System.Reflection;
 using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
@@ -59,6 +60,8 @@ namespace Infrastructure
             services.AddScoped<ITestEventService, TestEventService>();
             services.AddScoped<IQuestionService, QuestionService>();
             services.AddScoped<ITestSectionService, TestSectionService>();
+            services.AddScoped<IMCQOptionRepository, MCQOptionRepository>();
+
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();

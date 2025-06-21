@@ -20,11 +20,11 @@ namespace Domain.Entities
         public string QuestionID { get; set; }
 
         [MaxLength(255)]
-        public string Context { get; set; }
+        public string? Context { get; set; }
 
-        public string ImageURL { get; set; }
+        public string? ImageURL { get; set; }
 
-        public string AudioURL { get; set; }
+        public string? AudioURL { get; set; }
 
         public bool IsCorrect { get; set; }
 
