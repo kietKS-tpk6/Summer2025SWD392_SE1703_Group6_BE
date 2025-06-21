@@ -351,7 +351,6 @@ namespace Infrastructure.Services
             }
         }
 
-        // TẠO MỚI HOÀN TOÀN
         private async Task<OperationResult<List<SyllabusScheduleWithSlotDto>>> CreateNewSchedulesAsync(SyllabusScheduleCreateCommand command)
         {
             int total = command.slotInWeek * command.week;
