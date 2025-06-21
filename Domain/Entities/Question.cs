@@ -25,7 +25,7 @@ namespace Domain.Entities
 
         public string? AudioURL { get; set; }
 
-        public TestFormatType Type { get; set; }
+        public TestFormatType? Type { get; set; }
 
         public bool IsActive { get; set; } = true;
 
