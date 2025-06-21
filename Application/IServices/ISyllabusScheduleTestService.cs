@@ -31,6 +31,7 @@ namespace Application.IServices
         //Task<List<SyllabusScheduleTestDTO>> GetExamAddedAsync(string subject);
         Task<string> GenerateNewScheduleTestIdAsync();
         Task<bool> IsDuplicateTestTypeAsync(string assessmentCriteriaId, TestType testType);
+        Task<TestDataDTO> GetTestDataByScheduleIdAsync(string scheduleId);
 
     }
 }

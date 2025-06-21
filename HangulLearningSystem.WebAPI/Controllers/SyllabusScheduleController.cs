@@ -63,7 +63,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             try
             {
-                // Lấy danh sách schedule theo subject và week (hoặc tất cả nếu week = null)
                 var schedules = await _syllabusScheduleService.GetScheduleBySubjectAndWeekAsync(subject, week);
 
                 if (schedules == null || schedules.Count == 0)

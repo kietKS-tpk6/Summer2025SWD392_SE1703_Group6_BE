@@ -189,6 +189,33 @@ namespace Infrastructure.Services
             throw new ArgumentException($"Loại bài kiểm tra '{type}' không hợp lệ. Chỉ chấp nhận: MCQ, Writing, Speaking, Listening, Reading, Mix, Other.");
         }
 
+        public async Task<TestDataDTO> GetTestDataByScheduleIdAsync(string scheduleId)
+        {
+            try
+            {
+                var test = await _syllabusScheduleTestRepository.GetTestByScheduleIdAsync(scheduleId);
+                if (test == null) return null;
+
+                var assessmentResult = await _assessmentCriteriaService.GetByIdAsync(test.AssessmentCriteriaID);
+                if (!assessmentResult.Success) return null;
+
+                var assessmentCriteria = assessmentResult.Data;
+
+                return new TestDataDTO
+                {
+                    TestType = test.TestType.ToString(),
+                    TestDurationMinutes = test.DurationMinutes ?? 0,
+                    AllowMultipleAttempts = test.AllowMultipleAttempts,
+                    Category = assessmentCriteria?.Category?.ToString(),
+                    MinPassingScore = assessmentCriteria?.MinPassingScore ?? 0
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         //public async Task<bool> AddTestToSyllabusAsync(AddTestSchedulesToSlotsCommand addTestSchedulesToSlotsCommand)
         //{
         //    var bien = new SyllabusScheduleTest();

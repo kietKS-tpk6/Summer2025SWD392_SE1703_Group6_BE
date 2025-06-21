@@ -29,7 +29,7 @@ namespace Domain.Entities
         public int? DurationMinutes { get; set; } 
 
         [Required]
-        [MaxLength(6)] // ✅ Đã thêm trường mới
+        [MaxLength(6)] 
         public string AssessmentCriteriaID { get; set; } 
 
         [Required]

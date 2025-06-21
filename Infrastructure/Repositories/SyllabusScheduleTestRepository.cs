@@ -11,6 +11,7 @@ using Domain.Enums;
 using Application.DTOs;
 using Application.Common.Constants;
 using Application.IServices;
+using Infrastructure.Services;
 namespace Infrastructure.Repositories
 {
     public class SyllabusScheduleTestRepository : ISyllabusScheduleTestRepository
@@ -149,5 +150,12 @@ namespace Infrastructure.Repositories
                     t.IsActive);
         }
 
+
+        public async Task<SyllabusScheduleTest> GetTestByScheduleIdAsync(string scheduleId)
+        {
+            return await _dbContext.SyllabusScheduleTests
+                .Where(t => t.SyllabusScheduleID == scheduleId && t.IsActive)
+                .FirstOrDefaultAsync();
+        }
     }
 }

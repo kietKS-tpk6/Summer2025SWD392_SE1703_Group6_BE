@@ -143,25 +143,38 @@ namespace Infrastructure.Services
             try
             {
                 var schedules = await _syllabusScheduleRepository.GetSchedulesBySubjectAndWeekAsync(subjectId, week);
+                var result = new List<SyllabusScheduleDTO>();
 
-                return schedules.Select(s => new SyllabusScheduleDTO
+                foreach (var schedule in schedules)
                 {
-                    SyllabusScheduleID = s.SyllabusScheduleID,
-                    Content = s.Content,
-                    SubjectID = s.SubjectID,
-                    Resources = s.Resources,
-                    LessonTitle = s.LessonTitle,
-                    DurationMinutes = s.DurationMinutes.GetValueOrDefault(),
-                    HasTest = s.HasTest,
-                    Week = s.Week.GetValueOrDefault(),
-                }).ToList();
+                    var dto = new SyllabusScheduleDTO
+                    {
+                        SyllabusScheduleID = schedule.SyllabusScheduleID,
+                        Content = schedule.Content,
+                        SubjectID = schedule.SubjectID,
+                        Resources = schedule.Resources,
+                        LessonTitle = schedule.LessonTitle,
+                        DurationMinutes = schedule.DurationMinutes.GetValueOrDefault(),
+                        HasTest = schedule.HasTest,
+                        Week = schedule.Week.GetValueOrDefault(),
+                    };
+
+                    // Nếu có test thì lấy thêm test data
+                    if (schedule.HasTest)
+                    {
+                        dto.TestData = await _syllabusScheduleTestService.GetTestDataByScheduleIdAsync(schedule.SyllabusScheduleID);
+                    }
+
+                    result.Add(dto);
+                }
+
+                return result;
             }
             catch (Exception)
             {
                 return new List<SyllabusScheduleDTO>();
             }
         }
-
         // ========== REFACTORED METHOD - TWO STEP PROCESSING ==========
         public async Task<OperationResult<List<SyllabusScheduleWithSlotDto>>> CreateEmptySyllabusScheduleAyncs(SyllabusScheduleCreateCommand command)
         {
