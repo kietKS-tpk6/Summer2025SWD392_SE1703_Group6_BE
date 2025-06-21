@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.IServices;
+using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
@@ -35,6 +37,9 @@ namespace Infrastructure.Services
 
             return OperationResult<string>.Ok("Hợp lệ.");
         }
-
+        public async Task<List<TestSection>> GetByTestIdAsync(string testId)
+        {
+            return await _repo.GetByTestIdAsync(testId);
+        }
     }
 }

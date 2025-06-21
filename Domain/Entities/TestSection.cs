@@ -21,12 +21,12 @@ namespace Domain.Entities
         public string TestID { get; set; }
 
         [MaxLength(255)]
-        public string Context { get; set; }
+        public string? Context { get; set; }
 
-        public string ImageURL { get; set; }
+        public string? ImageURL { get; set; }
 
         [MaxLength(255)]
-        public string AudioURL { get; set; }
+        public string? AudioURL { get; set; }
 
         public TestFormatType TestSectionType { get; set; }
 

@@ -22,6 +22,7 @@ namespace Application.IServices
         OperationResult<bool> ValidateMCQOptions(List<MCQOptionDto>? options);
         Task<Question?> GetByIdAsync(string questionId);
         Task<Question?> GetQuestionByIdAsync(string questionId);
+        Task<OperationResult<List<TestSectionWithQuestionsDto>>> GetQuestionsByTestIdAsync(string testId);
 
     }
 }

@@ -51,6 +51,12 @@ namespace Infrastructure.Repositories
                 .Select(s => (decimal?)s.Score)
                 .FirstOrDefaultAsync();
         }
+        public async Task<List<TestSection>> GetByTestIdAsync(string testId)
+        {
+            return await _dbContext.TestSection
+                .Where(ts => ts.TestID == testId && ts.IsActive)
+                .ToListAsync();
+        }
     }
 
 }

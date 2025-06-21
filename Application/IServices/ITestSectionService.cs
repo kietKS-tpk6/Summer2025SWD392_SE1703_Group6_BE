@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
+using Domain.Entities;
 using Domain.Enums;
 
 namespace Application.IServices
@@ -12,6 +13,7 @@ namespace Application.IServices
     {
         Task<bool> IsTestSectionExistAsync(string testSectionId);
         Task<OperationResult<string>> ValidateSectionTypeMatchFormatAsync(string testSectionId, TestFormatType formatType);
+        Task<List<TestSection>> GetByTestIdAsync(string testId);
 
     }
 }

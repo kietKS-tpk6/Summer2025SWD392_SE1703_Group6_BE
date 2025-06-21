@@ -25,13 +25,14 @@ namespace Domain.Entities
 
         public DateTime CreateAt { get; set; }
 
-        public DateTime UpdateAt { get; set; }
+        public DateTime? UpdateAt { get; set; }
 
         public TestStatus Status { get; set; }
         public TestCategory Category { get; set; }
         public TestType TestType { get; set; }  
-
+        public string TestName { get; set; }
         public virtual Account Account { get; set; }
+
 
         public virtual Subject Subject { get; set; }
     }

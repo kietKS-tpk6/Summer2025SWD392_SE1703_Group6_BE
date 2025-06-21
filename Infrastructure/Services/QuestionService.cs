@@ -318,6 +318,63 @@ namespace Infrastructure.Services
         {
             return await _questionRepo.GetByIdAsync(questionId);
         }
+        public async Task<OperationResult<List<TestSectionWithQuestionsDto>>> GetQuestionsByTestIdAsync(string testId)
+        {
+            var sections = await _testSectionRepository.GetByTestIdAsync(testId);
+            if (sections == null || !sections.Any())
+                return OperationResult<List<TestSectionWithQuestionsDto>>.Fail("Không tìm thấy phần thi nào.");
+
+            var result = new List<TestSectionWithQuestionsDto>();
+
+            foreach (var section in sections)
+            {
+                var questions = (await _questionRepo.GetQuestionBySectionId(section.TestSectionID))
+                                .Where(q => q.IsActive).ToList();
+
+                var questionDtos = new List<QuestionDetailDto>();
+
+                foreach (var question in questions)
+                {
+                    var dto = new QuestionDetailDto
+                    {
+                        QuestionID = question.QuestionID,
+                        Context = question.Context,
+                        ImageURL = question.ImageURL,
+                        AudioURL = question.AudioURL,
+                        Type = question.Type ?? TestFormatType.Writing,
+                        Score = question.Score,
+                        IsActive = question.IsActive,
+                        Options = null
+                    };
+
+                    if (question.Type == TestFormatType.Multiple || question.Type == TestFormatType.TrueFalse)
+                    {
+                        var options = await _mCQOptionRepository.GetByQuestionIdAsync(question.QuestionID);
+                        dto.Options = options.Select(o => new MCQOptionDto
+                        {
+                            Context = o.Context,
+                            ImageURL = o.ImageURL,
+                            AudioURL = o.AudioURL,
+                            IsCorrect = o.IsCorrect
+                        }).ToList();
+                    }
+
+                    questionDtos.Add(dto);
+                }
+
+                result.Add(new TestSectionWithQuestionsDto
+                {
+                    TestSectionID = section.TestSectionID,
+                    Context = section.Context,
+                    TestSectionType = section.TestSectionType,
+                    Score = section.Score,
+                    Questions = questionDtos
+                });
+            }
+
+            return OperationResult<List<TestSectionWithQuestionsDto>>.Ok(result);
+        }
+
     }
 
 }
