@@ -23,6 +23,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _testService = testService;
         }
 
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateTest([FromBody] CreateTestCommand command)
         {

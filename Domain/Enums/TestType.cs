@@ -10,22 +10,22 @@ namespace Domain.Enums
     {
         // Hiển thị trên UI
         // Không xác định kỹ năng cụ thể
-        None,
+        None, //0
         // Từ vựng
-        Vocabulary,
+        Vocabulary, //1
         // Ngữ pháp
-        Grammar,
+        Grammar, //2
         // Nghe hiểu
-        Listening,
+        Listening, //3
         // Đọc hiểu
-        Reading,
+        Reading, //4
         // Viết
-        Writing,
+        Writing, //5
         // Tổng hợp (ví dụ: đọc + viết)
-        Mix,
+        Mix, //6
         //Trắc nghiệm 
-        MCQ,
+        MCQ, //7
         // Hình thức khác (ghi chú chi tiết nếu cần)
-        Other
+        Other //8
     }
 }
