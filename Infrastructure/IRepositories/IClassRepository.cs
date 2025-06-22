@@ -31,5 +31,6 @@ namespace Infrastructure.IRepositories
 
         Task<OperationResult<List<ClassDTO>>> SearchClassAsync(string keyword);
         Task<OperationResult<ClassDTO?>> GetClassDTOByIdAsync(string id);
+        Task<OperationResult<List<StudentDTO>>> GetStudentsByClassIdAsync(string classId);
     }
 }

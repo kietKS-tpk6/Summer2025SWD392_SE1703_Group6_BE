@@ -233,7 +233,15 @@ namespace Infrastructure.Services
 
             return OperationResult<ClassCreateLessonDTO>.Ok(result, OperationMessages.RetrieveSuccess("lớp học để tạo buổi học"));
         }
-
+        public async Task<OperationResult<List<StudentDTO>>> GetStudentsByClassIdAsync(string classId)
+        {
+            var classFound = await _classRepository.GetByIdAsync(classId);
+            if (!classFound.Success || classFound.Data == null)
+            {
+                return OperationResult<List<StudentDTO>>.Fail(OperationMessages.NotFound("lớp học"));
+            }
+            return await _classRepository.GetStudentsByClassIdAsync(classId);
+        }
     }
 
 }

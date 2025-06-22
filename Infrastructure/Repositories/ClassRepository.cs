@@ -258,5 +258,31 @@ namespace Infrastructure.Repositories
                 SubjectName = subjectName ?? c.Subject?.SubjectName
             };
         }
+        public async Task<OperationResult<List<StudentDTO>>> GetStudentsByClassIdAsync(string classId)
+        {
+            try
+            {
+                var students = await (from ce in _dbContext.ClassEnrollment
+                                      join acc in _dbContext.Accounts on ce.StudentID equals acc.AccountID
+                                      where ce.ClassID == classId
+                                      select new StudentDTO
+                                      {
+                                          StudentID = acc.AccountID,
+                                          FullName = acc.FirstName + " " + acc.LastName,
+                                          Gender = acc.Gender,
+                                          PhoneNumber = acc.PhoneNumber,
+                                          Email = acc.Email,
+                                          BirthDate = acc.BirthDate,
+                                          ImageUrl = acc.Image,
+                                      }).ToListAsync();
+
+                return OperationResult<List<StudentDTO>>.Ok(students, OperationMessages.RetrieveSuccess("học sinh"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<StudentDTO>>.Fail(OperationMessages.RetrieveFail("học sinh"));
+            }
+        }
+
     }
 }
