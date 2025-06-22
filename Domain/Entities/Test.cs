@@ -30,7 +30,7 @@ namespace Domain.Entities
         public TestStatus Status { get; set; }
         public TestCategory Category { get; set; }
         public TestType TestType { get; set; }  
-        public string TestName { get; set; }
+        public string? TestName { get; set; }
         public virtual Account Account { get; set; }
 
 
