@@ -15,5 +15,7 @@ namespace Infrastructure.IRepositories
         Task<string> GenerateNextTestIdAsync();
         Task<List<Test>> GetPendingTestsOlderThanDaysAsync(int days);
         Task<OperationResult<string>> UpdateTestStatusAsync(string testId, Domain.Enums.TestStatus status);
+        Task<OperationResult<List<Test>>> GetAllTestsAsync();
+        Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null);
     }
 }
