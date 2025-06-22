@@ -216,5 +216,15 @@ namespace Infrastructure.Services
 
             return OperationResult<string>.Fail("Invalid status transition");
         }
+
+        public async Task<OperationResult<List<Test>>> GetAllTestsAsync()
+        {
+            return await _testRepository.GetAllTestsAsync();
+        }
+
+        public async Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null)
+        {
+            return await _testRepository.GetAllTestsWithFiltersAsync(status, createdBy);
+        }
     }
 }
