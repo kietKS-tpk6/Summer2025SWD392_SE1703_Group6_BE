@@ -140,5 +140,53 @@ namespace Infrastructure.Repositories
                 return OperationResult<string>.Fail($"Error updating test status: {ex.Message}");
             }
         }
+        public async Task<OperationResult<List<Test>>> GetAllTestsAsync()
+        {
+            try
+            {
+                var tests = await _dbContext.Test
+                    .Include(t => t.Account)
+                    .Include(t => t.Subject)
+                    .Where(t => t.Status != TestStatus.Deleted)
+                    .OrderByDescending(t => t.CreateAt)
+                    .ToListAsync();
+
+                return OperationResult<List<Test>>.Ok(tests);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<Test>>.Fail($"Error retrieving tests: {ex.Message}");
+            }
+        }
+        public async Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null)
+        {
+            try
+            {
+                var query = _dbContext.Test
+                    .Include(t => t.Account)
+                    .Include(t => t.Subject)
+                    .Where(t => t.Status != TestStatus.Deleted);
+
+                if (!string.IsNullOrEmpty(status) && Enum.TryParse<TestStatus>(status, true, out var testStatus))
+                {
+                    query = query.Where(t => t.Status == testStatus);
+                }
+
+                if (!string.IsNullOrEmpty(createdBy))
+                {
+                    query = query.Where(t => t.CreateBy == createdBy);
+                }
+
+                var tests = await query
+                    .OrderByDescending(t => t.CreateAt)
+                    .ToListAsync();
+
+                return OperationResult<List<Test>>.Ok(tests);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<Test>>.Fail($"Error retrieving tests with filters: {ex.Message}");
+            }
+        }
     }
 }
