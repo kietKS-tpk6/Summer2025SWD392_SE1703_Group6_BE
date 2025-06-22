@@ -33,7 +33,6 @@ namespace Infrastructure.Services
         {
             try
             {
-                // Validate account exists and has proper role
                 var accountResult = await _accountService.GetAccountByIdAsync(command.AccountID);
                 if (!accountResult.Success)
                     return OperationResult<string>.Fail("Account not found");
@@ -42,9 +41,8 @@ namespace Infrastructure.Services
                 if (account.Role != AccountRole.Lecture && account.Role != AccountRole.Manager)
                     return OperationResult<string>.Fail("Only lecturers and managers can create tests");
 
-                // Validate subject exists
-                var subjectResult = await _subjectService.GetByIdAsync(command.SubjectID);
-                if (!subjectResult.Success)
+                var subject = await _subjectService.GetSubjectByIdAsync(command.SubjectID);
+                if (subject == null)
                     return OperationResult<string>.Fail("Subject not found");
 
                 var testId = await GenerateNextTestIdAsync();
@@ -74,21 +72,15 @@ namespace Infrastructure.Services
             {
                 var testResult = await _testRepository.GetTestByIdAsync(command.TestID);
                 if (!testResult.Success)
-                    return testResult;
+                    return OperationResult<string>.Fail(testResult.Message);
 
                 var test = testResult.Data;
 
-                // Check if requesting user is the creator
                 if (test.CreateBy != command.RequestingAccountID)
                     return OperationResult<string>.Fail("You can only update tests you created");
 
-                // Only allow updating test name and only if status is Draft
                 if (test.Status != TestStatus.Drafted)
                     return OperationResult<string>.Fail("Can only update tests in Draft status");
-
-                // Note: Based on requirements, only test name can be updated
-                // But I don't see TestName field in Test entity, so this might need adjustment
-                // For now, I'll assume we can update the test and let repository handle it
 
                 return await _testRepository.UpdateTestAsync(test);
             }
@@ -104,21 +96,19 @@ namespace Infrastructure.Services
             {
                 var testResult = await _testRepository.GetTestByIdAsync(command.TestID);
                 if (!testResult.Success)
-                    return testResult;
+                    return OperationResult<string>.Fail(testResult.Message);
 
                 var test = testResult.Data;
 
-                // Get requesting account
                 var accountResult = await _accountService.GetAccountByIdAsync(command.RequestingAccountID);
                 if (!accountResult.Success)
                     return OperationResult<string>.Fail("Account not found");
 
                 var account = accountResult.Data;
 
-                // Business logic for status transitions
                 var canTransition = CanTransitionStatus(test.Status, command.NewStatus, account.Role, test.CreateBy == command.RequestingAccountID);
                 if (!canTransition.Success)
-                    return canTransition;
+                    return OperationResult<string>.Fail(canTransition.Message);
 
                 return await _testRepository.UpdateTestStatusAsync(command.TestID, command.NewStatus);
             }
@@ -134,18 +124,16 @@ namespace Infrastructure.Services
             {
                 var testResult = await _testRepository.GetTestByIdAsync(command.TestID);
                 if (!testResult.Success)
-                    return testResult;
+                    return OperationResult<string>.Fail(testResult.Message);
 
                 var test = testResult.Data;
 
-                // Check permissions
                 var accountResult = await _accountService.GetAccountByIdAsync(command.RequestingAccountID);
                 if (!accountResult.Success)
                     return OperationResult<string>.Fail("Account not found");
 
                 var account = accountResult.Data;
 
-                // Only creator or manager can delete
                 if (test.CreateBy != command.RequestingAccountID && account.Role != AccountRole.Manager)
                     return OperationResult<string>.Fail("You don't have permission to delete this test");
 
@@ -176,10 +164,14 @@ namespace Infrastructure.Services
         {
             try
             {
-                // Get auto approval duration from system config
-                var configResult = await _systemConfigService.GetConfigValueAsync("auto_approve_test_after_pending_duration");
-                if (!configResult.Success || !int.TryParse(configResult.Data, out int days))
-                    days = 3; // Default to 3 days
+                var configResult = await _systemConfigService.GetConfig("auto_approve_test_after_pending_duration");
+                int days = 3; 
+
+                if (configResult.Success && configResult.Data != null && !string.IsNullOrEmpty(configResult.Data.Value))
+                {
+                    if (!int.TryParse(configResult.Data.Value, out days))
+                        days = 3; 
+                }
 
                 var pendingTests = await _testRepository.GetPendingTestsOlderThanDaysAsync(days);
 
@@ -190,7 +182,6 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                // Log error but don't throw
                 Console.WriteLine($"Error in auto approval process: {ex.Message}");
             }
         }
