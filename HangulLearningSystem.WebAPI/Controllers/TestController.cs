@@ -11,7 +11,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class TestController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -23,18 +23,17 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _testService = testService;
         }
 
-        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateTest([FromBody] CreateTestCommand command)
         {
             try
             {
                 // Get AccountID from JWT token
-                var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                /*var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(accountId))
                     return Unauthorized("Invalid token");
 
-                command.AccountID = accountId;
+                command.AccountID = accountId;*/
 
                 var result = await _mediator.Send(command);
                 return Ok(new { message = "Test created successfully", testId = result });
