@@ -11,7 +11,7 @@ using MediatR;
 
 namespace Application.Usecases.CommandHandler
 {
-    public class AssessmentCriteriaUpdateListCommandHandler : IRequestHandler<AssessmentCriteriaUpdateListCommand, OperationResult<List<AssessmentCriteriaUpdateDto>>>
+    public class AssessmentCriteriaUpdateListCommandHandler : IRequestHandler<AssessmentCriteriaUpdateListCommand, OperationResult<List<AssessmentCriteriaUpdateDTO>>>
     {
         private readonly IAssessmentCriteriaService _assessmentCriteriaService;
 
@@ -20,15 +20,15 @@ namespace Application.Usecases.CommandHandler
             _assessmentCriteriaService = service;
         }
 
-        public async Task<OperationResult<List<AssessmentCriteriaUpdateDto>>> Handle(AssessmentCriteriaUpdateListCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<List<AssessmentCriteriaUpdateDTO>>> Handle(AssessmentCriteriaUpdateListCommand request, CancellationToken cancellationToken)
         {
             var check = _assessmentCriteriaService.CheckDuplicateCategory(request.Items);
             if (!check.Success)
-                return OperationResult<List<AssessmentCriteriaUpdateDto>>.Fail(check.Message);
+                return OperationResult<List<AssessmentCriteriaUpdateDTO>>.Fail(check.Message);
 
             var countCheck = _assessmentCriteriaService.CheckRequiredTestCountRule(request.Items);
             if (!countCheck.Success)
-                return OperationResult<List<AssessmentCriteriaUpdateDto>>.Fail(countCheck.Message);
+                return OperationResult<List<AssessmentCriteriaUpdateDTO>>.Fail(countCheck.Message);
 
             return await _assessmentCriteriaService.UpdateAssessmentCriteriaListAsync(request.Items);
         }

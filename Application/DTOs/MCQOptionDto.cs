@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class MCQOptionDto
+    public class MCQOptionDTO
     {
         public string? Context { get; set; }
         public string? ImageURL { get; set; }

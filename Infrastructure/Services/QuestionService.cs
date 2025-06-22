@@ -258,7 +258,7 @@ namespace Infrastructure.Services
 
 
 
-        public OperationResult<bool> ValidateMCQOptions(List<MCQOptionDto>? options)
+        public OperationResult<bool> ValidateMCQOptions(List<MCQOptionDTO>? options)
         {
             if (options == null || !options.Any())
                 return OperationResult<bool>.Fail("Danh sách đáp án không được rỗng.");
@@ -319,24 +319,24 @@ namespace Infrastructure.Services
         {
             return await _questionRepo.GetByIdAsync(questionId);
         }
-        public async Task<OperationResult<List<TestSectionWithQuestionsDto>>> GetQuestionsByTestIdAsync(string testId)
+        public async Task<OperationResult<List<TestSectionWithQuestionsDTO>>> GetQuestionsByTestIdAsync(string testId)
         {
             var sections = await _testSectionRepository.GetByTestIdAsync(testId);
             if (sections == null || !sections.Any())
-                return OperationResult<List<TestSectionWithQuestionsDto>>.Fail("Không tìm thấy phần thi nào.");
+                return OperationResult<List<TestSectionWithQuestionsDTO>>.Fail("Không tìm thấy phần thi nào.");
 
-            var result = new List<TestSectionWithQuestionsDto>();
+            var result = new List<TestSectionWithQuestionsDTO>();
 
             foreach (var section in sections)
             {
                 var questions = (await _questionRepo.GetQuestionBySectionId(section.TestSectionID))
                                 .Where(q => q.IsActive).ToList();
 
-                var questionDtos = new List<QuestionDetailDto>();
+                var questionDTO = new List<QuestionDetailDTO>();
 
                 foreach (var question in questions)
                 {
-                    var dto = new QuestionDetailDto
+                    var dto = new QuestionDetailDTO
                     {
                         QuestionID = question.QuestionID,
                         Context = question.Context,
@@ -351,7 +351,7 @@ namespace Infrastructure.Services
                     if (question.Type == TestFormatType.Multiple || question.Type == TestFormatType.TrueFalse)
                     {
                         var options = await _mCQOptionRepository.GetByQuestionIdAsync(question.QuestionID);
-                        dto.Options = options.Select(o => new MCQOptionDto
+                        dto.Options = options.Select(o => new MCQOptionDTO
                         {
                             Context = o.Context,
                             ImageURL = o.ImageURL,
@@ -360,23 +360,23 @@ namespace Infrastructure.Services
                         }).ToList();
                     }
 
-                    questionDtos.Add(dto);
+                    questionDTO.Add(dto);
                 }
 
-                result.Add(new TestSectionWithQuestionsDto
+                result.Add(new TestSectionWithQuestionsDTO
                 {
                     TestSectionID = section.TestSectionID,
                     Context = section.Context,
                     TestSectionType = section.TestSectionType,
                     Score = section.Score,
-                    Questions = questionDtos
+                    Questions = questionDTO
                 });
             }
 
-            return OperationResult<List<TestSectionWithQuestionsDto>>.Ok(result);
+            return OperationResult<List<TestSectionWithQuestionsDTO>>.Ok(result);
         }
 
-        public async Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionDto> options)
+        public async Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionDTO> options)
         {
             var configResult = await _systemConfigService.GetConfig("max_mcq_option_per_question");
 
@@ -398,7 +398,7 @@ namespace Infrastructure.Services
             return OperationResult<bool>.Ok(true);
         }
 
-        public OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionDto>? options)
+        public OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionDTO>? options)
         {
             if (options == null || !options.Any())
                 return OperationResult<bool>.Fail("Danh sách đáp án không được rỗng.");

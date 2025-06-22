@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class AssessmentCriteriaUpdateDto
+    public class AssessmentCriteriaUpdateDTO
     {
         public int Order { get; set; }
         public string AssessmentCriteriaID { get; set; }

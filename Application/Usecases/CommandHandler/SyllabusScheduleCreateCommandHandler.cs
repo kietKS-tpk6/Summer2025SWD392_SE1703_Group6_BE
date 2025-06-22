@@ -11,7 +11,7 @@ using MediatR;
 
 namespace Application.Usecases.CommandHandler
 {
-    public class SyllabusScheduleCreateCommandHandler : IRequestHandler<SyllabusScheduleCreateCommand, OperationResult<List<SyllabusScheduleWithSlotDto>>>
+    public class SyllabusScheduleCreateCommandHandler : IRequestHandler<SyllabusScheduleCreateCommand, OperationResult<List<SyllabusScheduleWithSlotDTO>>>
     {
         private readonly ISyllabusScheduleService _syllabusScheduleService;
         private readonly ISubjectService _subjectService;
@@ -40,19 +40,19 @@ namespace Application.Usecases.CommandHandler
             return 5; // fallback nếu không parse được
         }
 
-        public async Task<OperationResult<List<SyllabusScheduleWithSlotDto>>> Handle(SyllabusScheduleCreateCommand req, CancellationToken cancellationToken)
+        public async Task<OperationResult<List<SyllabusScheduleWithSlotDTO>>> Handle(SyllabusScheduleCreateCommand req, CancellationToken cancellationToken)
         {
             var maxSlot = await GetMaxSlotPerWeekAsync();
 
             if (req.slotInWeek > maxSlot)
             {
-                return OperationResult<List<SyllabusScheduleWithSlotDto>>.Fail($"Không thể thêm quá {maxSlot} slot cho cùng một tuần.");
+                return OperationResult<List<SyllabusScheduleWithSlotDTO>>.Fail($"Không thể thêm quá {maxSlot} slot cho cùng một tuần.");
             }
 
             var existsSyllabus = await _subjectService.SubjectExistsAsync(req.subjectID);
             if (!existsSyllabus)
             {
-                return OperationResult<List<SyllabusScheduleWithSlotDto>>.Fail("SubjectID không tồn tại.");
+                return OperationResult<List<SyllabusScheduleWithSlotDTO>>.Fail("SubjectID không tồn tại.");
             }
 
             return await _syllabusScheduleService.CreateEmptySyllabusScheduleAyncs(req);

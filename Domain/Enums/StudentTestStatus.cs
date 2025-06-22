@@ -10,6 +10,7 @@ namespace Domain.Enums
     {
         Pending, 
         Submitted, 
-        Graded
+        Graded,
+        AutoGraded
     }
 }

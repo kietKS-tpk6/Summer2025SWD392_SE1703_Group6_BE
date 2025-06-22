@@ -7,13 +7,13 @@ using Domain.Enums;
 
 namespace Application.DTOs
 {
-    public class TestSectionWithQuestionsDto
+    public class TestSectionWithQuestionsDTO
     {
         public string TestSectionID { get; set; }
         public string? Context { get; set; }
         public TestFormatType TestSectionType { get; set; }
         public decimal Score { get; set; }
-        public List<QuestionDetailDto> Questions { get; set; }
+        public List<QuestionDetailDTO> Questions { get; set; }
     }
 
 }

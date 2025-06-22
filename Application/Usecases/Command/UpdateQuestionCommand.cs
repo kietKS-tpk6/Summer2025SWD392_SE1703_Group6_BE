@@ -15,6 +15,6 @@ namespace Application.Usecases.Command
         public string? Context { get; set; }
         public string? ImageURL { get; set; }
         public string? AudioURL { get; set; }
-        public List<MCQOptionDto>? Options { get; set; }
+        public List<MCQOptionDTO>? Options { get; set; }
     }
 }

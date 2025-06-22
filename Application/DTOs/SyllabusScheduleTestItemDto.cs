@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class SyllabusScheduleTestItemDto
+    public class SyllabusScheduleTestItemDTO
     {
         public string AssessmentCriteriaID { get; set; }
         public int Duration { get; set; }

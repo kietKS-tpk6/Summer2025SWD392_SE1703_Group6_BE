@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Application.Usecases.Command
 {
-    public class SyllabusScheduleCreateCommand : IRequest<OperationResult<List<SyllabusScheduleWithSlotDto>>>
+    public class SyllabusScheduleCreateCommand : IRequest<OperationResult<List<SyllabusScheduleWithSlotDTO>>>
     {
         
         public string subjectID { get; set; }
