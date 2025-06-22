@@ -57,6 +57,94 @@ namespace Infrastructure.Repositories
                 .Where(ts => ts.TestID == testId && ts.IsActive)
                 .ToListAsync();
         }
+
+        public async Task<OperationResult<string>> CreateTestSectionAsync(TestSection testSection)
+        {
+            try
+            {
+                _dbContext.TestSection.Add(testSection);
+                await _dbContext.SaveChangesAsync();
+                return OperationResult<string>.Ok(testSection.TestSectionID, OperationMessages.CreateSuccess("Test Section"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<string>.Fail($"Error creating test section: {ex.Message}");
+            }
+        }
+
+        public async Task<OperationResult<TestSection>> GetTestSectionByIdAsync(string testSectionId)
+        {
+            try
+            {
+                var testSection = await _dbContext.TestSection
+                    .Include(ts => ts.Test)
+                    .FirstOrDefaultAsync(ts => ts.TestSectionID == testSectionId && ts.IsActive);
+
+                if (testSection == null)
+                    return OperationResult<TestSection>.Fail(OperationMessages.NotFound("Test Section"));
+
+                return OperationResult<TestSection>.Ok(testSection);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<TestSection>.Fail(ex.Message);
+            }
+        }
+
+        public async Task<OperationResult<List<TestSection>>> GetTestSectionsByTestIdAsync(string testId)
+        {
+            try
+            {
+                var testSections = await _dbContext.TestSection
+                    .Where(ts => ts.TestID == testId && ts.IsActive)
+                    .ToListAsync();
+
+                return OperationResult<List<TestSection>>.Ok(testSections);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<TestSection>>.Fail(ex.Message);
+            }
+        }
+
+        public async Task<OperationResult<string>> UpdateTestSectionAsync(TestSection testSection)
+        {
+            try
+            {
+                _dbContext.TestSection.Update(testSection);
+                await _dbContext.SaveChangesAsync();
+                return OperationResult<string>.Ok("", OperationMessages.UpdateSuccess("Test Section"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<string>.Fail($"Error updating test section: {ex.Message}");
+            }
+        }
+
+        public async Task<OperationResult<string>> DeleteTestSectionAsync(string testSectionId)
+        {
+            try
+            {
+                var testSection = await _dbContext.TestSection.FindAsync(testSectionId);
+                if (testSection == null)
+                    return OperationResult<string>.Fail(OperationMessages.NotFound("Test Section"));
+
+                testSection.IsActive = false;
+                await _dbContext.SaveChangesAsync();
+
+                return OperationResult<string>.Ok("", OperationMessages.DeleteSuccess("Test Section"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<string>.Fail($"Error deleting test section: {ex.Message}");
+            }
+        }
+
+        public async Task<string> GenerateNextTestSectionIdAsync()
+        {
+            var count = await _dbContext.TestSection.CountAsync();
+            return $"TS{(count + 1):D4}";
+        }
     }
 
 }
