@@ -16,5 +16,7 @@ namespace Application.IServices
         Task<OperationResult<List<Test>>> GetTestsByAccountIdAsync(string accountId);
         Task<string> GenerateNextTestIdAsync();
         Task ProcessAutoApprovalAsync();
+        Task<OperationResult<List<Test>>> GetAllTestsAsync();
+        Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null);
     }
 }
