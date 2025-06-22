@@ -10,7 +10,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class TestSectionController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -27,11 +27,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             try
             {
-                var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                /*var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(accountId))
                     return Unauthorized("Invalid token");
 
-                command.RequestingAccountID = accountId;
+                command.RequestingAccountID = accountId;*/
 
                 var result = await _mediator.Send(command);
                 return Ok(new { message = "Test section created successfully", testSectionId = result });

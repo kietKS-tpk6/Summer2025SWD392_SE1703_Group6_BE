@@ -21,13 +21,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
         private readonly IMediator _mediator;
         private readonly ITestService _testService;
         private readonly IAccountService _accountService;
+        private readonly ITestSectionService _testSectionService;
 
-        public TestController(IMediator mediator, ITestService testService, IAccountService accountService)
+        public TestController(IMediator mediator, ITestService testService, IAccountService accountService, ITestSectionService testSectionService)
         {
             _mediator = mediator;
             _testService = testService;
             _accountService = accountService;
-            
+            _testSectionService = testSectionService;
+
         }
 
         [HttpPost("create")]
