@@ -19,12 +19,12 @@ namespace Application.IServices
         Task<OperationResult<bool>> UpdateQuestionAsync(UpdateQuestionCommand command);
         Task<OperationResult<bool>> ValidateQuestionExistsAsync(string questionId);
         OperationResult<bool> ValidateExactlyOneContent(string? context, string? imageUrl, string? audioUrl);
-        OperationResult<bool> ValidateMCQOptions(List<MCQOptionDto>? options);
+        OperationResult<bool> ValidateMCQOptions(List<MCQOptionDTO>? options);
         Task<Question?> GetByIdAsync(string questionId);
         Task<Question?> GetQuestionByIdAsync(string questionId);
-        Task<OperationResult<List<TestSectionWithQuestionsDto>>> GetQuestionsByTestIdAsync(string testId);
-        Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionDto> options);
-        OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionDto>? options);
+        Task<OperationResult<List<TestSectionWithQuestionsDTO>>> GetQuestionsByTestIdAsync(string testId);
+        Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionDTO> options);
+        OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionDTO>? options);
 
     }
 }

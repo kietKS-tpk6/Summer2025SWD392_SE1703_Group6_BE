@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class SyllabusScheduleWithSlotDto
+    public class SyllabusScheduleWithSlotDTO
     {
         public string SyllabusScheduleID { get; set; }
         public int Slot { get; set; }

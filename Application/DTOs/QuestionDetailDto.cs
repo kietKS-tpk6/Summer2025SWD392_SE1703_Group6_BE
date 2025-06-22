@@ -7,7 +7,7 @@ using Domain.Enums;
 
 namespace Application.DTOs
 {
-    public class QuestionDetailDto
+    public class QuestionDetailDTO
     {
         public string QuestionID { get; set; }
         public string? Context { get; set; }
@@ -16,6 +16,6 @@ namespace Application.DTOs
         public TestFormatType Type { get; set; }
         public decimal Score { get; set; }
         public bool IsActive { get; set; }
-        public List<MCQOptionDto>? Options { get; set; }
+        public List<MCQOptionDTO>? Options { get; set; }
     }
 }

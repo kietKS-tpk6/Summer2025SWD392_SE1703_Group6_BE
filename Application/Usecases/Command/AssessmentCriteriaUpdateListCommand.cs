@@ -9,7 +9,7 @@ using Application.DTOs;
 using MediatR;
 namespace Application.Usecases.Command
 {
-    public class AssessmentCriteriaUpdateListCommand : IRequest<OperationResult<List<AssessmentCriteriaUpdateDto>>>
+    public class AssessmentCriteriaUpdateListCommand : IRequest<OperationResult<List<AssessmentCriteriaUpdateDTO>>>
     {
         public List<AssessmentCriteriaUpdateCommand> Items { get; set; }
 

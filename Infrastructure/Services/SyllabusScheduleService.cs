@@ -176,7 +176,7 @@ namespace Infrastructure.Services
             }
         }
         // ========== REFACTORED METHOD - TWO STEP PROCESSING ==========
-        public async Task<OperationResult<List<SyllabusScheduleWithSlotDto>>> CreateEmptySyllabusScheduleAyncs(SyllabusScheduleCreateCommand command)
+        public async Task<OperationResult<List<SyllabusScheduleWithSlotDTO>>> CreateEmptySyllabusScheduleAyncs(SyllabusScheduleCreateCommand command)
         {
             var existing = await _syllabusScheduleRepository.GetSyllabusSchedulesBySubjectIdAsync(command.subjectID);
 
@@ -194,7 +194,7 @@ namespace Infrastructure.Services
             var finalResult = await _syllabusScheduleRepository.GetSyllabusSchedulesBySubjectIdAsync(command.subjectID);
             var result = MapToSlots(finalResult);
 
-            return OperationResult<List<SyllabusScheduleWithSlotDto>>.Ok(result, "Xử lý hoàn tất.");
+            return OperationResult<List<SyllabusScheduleWithSlotDTO>>.Ok(result, "Xử lý hoàn tất.");
         }
 
         private async Task ProcessWeeksAsync(List<SyllabusSchedule> existing, SyllabusScheduleCreateCommand command)
@@ -351,7 +351,7 @@ namespace Infrastructure.Services
             }
         }
 
-        private async Task<OperationResult<List<SyllabusScheduleWithSlotDto>>> CreateNewSchedulesAsync(SyllabusScheduleCreateCommand command)
+        private async Task<OperationResult<List<SyllabusScheduleWithSlotDTO>>> CreateNewSchedulesAsync(SyllabusScheduleCreateCommand command)
         {
             int total = command.slotInWeek * command.week;
             int numberOfSS = await _syllabusScheduleRepository.GetNumbeOfSyllabusScheduleAsync();
@@ -381,16 +381,16 @@ namespace Infrastructure.Services
             var updated = await _syllabusScheduleRepository.GetSyllabusSchedulesBySubjectIdAsync(command.subjectID);
             var result = MapToSlots(updated);
 
-            return OperationResult<List<SyllabusScheduleWithSlotDto>>.Ok(result, "Tạo mới hoàn tất.");
+            return OperationResult<List<SyllabusScheduleWithSlotDTO>>.Ok(result, "Tạo mới hoàn tất.");
         }
 
         // HELPER METHOD
-        private List<SyllabusScheduleWithSlotDto> MapToSlots(List<SyllabusSchedule> syllabusSchedules)
+        private List<SyllabusScheduleWithSlotDTO> MapToSlots(List<SyllabusSchedule> syllabusSchedules)
         {
             return syllabusSchedules
                 .OrderBy(s => s.Week)
                 .ThenBy(s => s.SyllabusScheduleID)
-                .Select((s, idx) => new SyllabusScheduleWithSlotDto
+                .Select((s, idx) => new SyllabusScheduleWithSlotDTO
                 {
                     SyllabusScheduleID = s.SyllabusScheduleID,
                     Slot = idx + 1
@@ -401,7 +401,7 @@ namespace Infrastructure.Services
 
         public async Task<OperationResult<bool>> UpdateBulkScheduleWithTestAsync(
          string subjectId,
-         List<SyllabusScheduleUpdateItemDto> scheduleItems)
+         List<SyllabusScheduleUpdateItemDTO> scheduleItems)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
@@ -471,7 +471,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDto> items)
+        public OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDTO> items)
         {
             var testByCriteria = new Dictionary<(string assessmentCriteriaID, TestType testType), int>();
 

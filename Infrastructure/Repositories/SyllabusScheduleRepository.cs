@@ -375,7 +375,7 @@ namespace Infrastructure.Repositories
             return await query.OrderBy(s => s.Week).ThenBy(s => s.SyllabusScheduleID).ToListAsync();
         }
 
-        public OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDto> items)
+        public OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDTO> items)
         {
             var testByCriteria = new Dictionary<(string assessmentCriteriaID, TestType testType), int>();
 
