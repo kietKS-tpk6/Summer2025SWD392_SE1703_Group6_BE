@@ -108,6 +108,7 @@ namespace Infrastructure
            cfg.RegisterServicesFromAssembly(Assembly.Load("Application"))
        );
 
+            services.AddHostedService<TestAutoApprovalService>();
 
 
             services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));
