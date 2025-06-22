@@ -193,20 +193,33 @@ namespace Infrastructure.Repositories
 
             keyword = keyword.ToLower().Trim();
 
-            var result = await (
-                from c in _dbContext.Class
-                join acc in _dbContext.Accounts on c.LecturerID equals acc.AccountID
-                join subj in _dbContext.Subject on c.SubjectID equals subj.SubjectID
-                where c.Status == ClassStatus.Open &&
-                      (c.ClassName.ToLower().Contains(keyword) ||
-                       acc.FirstName.ToLower().Contains(keyword) ||
-                       subj.SubjectName.ToLower().Contains(keyword))
-                orderby c.CreateAt descending
-                select MapToDTO(c, acc.FirstName, subj.SubjectName)
-            ).ToListAsync();
+            var classQuery = from c in _dbContext.Class
+                             join acc in _dbContext.Accounts on c.LecturerID equals acc.AccountID
+                             join subj in _dbContext.Subject on c.SubjectID equals subj.SubjectID
+                             where c.Status == ClassStatus.Open &&
+                                   (c.ClassName.ToLower().Contains(keyword) ||
+                                    acc.FirstName.ToLower().Contains(keyword) ||
+                                    subj.SubjectName.ToLower().Contains(keyword))
+                             orderby c.CreateAt descending
+                             select new
+                             {
+                                 Class = c,
+                                 LecturerName = acc.FirstName,
+                                 SubjectName = subj.SubjectName
+                             };
+            var classList = await classQuery.ToListAsync();
+            var classIds = classList.Select(x => x.Class.ClassID).ToList();
+            var enrollCounts = await _dbContext.ClassEnrollment
+                .Where(e => classIds.Contains(e.ClassID))
+                .GroupBy(e => e.ClassID)
+                .Select(g => new { ClassID = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.ClassID, x => x.Count);
+            var result = classList.Select(x =>
+                MapToDTO(x.Class, enrollCounts, x.LecturerName, x.SubjectName)).ToList();
 
             return OperationResult<List<ClassDTO>>.Ok(result);
         }
+
 
         public async Task<ClassCreateLessonDTO?> GetClassCreateLessonDTOByIdAsync(string classId)
         {
@@ -225,21 +238,30 @@ namespace Infrastructure.Repositories
         {
             if (string.IsNullOrWhiteSpace(id))
                 return OperationResult<ClassDTO?>.Fail(OperationMessages.InvalidInput("ID lớp học"));
-
-            var result = await (
+            var classInfo = await (
                 from c in _dbContext.Class
                 join acc in _dbContext.Accounts on c.LecturerID equals acc.AccountID
                 join subj in _dbContext.Subject on c.SubjectID equals subj.SubjectID
                 where c.ClassID == id
-                select MapToDTO(c, acc.FirstName, subj.SubjectName)
+                select new
+                {
+                    Class = c,
+                    LecturerName = acc.FirstName,
+                    SubjectName = subj.SubjectName
+                }
             ).FirstOrDefaultAsync();
 
-            return result == null
-                ? OperationResult<ClassDTO?>.Fail(OperationMessages.NotFound("Lớp học"))
-                : OperationResult<ClassDTO?>.Ok(result);
+            if (classInfo == null)
+                return OperationResult<ClassDTO?>.Fail(OperationMessages.NotFound("Lớp học"));
+            var count = await _dbContext.ClassEnrollment
+                .Where(e => e.ClassID == id)
+                .CountAsync();
+            var enrollCounts = new Dictionary<string, int> { { id, count } };
+            var result = MapToDTO(classInfo.Class, enrollCounts, classInfo.LecturerName, classInfo.SubjectName);
+            return OperationResult<ClassDTO?>.Ok(result);
         }
 
-        private static ClassDTO MapToDTO(Class c, string? lecturerName = null, string? subjectName = null)
+        private static ClassDTO MapToDTO(Class c, Dictionary<string, int>? enrollCounts = null, string? lecturerName = null, string? subjectName = null)
         {
             return new ClassDTO
             {
@@ -255,9 +277,11 @@ namespace Infrastructure.Repositories
                 TeachingStartTime = c.TeachingStartTime,
                 ImageURL = c.ImageURL,
                 LecturerName = lecturerName ?? c.Lecturer?.FirstName,
-                SubjectName = subjectName ?? c.Subject?.SubjectName
+                SubjectName = subjectName ?? c.Subject?.SubjectName,
+                NumberStudentEnroll = enrollCounts != null && enrollCounts.TryGetValue(c.ClassID, out var count) ? count : 0
             };
         }
+
         public async Task<OperationResult<List<StudentDTO>>> GetStudentsByClassIdAsync(string classId)
         {
             try
