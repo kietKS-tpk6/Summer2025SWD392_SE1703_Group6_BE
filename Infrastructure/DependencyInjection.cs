@@ -61,6 +61,8 @@ namespace Infrastructure
             services.AddScoped<IQuestionService, QuestionService>();
             services.AddScoped<ITestSectionService, TestSectionService>();
             services.AddScoped<IMCQOptionRepository, MCQOptionRepository>();
+            services.AddScoped<ITestService, TestService>();
+            services.AddScoped<ITestSectionService, TestSectionService>();
 
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
@@ -76,7 +78,8 @@ namespace Infrastructure
             services.AddScoped<ITestEventRepository, TestEventRepository>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();
             services.AddScoped<ITestSectionRepository, TestSectionRepository>();
-
+            services.AddScoped<ITestRepository, TestRepository>();
+            services.AddScoped<ITestSectionRepository, TestSectionRepository>();
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
@@ -90,6 +93,10 @@ namespace Infrastructure
             services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
 
+            services.AddScoped<CreateTestCommandHandler>();
+            services.AddScoped<UpdateTestCommandHandler>();
+            services.AddScoped<UpdateTestStatusCommandHandler>();
+            services.AddScoped<DeleteTestCommandHandler>();
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
