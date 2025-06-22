@@ -86,7 +86,7 @@ namespace Infrastructure.Services
                     ImageURL = command.ImageURL,
                     AudioURL = command.AudioURL,
                     TestSectionType = command.TestSectionType,
-                    Score = command.Score,
+                    Score = (decimal)command.Score,
                     IsActive = true
                 };
 
@@ -104,7 +104,7 @@ namespace Infrastructure.Services
             {
                 var testSectionResult = await _testSectionRepository.GetTestSectionByIdAsync(command.TestSectionID);
                 if (!testSectionResult.Success)
-                    return testSectionResult;
+                    return OperationResult<string>.Fail(testSectionResult.Message);
 
                 var testSection = testSectionResult.Data;
 
@@ -139,7 +139,7 @@ namespace Infrastructure.Services
                     testSection.AudioURL = command.AudioURL;
 
                 if (command.Score.HasValue)
-                    testSection.Score = command.Score;
+                    testSection.Score = (decimal)command.Score;
 
                 return await _testSectionRepository.UpdateTestSectionAsync(testSection);
             }
@@ -155,7 +155,7 @@ namespace Infrastructure.Services
             {
                 var testSectionResult = await _testSectionRepository.GetTestSectionByIdAsync(command.TestSectionID);
                 if (!testSectionResult.Success)
-                    return testSectionResult;
+                    return OperationResult<string>.Fail(testSectionResult.Message); ;
 
                 var testSection = testSectionResult.Data;
 

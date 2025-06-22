@@ -103,6 +103,9 @@ namespace Infrastructure
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
             services.AddScoped<ProcessWebhookCommandHandler>();
+            services.AddScoped<CreateTestSectionCommandHandler>();
+            services.AddScoped<UpdateTestSectionCommandHandler>();
+            services.AddScoped<DeleteTestSectionCommandHandler>();
 
             services.AddMediatR(cfg =>
            cfg.RegisterServicesFromAssembly(Assembly.Load("Application"))
