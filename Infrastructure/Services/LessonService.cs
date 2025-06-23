@@ -50,20 +50,17 @@ namespace Infrastructure.Services
 
         public async Task<OperationResult<bool>> UpdateLessonAsync(LessonUpdateCommand request)
         {
-            var updateLesson = new Lesson
-            {
-                ClassLessonID = request.ClassLessonID,
-                ClassID = request.ClassID,
-                LecturerID = request.LecturerID,
-                SyllabusScheduleID = request.SyllabusScheduleID,
-                StartTime = request.StartTime,
-            };
-
-            var success = await _lessonRepository.UpdateAsync(updateLesson);
+            var lessonFound = await _lessonRepository.GetLessonByClassLessonIDAsync(request.ClassLessonID);
+            if (lessonFound == null)
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("tiết học"));
+            lessonFound.LecturerID = request.LecturerID;
+            lessonFound.StartTime = request.StartTime;
+            var success = await _lessonRepository.UpdateAsync(lessonFound);
             return success
                 ? OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("tiết học"))
                 : OperationResult<bool>.Fail(OperationMessages.UpdateFail("tiết học"));
         }
+
 
         public async Task<OperationResult<List<LessonDTO>>> GetLessonsByClassID(string classID)
         {
