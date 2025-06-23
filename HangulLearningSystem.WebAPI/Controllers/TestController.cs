@@ -62,12 +62,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             try
             {
-                var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(accountId))
-                    return Unauthorized("Invalid token");
+                //var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                //if (string.IsNullOrEmpty(accountId))
+                //    return Unauthorized("Invalid token");
 
-                command.TestID = testId;
-                command.RequestingAccountID = accountId;
+                //command.TestID = testId;
+                //command.RequestingAccountID = accountId;
 
                 var result = await _mediator.Send(command);
                 return Ok(new { message = result });
@@ -87,15 +87,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             try
             {
-                var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(accountId))
-                    return Unauthorized("Invalid token");
+                //var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                //if (string.IsNullOrEmpty(accountId))
+                //    return Unauthorized("Invalid token");
 
                 var command = new UpdateTestStatusCommand
                 {
                     TestID = testId,
                     NewStatus = request.Status,
-                    RequestingAccountID = accountId
+                    //RequestingAccountID = accountId
                 };
 
                 var result = await _mediator.Send(command);
@@ -116,17 +116,17 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             try
             {
-                var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(accountId))
-                    return Unauthorized("Invalid token");
+                //    var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                //    if (string.IsNullOrEmpty(accountId))
+                //        return Unauthorized("Invalid token");
 
                 var command = new DeleteTestCommand
-                {
-                    TestID = testId,
-                    RequestingAccountID = accountId
-                };
+            {
+                TestID = testId,
+                //RequestingAccountID = accountId
+            };
 
-                var result = await _mediator.Send(command);
+            var result = await _mediator.Send(command);
                 return Ok(new { message = result });
             }
             catch (ArgumentException ex)
@@ -197,7 +197,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 if (!result.Success)
                     return BadRequest(new { message = result.Message });
 
-                // Convert to DTOs
                 var dtos = result.Data.Select(test => new TestResponseDTO
                 {
                     TestID = test.TestID,
@@ -210,7 +209,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                     Status = test.Status,
                     Category = test.Category,
                     TestType = test.TestType,
-                    TotalSections = 0 // Will calculate if needed
+                    TotalSections = 0 
                 }).ToList();
 
                 return Ok(new
@@ -245,7 +244,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 if (!result.Success)
                     return BadRequest(new { message = result.Message });
 
-                // Convert to detailed DTOs with sections
                 var detailedDtos = new List<TestDetailDTO>();
 
                 foreach (var test in result.Data)
@@ -294,22 +292,20 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        // API riêng cho Manager xem tất cả tests pending
         [HttpGet("pending-for-approval")]
         public async Task<IActionResult> GetPendingTestsForApproval()
         {
             try
             {
-                // Check if user is Manager
-                var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!string.IsNullOrEmpty(accountId))
-                {
-                    var accountResult = await _accountService.GetAccountByIdAsync(accountId);
-                    if (!accountResult.Success || accountResult.Data.Role != AccountRole.Manager)
-                    {
-                        return Forbid("Only managers can access pending tests for approval");
-                    }
-                }
+                //var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                //if (!string.IsNullOrEmpty(accountId))
+                //{
+                //    var accountResult = await _accountService.GetAccountByIdAsync(accountId);
+                //    if (!accountResult.Success || accountResult.Data.Role != AccountRole.Manager)
+                //    {
+                //        return Forbid("Only managers can access pending tests for approval");
+                //    }
+                //}
 
                 var result = await _testService.GetAllTestsWithFiltersAsync("Pending");
 
