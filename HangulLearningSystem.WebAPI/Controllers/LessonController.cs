@@ -78,10 +78,10 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        [HttpGet("get-by-class")]
-        public async Task<IActionResult> GetLessonsByClassID([FromQuery] string classID)
+        [HttpGet("get-by-class/{classID}")]
+        public async Task<IActionResult> GetLessonsByClassID(string classID)
         {
-            var result = await _lessonService.GetLessonsByClassID(classID);
+            var result = await _lessonService.GetLessonContentByClassIdAsyn(classID);
 
             if (result.Success)
                 return Ok(result);

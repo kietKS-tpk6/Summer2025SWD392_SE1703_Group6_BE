@@ -8,9 +8,10 @@ namespace Domain.Enums
 {
     public enum StudentTestStatus
     {
-        Pending, 
-        Submitted, 
-        Graded,
-        AutoGraded
+        Pending,             // Chưa làm
+        Submitted,           // Đã nộp bài
+        AutoGraded,          // Đã chấm tự động (ví dụ trắc nghiệm)
+        Graded,              // Đã chấm (bao gồm tự động và thủ công)
+        Published            // Đã công bố điểm
     }
 }

@@ -63,6 +63,9 @@ namespace Infrastructure
             services.AddScoped<IMCQOptionRepository, MCQOptionRepository>();
             services.AddScoped<ITestService, TestService>();
             services.AddScoped<ITestSectionService, TestSectionService>();
+            services.AddScoped<IMCQAnswerDetailService, MCQAnswerDetailService>();
+            services.AddScoped<IMCQAnswerService, MCQAnswerService>();
+            services.AddScoped<IWritingAnswerService, WritingAnswerService>();
 
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
@@ -80,6 +83,9 @@ namespace Infrastructure
             services.AddScoped<ITestSectionRepository, TestSectionRepository>();
             services.AddScoped<ITestRepository, TestRepository>();
             services.AddScoped<ITestSectionRepository, TestSectionRepository>();
+            services.AddScoped<IMCQAnswerDetailRepository, MCQAnswerDetailRepository>();
+            services.AddScoped<IMCQAnswerRepository, MCQAnswerRepository>();
+            services.AddScoped<IWritingAnswerRepository, WritingAnswerRepository>();
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
