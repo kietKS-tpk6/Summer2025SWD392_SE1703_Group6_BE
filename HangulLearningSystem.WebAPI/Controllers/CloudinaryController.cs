@@ -48,5 +48,82 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _cloudinaryService.UploadFileAsync(stream, file.FileName, "class-images");
             return Ok(result);
         }
+        [HttpPost("upload-image-test-section")]
+        public async Task<IActionResult> UploadImageTestSection(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+            using var stream = file.OpenReadStream();
+
+            var result = await _cloudinaryService.UploadFileAsync(stream, file.FileName, "test-section-images");
+            return Ok(result);
+        }
+        [HttpPost("upload-image-question")]
+        public async Task<IActionResult> UploadImageQuestion(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+            using var stream = file.OpenReadStream();
+
+            var result = await _cloudinaryService.UploadFileAsync(stream, file.FileName, "test-question-images");
+            return Ok(result);
+        }
+        [HttpPost("upload-image-mcq-option")]
+        public async Task<IActionResult> UploadImageMCQOption(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+            using var stream = file.OpenReadStream();
+
+            var result = await _cloudinaryService.UploadFileAsync(stream, file.FileName, "test-mcq-option-images");
+            return Ok(result);
+        }
+
+        [HttpPost("upload-audio-test-section")]
+        public async Task<IActionResult> UploadAudioTestSection(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            using var stream = file.OpenReadStream();
+
+            var result = await _cloudinaryService.UploadAudioAsync(stream, file.FileName, "test-section-audio");
+            return Ok(result);
+        }
+        [HttpPost("upload-audio-question")]
+        public async Task<IActionResult> UploadAudioQuestion(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            using var stream = file.OpenReadStream();
+
+            var result = await _cloudinaryService.UploadAudioAsync(stream, file.FileName, "test-question-audio");
+            return Ok(result);
+        }
+        [HttpPost("upload-audio-mcq-option")]
+        public async Task<IActionResult> UploadAudioMCQOption(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            using var stream = file.OpenReadStream();
+
+            var result = await _cloudinaryService.UploadAudioAsync(stream, file.FileName, "test-mcq-option-audio");
+            return Ok(result);
+        }
+
     }
 }

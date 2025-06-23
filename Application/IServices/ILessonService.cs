@@ -32,6 +32,6 @@ namespace Application.IServices
             DateTime startTime
         );
 
-
+        Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId);
     }
 }

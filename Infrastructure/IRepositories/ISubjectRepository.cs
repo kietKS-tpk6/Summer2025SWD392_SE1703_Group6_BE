@@ -18,6 +18,7 @@ namespace Infrastructure.IRepositories
         Task<string> DeleteSubjectAsync(string subjectId);
         Task<bool> SubjectExistsAsync(string subjectId);
         Task<int> GetTotalSubjectsCountAsync();
+
         //kiệt
         Task<bool> ExistsByIdAsync(string subjectId);
         //kiệt

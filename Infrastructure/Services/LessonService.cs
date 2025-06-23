@@ -16,9 +16,12 @@ namespace Infrastructure.Services
     {
         private readonly ILessonRepository _lessonRepository;
         private readonly ITestEventService _testEventService;
-        public LessonService(ILessonRepository lessonRepository)
+        private readonly IClassRepository _classRepository;
+        public LessonService(ILessonRepository lessonRepository, IClassRepository classRepository, ITestEventService testEventService)
         {
             _lessonRepository = lessonRepository;
+            _classRepository = classRepository;
+            _testEventService = testEventService;
         }
         public async Task<OperationResult<bool>> CreateLessonAsync(LessonCreateCommand request)
         {
@@ -47,20 +50,17 @@ namespace Infrastructure.Services
 
         public async Task<OperationResult<bool>> UpdateLessonAsync(LessonUpdateCommand request)
         {
-            var updateLesson = new Lesson
-            {
-                ClassLessonID = request.ClassLessonID,
-                ClassID = request.ClassID,
-                LecturerID = request.LecturerID,
-                SyllabusScheduleID = request.SyllabusScheduleID,
-                StartTime = request.StartTime,
-            };
-
-            var success = await _lessonRepository.UpdateAsync(updateLesson);
+            var lessonFound = await _lessonRepository.GetLessonByClassLessonIDAsync(request.ClassLessonID);
+            if (lessonFound == null)
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("tiết học"));
+            lessonFound.LecturerID = request.LecturerID;
+            lessonFound.StartTime = request.StartTime;
+            var success = await _lessonRepository.UpdateAsync(lessonFound);
             return success
                 ? OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("tiết học"))
                 : OperationResult<bool>.Fail(OperationMessages.UpdateFail("tiết học"));
         }
+
 
         public async Task<OperationResult<List<LessonDTO>>> GetLessonsByClassID(string classID)
         {
@@ -204,6 +204,13 @@ namespace Infrastructure.Services
             {
                 return OperationResult<bool>.Fail($"Lỗi tạo buổi học: {ex.Message}");
             }
+        }
+        public async Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId)
+        {
+            var classFound = await _classRepository.GetByIdAsync(classId);
+            if (!classFound.Success || classFound.Data == null)
+                return OperationResult<List<LessonContentDTO>>.Fail(OperationMessages.NotFound("lớp học"));
+            return await _lessonRepository.GetLessonContentByClassIdAsyn(classId);
         }
 
 

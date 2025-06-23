@@ -42,6 +42,23 @@ namespace Infrastructure.Services
             var result = await _cloudinary.UploadAsync(uploadParams);
             return result.SecureUrl.ToString();
         }
+        public async Task<string> UploadAudioAsync(Stream fileStream, string fileName, string folder)
+        {
+            var uploadParams = new VideoUploadParams
+            {
+                File = new FileDescription(fileName, fileStream),
+                Folder = folder,
+                PublicId = Path.GetFileNameWithoutExtension(fileName),
+                Overwrite = true,
+                UseFilename = true,
+                UniqueFilename = false
+            };
+
+            var result = await _cloudinary.UploadAsync(uploadParams);
+            return result.SecureUrl.ToString();
+        }
+
+
     }
 
 }

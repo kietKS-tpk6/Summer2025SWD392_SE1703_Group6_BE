@@ -28,5 +28,6 @@ namespace Application.IServices
         Task<OperationResult<ClassDTO?>> GetClassDTOByIDAsync(string classId);
 
         Task<OperationResult<ClassCreateLessonDTO>> GetClassCreateLessonDTOByIdAsync(string classId);
+        Task<OperationResult<List<StudentDTO>>> GetStudentsByClassIdAsync(string classId);
     }
 }

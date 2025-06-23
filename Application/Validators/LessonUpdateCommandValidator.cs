@@ -14,16 +14,6 @@ namespace Application.Validators
                 .WithErrorCode(nameof(ErrorCodes.ClassLessonIDIsEmpty))
                 .WithMessage(ValidationMessages.ClassLessonIDIsEmpty);
 
-            RuleFor(x => x.ClassID)
-                .NotEmpty()
-                .WithErrorCode(nameof(ErrorCodes.ClassIDIsEmpty))
-                .WithMessage(ValidationMessages.ClassIDIsEmpty);
-
-            RuleFor(x => x.SyllabusScheduleID)
-                .NotEmpty()
-                .WithErrorCode(ErrorCodes.SyllabusScheduleIDIsEmpty)
-                .WithMessage(ValidationMessages.SyllabusScheduleIDIsEmpty);
-
             RuleFor(x => x.LecturerID)
                 .NotEmpty()
                 .WithErrorCode(nameof(ErrorCodes.LecturerIDIsEmpty))

@@ -11,8 +11,6 @@ namespace Application.Usecases.Command
     public class LessonUpdateCommand : IRequest<OperationResult<bool>>
     {
         public string ClassLessonID { get; set; }
-        public string ClassID { get; set; }
-        public string SyllabusScheduleID { get; set; }
         public string LecturerID { get; set; }
         public DateTime StartTime { get; set; }
 
