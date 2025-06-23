@@ -9,5 +9,6 @@ namespace Application.IServices
     public interface ICloudinaryService
     {
         Task<string> UploadFileAsync(Stream fileStream, string fileName, string folder);
+        Task<string> UploadAudioAsync(Stream fileStream, string fileName, string folder);
     }
 }
