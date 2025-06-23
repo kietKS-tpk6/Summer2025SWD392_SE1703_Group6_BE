@@ -16,9 +16,12 @@ namespace Infrastructure.Services
     {
         private readonly ILessonRepository _lessonRepository;
         private readonly ITestEventService _testEventService;
-        public LessonService(ILessonRepository lessonRepository)
+        private readonly IClassRepository _classRepository;
+        public LessonService(ILessonRepository lessonRepository, IClassRepository classRepository, ITestEventService testEventService)
         {
             _lessonRepository = lessonRepository;
+            _classRepository = classRepository;
+            _testEventService = testEventService;
         }
         public async Task<OperationResult<bool>> CreateLessonAsync(LessonCreateCommand request)
         {
@@ -204,6 +207,13 @@ namespace Infrastructure.Services
             {
                 return OperationResult<bool>.Fail($"Lỗi tạo buổi học: {ex.Message}");
             }
+        }
+        public async Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId)
+        {
+            var classFound = await _classRepository.GetByIdAsync(classId);
+            if (!classFound.Success || classFound.Data == null)
+                return OperationResult<List<LessonContentDTO>>.Fail(OperationMessages.NotFound("lớp học"));
+            return await _lessonRepository.GetLessonContentByClassIdAsyn(classId);
         }
 
 

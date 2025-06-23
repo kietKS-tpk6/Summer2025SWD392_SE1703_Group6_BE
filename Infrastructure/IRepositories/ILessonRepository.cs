@@ -21,5 +21,6 @@ namespace Infrastructure.IRepositories
         Task<LessonDetailDTO> GetLessonDetailByLessonIDAsync(string classLessonID);
         Task<bool> CreateManyAsync(List<Lesson> lessons);
         Task<Lesson?> GetLessonByClassLessonIDAsync(string classLessonID);
+        Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId);
     }
 }

@@ -136,6 +136,35 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(l => l.ClassLessonID == classLessonID && l.IsActive);
         }
 
+        public async Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId)
+        {
+            var lessons = await _dbContext.Lesson
+            .Include(l => l.SyllabusSchedule)
+            .Include(l => l.Lecturer)
+            .Include(l => l.Class)
+                .ThenInclude(c => c.Subject)
+            .Where(l => l.ClassID == classId && l.IsActive)
+            .OrderBy(l => l.StartTime)
+            .ToListAsync();
+
+            if (lessons.Count == 0)
+                return OperationResult<List<LessonContentDTO>>.Fail(OperationMessages.NotFound("tiết học"));
+
+            var result = lessons.Select(lesson => new LessonContentDTO
+            {
+                ClassLessonID = lesson.ClassLessonID,
+                LectureID = lesson.LecturerID,
+                SyllabusScheduleID = lesson.SyllabusScheduleID,
+                LessonTitle = lesson.SyllabusSchedule?.LessonTitle ?? "(Không tiêu đề)",
+                StartTime = lesson.StartTime,
+                EndTime = lesson.StartTime.AddMinutes(lesson.SyllabusSchedule?.DurationMinutes ?? 0),
+                LinkMeetURL = lesson.LinkMeetURL,
+                SubjectName = lesson.Class?.Subject?.SubjectName ?? "(Không rõ môn)",
+                LectureName = $"{lesson.Lecturer?.FirstName} {lesson.Lecturer?.LastName}".Trim()
+            }).ToList();
+
+            return OperationResult<List<LessonContentDTO>>.Ok(result);
+        }
 
     }
 }
