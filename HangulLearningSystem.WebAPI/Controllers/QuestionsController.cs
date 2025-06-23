@@ -38,6 +38,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpPut("questions/bulk-update")]
+        public async Task<IActionResult> UpdateMultipleQuestions([FromBody] UpdateMultipleQuestionsCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
         [HttpGet("by-test/{testId}")]
         public async Task<IActionResult> GetQuestionsByTestId(string testId)
         {

@@ -41,6 +41,13 @@ namespace Infrastructure.Repositories
             _dbContext.MCQOption.RemoveRange(existingOptions);
             await _dbContext.SaveChangesAsync();
         }
+        public async Task<List<string>> GetCorrectOptionIDsAsync(string questionID)
+        {
+            return await _dbContext.MCQOption
+                .Where(o => o.QuestionID == questionID && o.IsCorrect)
+                .Select(o => o.MCQOptionID)
+                .ToListAsync();
+        }
     }
 
 }

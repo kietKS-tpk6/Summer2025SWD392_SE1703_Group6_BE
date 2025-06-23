@@ -66,6 +66,7 @@ namespace Infrastructure
             services.AddScoped<IMCQAnswerDetailService, MCQAnswerDetailService>();
             services.AddScoped<IMCQAnswerService, MCQAnswerService>();
             services.AddScoped<IWritingAnswerService, WritingAnswerService>();
+            services.AddScoped<IStudentTestService, StudentTestService>();
 
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
@@ -86,6 +87,7 @@ namespace Infrastructure
             services.AddScoped<IMCQAnswerDetailRepository, MCQAnswerDetailRepository>();
             services.AddScoped<IMCQAnswerRepository, MCQAnswerRepository>();
             services.AddScoped<IWritingAnswerRepository, WritingAnswerRepository>();
+            services.AddScoped<IStudentTestRepository, StudentTestRepository>();
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
@@ -93,8 +95,9 @@ namespace Infrastructure
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
             services.AddScoped<SyllabusScheduleCreateCommand>();
-            
-                            
+            services.AddScoped<SubmitStudentTestCommandHandler>();
+
+
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();

@@ -49,5 +49,9 @@ namespace Infrastructure.Repositories
             return await _dbContext.Question
                 .FirstOrDefaultAsync(q => q.QuestionID == questionId);
         }
+        public async Task<IEnumerable<Question>> GetBySectionIDAsync(string sectionId)
+        {
+            return await _dbContext.Question.Where(q => q.TestSectionID == sectionId).ToListAsync();
+        }
     }
 }

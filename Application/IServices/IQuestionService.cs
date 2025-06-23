@@ -25,6 +25,7 @@ namespace Application.IServices
         Task<OperationResult<List<TestSectionWithQuestionsDTO>>> GetQuestionsByTestIdAsync(string testId);
         Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionDTO> options);
         OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionDTO>? options);
+        Task<OperationResult<bool>> UpdateMultipleQuestionsAsync(List<UpdateQuestionCommand> commands);
 
     }
 }

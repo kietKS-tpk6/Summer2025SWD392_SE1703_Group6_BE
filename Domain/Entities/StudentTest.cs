@@ -36,7 +36,7 @@ namespace Domain.Entities
 
         public DateTime? GradeAt { get; set; }
 
-        public int? Score { get; set; }
+        public decimal? Score { get; set; }
 
         public string? Feedback { get; set; }
 
