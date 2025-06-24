@@ -149,6 +149,7 @@ namespace Infrastructure.Repositories
             {
                 var subjects = await _dbContext.Subject
                     .Where(s => s.Status == subjectStatus)
+                    .OrderByDescending(s => s.CreateAt)
                     .Select(s => new SubjectCreateClassDTO
                     {
                         SubjectID = s.SubjectID,
