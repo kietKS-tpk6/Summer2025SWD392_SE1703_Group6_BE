@@ -24,7 +24,7 @@ namespace Domain.Entities
         public string ClassLessonID { get; set; }
 
         [MaxLength(255)]
-        public string Note { get; set; }
+        public string? Note { get; set; }
 
         public AttendanceStatus Status { get; set; }
 

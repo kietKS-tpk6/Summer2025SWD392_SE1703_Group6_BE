@@ -43,6 +43,8 @@ namespace Infrastructure
             services.AddScoped<LessonCreateCommandHandler>();
             services.AddScoped<LessonUpdateCommandHandler>();
             services.AddScoped<LessonCreateFromScheduleCommandHandler>();
+                //Attendance 
+            services.AddScoped<AttendanceCheckCommandHandler>();
             //Other
             services.AddScoped<SendOTPViaEmailCommandHandler>();
 
@@ -71,6 +73,7 @@ namespace Infrastructure
             services.AddScoped<IWritingAnswerService, WritingAnswerService>();
             services.AddScoped<IStudentTestService, StudentTestService>();
 
+            services.AddScoped<IAttendanceService, AttendanceService>();
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -91,6 +94,8 @@ namespace Infrastructure
             services.AddScoped<IMCQAnswerRepository, MCQAnswerRepository>();
             services.AddScoped<IWritingAnswerRepository, WritingAnswerRepository>();
             services.AddScoped<IStudentTestRepository, StudentTestRepository>();
+            services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
