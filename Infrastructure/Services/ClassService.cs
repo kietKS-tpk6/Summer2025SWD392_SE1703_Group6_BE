@@ -202,6 +202,10 @@ namespace Infrastructure.Services
             };
             return OperationResult<PagedResult<ClassDTO>>.Ok(result, OperationMessages.RetrieveSuccess("lớp học theo trạng thái"));
         }
+        public async Task<OperationResult<List<Class>>> GetClassesByStatusAsync(ClassStatus status)
+        {
+            return await _classRepository.GetClassesByStatusAsync(status);
+        }
 
 
         public async Task<OperationResult<List<ClassDTO>>> SearchClassAsync(string keyword)

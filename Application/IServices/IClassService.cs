@@ -7,6 +7,8 @@ using Application.Common.Constants;
 using Application.Common.Shared;
 using Application.DTOs;
 using Application.Usecases.Command;
+using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.IServices
 {
@@ -23,7 +25,7 @@ namespace Application.IServices
         Task<OperationResult<PagedResult<ClassDTO>>> GetListByTeacherAsync(string teacherId, int page, int pageSize);
         Task<OperationResult<PagedResult<ClassDTO>>> GetListBySubjectAndTeacherAsync(string subjectId, string teacherId, int page, int pageSize);
         Task<OperationResult<PagedResult<ClassDTO>>> GetListByStatusAsync(string status, int page, int pageSize);
-
+        Task<OperationResult<List<Class>>> GetClassesByStatusAsync(ClassStatus status);
         Task<OperationResult<List<ClassDTO>>> SearchClassAsync(string keyword);
         Task<OperationResult<ClassDTO?>> GetClassDTOByIDAsync(string classId);
 
