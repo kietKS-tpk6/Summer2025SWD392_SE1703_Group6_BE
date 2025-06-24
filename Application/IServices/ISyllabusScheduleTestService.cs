@@ -18,7 +18,7 @@ namespace Application.IServices
         //Task<List<(string Category, string TestType)>> GetAddedTestsAsync(string syllabusId);
         //Task<bool> IsTestOverLimitAsync(string syllabusId, TestCategory category, TestType testType, int? excludeId = null);
         Domain.Enums.TestType? NormalizeTestType(string type, bool isRequired = true);
-        Domain.Enums.TestCategory? NormalizeTestCategory(string category, bool isRequired = true);
+        Domain.Enums.AssessmentCategory? NormalizeAssessmentCategory(string category, bool isRequired = true);
 
         Task<OperationResult<SyllabusScheduleTest>> CreateAsync(SyllabusScheduleTest test);
 

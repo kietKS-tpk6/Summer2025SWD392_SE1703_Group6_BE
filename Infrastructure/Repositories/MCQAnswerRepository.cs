@@ -51,7 +51,7 @@ namespace Infrastructure.Repositories
                     QuestionID = questionID
                 };
                 _dbContext.MCQAnswers.Add(mcqAnswer);
-
+                await _dbContext.SaveChangesAsync();
                 foreach (var optionID in selectedOptionIDs)
                 {
                     var detail = new MCQAnswerDetail
@@ -71,5 +71,6 @@ namespace Infrastructure.Repositories
                 return OperationResult<bool>.Fail("Lỗi lưu MCQAnswer: " + ex.Message);
             }
         }
+    
     }
 }

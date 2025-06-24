@@ -50,17 +50,15 @@ namespace Infrastructure.Services
             var exists = await _studentTestRepo.ExistsAsync(studentTestID);
             return exists ? OperationResult<bool>.Ok(true) : OperationResult<bool>.Fail("StudentTest không tồn tại.");
         }
-
         public async Task<OperationResult<bool>> SubmitStudentTestAsync(
-     string studentTestID,
-     string testID,
-     List<SectionAnswerDTO> sectionAnswers)
+      string studentTestID,
+      string testID,
+      List<SectionAnswerDTO> sectionAnswers)
         {
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
-                decimal totalScore = 0;
+                decimal totalScore = 0m;
                 bool hasWriting = false;
                 bool hasMCQ = false;
 
@@ -75,19 +73,30 @@ namespace Infrastructure.Services
                     {
                         if (section.FormatType == TestFormatType.Writing)
                         {
-                            var essay = answer.Answers.FirstOrDefault() ?? "";
-                            await _writingAnswerRepo.SaveAnswerAsync(studentTestID, answer.QuestionID, essay);
+                            var essay = answer.Answers.FirstOrDefault() ?? string.Empty;
+                            var saveResult = await _writingAnswerRepo.SaveAnswerAsync(studentTestID, answer.QuestionID, essay);
+                            if (!saveResult.Success)
+                            {
+                                await transaction.RollbackAsync();
+                                return OperationResult<bool>.Fail($"Lỗi lưu bài viết: {saveResult.Message}");
+                            }
                         }
-                        else
+                        else // MCQ
                         {
-                            await _mcqAnswerRepo.SaveAnswerAsync(studentTestID, answer.QuestionID, answer.Answers);
+                            var saveResult = await _mcqAnswerRepo.SaveAnswerAsync(studentTestID, answer.QuestionID, answer.Answers);
+                            if (!saveResult.Success)
+                            {
+                                await transaction.RollbackAsync();
+                                return OperationResult<bool>.Fail($"Lỗi lưu đáp án MCQ: {saveResult.Message}");
+                            }
 
                             var correctIDs = await _optionRepo.GetCorrectOptionIDsAsync(answer.QuestionID);
-                            bool correct = correctIDs.OrderBy(x => x).SequenceEqual(answer.Answers.OrderBy(x => x));
-                            if (correct)
+                            var isCorrect = correctIDs.OrderBy(x => x).SequenceEqual(answer.Answers.OrderBy(x => x));
+                            if (isCorrect)
                             {
-                                var q = await _questionRepo.GetByIdAsync(answer.QuestionID);
-                                totalScore += q?.Score ?? 0;
+                                var question = await _questionRepo.GetByIdAsync(answer.QuestionID);
+                                if (question != null)
+                                    totalScore += question.Score;
                             }
                         }
                     }
@@ -95,37 +104,39 @@ namespace Infrastructure.Services
 
                 var studentTest = await _studentTestRepo.GetByIdAsync(studentTestID);
                 if (studentTest == null)
+                {
+                    await transaction.RollbackAsync();
                     return OperationResult<bool>.Fail("Không tìm thấy bài làm.");
+                }
 
                 var test = await _testRepo.GetTestByIdAsync(testID);
                 if (test == null)
-                    return OperationResult<bool>.Fail("Không tìm thấy bài kiểm tra.");
-
-                studentTest.SubmitTime = DateTime.Now;
-                studentTest.Score = hasMCQ ? totalScore : null;
-
-                switch (test.Data.TestType)
                 {
-                    case TestType.MCQ:
-                        studentTest.Status = StudentTestStatus.Graded;
-                        break;
-
-                    case TestType.Writing:
-                        studentTest.Status = StudentTestStatus.WaitingForGrading;
-                        break;
-
-                    case TestType.Mix:
-                        studentTest.Status = hasWriting
-                            ? StudentTestStatus.WaitingForGrading
-                            : StudentTestStatus.AutoGraded;
-                        break;
-
-                    default:
-                        studentTest.Status = StudentTestStatus.Submitted;
-                        break;
+                    await transaction.RollbackAsync();
+                    return OperationResult<bool>.Fail("Không tìm thấy bài kiểm tra.");
                 }
 
-                await _studentTestRepo.UpdateAsync(studentTest);
+                // Determine new status
+                var newStatus = test.Data.TestType switch
+                {
+                    TestType.MCQ => StudentTestStatus.Graded,
+                    TestType.Writing => StudentTestStatus.WaitingForGrading,
+                    TestType.Mix => hasWriting ? StudentTestStatus.WaitingForGrading : StudentTestStatus.AutoGraded,
+                    _ => StudentTestStatus.Submitted
+                };
+
+                // Update only the fields we need to change
+                studentTest.SubmitTime = DateTime.Now;
+                studentTest.Mark = hasMCQ ? totalScore : null;
+                studentTest.Status = newStatus;
+
+                // Use specific property updates to avoid constraint issues
+                var entry = _dbContext.Entry(studentTest);
+                entry.Property(e => e.SubmitTime).IsModified = true;
+                entry.Property(e => e.Mark).IsModified = true;
+                entry.Property(e => e.Status).IsModified = true;
+
+                await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return OperationResult<bool>.Ok(true, "Nộp bài và xử lý thành công.");
@@ -136,6 +147,7 @@ namespace Infrastructure.Services
                 return OperationResult<bool>.Fail("Lỗi hệ thống khi lưu bài: " + ex.Message);
             }
         }
+
 
     }
 

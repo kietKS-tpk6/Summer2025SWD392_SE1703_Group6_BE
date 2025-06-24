@@ -146,7 +146,7 @@ namespace Infrastructure.Services
             return await _syllabusScheduleTestRepository.CreateAsync(test);
         }
 
-        public Domain.Enums.TestCategory? NormalizeTestCategory(string category, bool isRequired = true)
+        public Domain.Enums.AssessmentCategory? NormalizeAssessmentCategory(string category, bool isRequired = true)
         {
             if (string.IsNullOrWhiteSpace(category))
             {
@@ -160,12 +160,12 @@ namespace Infrastructure.Services
             if (normalizedCategory == null)
                 return null;
 
-            if (Enum.TryParse<Domain.Enums.TestCategory>(normalizedCategory, true, out var result))
+            if (Enum.TryParse<Domain.Enums.AssessmentCategory>(normalizedCategory, true, out var result))
             {
                 return result;
             }
 
-            throw new ArgumentException($"Thể loại '{category}' không hợp lệ. Chỉ chấp nhận: Midterm, Final, FifteenMinutes.");
+            throw new ArgumentException($"Thể loại '{category}' không hợp lệ. Chỉ chấp nhận: Midterm, Final, FifteenMinutes, Quiz, Presentation, Attendance, Assignment, ClassParticipation.");
         }
         public Domain.Enums.TestType? NormalizeTestType(string type, bool isRequired = true)
         {
