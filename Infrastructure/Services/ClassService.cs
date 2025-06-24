@@ -242,6 +242,10 @@ namespace Infrastructure.Services
             }
             return await _classRepository.GetStudentsByClassIdAsync(classId);
         }
+        public async Task<OperationResult<bool>> IsClassNameDuplicateAsync(string className)
+        {
+            return await _classRepository.IsClassNameDuplicateAsync(className);
+        }
     }
 
 }

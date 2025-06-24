@@ -27,6 +27,21 @@ namespace Infrastructure.Repositories
             return await _dbContext.ClassEnrollment
                 .CountAsync(sc => sc.ClassID == classId);
         }
+        public async Task<OperationResult<bool>> IsClassNameDuplicateAsync(string className)
+        {
+            var isDuplicate = await _dbContext.Class
+            .AnyAsync(c =>
+                c.ClassName == className &&
+                c.Status != ClassStatus.Deleted 
+            );
+            if (isDuplicate)
+            {
+                return OperationResult<bool>.Fail("Tên lớp đã tồn tại");
+            }
+
+            return OperationResult<bool>.Ok(true);
+        }
+
 
         public async Task<OperationResult<List<Class>>> GetAllAsync()
         {

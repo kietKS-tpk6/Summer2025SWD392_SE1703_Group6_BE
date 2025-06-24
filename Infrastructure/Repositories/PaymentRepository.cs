@@ -45,7 +45,7 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Payment
                 .Include(p => p.Class)
-                .Include(p => p.Transaction)
+                //.Include(p => p.Transaction)
                 .Where(p => p.AccountID == accountId)
                 .OrderByDescending(p => p.DayCreate)
                 .ToListAsync();
