@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
 using Application.IServices;
+using Application.Usecases.Command;
 using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
 
@@ -60,6 +61,9 @@ namespace Infrastructure.Services
             }
             return await _attendanceRepository.GetAttendanceByLessonIdAsync(lessonId);
         }
-
+        public async Task<OperationResult<bool>> CheckAttendanceAsync(AttendanceCheckCommand request)
+        {
+            return await _attendanceRepository.CheckAttendanceAsync(request);
+        }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
+using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
@@ -139,6 +140,41 @@ namespace Infrastructure.Repositories
             catch (Exception ex)
             {
                 return OperationResult<LessonAttendanceDTO>.Fail($"Lỗi khi truy xuất điểm danh: {ex.Message}");
+            }
+        }
+
+        public async Task<OperationResult<bool>> CheckAttendanceAsync(AttendanceCheckCommand request)
+        {
+            try
+            {
+                var recordIds = request.AttendanceRecords.Select(r => r.AttendanceRecordID).ToList();
+
+                var existingRecords = await _dbContext.AttendanceRecord
+                    .Where(ar => recordIds.Contains(ar.AttendaceID) && ar.ClassLessonID == request.LessonId)
+                    .ToListAsync();
+
+                if (existingRecords.Count != request.AttendanceRecords.Count)
+                {
+                    return OperationResult<bool>.Fail("Một số bản ghi điểm danh không tồn tại hoặc không khớp với tiết học.");
+                }
+
+                var recordDict = request.AttendanceRecords.ToDictionary(r => r.AttendanceRecordID);
+
+                foreach (var record in existingRecords)
+                {
+                    if (recordDict.TryGetValue(record.AttendaceID, out var updated))
+                    {
+                        record.Status = updated.AttendanceStatus;
+                        record.Note = updated.Note?.Trim() ?? "";
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync();
+                return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("điểm danh"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<bool>.Fail($"Lỗi khi cập nhật điểm danh: {ex.Message}");
             }
         }
 

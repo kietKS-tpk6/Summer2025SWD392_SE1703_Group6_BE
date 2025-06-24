@@ -1,4 +1,5 @@
 ﻿using Application.IServices;
+using Application.Usecases.Command;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,6 +21,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
         public async Task<IActionResult> SetupAttendaceByClassID(string classId)
         {
             var result = await _attendanceService.SetupAttendaceByClassIdAsync(classId);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+        [HttpPut("check-attendace")]
+        public async Task<IActionResult> CheckAttendace([FromBody] AttendanceCheckCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
             if (!result.Success)
                 return BadRequest(result.Message);
 
