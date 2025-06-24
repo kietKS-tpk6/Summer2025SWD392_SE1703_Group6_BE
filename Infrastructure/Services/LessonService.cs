@@ -141,21 +141,38 @@ namespace Infrastructure.Services
 
 
         public async Task<OperationResult<bool>> CreateLessonsFromSchedulesAsync(
-            string classId,
-            string lecturerId,
-            TimeOnly startHour,
-            List<DayOfWeek> selectedDays,
-            List<SyllabusScheduleCreateLessonDTO> schedules,
-            DateTime startTime
-        )
+     string classId,
+     string lecturerId,
+     TimeOnly startHour,
+     List<DayOfWeek> selectedDays,
+     List<SyllabusScheduleCreateLessonDTO> schedules,
+     DateTime startTime
+ )
         {
             try
             {
                 var lessonsToCreate = new List<Lesson>();
                 var startDate = startTime.Date;
                 int currentScheduleIndex = 0;
-                int currentWeek = schedules.Min(s => s.Week);
-                var totalSchedules = schedules.Count;
+                int baseWeek = schedules.Min(s => s.Week);
+                int totalSchedules = schedules.Count;
+
+                var numLesson = await _lessonRepository.CountAsync();
+                string firstLessonID = "L" + (numLesson + lessonsToCreate.Count).ToString("D6");
+                string firstRoomUrl = "https://meet.jit.si/hangullearningsystem/" + Guid.NewGuid().ToString("N").Substring(0, 16);
+
+                lessonsToCreate.Add(new Lesson
+                {
+                    ClassLessonID = firstLessonID,
+                    ClassID = classId,
+                    LecturerID = lecturerId,
+                    SyllabusScheduleID = schedules[0].SyllabusScheduleId,
+                    StartTime = startTime,
+                    LinkMeetURL = firstRoomUrl,
+                    IsActive = true
+                });
+
+                currentScheduleIndex++;
 
                 while (currentScheduleIndex < totalSchedules)
                 {
@@ -164,19 +181,9 @@ namespace Infrastructure.Services
                         if (currentScheduleIndex >= totalSchedules) break;
 
                         var schedule = schedules[currentScheduleIndex];
+                        int weekOffset = schedule.Week - baseWeek;
 
-                        DateTime targetDate;
-                        if (currentScheduleIndex == 0)
-                        {
-                            targetDate = startDate;
-                        }
-                        else
-                        {
-                            targetDate = startDate.AddDays((int)day - (int)startDate.DayOfWeek);
-                            targetDate = targetDate.AddDays(7 * (schedule.Week - currentWeek));
-                        }
-
-                        var numLesson = await _lessonRepository.CountAsync();
+                        var targetDate = GetNextWeekday(startDate, day, weekOffset);
                         string newLessonID = "L" + (numLesson + lessonsToCreate.Count).ToString("D6");
                         string roomUrl = "https://meet.jit.si/hangullearningsystem/" + Guid.NewGuid().ToString("N").Substring(0, 16);
 
@@ -190,10 +197,11 @@ namespace Infrastructure.Services
                             LinkMeetURL = roomUrl,
                             IsActive = true
                         });
-                        
+
                         currentScheduleIndex++;
                     }
                 }
+
                 var saveResult = await _lessonRepository.CreateManyAsync(lessonsToCreate);
                 if (!saveResult)
                     return OperationResult<bool>.Fail(OperationMessages.CreateFail("buổi học"));
@@ -205,6 +213,13 @@ namespace Infrastructure.Services
                 return OperationResult<bool>.Fail($"Lỗi tạo buổi học: {ex.Message}");
             }
         }
+
+        private DateTime GetNextWeekday(DateTime start, DayOfWeek targetDay, int weekOffset)
+        {
+            int daysToAdd = ((int)targetDay - (int)start.DayOfWeek + 7) % 7;
+            return start.AddDays(daysToAdd + 7 * weekOffset);
+        }
+
         public async Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId)
         {
             var classFound = await _classRepository.GetByIdAsync(classId);
