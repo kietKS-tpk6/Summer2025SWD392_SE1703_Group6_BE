@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.IServices;
 using Domain.Entities;
 using Infrastructure.IRepositories;
@@ -22,7 +23,10 @@ namespace Infrastructure.Services
         private readonly ILogger<EmailService> _logger;
         private readonly IOTPRepository _OTPRepository;
         private const int TIME_TO_USE_OTP_MINUTES = 5;
-        public EmailService(IConfiguration configuration, ILogger<EmailService> logger, IOTPRepository oTPRepository)
+        private readonly IClassRepository _classRepository;
+        private readonly ISystemConfigService _systemConfigService;
+        public EmailService(IConfiguration configuration, ILogger<EmailService> logger, IOTPRepository oTPRepository, 
+            IClassRepository classRepository, ISystemConfigService systemConfigService)
         {
             _logger = logger;
             _OTPRepository = oTPRepository;
@@ -38,7 +42,8 @@ namespace Infrastructure.Services
                 EnableSsl = bool.Parse(emailSettings["EnableSsl"] ?? "true"),
                 Timeout = 30000 // 30 seconds timeout
             };
-
+            _classRepository = classRepository;
+            _systemConfigService = systemConfigService;
         }
 
         private string GenerateOtpCode(int length = 6)
@@ -331,6 +336,167 @@ namespace Infrastructure.Services
                 return false;
             }
         }
+        public async Task<OperationResult<bool>> SendClassStartNotificationAsync(string classId)
+        {
+            try
+            {
+                // Lấy thông tin lớp học và danh sách học viên đã đăng ký
+                var classInfo = await _classRepository.GetByIdAsync(classId);
+                if (!classInfo.Success || classInfo.Data == null)
+                    return OperationResult<bool>.Fail(OperationMessages.NotFound("lớp học"));
+
+                var enrolledStudents = await _classRepository.GetStudentsByClassIdAsync(classId);
+                var studentsResult = await _classRepository.GetStudentsByClassIdAsync(classId);
+                if (!studentsResult.Success || studentsResult.Data == null || !studentsResult.Data.Any())
+                {
+                    return OperationResult<bool>.Fail("Không tìm thấy học viên đăng ký lớp.");
+                }
+                var emails = studentsResult.Data
+                    .Where(s => !string.IsNullOrWhiteSpace(s.Email))
+                    .Select(s => s.Email)
+                    .Distinct() 
+                    .ToList();
+                if (!emails.Any())
+                {
+                    return OperationResult<bool>.Fail("Không có địa chỉ email để gửi.");
+                }
+                string subject = $"[HangulLearning] Lớp {classInfo.Data.ClassName} sắp bắt đầu!";
+                string body = $@"
+            <h2>Lịch học đã được xác nhận</h2>
+            <p>Chào bạn,</p>
+            <p>Lớp <strong>{classInfo.Data.ClassName}</strong> mà bạn đã đăng ký sẽ bắt đầu vào lúc <strong>{classInfo.Data.TeachingStartTime:HH:mm dd/MM/yyyy}</strong>.</p>
+            <p>Vui lòng kiểm tra lại lịch học trên hệ thống và tham gia đúng giờ!</p>
+            <p>Chúc bạn học tốt!</p>";
+
+                bool allSuccess = true;
+                foreach (var email in emails)
+                {
+                    var sent = await SendEmailAsync(email, subject, body);
+                    if (!sent)
+                    {
+                        _logger.LogWarning("Không thể gửi email thông báo bắt đầu lớp học đến: {Email}", email);
+                        allSuccess = false;
+                    }
+                }
+
+                return allSuccess
+                    ? OperationResult<bool>.Ok(true, "Đã gửi email thông báo bắt đầu lớp học đến học viên.")
+                    : OperationResult<bool>.Fail("Một số email không được gửi thành công.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi gửi email thông báo bắt đầu lớp học");
+                return OperationResult<bool>.Fail("Có lỗi xảy ra khi gửi email.");
+            }
+        }
+
+        public async Task<OperationResult<bool>> SendLessonUpdateNotificationAsync(string classId)
+        {
+            try
+            {
+                var classInfo = await _classRepository.GetByIdAsync(classId);
+                if (!classInfo.Success || classInfo.Data == null)
+                    return OperationResult<bool>.Fail(OperationMessages.NotFound("lớp học"));
+
+                var studentsResult = await _classRepository.GetStudentsByClassIdAsync(classId);
+                if (!studentsResult.Success || studentsResult.Data == null || !studentsResult.Data.Any())
+                    return OperationResult<bool>.Fail("Không có học viên để gửi email.");
+
+                var emails = studentsResult.Data
+                    .Where(s => !string.IsNullOrWhiteSpace(s.Email))
+                    .Select(s => s.Email)
+                    .Distinct()
+                    .ToList();
+
+                if (!emails.Any())
+                    return OperationResult<bool>.Fail("Không có địa chỉ email hợp lệ.");
+
+                string subject = $"[HangulLearning] Lịch học của lớp {classInfo.Data.ClassName} đã được cập nhật";
+                string body = $@"
+            <h2>Thông báo thay đổi lịch học</h2>
+            <p>Lịch học của lớp <strong>{classInfo.Data.ClassName}</strong> đã có thay đổi.</p>
+            <p>Vui lòng đăng nhập hệ thống để kiểm tra thông tin cập nhật mới nhất.</p>
+            <div style='text-align:center;margin-top:20px'>
+                <a href='http://localhost:5173/student/schedule'
+                   style='background-color:#667eea;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold'>
+                   Xem lịch học
+                </a>
+            </div>";
+
+                bool allSuccess = true;
+                foreach (var email in emails)
+                {
+                    var sent = await SendEmailAsync(email, subject, body);
+                    if (!sent)
+                    {
+                        _logger.LogWarning("Không gửi được email thông báo cập nhật lịch học tới {Email}", email);
+                        allSuccess = false;
+                    }
+                }
+
+                return allSuccess
+                    ? OperationResult<bool>.Ok(true, "Đã gửi email thông báo cập nhật lịch học đến học viên.")
+                    : OperationResult<bool>.Fail("Một số email gửi không thành công.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi gửi thông báo cập nhật lịch học.");
+                return OperationResult<bool>.Fail("Có lỗi xảy ra khi gửi email.");
+            }
+        }
+        public async Task<OperationResult<bool>> SendClassCancelledEmailAsync(string classId)
+        {
+            try
+            {
+                var classInfoResult = await _classRepository.GetByIdAsync(classId);
+                if (!classInfoResult.Success || classInfoResult.Data == null)
+                    return OperationResult<bool>.Fail(OperationMessages.NotFound("lớp học"));
+                var classInfo = classInfoResult.Data;
+                var studentsResult = await _classRepository.GetStudentsByClassIdAsync(classId);
+                if (!studentsResult.Success || studentsResult.Data == null || !studentsResult.Data.Any())
+                    return OperationResult<bool>.Fail("Không có học viên nào trong lớp.");
+
+                var emails = studentsResult.Data
+                    .Where(s => !string.IsNullOrWhiteSpace(s.Email))
+                    .Select(s => s.Email)
+                    .Distinct()
+                    .ToList();
+                if (!emails.Any())
+                    return OperationResult<bool>.Fail("Không có email hợp lệ để gửi.");
+                var supportPhone = await _systemConfigService.GetConfig("support_phone");
+                var supportEmail = await _systemConfigService.GetConfig("support_email");
+                string subject = $"[HangulLearning] Xin lỗi, lớp {classInfo.ClassName} đã bị hủy";
+                string body = $@"
+            <h2>Rất tiếc!</h2>
+            <p>Chúng tôi xin thông báo rằng lớp <strong>{classInfo.ClassName}</strong> đã bị hủy do không đủ số lượng học viên đăng ký.</p>
+            <p>Bạn có thể chọn đăng ký lớp khác hoặc liên hệ với trung tâm để được hỗ trợ thêm:</p>
+            <ul>
+                <li>📞 Số điện thoại: <strong>{supportPhone}</strong></li>
+                <li>📧 Email: <strong>{supportEmail}</strong></li>
+            </ul>
+            <p>Chúng tôi thành thật xin lỗi vì sự bất tiện này.</p>";
+
+                bool allSuccess = true;
+                foreach (var email in emails)
+                {
+                    var sent = await SendEmailAsync(email, subject, body);
+                    if (!sent)
+                    {
+                        _logger.LogWarning("Không gửi được email huỷ lớp tới {Email}", email);
+                        allSuccess = false;
+                    }
+                }
+
+                return allSuccess
+                    ? OperationResult<bool>.Ok(true, "Đã gửi email thông báo hủy lớp học đến học viên.")
+                    : OperationResult<bool>.Fail("Một số email gửi không thành công.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi gửi email huỷ lớp học.");
+                return OperationResult<bool>.Fail("Có lỗi xảy ra khi gửi email.");
+            }
+        }
 
         private string CreateWelcomeEmailWithPassTemplate(string userName, string password, string email)
         {
@@ -402,5 +568,6 @@ namespace Infrastructure.Services
     </body>
     </html>";
         }
+
     }
 }
