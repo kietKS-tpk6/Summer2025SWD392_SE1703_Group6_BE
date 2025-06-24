@@ -150,6 +150,24 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
+        [HttpGet("check-name")]
+        public async Task<IActionResult> CheckClassName([FromQuery] string className)
+        {
+            var result = await _classService.IsClassNameDuplicateAsync(className);
+            if (!result.Success)
+            {
+                return Ok(new
+                {
+                    isDuplicate = true,
+                    message = result.Message
+                });
+            }
+            return Ok(new
+            {
+                isDuplicate = false
+            });
+        }
+
     }
 
 }
