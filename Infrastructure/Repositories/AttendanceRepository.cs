@@ -57,40 +57,55 @@ namespace Infrastructure.Repositories
                 return OperationResult<string>.Fail($"Lỗi khi khởi tạo điểm danh: {ex.Message}");
             }
         }
-        public async Task<AttendanceRecordDTO> GetAttendanceAsync(string classId)
+        public async Task<OperationResult<AttendanceRecordDTO>> GetAttendanceAsync(string classId)
         {
-            var lessons = await _dbContext.Lesson
-                .Where(l => l.ClassID == classId)
-                .OrderBy(l => l.ClassLessonID)
-                .ToListAsync();
-            var lessonIds = lessons.Select(l => l.ClassLessonID).ToList();
-            var attendanceRecords = await _dbContext.AttendanceRecord
-                .Where(a => lessonIds.Contains(a.ClassLessonID))
-                .Include(a => a.Student)
-                .OrderBy(a => a.ClassLessonID)
-                .ToListAsync();
-            var result = new AttendanceRecordDTO
+            try
             {
-                LessonAttendances = lessons.Select(lesson => new LessonAttendanceDTO
-                {
-                    LessonID = lesson.ClassLessonID,
-                    LessonTitle = lesson.SyllabusSchedule?.LessonTitle ?? "(Không tiêu đề)",
-                    StudentAttendanceRecords = attendanceRecords
-                        .Where(a => a.ClassLessonID == lesson.ClassLessonID)
-                        .Select(a => new StudentAttendanceRecordDTO
-                        {
-                            AttendanceRecordID = a.AttendaceID,
-                            StudentID = a.StudentID,
-                            StudentName = a.Student?.Fullname ?? "(Không tên)",
-                            AttendanceStatus = a.Status,
-                            Note = a.Note ?? ""
-                        })
-                        .ToList()
-                }).ToList()
-            };
+                var lessons = await _dbContext.Lesson
+                    .Include(l => l.SyllabusSchedule)
+                    .Where(l => l.ClassID == classId)
+                    .OrderBy(l => l.StartTime)
+                    .ToListAsync();
 
-            return result;
+                if (!lessons.Any())
+                {
+                    return OperationResult<AttendanceRecordDTO>.Fail(OperationMessages.NotFound("tiết học"));
+                }
+
+                var lessonIds = lessons.Select(l => l.ClassLessonID).ToList();
+
+                var attendanceRecords = await _dbContext.AttendanceRecord
+                    .Where(a => lessonIds.Contains(a.ClassLessonID))
+                    .Include(a => a.Student)
+                    .ToListAsync();
+
+                var attendanceDTO = new AttendanceRecordDTO
+                {
+                    LessonAttendances = lessons.Select(lesson => new LessonAttendanceDTO
+                    {
+                        LessonID = lesson.ClassLessonID,
+                        LessonTitle = lesson.SyllabusSchedule?.LessonTitle ?? "(Không tiêu đề)",
+                        StudentAttendanceRecords = attendanceRecords
+                            .Where(r => r.ClassLessonID == lesson.ClassLessonID)
+                            .Select(r => new StudentAttendanceRecordDTO
+                            {
+                                AttendanceRecordID = r.AttendaceID,
+                                StudentID = r.StudentID,
+                                StudentName = r.Student?.Fullname ?? "(Không tên)",
+                                AttendanceStatus = r.Status,
+                                Note = r.Note ?? string.Empty
+                            }).ToList()
+                    }).ToList()
+                };
+
+                return OperationResult<AttendanceRecordDTO>.Ok(attendanceDTO, OperationMessages.RetrieveSuccess("thông tin điểm danh"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<AttendanceRecordDTO>.Fail($"Lỗi khi truy xuất điểm danh: {ex.Message}");
+            }
         }
+
         public async Task<OperationResult<LessonAttendanceDTO>> GetAttendanceByLessonIdAsync(string lessonId)
         {
             try

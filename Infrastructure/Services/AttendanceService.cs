@@ -49,13 +49,7 @@ namespace Infrastructure.Services
                 return OperationResult<AttendanceRecordDTO>.Fail(OperationMessages.NotFound("lớp học"));
             }
 
-            var result = await _attendanceRepository.GetAttendanceAsync(classId);
-            if (result == null)
-            {
-                return OperationResult<AttendanceRecordDTO>.Fail("Không tìm thấy dữ liệu điểm danh.");
-            }
-
-            return OperationResult<AttendanceRecordDTO>.Ok(result, "Lấy dữ liệu điểm danh thành công");
+            return  await _attendanceRepository.GetAttendanceAsync(classId);
         }
         public async Task<OperationResult<LessonAttendanceDTO>> GetAttendanceByLessonIdAsync(string lessonId)
         {
