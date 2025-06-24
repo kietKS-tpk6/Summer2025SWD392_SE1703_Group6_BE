@@ -8,6 +8,7 @@ using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using Infrastructure.Services.BackgroundServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,8 +22,10 @@ namespace Infrastructure
             // Database Context
             services.AddDbContext<HangulLearningSystemDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            //Background service
+            services.AddHostedService<ClassStatusBackgroundService>();
             //CommandHandler 
-                //Authent
+            //Authent
             services.AddScoped<LoginCommandHandler>();
             services.AddScoped<RegisterCommandHandler>();
                 //Subject
