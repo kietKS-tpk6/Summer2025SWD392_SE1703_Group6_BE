@@ -8,10 +8,17 @@ namespace Domain.Enums
 {
     public enum ClassStatus
     {
+        //Đang tạo, chờ xử lý 
         Pending,
+        //Mở tuyển sinh
         Open,
+        //Đang dạy 
         Ongoing,
+        //Hoàn thành
         Completed,
-        Deleted
+        //Xóa
+        Deleted,
+        //Lớp không đủ điều kiện mở.
+        Cancelled
     }
 }
