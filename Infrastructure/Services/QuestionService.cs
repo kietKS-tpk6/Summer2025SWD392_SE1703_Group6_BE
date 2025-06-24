@@ -150,9 +150,8 @@ namespace Infrastructure.Services
             var finalActiveQuestions = existing.Where(q => q.IsActive).ToList();
             return OperationResult<List<Question>>.Ok(finalActiveQuestions, "Tạo/cập nhật câu hỏi thành công.");
         }
-
-
-        public async Task<bool> IsTestFormatTypeConsistentAsync(string testSectionId, TestFormatType formatType)
+        
+          public async Task<bool> IsTestFormatTypeConsistentAsync(string testSectionId, TestFormatType formatType)
         {
             var questions = await _questionRepo.GetQuestionBySectionId(testSectionId);
             var activeQuestions = questions.Where(q => q.IsActive).ToList();
@@ -162,13 +161,38 @@ namespace Infrastructure.Services
 
             return activeQuestions.All(q => q.Type == formatType);
         }
+        public async Task<OperationResult<bool>> UpdateMultipleQuestionsAsync(List<UpdateQuestionCommand> commands)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
+            try
+            {
+                foreach (var command in commands)
+                {
+                    var result = await UpdateQuestionAsync(command);
+                    if (!result.Success)
+                    {
+                        await transaction.RollbackAsync();
+                        return OperationResult<bool>.Fail($"Cập nhật thất bại ở câu {command.QuestionID}: {result.Message}");
+                    }
+                }
+
+                await transaction.CommitAsync();
+                return OperationResult<bool>.Ok(true, "Cập nhật hàng loạt câu hỏi thành công.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return OperationResult<bool>.Fail("Lỗi hệ thống: " + ex.Message);
+            }
+        }
         public async Task<OperationResult<bool>> UpdateQuestionAsync(UpdateQuestionCommand command)
         {
             var question = await _questionRepo.GetByIdAsync(command.QuestionID);
             if (question == null)
                 return OperationResult<bool>.Fail("Không tìm thấy câu hỏi.");
 
+            // Kiểm tra nội dung hợp lệ
             var validateContent = ValidateExactlyOneContent(command.Context, command.ImageURL, command.AudioURL);
             if (!validateContent.Success)
                 return validateContent;
@@ -177,14 +201,13 @@ namespace Infrastructure.Services
             question.ImageURL = command.ImageURL;
             question.AudioURL = command.AudioURL;
 
-            // Nếu là dạng Writing, chỉ cập nhật Questions
             if (question.Type == TestFormatType.Writing)
             {
                 await _questionRepo.UpdateAsync(question);
                 return OperationResult<bool>.Ok(true, "Cập nhật câu hỏi dạng Writing thành công.");
             }
 
-            // Với Multiple/TrueFalse phải có options
+            // Validate options
             if (command.Options == null || !command.Options.Any())
                 return OperationResult<bool>.Fail("Câu hỏi dạng trắc nghiệm phải có ít nhất một đáp án.");
 
@@ -192,45 +215,25 @@ namespace Infrastructure.Services
             if (!optionValidation.Success)
                 return optionValidation;
 
-            // Mở transaction
-            using var transaction = await _dbContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
+            // Cập nhật câu hỏi chính
+            await _questionRepo.UpdateAsync(question);
 
-            try
+            // Xóa và thêm lại MCQ options
+            await _mCQOptionRepository.DeleteByQuestionIdAsync(question.QuestionID);
+
+            var newOptions = command.Options.Select(opt => new MCQOption
             {
-                // Cập nhật câu hỏi chính
-                await _questionRepo.UpdateAsync(question);
+                MCQOptionID = "MO" + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper(),
+                QuestionID = question.QuestionID,
+                Context = opt.Context,
+                ImageURL = opt.ImageURL,
+                AudioURL = opt.AudioURL,
+                IsCorrect = opt.IsCorrect
+            }).ToList();
 
-                // Xóa đáp án cũ
-                await _mCQOptionRepository.DeleteByQuestionIdAsync(question.QuestionID);
+            await _mCQOptionRepository.AddRangeAsync(newOptions);
 
-                // Thêm đáp án mới
-                var newOptions = command.Options.Select(opt => new MCQOption
-                {
-                    MCQOptionID = "MO" + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper(),
-                    QuestionID = question.QuestionID,
-                    Context = opt.Context,
-                    ImageURL = opt.ImageURL,
-                    AudioURL = opt.AudioURL,
-                    IsCorrect = opt.IsCorrect
-                }).ToList();
-
-                await _mCQOptionRepository.AddRangeAsync(newOptions);
-
-                // Commit transaction
-                await transaction.CommitAsync();
-                return OperationResult<bool>.Ok(true, "Cập nhật câu hỏi trắc nghiệm thành công.");
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    if (_dbContext.Database.CurrentTransaction != null)
-                        await transaction.RollbackAsync();
-                }
-                catch { }
-
-                return OperationResult<bool>.Fail("Đã xảy ra lỗi khi cập nhật câu hỏi.");
-            }
+            return OperationResult<bool>.Ok(true, "Cập nhật câu hỏi trắc nghiệm thành công.");
         }
 
 
