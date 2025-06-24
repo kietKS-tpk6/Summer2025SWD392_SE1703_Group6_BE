@@ -471,8 +471,8 @@ namespace Infrastructure.Services
             <p>Chúng tôi xin thông báo rằng lớp <strong>{classInfo.ClassName}</strong> đã bị hủy do không đủ số lượng học viên đăng ký.</p>
             <p>Bạn có thể chọn đăng ký lớp khác hoặc liên hệ với trung tâm để được hỗ trợ thêm:</p>
             <ul>
-                <li>📞 Số điện thoại: <strong>{supportPhone}</strong></li>
-                <li>📧 Email: <strong>{supportEmail}</strong></li>
+                <li>📞 Số điện thoại: <strong>{supportPhone.Data.Value}</strong></li>
+                <li>📧 Email: <strong>{supportEmail.Data.Value}</strong></li>
             </ul>
             <p>Chúng tôi thành thật xin lỗi vì sự bất tiện này.</p>";
 
