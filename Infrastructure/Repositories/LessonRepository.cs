@@ -109,9 +109,13 @@ namespace Infrastructure.Repositories
 
             if (lesson == null) return null;
 
+            var studentCount = await _dbContext.ClassEnrollment
+                .CountAsync(e => e.ClassID == lesson.ClassID);
+
             return new LessonDetailDTO
             {
                 ClassLessonID = lesson.ClassLessonID,
+                ClassID = lesson.ClassID,
                 ClassName = lesson.Class?.ClassName,
                 SubjectName = lesson.Class?.Subject?.SubjectName,
                 LecturerName = lesson.Lecturer?.Fullname,
@@ -119,10 +123,15 @@ namespace Infrastructure.Repositories
                 LessonTitle = lesson.SyllabusSchedule?.LessonTitle,
                 Content = lesson.SyllabusSchedule?.Content,
                 Resources = lesson.SyllabusSchedule?.Resources,
+                SyllabusScheduleID = lesson.SyllabusScheduleID,
+                HasTest = lesson.SyllabusSchedule?.HasTest ?? false,
                 DateTime = lesson.StartTime,
-                EndTime = lesson.StartTime.AddMinutes(lesson.SyllabusSchedule?.DurationMinutes ?? 0)
+                EndTime = lesson.StartTime.AddMinutes(lesson.SyllabusSchedule?.DurationMinutes ?? 0),
+                NumberStudentEnroll = studentCount,
+                LinkMeetURL = lesson.LinkMeetURL
             };
         }
+
         public async Task<bool> CreateManyAsync(List<Lesson> lessons)
         {
             await _dbContext.Lesson.AddRangeAsync(lessons);
