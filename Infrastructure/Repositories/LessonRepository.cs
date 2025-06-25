@@ -94,7 +94,7 @@ namespace Infrastructure.Repositories
                 .Where(cl =>
                     cl.IsActive &&
                     cl.LecturerID == lecturerID &&
-                    (cl.Class.Status == ClassStatus.Open || cl.Class.Status == ClassStatus.Ongoing))
+                    (cl.Class.Status == ClassStatus.Ongoing))
                 .OrderBy(cl => cl.StartTime)
                 .ToListAsync();
         }
