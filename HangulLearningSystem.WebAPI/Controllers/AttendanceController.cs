@@ -22,7 +22,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             var result = await _attendanceService.SetupAttendaceByClassIdAsync(classId);
             if (!result.Success)
-                return BadRequest(result.Message);
+                return BadRequest(result);
 
             return Ok(result);
         }
@@ -31,7 +31,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             var result = await _mediator.Send(command, cancellationToken);
             if (!result.Success)
-                return BadRequest(result.Message);
+                return BadRequest(result);
 
             return Ok(result);
         }
@@ -40,7 +40,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             var result = await _attendanceService.GetAttendanceAsync(classId);
             if (!result.Success)
-                return BadRequest(result.Message);
+                return BadRequest(result);
 
             return Ok(result);
         }
@@ -49,7 +49,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             var result = await _attendanceService.GetAttendanceByLessonIdAsync(lessonId);
             if (!result.Success)
-                return BadRequest(result.Message);
+                return BadRequest(result);
 
             return Ok(result);
         }
