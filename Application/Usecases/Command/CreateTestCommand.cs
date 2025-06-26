@@ -9,5 +9,6 @@ namespace Application.Usecases.Command
         public string SubjectID { get; set; }
         public TestType TestType { get; set; }
         public TestCategory Category { get; set; }
+        public string? TestName { get; set; }
     }
 }
