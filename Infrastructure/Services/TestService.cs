@@ -55,7 +55,8 @@ namespace Infrastructure.Services
                     UpdateAt = DateTime.Now,
                     Status = TestStatus.Drafted,
                     Category = command.Category,
-                    TestType = command.TestType
+                    TestType = command.TestType,
+                    TestName = command.TestName,
                 };
 
                 return await _testRepository.CreateTestAsync(test);
