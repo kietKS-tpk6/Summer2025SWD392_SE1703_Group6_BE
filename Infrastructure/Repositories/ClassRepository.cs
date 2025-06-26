@@ -199,6 +199,26 @@ namespace Infrastructure.Repositories
 
             return GetPaginatedClassListAsync(c => c.Status == parsedStatus, page, pageSize);
         }
+        public async Task<OperationResult<List<Class>>> GetClassesByStatusAsync(ClassStatus status)
+        {
+            try
+            {
+                var classes = await _dbContext.Class
+                    .Where(c => c.Status == status)
+                    .OrderByDescending(c => c.CreateAt)
+                    .ToListAsync();
+
+                return OperationResult<List<Class>>.Ok(
+                    classes,
+                    OperationMessages.RetrieveSuccess("lớp học")
+                );
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<Class>>.Fail($"Lỗi khi truy xuất lớp học: {ex.Message}");
+            }
+        }
+
 
 
         public async Task<OperationResult<List<ClassDTO>>> SearchClassAsync(string keyword)
