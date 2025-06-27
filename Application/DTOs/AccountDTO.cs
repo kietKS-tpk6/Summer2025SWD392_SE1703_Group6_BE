@@ -19,6 +19,7 @@ namespace Application.DTOs
         public AccountRole Role { get; set; }
         public AccountStatus Status { get; set; }
 
+        public string Img { get; set; }
 
     }
 }

@@ -35,7 +35,7 @@ namespace Application.IServices
         //Hàm của Kho
         Task<OperationResult<List<TeachingScheduleDetailDTO>>> GetTeachingScheduleDetailByID(string accountID);
         Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole);
-        Task<OperationResult<bool>> UpdateAccountAsync(UpdateAccountCommand command);
+        Task<OperationResult<AccountDTO>> UpdateAccountAsync(UpdateAccountCommand command);
         Task<OperationResult<List<AccountDTO>>> SearchAccountsAsync(SearchAccountsQueryCommand command);
 
     }

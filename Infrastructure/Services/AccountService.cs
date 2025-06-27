@@ -315,11 +315,11 @@ namespace Infrastructure.Services
         }
 
         #endregion
-        public async Task<OperationResult<bool>> UpdateAccountAsync(UpdateAccountCommand command)
+        public async Task<OperationResult<AccountDTO>> UpdateAccountAsync(UpdateAccountCommand command)
         {
             var existingAccount = await _accountRepository.GetAccountsByIdAsync(command.AccountID);
             if (existingAccount == null)
-                return OperationResult<bool>.Fail("Tài khoản không tồn tại.");
+                return OperationResult<AccountDTO>.Fail("Tài khoản không tồn tại.");
 
             // Không cập nhật Email và Mật khẩu
             existingAccount.FirstName = command.FirstName;
@@ -327,19 +327,36 @@ namespace Infrastructure.Services
             existingAccount.PhoneNumber = command.PhoneNumber;
             existingAccount.BirthDate = command.BirthDate;
             existingAccount.Image = command.Image;
+
             var normalizedRole = NormalizeRole(command.Role);
-            existingAccount.Role = normalizedRole != null ? normalizedRole.Value : existingAccount.Role;
+            existingAccount.Role = normalizedRole ?? existingAccount.Role;
 
             var normalizedGender = NormalizeGender(command.Gender);
-            existingAccount.Gender = normalizedGender != null ? normalizedGender.Value : existingAccount.Gender;
+            existingAccount.Gender = normalizedGender ?? existingAccount.Gender;
 
             var normalizedStatus = NormalizeStatus(command.Status);
-            existingAccount.Status = normalizedStatus != null ? normalizedStatus.Value : existingAccount.Status;
+            existingAccount.Status = normalizedStatus ?? existingAccount.Status;
 
             var updated = await _accountRepository.UpdateAccountAsync(existingAccount);
-            return updated
-                ? OperationResult<bool>.Ok(true, "Cập nhật tài khoản thành công.")
-                : OperationResult<bool>.Fail("Cập nhật tài khoản thất bại.");
+            if (!updated)
+                return OperationResult<AccountDTO>.Fail("Cập nhật tài khoản thất bại.");
+
+            // Mapping sang DTO
+            var accountDTO = new AccountDTO
+            {
+                AccountID = existingAccount.AccountID,
+                FirstName = existingAccount.FirstName,
+                LastName = existingAccount.LastName,
+                PhoneNumber = existingAccount.PhoneNumber,
+                Gender = existingAccount.Gender,
+                Role = existingAccount.Role,
+                Status = existingAccount.Status,
+                BirthDate = existingAccount.BirthDate,
+                Email = existingAccount.Email,
+                Img = existingAccount.Image
+            };
+
+            return OperationResult<AccountDTO>.Ok(accountDTO, "Cập nhật tài khoản thành công.");
         }
 
         public async Task<OperationResult<AccountDTO>> GetAccountByIdAsync(string accountId)
@@ -358,7 +375,9 @@ namespace Infrastructure.Services
                 Email = account.Email,
                 BirthDate = account.BirthDate,
                 Role = account.Role,
-                Status = account.Status
+                Status = account.Status,
+                Img = account.Image
+                
             };
 
             return OperationResult<AccountDTO>.Ok(dto);
@@ -377,7 +396,8 @@ namespace Infrastructure.Services
                 Gender = a.Gender,
                 Role = a.Role,
                 Status = a.Status,
-                BirthDate = a.BirthDate
+                BirthDate = a.BirthDate,
+                Img = a.Image
             }).ToList();
 
             return OperationResult<List<AccountDTO>>.Ok(dtos, OperationMessages.RetrieveSuccess("tài khoản"));

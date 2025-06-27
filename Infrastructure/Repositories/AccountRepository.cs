@@ -303,7 +303,8 @@ namespace Infrastructure.Repositories
                         Email = x.Email,
                         BirthDate = x.BirthDate,
                         Role = x.Role,
-                        Status = x.Status
+                        Status = x.Status,
+                        Img = x.Image
                     })
                     .ToListAsync();
 

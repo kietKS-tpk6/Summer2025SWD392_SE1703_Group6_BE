@@ -203,6 +203,7 @@ namespace Infrastructure.Services
 
                 return new TestDataDTO
                 {
+                    AssessmentID = test.AssessmentCriteriaID,
                     TestType = test.TestType.ToString(),
                     TestDurationMinutes = test.DurationMinutes ?? 0,
                     AllowMultipleAttempts = test.AllowMultipleAttempts,
