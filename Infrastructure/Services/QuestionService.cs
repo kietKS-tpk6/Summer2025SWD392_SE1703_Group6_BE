@@ -420,7 +420,16 @@ namespace Infrastructure.Services
             return OperationResult<bool>.Ok(true, "Không có đáp án trùng nhau.");
         }
 
+        public async Task<OperationResult<List<Question>>> GetQuestionsByTestSectionIDAsync(string testSectionID)
+        {
+            //if (string.IsNullOrWhiteSpace(testSectionID))
+            //    return OperationResult<List<Question>>.Fail("TestSectionID không hợp lệ.");
 
+            var questions = await _questionRepo.GetQuestionBySectionId(testSectionID);
+            var activeQuestions = questions.Where(q => q.IsActive).ToList();
+
+            return OperationResult<List<Question>>.Ok(activeQuestions);
+        }
     }
 
 }

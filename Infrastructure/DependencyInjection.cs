@@ -67,6 +67,7 @@ namespace Infrastructure
             services.AddScoped<IMCQAnswerService, MCQAnswerService>();
             services.AddScoped<IWritingAnswerService, WritingAnswerService>();
             services.AddScoped<IStudentTestService, StudentTestService>();
+            services.AddScoped<IMCQOptionService, MCQOptionService>();
 
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
