@@ -60,9 +60,9 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _classService.DeleteClassAsync(id);
 
             if (!result.Success)
-                return NotFound(result.Message);
+                return BadRequest(result);
 
-            return Ok(result.Message);
+            return Ok(result);
         }
 
         [HttpGet("get-all-paginated")]
