@@ -8,6 +8,7 @@ using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using Infrastructure.Services.BackgroundServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,8 +22,10 @@ namespace Infrastructure
             // Database Context
             services.AddDbContext<HangulLearningSystemDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            //Background service
+            services.AddHostedService<ClassStatusBackgroundService>();
             //CommandHandler 
-                //Authent
+            //Authent
             services.AddScoped<LoginCommandHandler>();
             services.AddScoped<RegisterCommandHandler>();
                 //Subject
@@ -40,6 +43,8 @@ namespace Infrastructure
             services.AddScoped<LessonCreateCommandHandler>();
             services.AddScoped<LessonUpdateCommandHandler>();
             services.AddScoped<LessonCreateFromScheduleCommandHandler>();
+                //Attendance 
+            services.AddScoped<AttendanceCheckCommandHandler>();
             //Other
             services.AddScoped<SendOTPViaEmailCommandHandler>();
 
@@ -69,6 +74,7 @@ namespace Infrastructure
             services.AddScoped<IStudentTestService, StudentTestService>();
             services.AddScoped<IMCQOptionService, MCQOptionService>();
 
+            services.AddScoped<IAttendanceService, AttendanceService>();
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
@@ -89,6 +95,8 @@ namespace Infrastructure
             services.AddScoped<IMCQAnswerRepository, MCQAnswerRepository>();
             services.AddScoped<IWritingAnswerRepository, WritingAnswerRepository>();
             services.AddScoped<IStudentTestRepository, StudentTestRepository>();
+            services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
