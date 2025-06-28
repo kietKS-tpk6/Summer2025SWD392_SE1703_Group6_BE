@@ -38,8 +38,11 @@ namespace Infrastructure.Services
                     return OperationResult<string>.Fail("Account not found");
 
                 var account = accountResult.Data;
-                if (account.Role != AccountRole.Lecture && account.Role != AccountRole.Manager)
+                if (!string.Equals(account.Role, "Lecture", StringComparison.OrdinalIgnoreCase) &&
+     !string.Equals(account.Role, "Manager", StringComparison.OrdinalIgnoreCase))
+                {
                     return OperationResult<string>.Fail("Only lecturers and managers can create tests");
+                }
 
                 var subject = await _subjectService.GetSubjectByIdAsync(command.SubjectID);
                 if (subject == null)
@@ -107,10 +110,16 @@ namespace Infrastructure.Services
 
                 var account = accountResult.Data;
 
-                var canTransition = CanTransitionStatus(test.Status, command.NewStatus, account.Role, test.CreateBy == command.RequestingAccountID);
-                if (!canTransition.Success)
-                    return OperationResult<string>.Fail(canTransition.Message);
+                var roleEnum = NormalizeRole(account.Role);
+                if (roleEnum == null)
+                    return OperationResult<string>.Fail("Invalid role");
 
+                var canTransition = CanTransitionStatus(
+                    test.Status,
+                    command.NewStatus,
+                    roleEnum.Value,
+                    test.CreateBy == command.RequestingAccountID
+                );
                 return await _testRepository.UpdateTestStatusAsync(command.TestID, command.NewStatus);
             }
             catch (Exception ex)
@@ -119,6 +128,19 @@ namespace Infrastructure.Services
             }
         }
 
+        private AccountRole? NormalizeRole(string role)
+        {
+            if (string.IsNullOrWhiteSpace(role))
+                return null;
+
+            return role.Trim().ToLower() switch
+            {
+                "Lecture" => AccountRole.Lecture,
+                "Manager" => AccountRole.Manager,
+                "Student" => AccountRole.Student,
+                _ => null
+            };
+        }
         public async Task<OperationResult<string>> DeleteTestAsync(DeleteTestCommand command)
         {
             try
@@ -134,9 +156,11 @@ namespace Infrastructure.Services
                     return OperationResult<string>.Fail("Account not found");
 
                 var account = accountResult.Data;
-
-                if (test.CreateBy != command.RequestingAccountID && account.Role != AccountRole.Manager)
+                if (test.CreateBy != command.RequestingAccountID &&
+                    !string.Equals(account.Role, "Manager", StringComparison.OrdinalIgnoreCase))
+                {
                     return OperationResult<string>.Fail("You don't have permission to delete this test");
+                }
 
                 return await _testRepository.DeleteTestAsync(command.TestID);
             }

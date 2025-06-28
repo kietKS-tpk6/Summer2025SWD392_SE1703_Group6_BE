@@ -141,13 +141,13 @@ namespace Infrastructure.Services
 
 
         public async Task<OperationResult<bool>> CreateLessonsFromSchedulesAsync(
-     string classId,
-     string lecturerId,
-     TimeOnly startHour,
-     List<DayOfWeek> selectedDays,
-     List<SyllabusScheduleCreateLessonDTO> schedules,
-     DateTime startTime
- )
+         string classId,
+         string lecturerId,
+         TimeOnly startHour,
+         List<DayOfWeek> selectedDays,
+         List<SyllabusScheduleCreateLessonDTO> schedules,
+         DateTime startTime
+        )
         {
             try
             {
@@ -167,7 +167,7 @@ namespace Infrastructure.Services
                     ClassID = classId,
                     LecturerID = lecturerId,
                     SyllabusScheduleID = schedules[0].SyllabusScheduleId,
-                    StartTime = startTime,
+                    StartTime = startTime.Date.Add(startHour.ToTimeSpan()),
                     LinkMeetURL = firstRoomUrl,
                     IsActive = true
                 });

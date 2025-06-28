@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
+using Application.DTOs;
 using MediatR;
 
 namespace Application.Usecases.Command
 {
-    public class UpdateAccountCommand : IRequest<OperationResult<bool>>
+    public class UpdateAccountCommand : IRequest<OperationResult<AccountDTO>>
     {
         public string AccountID { get; set; }
         public string FirstName { get; set; }

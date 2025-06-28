@@ -298,12 +298,13 @@ namespace Infrastructure.Repositories
                         AccountID = x.AccountID,
                         LastName = x.LastName,
                         FirstName = x.FirstName,
-                        Gender = x.Gender,
+                        Gender = x.Gender.ToString(),
                         PhoneNumber = x.PhoneNumber,
                         Email = x.Email,
                         BirthDate = x.BirthDate,
-                        Role = x.Role,
-                        Status = x.Status
+                        Role = x.Role.ToString(),
+                        Status = x.Status.ToString(),
+                        Img = x.Image
                     })
                     .ToListAsync();
 

@@ -9,6 +9,7 @@ namespace Application.DTOs
 {
     public class TestDataDTO
     {
+        public string AssessmentID { get; set; }
         public string TestType { get; set; }
         public int TestDurationMinutes { get; set; }
         public bool AllowMultipleAttempts { get; set; }

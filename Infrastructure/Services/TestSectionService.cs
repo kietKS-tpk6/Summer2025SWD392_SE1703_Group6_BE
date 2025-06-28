@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.IServices;
 using Application.Usecases.Command;
+using CloudinaryDotNet;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
@@ -61,15 +62,19 @@ namespace Infrastructure.Services
 
                 // Check if user has permission (must be creator or manager)
                 var accountResult = await _accountService.GetAccountByIdAsync(command.RequestingAccountID);
-                if (!accountResult.Success)
+                if (!accountResult.Success || accountResult.Data == null)
                     return OperationResult<string>.Fail("Account not found");
 
                 var account = accountResult.Data;
-                if (test.CreateBy != command.RequestingAccountID && account.Role != Domain.Enums.AccountRole.Manager)
-                    return OperationResult<string>.Fail("You don't have permission to add sections to this test");
 
-                // Validate test section type compatibility
+                if (test.CreateBy != command.RequestingAccountID &&
+                    !string.Equals(account.Role, "Manager", StringComparison.OrdinalIgnoreCase))
+                {
+                    return OperationResult<string>.Fail("You don't have permission to update this test section");
+                }
+
                 var compatibilityCheck = ValidateTestSectionCompatibility(test.TestType, command.TestSectionType);
+
                 if (!compatibilityCheck.Success)
                     return compatibilityCheck;
 
@@ -117,12 +122,17 @@ namespace Infrastructure.Services
 
                 // Check permissions
                 var accountResult = await _accountService.GetAccountByIdAsync(command.RequestingAccountID);
-                if (!accountResult.Success)
+                if (!accountResult.Success || accountResult.Data == null)
                     return OperationResult<string>.Fail("Account not found");
 
                 var account = accountResult.Data;
-                if (test.CreateBy != command.RequestingAccountID && account.Role != Domain.Enums.AccountRole.Manager)
+
+                if (test.CreateBy != command.RequestingAccountID &&
+                    !string.Equals(account.Role, "Manager", StringComparison.OrdinalIgnoreCase))
+                {
                     return OperationResult<string>.Fail("You don't have permission to update this test section");
+                }
+
 
                 // Only allow updates if test is in Draft status
                 if (test.Status != TestStatus.Drafted)
@@ -168,12 +178,16 @@ namespace Infrastructure.Services
 
                 // Check permissions
                 var accountResult = await _accountService.GetAccountByIdAsync(command.RequestingAccountID);
-                if (!accountResult.Success)
+                if (!accountResult.Success || accountResult.Data == null)
                     return OperationResult<string>.Fail("Account not found");
 
                 var account = accountResult.Data;
-                if (test.CreateBy != command.RequestingAccountID && account.Role != Domain.Enums.AccountRole.Manager)
+
+                if (test.CreateBy != command.RequestingAccountID &&
+                    !string.Equals(account.Role, "Manager", StringComparison.OrdinalIgnoreCase))
+                {
                     return OperationResult<string>.Fail("You don't have permission to delete this test section");
+                }
 
                 // Only allow deletion if test is in Draft status
                 if (test.Status != TestStatus.Drafted)
