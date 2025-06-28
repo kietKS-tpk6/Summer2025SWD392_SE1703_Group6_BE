@@ -14,7 +14,7 @@ namespace Application.DTOs
         public DateTime CreateAt { get; set; }
         public DateTime UpdateAt { get; set; }
         public TestStatus Status { get; set; }
-        public TestCategory Category { get; set; }
+        public AssessmentCategory Category { get; set; }
         public TestType TestType { get; set; }
         public List<TestSectionResponseDTO> TestSections { get; set; } = new List<TestSectionResponseDTO>();
     }
