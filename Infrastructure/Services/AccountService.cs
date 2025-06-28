@@ -349,8 +349,8 @@ namespace Infrastructure.Services
                 LastName = existingAccount.LastName,
                 PhoneNumber = existingAccount.PhoneNumber,
                 Gender = existingAccount.Gender.ToString(),
-                Role = existingAccount.Role,
-                Status = existingAccount.Status,
+                Role = existingAccount.Role.ToString(),
+                Status = existingAccount.Status.ToString(),
                 BirthDate = existingAccount.BirthDate,
                 Email = existingAccount.Email,
                 Img = existingAccount.Image
@@ -374,8 +374,8 @@ namespace Infrastructure.Services
                 PhoneNumber = account.PhoneNumber,
                 Email = account.Email,
                 BirthDate = account.BirthDate,
-                Role = account.Role,
-                Status = account.Status,
+                Role = account.Role.ToString(),
+                Status = account.Status.ToString(),
                 Img = account.Image
                 
             };
@@ -394,8 +394,8 @@ namespace Infrastructure.Services
                 Email = a.Email,
                 PhoneNumber = a.PhoneNumber,
                 Gender = a.Gender.ToString(),
-                Role = a.Role,
-                Status = a.Status,
+                Role = a.Role.ToString(),
+                Status = a.Status.ToString(),
                 BirthDate = a.BirthDate,
                 Img = a.Image
             }).ToList();

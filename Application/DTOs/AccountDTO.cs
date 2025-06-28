@@ -17,8 +17,8 @@ namespace Application.DTOs
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public DateOnly BirthDate { get; set; }
-        public AccountRole Role { get; set; }
-        public AccountStatus Status { get; set; }
+        public string Role { get; set; }
+        public string Status { get; set; }
 
         public string Img { get; set; }
 

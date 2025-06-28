@@ -302,8 +302,8 @@ namespace Infrastructure.Repositories
                         PhoneNumber = x.PhoneNumber,
                         Email = x.Email,
                         BirthDate = x.BirthDate,
-                        Role = x.Role,
-                        Status = x.Status,
+                        Role = x.Role.ToString(),
+                        Status = x.Status.ToString(),
                         Img = x.Image
                     })
                     .ToListAsync();
