@@ -62,6 +62,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result); 
             }
         }
+        [HttpPut("update-list")]
+        public async Task<IActionResult> UpdateList([FromBody] AssessmentCriteriaUpdateListCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
 
         //[HttpGet("get-all-paginated")]
         //public async Task<IActionResult> GetPaginatedList([FromQuery] int page = 1, [FromQuery] int pageSize = 10)

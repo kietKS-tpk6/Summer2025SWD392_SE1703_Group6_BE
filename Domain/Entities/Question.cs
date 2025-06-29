@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Domain.Enums;
+
 namespace Domain.Entities
 {
     [Table("Questions")]
@@ -19,15 +17,17 @@ namespace Domain.Entities
         [ForeignKey("TestSection")]
         public string TestSectionID { get; set; }
 
-        public int Score { get; set; }
+        public decimal Score { get; set; }
 
-        public string Context { get; set; }
+        public string? Context { get; set; }
 
-        public string ImageURL { get; set; }
+        public string? ImageURL { get; set; }
 
-        public string AudioURL { get; set; }
+        public string? AudioURL { get; set; }
 
-        public QuestionType Type { get; set; }
+        public TestFormatType? Type { get; set; }
+
+        public bool IsActive { get; set; } = true;
 
         public virtual TestSection TestSection { get; set; }
     }

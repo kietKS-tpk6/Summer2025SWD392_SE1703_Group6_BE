@@ -31,15 +31,25 @@ namespace Infrastructure.Services
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly IOTPRepository _OTPRepository;
+        private readonly ISystemConfigService _configService;
 
-        public AccountService(IAccountRepository accountRepository, ITokenService tokenService, IEmailService emailService, IOTPRepository oTPRepository)
+        public AccountService(IAccountRepository accountRepository, ITokenService tokenService, IEmailService emailService, IOTPRepository oTPRepository, ISystemConfigService configService)
         {
             _accountRepository = accountRepository;
             _tokenService = tokenService;
             _emailService = emailService;
             _OTPRepository = oTPRepository;
+            _configService = configService;
         }
 
+        private async Task<string> GetDefaultPasswordAsync()
+        {
+            var config = await _configService.GetConfig("default_password_for_account");
+            if (config.Success && !string.IsNullOrWhiteSpace(config.Data?.Value))
+                return config.Data.Value;
+
+            return "Hello123"; // fallback nếu không có config
+        }
         public async Task<LoginDTO> Login(LoginCommand loginCommand)
         {
             var accByEmail = await _accountRepository.GetAccountsByEmailAsync(loginCommand.Email);
@@ -77,7 +87,7 @@ namespace Infrastructure.Services
 
             var newAcc = new Account();
             var numberOfAcc = (await _accountRepository.GetNumbeOfAccountsAsync());
-            string newAccountId = "A" + numberOfAcc.ToString("D5"); // D5 = 5 chữ số, vd: 00001
+            string newAccountId = "A" + numberOfAcc.ToString("D5"); 
 
             newAcc.AccountID = newAccountId;
             newAcc.BirthDate = registerCommand.BirthDate;
@@ -156,7 +166,8 @@ namespace Infrastructure.Services
             // Sử dụng NormalizeRole với isRequired = true (mặc định)
             newAcc.Role = NormalizeRole(createAccountCommand.Role).Value; // .Value vì chắc chắn không null
 
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(DEFAULT_PASS);
+            string defaultPass = await GetDefaultPasswordAsync();
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(defaultPass);
             newAcc.HashPass = hashedPassword;
 
             var res = await _accountRepository.CreateAccountAsync(newAcc);
@@ -304,5 +315,94 @@ namespace Infrastructure.Services
         }
 
         #endregion
+        public async Task<OperationResult<AccountDTO>> UpdateAccountAsync(UpdateAccountCommand command)
+        {
+            var existingAccount = await _accountRepository.GetAccountsByIdAsync(command.AccountID);
+            if (existingAccount == null)
+                return OperationResult<AccountDTO>.Fail("Tài khoản không tồn tại.");
+
+            // Không cập nhật Email và Mật khẩu
+            existingAccount.FirstName = command.FirstName;
+            existingAccount.LastName = command.LastName;
+            existingAccount.PhoneNumber = command.PhoneNumber;
+            existingAccount.BirthDate = command.BirthDate;
+            existingAccount.Image = command.Image;
+
+            var normalizedRole = NormalizeRole(command.Role);
+            existingAccount.Role = normalizedRole ?? existingAccount.Role;
+
+            var normalizedGender = NormalizeGender(command.Gender);
+            existingAccount.Gender = normalizedGender ?? existingAccount.Gender;
+
+            var normalizedStatus = NormalizeStatus(command.Status);
+            existingAccount.Status = normalizedStatus ?? existingAccount.Status;
+
+            var updated = await _accountRepository.UpdateAccountAsync(existingAccount);
+            if (!updated)
+                return OperationResult<AccountDTO>.Fail("Cập nhật tài khoản thất bại.");
+
+            // Mapping sang DTO
+            var accountDTO = new AccountDTO
+            {
+                AccountID = existingAccount.AccountID,
+                FirstName = existingAccount.FirstName,
+                LastName = existingAccount.LastName,
+                PhoneNumber = existingAccount.PhoneNumber,
+                Gender = existingAccount.Gender.ToString(),
+                Role = existingAccount.Role.ToString(),
+                Status = existingAccount.Status.ToString(),
+                BirthDate = existingAccount.BirthDate,
+                Email = existingAccount.Email,
+                Img = existingAccount.Image
+            };
+
+            return OperationResult<AccountDTO>.Ok(accountDTO, "Cập nhật tài khoản thành công.");
+        }
+
+        public async Task<OperationResult<AccountDTO>> GetAccountByIdAsync(string accountId)
+        {
+            var account = await _accountRepository.GetAccountsByIdAsync(accountId);
+            if (account == null)
+                return OperationResult<AccountDTO>.Fail("Không tìm thấy tài khoản.");
+
+            var dto = new AccountDTO
+            {
+                AccountID = account.AccountID,
+                FirstName = account.FirstName,
+                LastName = account.LastName,
+                Gender = account.Gender.ToString(),
+                PhoneNumber = account.PhoneNumber,
+                Email = account.Email,
+                BirthDate = account.BirthDate,
+                Role = account.Role.ToString(),
+                Status = account.Status.ToString(),
+                Img = account.Image
+                
+            };
+
+            return OperationResult<AccountDTO>.Ok(dto);
+        }
+        public async Task<OperationResult<List<AccountDTO>>> SearchAccountsAsync(SearchAccountsQueryCommand cmd)
+        {
+            var accounts = await _accountRepository.SearchAccountsAsync(cmd);
+
+            var dtos = accounts.Select(a => new AccountDTO
+            {
+                AccountID = a.AccountID,
+                FirstName = a.FirstName,
+                LastName = a.LastName,
+                Email = a.Email,
+                PhoneNumber = a.PhoneNumber,
+                Gender = a.Gender.ToString(),
+                Role = a.Role.ToString(),
+                Status = a.Status.ToString(),
+                BirthDate = a.BirthDate,
+                Img = a.Image
+            }).ToList();
+
+            return OperationResult<List<AccountDTO>>.Ok(dtos, OperationMessages.RetrieveSuccess("tài khoản"));
+        }
+
+
     }
 }

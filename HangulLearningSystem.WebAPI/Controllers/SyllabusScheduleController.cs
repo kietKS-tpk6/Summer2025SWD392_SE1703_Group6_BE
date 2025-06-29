@@ -25,14 +25,14 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             return Ok(result);
         }
-        [HttpPut("update-syllabus-schedule")]
-        public async Task<IActionResult> updateSyllabusSchedule([FromBody] SyllabusScheduleUpdateCommand command, CancellationToken cancellationToken)
-        {
+        //[HttpPut("update-syllabus-schedule")]
+        //public async Task<IActionResult> updateSyllabusSchedule([FromBody] SyllabusScheduleUpdateCommand command, CancellationToken cancellationToken)
+        //{
 
 
-            var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
-        }
+        //    var result = await _mediator.Send(command, cancellationToken);
+        //    return Ok(result);
+        //}
 
         [HttpGet("max-slot/{subjectId}")]
         public async Task<IActionResult> GetMaxSlotPerWeek(string subjectId)
@@ -63,7 +63,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             try
             {
-                // Lấy danh sách schedule theo subject và week (hoặc tất cả nếu week = null)
                 var schedules = await _syllabusScheduleService.GetScheduleBySubjectAndWeekAsync(subject, week);
 
                 if (schedules == null || schedules.Count == 0)
@@ -96,6 +95,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
                     Error = ex.Message
                 });
             }
+        }
+
+        [HttpPut("bulk-update")]
+        public async Task<IActionResult> UpdateBulkSchedule([FromBody] UpdateSyllabusScheduleListCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
     }
 }

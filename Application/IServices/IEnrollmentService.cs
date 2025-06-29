@@ -12,5 +12,6 @@ namespace Application.IServices
         Task<bool> IsStudentEnrolledAsync(string studentId, string classId);
         Task<int> GetClassCurrentEnrollmentsAsync(string classId);
         Task<string> GenerateNextEnrollmentIdAsync();
+        Task<bool> HasScheduleConflictAsync(string studentId, string newClassId);
     }
 }

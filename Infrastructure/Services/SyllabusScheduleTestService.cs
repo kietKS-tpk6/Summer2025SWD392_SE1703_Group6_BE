@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
@@ -27,6 +28,25 @@ namespace Infrastructure.Services
             _syllabusScheduleRepository = syllabusScheduleRepository;
         }
 
+        public async Task<string> GenerateNewScheduleTestIdAsync()
+        {
+            string? lastId = await _syllabusScheduleTestRepository.GetLastIdAsync();
+            int newNumber = 1;
+
+            if (!string.IsNullOrEmpty(lastId) && lastId.StartsWith("ST") && lastId.Length == 6)
+            {
+                if (int.TryParse(lastId.Substring(2), out int parsed))
+                {
+                    newNumber = parsed + 1;
+                }
+            }
+
+            return "ST" + newNumber.ToString("D4");
+        }
+        public async Task<bool> IsDuplicateTestTypeAsync(string assessmentCriteriaId, TestType testType)
+        {
+            return await _syllabusScheduleTestRepository.IsDuplicateTestTypeAsync(assessmentCriteriaId, testType);
+        }
         //public async Task<AssessmentCompletenessResultDTO> CheckAddAssessmentCompletenessAsync(string syllabusId)
         //{
         //    var requiredTests = await _assessmentCriteriaService.GetRequiredTestCountsAsync(syllabusId);
@@ -121,9 +141,12 @@ namespace Infrastructure.Services
             return normalized;
         }
 
+        public async Task<OperationResult<SyllabusScheduleTest>> CreateAsync(SyllabusScheduleTest test)
+        {
+            return await _syllabusScheduleTestRepository.CreateAsync(test);
+        }
 
-
-        public Domain.Enums.TestCategory? NormalizeTestCategory(string category, bool isRequired = true)
+        public Domain.Enums.AssessmentCategory? NormalizeAssessmentCategory(string category, bool isRequired = true)
         {
             if (string.IsNullOrWhiteSpace(category))
             {
@@ -137,12 +160,12 @@ namespace Infrastructure.Services
             if (normalizedCategory == null)
                 return null;
 
-            if (Enum.TryParse<Domain.Enums.TestCategory>(normalizedCategory, true, out var result))
+            if (Enum.TryParse<Domain.Enums.AssessmentCategory>(normalizedCategory, true, out var result))
             {
                 return result;
             }
 
-            throw new ArgumentException($"Thể loại '{category}' không hợp lệ. Chỉ chấp nhận: Midterm, Final, FifteenMinutes.");
+            throw new ArgumentException($"Thể loại '{category}' không hợp lệ. Chỉ chấp nhận: Midterm, Final, FifteenMinutes, Quiz, Presentation, Attendance, Assignment, ClassParticipation.");
         }
         public Domain.Enums.TestType? NormalizeTestType(string type, bool isRequired = true)
         {
@@ -164,6 +187,34 @@ namespace Infrastructure.Services
             }
 
             throw new ArgumentException($"Loại bài kiểm tra '{type}' không hợp lệ. Chỉ chấp nhận: MCQ, Writing, Speaking, Listening, Reading, Mix, Other.");
+        }
+
+        public async Task<TestDataDTO> GetTestDataByScheduleIdAsync(string scheduleId)
+        {
+            try
+            {
+                var test = await _syllabusScheduleTestRepository.GetTestByScheduleIdAsync(scheduleId);
+                if (test == null) return null;
+
+                var assessmentResult = await _assessmentCriteriaService.GetByIdAsync(test.AssessmentCriteriaID);
+                if (!assessmentResult.Success) return null;
+
+                var assessmentCriteria = assessmentResult.Data;
+
+                return new TestDataDTO
+                {
+                    AssessmentID = test.AssessmentCriteriaID,
+                    TestType = test.TestType.ToString(),
+                    TestDurationMinutes = test.DurationMinutes ?? 0,
+                    AllowMultipleAttempts = test.AllowMultipleAttempts,
+                    Category = assessmentCriteria?.Category?.ToString(),
+                    MinPassingScore = assessmentCriteria?.MinPassingScore ?? 0
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         //public async Task<bool> AddTestToSyllabusAsync(AddTestSchedulesToSlotsCommand addTestSchedulesToSlotsCommand)

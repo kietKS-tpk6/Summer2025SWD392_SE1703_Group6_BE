@@ -25,6 +25,7 @@ namespace Infrastructure.IRepositories
         //Task<bool> IsTestDefinedInCriteriaAsync(string subjectID, string category, string testType);
         //KIỆT 
         Task<OperationResult<bool>> CheckDuplicateCategoryInSubjectAsync(string subjectId, AssessmentCategory category, string excludeAssessmentCriteriaId, int checkOnlyActive);
+        Task<OperationResult<bool>> UpdateRangeAsync(List<AssessmentCriteria> list);
 
     }
 }

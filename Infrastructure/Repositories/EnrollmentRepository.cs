@@ -77,5 +77,26 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.ClassEnrollment.CountAsync();
         }
+
+        public async Task<List<Lesson>> GetLessonsByStudentIdAsync(string studentId)
+        {
+            return await _dbContext.Lesson
+                .Include(l => l.Class)
+                .Include(l => l.SyllabusSchedule)
+                .Where(l => _dbContext.ClassEnrollment
+                    .Any(e => e.StudentID == studentId &&
+                             e.ClassID == l.ClassID &&
+                             e.Status == Domain.Enums.EnrollmentStatus.Actived))
+                .Where(l => l.IsActive)
+                .ToListAsync();
+        }
+
+        public async Task<List<Lesson>> GetLessonsByClassIdAsync(string classId)
+        {
+            return await _dbContext.Lesson
+                .Include(l => l.SyllabusSchedule)
+                .Where(l => l.ClassID == classId && l.IsActive)
+                .ToListAsync();
+        }
     }
 }

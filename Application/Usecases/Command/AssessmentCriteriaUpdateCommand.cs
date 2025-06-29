@@ -9,7 +9,7 @@ using Domain.Enums;
 using MediatR;
 namespace Application.Usecases.Command
 {
-    public class AssessmentCriteriaUpdateCommand : IRequest<OperationResult<AssessmentCriteriaUpdateDto>>
+    public class AssessmentCriteriaUpdateCommand : IRequest<OperationResult<AssessmentCriteriaUpdateDTO>>
     {
         public string AssessmentCriteriaID { get; set; }
         public double WeightPercent { get; set; }

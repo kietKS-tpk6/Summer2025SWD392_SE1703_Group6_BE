@@ -15,7 +15,7 @@ namespace Application.IServices
     public interface IAssessmentCriteriaService
     {
         Task<OperationResult<AssessmentCriteria>> GetByIdAsync(string assessmentCriteriaId);
-        Task<OperationResult<AssessmentCriteriaUpdateDto>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand cmd);
+        Task<OperationResult<AssessmentCriteriaUpdateDTO>> UpdateAssessmentCriteriaAsync(AssessmentCriteriaUpdateCommand cmd);
         Task<OperationResult<List<AssessmentCriteriaDTO>>> GetListBySubjectIdAsync(string subjectId);
         Task<OperationResult<List<AssessmentCriteriaSetupDTO>>> SetupAssessmentCriteria(AssessmentCriteriaSetupCommand request);
         //Lỗi nên tạm comment - Kho
@@ -23,6 +23,9 @@ namespace Application.IServices
         //Task<Dictionary<(string Category, string TestType), int>> GetRequiredTestCountsAsync(string syllabusId);
         ////KIỆT :HÀM CỦA KIỆT
         //Task<bool> IsTestDefinedInCriteriaAsync(string syllabusId, TestCategory category, TestType testType);
+        OperationResult<bool> CheckDuplicateCategory(List<AssessmentCriteriaUpdateCommand> items);
+        Task<OperationResult<List<AssessmentCriteriaUpdateDTO>>> UpdateAssessmentCriteriaListAsync(List<AssessmentCriteriaUpdateCommand> items);
+        OperationResult<bool> CheckRequiredTestCountRule(List<AssessmentCriteriaUpdateCommand> items);
 
     }
 }

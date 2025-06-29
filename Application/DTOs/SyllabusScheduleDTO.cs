@@ -28,6 +28,7 @@ namespace Application.DTOs
 
         public bool IsActive { get; set; }
         public bool HasTest { get; set; }
+        public TestDataDTO TestData { get; set; }
     }
 
 }

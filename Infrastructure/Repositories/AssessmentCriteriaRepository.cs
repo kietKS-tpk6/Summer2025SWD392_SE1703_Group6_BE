@@ -204,5 +204,26 @@ namespace Infrastructure.Repositories
         //}
 
 
+
+        public async Task<OperationResult<bool>> UpdateRangeAsync(List<AssessmentCriteria> list)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                _dbContext.AssessmentCriteria.UpdateRange(list);
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return OperationResult<bool>.Ok(true);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return OperationResult<bool>.Fail($"Lỗi khi cập nhật hàng loạt: {ex.Message}");
+            }
+        }
+
+        
     }
 }

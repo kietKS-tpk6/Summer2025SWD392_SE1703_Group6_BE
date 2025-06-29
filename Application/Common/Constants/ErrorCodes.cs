@@ -90,5 +90,11 @@ namespace Application.Common.Constants
         public const string LessonStartTimeInvalid = "LessonStartTimeInvalid";
         public const string SyllabusScheduleIDIsEmpty = "SyllabusScheduleIDIsEmpty";
         public const string ClassLessonIDIsEmpty = "ClassLessonIDIsEmpty";
+
+        //Subject
+        public const string SubjectCannotActivate = "SubjectCannotActivate";
+        public const string ScheduleIncomplete = "ScheduleIncomplete";
+        public const string AssessmentCriteriaIncomplete = "AssessmentCriteriaIncomplete";
+
     }
 }

@@ -63,6 +63,10 @@ namespace Infrastructure.Repositories
                 : OperationResult<bool>.Fail(OperationMessages.DeleteFail("buổi kiểm tra"));
         }
 
-
+        public async Task<TestEvent?> GetByIdAsync(string testEventID)
+        {
+            return await _dbContext.TestEvent
+                .FirstOrDefaultAsync(te => te.TestEventID == testEventID && te.Status != TestEventStatus.Deleted);
+        }
     }
 }

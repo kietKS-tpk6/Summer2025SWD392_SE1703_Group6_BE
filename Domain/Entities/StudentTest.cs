@@ -25,24 +25,19 @@ namespace Domain.Entities
         public string TestEventID { get; set; }
 
         public DateTime StartTime { get; set; }
-
         public DateTime? SubmitTime { get; set; }
-
-        public StudentTestStatus Status { get; set; } 
+        public StudentTestStatus Status { get; set; }
 
         [MaxLength(6)]
-        [ForeignKey("Lecturer")]  
+        [ForeignKey("Lecturer")]
         public string? GradeBy { get; set; }
 
         public DateTime? GradeAt { get; set; }
-
-        public int? Score { get; set; }
-
+        public decimal? Mark { get; set; }
         public string? Feedback { get; set; }
 
-        // Navigation properties
-        public virtual Account Student { get; set; }
         public virtual TestEvent TestEvent { get; set; }
-        public virtual Account? Account { get; set; }  
+        public virtual Account? Student { get; set; }
+
     }
 }

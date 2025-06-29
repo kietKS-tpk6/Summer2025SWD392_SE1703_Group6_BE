@@ -9,6 +9,9 @@ using Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
 using Domain.Enums;
 using Application.DTOs;
+using Application.Common.Constants;
+using Application.IServices;
+using Infrastructure.Services;
 namespace Infrastructure.Repositories
 {
     public class SyllabusScheduleTestRepository : ISyllabusScheduleTestRepository
@@ -111,6 +114,48 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.SyllabusScheduleTests
                 .FirstOrDefaultAsync(t => t.SyllabusScheduleID == syllabusScheduleID && t.IsActive);
+        }
+       
+        public async Task<OperationResult<SyllabusScheduleTest>> CreateAsync(SyllabusScheduleTest test)
+        {
+            try
+            {
+                await _dbContext.SyllabusScheduleTests.AddAsync(test);
+                await _dbContext.SaveChangesAsync();
+
+                return OperationResult<SyllabusScheduleTest>.Ok(test, OperationMessages.CreateSuccess("bài kiểm tra"));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<SyllabusScheduleTest>.Fail("Lỗi khi tạo bài kiểm tra: " + ex.Message);
+            }
+        }
+
+        public async Task<string?> GetLastIdAsync()
+        {
+            var lastId = await _dbContext.SyllabusScheduleTests
+                .OrderByDescending(s => s.ScheduleTestID)
+                .Select(s => s.ScheduleTestID)
+                .FirstOrDefaultAsync();
+
+            return lastId;
+        }
+        public async Task<bool> IsDuplicateTestTypeAsync(string assessmentCriteriaId, TestType testType)
+        {
+            string testTypeStr = testType.ToString();
+            return await _dbContext.SyllabusScheduleTests
+                .AnyAsync(t =>
+                    t.AssessmentCriteriaID == assessmentCriteriaId &&
+                    t.TestType.ToString() == testTypeStr &&  // Chuyển t.TestType thành string
+                    t.IsActive);
+        }
+
+
+        public async Task<SyllabusScheduleTest> GetTestByScheduleIdAsync(string scheduleId)
+        {
+            return await _dbContext.SyllabusScheduleTests
+                .Where(t => t.SyllabusScheduleID == scheduleId && t.IsActive)
+                .FirstOrDefaultAsync();
         }
     }
 }

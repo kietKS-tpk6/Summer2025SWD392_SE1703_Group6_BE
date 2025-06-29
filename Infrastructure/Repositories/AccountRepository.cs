@@ -298,12 +298,13 @@ namespace Infrastructure.Repositories
                         AccountID = x.AccountID,
                         LastName = x.LastName,
                         FirstName = x.FirstName,
-                        Gender = x.Gender,
+                        Gender = x.Gender.ToString(),
                         PhoneNumber = x.PhoneNumber,
                         Email = x.Email,
                         BirthDate = x.BirthDate,
-                        Role = x.Role,
-                        Status = x.Status
+                        Role = x.Role.ToString(),
+                        Status = x.Status.ToString(),
+                        Img = x.Image
                     })
                     .ToListAsync();
 
@@ -319,10 +320,63 @@ namespace Infrastructure.Repositories
         }
 
 
+        public async Task<Account?> GetAccountsByIdAsync(string accountId)
+        {
+            return await _dbContext.Accounts
+                .FirstOrDefaultAsync(a => a.AccountID == accountId);
+        }
 
+        public async Task<bool> UpdateAccountAsync(Account account)
+        {
+            _dbContext.Accounts.Update(account);
+            var changes = await _dbContext.SaveChangesAsync();
+            return changes > 0;
+        }
+        public async Task<List<Account>> SearchAccountsAsync(SearchAccountsQueryCommand cmd)
+        {
+            var search = cmd.SearchValue?.ToLower()?.Trim();
 
+            if (string.IsNullOrWhiteSpace(search))
+                return await _dbContext.Accounts
+                    .OrderBy(a => a.AccountID)
+                    .Take(1000)
+                    .ToListAsync();
 
+            var allAccounts = await _dbContext.Accounts.ToListAsync();
 
+            var matchedByName = new List<Account>();
+            var matchedByOther = new List<Account>();
+
+            if (cmd.SearchByName)
+            {
+                matchedByName = allAccounts
+                    .Where(a => ($"{a.FirstName} {a.LastName}").ToLower().Contains(search))
+                    .ToList();
+            }
+
+            if (cmd.SearchByGender || cmd.SearchByPhoneNumber || cmd.SearchByEmail || cmd.SearchByRole || cmd.SearchByStatus)
+            {
+                matchedByOther = allAccounts
+                    .Where(a =>
+                        (cmd.SearchByGender && a.Gender.ToString().ToLower().Contains(search)) ||
+                        (cmd.SearchByPhoneNumber && a.PhoneNumber.ToLower().Contains(search)) ||
+                        (cmd.SearchByEmail && a.Email.ToLower().Contains(search)) ||
+                        (cmd.SearchByRole && a.Role.ToString().ToLower().Contains(search)) ||
+                        (cmd.SearchByStatus && a.Status.ToString().ToLower().Contains(search)))
+                    .ToList();
+            }
+
+            var final = matchedByName
+                .Concat(matchedByOther)
+                .DistinctBy(a => a.AccountID)
+                .ToList();
+
+            return final
+                .OrderByDescending(a => ($"{a.FirstName} {a.LastName}").ToLower().Contains(search)) // ưu tiên khớp tên
+                .ThenBy(a => a.AccountID)
+                .Take(1000)
+                .ToList();
+        }
 
 
     }

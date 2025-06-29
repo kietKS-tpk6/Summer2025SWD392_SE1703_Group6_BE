@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.Design;
+using System.Reflection;
 using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
@@ -32,8 +33,8 @@ namespace Infrastructure
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
                 //AssessmentCriteria 
-            //services.AddScoped<AssessmentCriteriaCreateCommandHandler>();
-            //services.AddScoped<AssessmentCriteriaUpdateCommandHandler>();
+            services.AddScoped<AssessmentCriteriaSetupCommandHandler>();
+            services.AddScoped<AssessmentCriteriaUpdateCommandHandler>();
             services.AddScoped<SendOTPViaEmailCommandHandler>();
                 //Class
             services.AddScoped<ClassCreateCommandHandler>();
@@ -62,6 +63,17 @@ namespace Infrastructure
             services.AddScoped<ISyllabusScheduleTestService, SyllabusScheduleTestService>();
             services.AddScoped<ISystemConfigService, SystemConfigService>();
             services.AddScoped<ITestEventService, TestEventService>();
+            services.AddScoped<IQuestionService, QuestionService>();
+            services.AddScoped<ITestSectionService, TestSectionService>();
+            services.AddScoped<IMCQOptionRepository, MCQOptionRepository>();
+            services.AddScoped<ITestService, TestService>();
+            services.AddScoped<ITestSectionService, TestSectionService>();
+            services.AddScoped<IMCQAnswerDetailService, MCQAnswerDetailService>();
+            services.AddScoped<IMCQAnswerService, MCQAnswerService>();
+            services.AddScoped<IWritingAnswerService, WritingAnswerService>();
+            services.AddScoped<IStudentTestService, StudentTestService>();
+            services.AddScoped<IMCQOptionService, MCQOptionService>();
+
             services.AddScoped<IAttendanceService, AttendanceService>();
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
@@ -75,31 +87,49 @@ namespace Infrastructure
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<ISystemConfigRepository, SystemConfigRepository>();
             services.AddScoped<ITestEventRepository, TestEventRepository>();
+            services.AddScoped<IQuestionRepository, QuestionRepository>();
+            services.AddScoped<ITestSectionRepository, TestSectionRepository>();
+            services.AddScoped<ITestRepository, TestRepository>();
+            services.AddScoped<ITestSectionRepository, TestSectionRepository>();
+            services.AddScoped<IMCQAnswerDetailRepository, MCQAnswerDetailRepository>();
+            services.AddScoped<IMCQAnswerRepository, MCQAnswerRepository>();
+            services.AddScoped<IWritingAnswerRepository, WritingAnswerRepository>();
+            services.AddScoped<IStudentTestRepository, StudentTestRepository>();
             services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
+            services.AddScoped<CreateQuestionsCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
             services.AddScoped<SyllabusScheduleCreateCommand>();
-            
-                            
+            services.AddScoped<SubmitStudentTestCommandHandler>();
+
+
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
 
+            services.AddScoped<CreateTestCommandHandler>();
+            services.AddScoped<UpdateTestCommandHandler>();
+            services.AddScoped<UpdateTestStatusCommandHandler>();
+            services.AddScoped<DeleteTestCommandHandler>();
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();
             services.AddScoped<DeleteSubjectCommandHandler>();
             services.AddScoped<ProcessWebhookCommandHandler>();
+            services.AddScoped<CreateTestSectionCommandHandler>();
+            services.AddScoped<UpdateTestSectionCommandHandler>();
+            services.AddScoped<DeleteTestSectionCommandHandler>();
 
             services.AddMediatR(cfg =>
            cfg.RegisterServicesFromAssembly(Assembly.Load("Application"))
        );
 
+            services.AddHostedService<TestAutoApprovalService>();
 
 
             services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));

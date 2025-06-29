@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Enums
+namespace Application.IServices
 {
-    public enum QuestionType
+    public interface IMCQAnswerDetailService
     {
-        Multiple,
-        TrueFalse,
-        Writing
     }
 }

@@ -17,14 +17,17 @@ namespace Application.IServices
 
         Task<OperationResult<string>> CreateSubjectAsync(Subject subject);
         Task<string> UpdateSubjectAsync(UpdateSubjectCommand command);
+        Task<string> UpdateSubjectStatusAsync(UpdateSubjectStatusCommand command);
         Task<string> DeleteSubjectAsync(string subjectId);
         Task<string> GenerateNextSubjectIdAsync();
-        //kiệt
-        Task<bool> SubjectNameExistsAsync(string subjectName);
 
         //kiệt
+        Task<bool> SubjectNameExistsAsync(string subjectName);
         Task<bool> DescriptionExistsAsync(string description);
-        
+
+        // New status management methods - using existing repository methods
+        Task<string> TryActivateSubjectAsync(string subjectId);
+
         //Khoa làm
         Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus);
     }

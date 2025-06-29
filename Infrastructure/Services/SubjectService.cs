@@ -1,5 +1,4 @@
-﻿
-using Application.DTOs;
+﻿using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
 using Infrastructure.IRepositories;
@@ -21,12 +20,10 @@ namespace Infrastructure.Services
         {
             _subjectRepository = subjectRepository;
         }
-       
 
         public async Task<bool> SubjectExistsAsync(string id)
         {
             return await _subjectRepository.SubjectExistsAsync(id);
-
         }
 
         public async Task<string> GenerateNextSubjectIdAsync()
@@ -45,12 +42,14 @@ namespace Infrastructure.Services
                 .DefaultIfEmpty(0)
                 .Max();
 
-            return $"SJ{(maxId + 1):D4}"; 
+            return $"SJ{(maxId + 1):D4}";
         }
+
         public DateTime GetVietnamTime()
         {
             return DateTime.UtcNow.AddHours(7);
         }
+
         public async Task<OperationResult<string>> CreateSubjectAsync(Subject subject)
         {
             try
@@ -61,17 +60,16 @@ namespace Infrastructure.Services
                 }
 
                 subject.CreateAt = GetVietnamTime();
+                subject.Status = SubjectStatus.Pending; 
 
                 await _subjectRepository.CreateSubjectAsync(subject);
-                return OperationResult<string>.Ok($"Đã thêm môn học {subject.SubjectID} thành công.");
+                return OperationResult<string>.Ok(subject.SubjectID, OperationMessages.CreateSuccess("môn học"));
             }
             catch (Exception ex)
             {
                 return OperationResult<string>.Fail($"Không thể thêm môn học. Lỗi: {ex.Message}");
-
             }
         }
-
 
         public async Task<bool> SubjectNameExistsAsync(string subjectName)
         {
@@ -85,14 +83,20 @@ namespace Infrastructure.Services
 
         public async Task<List<SubjectDTO>> GetAllSubjectsAsync(bool? isActive = null)
         {
-            var subjects = await _subjectRepository.GetAllSubjectsAsync(isActive);
+            SubjectStatus? status = null;
+            if (isActive.HasValue)
+            {
+                status = isActive.Value ? SubjectStatus.Active : SubjectStatus.Pending;
+            }
+
+            var subjects = await _subjectRepository.GetAllSubjectsAsync(status);
 
             return subjects.Select(s => new SubjectDTO
             {
                 SubjectID = s.SubjectID,
                 SubjectName = s.SubjectName,
                 Description = s.Description,
-                IsActive = s.IsActive,
+                Status = s.Status,
                 CreateAt = s.CreateAt,
                 MinAverageScoreToPass = s.MinAverageScoreToPass
             }).ToList();
@@ -110,12 +114,11 @@ namespace Infrastructure.Services
                 SubjectID = subject.SubjectID,
                 SubjectName = subject.SubjectName,
                 Description = subject.Description,
-                IsActive = subject.IsActive,
+                Status = subject.Status,
                 CreateAt = subject.CreateAt,
                 MinAverageScoreToPass = subject.MinAverageScoreToPass
             };
         }
-
 
         public async Task<int> GetTotalSubjectsCountAsync()
         {
@@ -132,9 +135,34 @@ namespace Infrastructure.Services
 
             existingSubject.SubjectName = command.SubjectName;
             existingSubject.Description = command.Description;
-            existingSubject.IsActive = command.IsActive;
             existingSubject.MinAverageScoreToPass = command.MinAverageScoreToPass;
 
+            await CheckAndUpdateSubjectStatusAsync(command.SubjectID);
+
+            return await _subjectRepository.UpdateSubjectAsync(existingSubject);
+        }
+
+        public async Task<string> UpdateSubjectStatusAsync(UpdateSubjectStatusCommand command)
+        {
+            var existingSubject = await _subjectRepository.GetSubjectByIdAsync(command.SubjectID);
+            if (existingSubject == null)
+            {
+                return ValidationMessages.UserNotFound;
+            }
+
+            if (command.Status == SubjectStatus.Active && existingSubject.Status != SubjectStatus.Active)
+            {
+                var hasSchedule = await _subjectRepository.HasCompleteScheduleAsync(command.SubjectID);
+                var hasAssessment = await _subjectRepository.HasCompleteAssessmentCriteriaAsync(command.SubjectID);
+
+                if (!hasSchedule || !hasAssessment)
+                {
+                    var missingFields = await _subjectRepository.GetMissingFieldsAsync(command.SubjectID);
+                    return ValidationMessages.SubjectCannotActivate + ": " + string.Join(", ", missingFields);
+                }
+            }
+
+            existingSubject.Status = command.Status;
             return await _subjectRepository.UpdateSubjectAsync(existingSubject);
         }
 
@@ -148,9 +176,73 @@ namespace Infrastructure.Services
 
             return await _subjectRepository.DeleteSubjectAsync(subjectId);
         }
+
         public async Task<OperationResult<List<SubjectCreateClassDTO>>> GetSubjectByStatusAsync(SubjectStatus subjectStatus)
         {
             return await _subjectRepository.GetSubjectByStatusAsync(subjectStatus);
         }
+
+        public async Task<SubjectStatusCheckResult> CheckSubjectStatusAsync(string subjectId)
+        {
+            var hasSchedule = await _subjectRepository.HasCompleteScheduleAsync(subjectId);
+            var hasAssessment = await _subjectRepository.HasCompleteAssessmentCriteriaAsync(subjectId);
+            var missingFields = await _subjectRepository.GetMissingFieldsAsync(subjectId);
+
+            return new SubjectStatusCheckResult
+            {
+                CanActivate = hasSchedule && hasAssessment,
+                HasCompleteSchedule = hasSchedule,
+                HasCompleteAssessmentCriteria = hasAssessment,
+                MissingFields = missingFields
+            };
+        }
+
+        public async Task<string> TryActivateSubjectAsync(string subjectId)
+        {
+            var subject = await _subjectRepository.GetSubjectByIdAsync(subjectId);
+            if (subject == null)
+            {
+                return ValidationMessages.UserNotFound;
+            }
+
+            if (subject.Status == SubjectStatus.Active)
+            {
+                return "Subject is already active";
+            }
+
+            var hasSchedule = await _subjectRepository.HasCompleteScheduleAsync(subjectId);
+            var hasAssessment = await _subjectRepository.HasCompleteAssessmentCriteriaAsync(subjectId);
+
+            if (!hasSchedule || !hasAssessment)
+            {
+                var missingFields = await _subjectRepository.GetMissingFieldsAsync(subjectId);
+                return ValidationMessages.SubjectCannotActivate + ": " + string.Join(", ", missingFields);
+            }
+
+            subject.Status = SubjectStatus.Active;
+            return await _subjectRepository.UpdateSubjectAsync(subject);
+        }
+
+        private async Task CheckAndUpdateSubjectStatusAsync(string subjectId)
+        {
+            var subject = await _subjectRepository.GetSubjectByIdAsync(subjectId);
+            if (subject == null || subject.Status == SubjectStatus.Active)
+                return;
+
+            var statusCheck = await CheckSubjectStatusAsync(subjectId);
+            if (statusCheck.CanActivate && subject.Status == SubjectStatus.Pending)
+            {
+                subject.Status = SubjectStatus.Active;
+                await _subjectRepository.UpdateSubjectAsync(subject);
+            }
+        }
+    }
+
+    public class SubjectStatusCheckResult
+    {
+        public bool CanActivate { get; set; }
+        public bool HasCompleteSchedule { get; set; }
+        public bool HasCompleteAssessmentCriteria { get; set; }
+        public List<string> MissingFields { get; set; } = new List<string>();
     }
 }

@@ -8,8 +8,10 @@ namespace Domain.Enums
 {
     public enum TestStatus
     {
-        Closed,
         Drafted,
-        Ongoing
+        Pending,
+        Rejected,
+        Actived,
+        Deleted
     }
 }

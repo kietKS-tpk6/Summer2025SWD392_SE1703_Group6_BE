@@ -39,6 +39,9 @@ namespace Infrastructure.IRepositories
         Task UpdateSyllabusSchedulesAsync(List<SyllabusSchedule> syllabusSchedules);
         Task SaveChangesAsync();
         Task<List<SyllabusSchedule>> GetSchedulesBySubjectAndWeekAsync(string subjectId, int? week);
+        Task<OperationResult<SyllabusSchedule>> GetByIdAsync(string syllabusScheduleId);
+        Task<OperationResult<bool>> UpdateAsync(SyllabusSchedule schedule);
+        OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDTO> items);
 
     }
 }

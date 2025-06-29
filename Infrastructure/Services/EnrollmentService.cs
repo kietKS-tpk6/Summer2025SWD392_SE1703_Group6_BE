@@ -33,6 +33,44 @@ namespace Infrastructure.Services
             return $"CE{(numberOfEnrollments + 1):D4}";
         }
 
+        public async Task<bool> HasScheduleConflictAsync(string studentId, string newClassId)
+        {
+            try
+            {
+                var studentLessons = await _enrollmentRepository.GetLessonsByStudentIdAsync(studentId);
+
+                var newClassLessons = await _enrollmentRepository.GetLessonsByClassIdAsync(newClassId);
+
+                foreach (var newLesson in newClassLessons)
+                {
+                    var newLessonStart = newLesson.StartTime;
+                    var newLessonEnd = newLessonStart.AddMinutes(newLesson.SyllabusSchedule?.DurationMinutes ?? 60);
+
+                    foreach (var existingLesson in studentLessons)
+                    {
+                        var existingLessonStart = existingLesson.StartTime;
+                        var existingLessonEnd = existingLessonStart.AddMinutes(existingLesson.SyllabusSchedule?.DurationMinutes ?? 60);
+
+                        if (IsTimeOverlap(newLessonStart, newLessonEnd, existingLessonStart, existingLessonEnd))
+                        {
+                            return true; 
+                        }
+                    }
+                }
+
+                return false; 
+            }
+            catch (Exception)
+            {
+                return true; 
+            }
+        }
+
+        private bool IsTimeOverlap(DateTime start1, DateTime end1, DateTime start2, DateTime end2)
+        {
+            return start1 < end2 && start2 < end1;
+        }
+
         public async Task<string> CreateEnrollmentAsync(CreateEnrollmentCommand command)
         {
             var payment = await _paymentRepository.GetPaymentByIdAsync(command.PaymentID);
@@ -64,9 +102,14 @@ namespace Infrastructure.Services
                 return "Class is full";
             }
 
+            var hasConflict = await HasScheduleConflictAsync(command.StudentID, command.ClassID);
+            if (hasConflict)
+            {
+                return "Schedule conflict: This class conflicts with your existing class schedule";
+            }
+
             var enrollmentId = await GenerateNextEnrollmentIdAsync();
 
-    
             var enrollment = new ClassEnrollment
             {
                 ClassEnrollmentID = enrollmentId,
@@ -111,7 +154,7 @@ namespace Infrastructure.Services
                         ImageURL = classEntity.ImageURL,
                         MaxStudentAcp = classEntity.MaxStudentAcp,
                         CurrentEnrollments = await _enrollmentRepository.GetClassCurrentEnrollmentsAsync(classEntity.ClassID),
-                        CanEnroll = false 
+                        CanEnroll = false
                     });
                 }
             }

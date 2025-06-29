@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
+using Application.DTOs;
 using Application.IServices;
 using Domain.Entities;
 using Domain.Enums;
@@ -19,12 +20,23 @@ namespace Infrastructure.Services
         private readonly IClassRepository _classRepository;
         private readonly ILessonRepository _lessonRepository;
         private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestRepository;
-        public TestEventService(ITestEventRepository testEventRepository, IClassRepository classRepository, ILessonRepository lessonRepository, ISyllabusScheduleTestRepository syllabusScheduleTestRepository)
+        private readonly ITestService _testService;
+        private readonly ITestSectionService _testSectionService;
+        private readonly IQuestionService _questionService;
+        private readonly IMCQOptionService _mcqOptionService;
+        public TestEventService(ITestEventRepository testEventRepository, IClassRepository classRepository, ILessonRepository lessonRepository, ISyllabusScheduleTestRepository syllabusScheduleTestRepository, ITestService testService,
+        ITestSectionService testSectionService,
+        IQuestionService questionService,
+        IMCQOptionService mcqOptionService)
         {
             _testEventRepository = testEventRepository;
             _classRepository = classRepository;
             _lessonRepository = lessonRepository;
             _syllabusScheduleTestRepository = syllabusScheduleTestRepository;
+             _testService = testService;
+        _testSectionService = testSectionService;
+        _questionService = questionService;
+        _mcqOptionService = mcqOptionService;
 
         }
         public async Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID)
@@ -86,6 +98,79 @@ namespace Infrastructure.Services
             return await _testEventRepository.DeleteTestEventsByClassIDAsync(classID);
         }
 
+        public async Task<OperationResult<TestAssignmentDTO>> GetTestAssignmentForStudentAsync(string testEventID)
+        {
+            var testEvent = await _testEventRepository.GetByIdAsync(testEventID);
+            if (testEvent == null || testEvent.Status == TestEventStatus.Deleted)
+                return OperationResult<TestAssignmentDTO>.Fail("Test event not found or deleted");
 
+            if (string.IsNullOrEmpty(testEvent.TestID))
+                return OperationResult<TestAssignmentDTO>.Fail("Test not assigned to this event yet");
+
+            var testResult = await _testService.GetTestByIdAsync(testEvent.TestID);
+            if (!testResult.Success)
+                return OperationResult<TestAssignmentDTO>.Fail(testResult.Message);
+
+            var testSectionsResult = await _testSectionService.GetTestSectionsByTestIdAsync(testEvent.TestID);
+            if (!testSectionsResult.Success)
+                return OperationResult<TestAssignmentDTO>.Fail(testSectionsResult.Message);
+
+            var testAssignment = new TestAssignmentDTO
+            {
+                TestID = testEvent.TestID,
+                Sections = new List<TestSectionAssignmentDTO>()
+            };
+
+            foreach (var section in testSectionsResult.Data)
+            {
+                var sectionDTO = new TestSectionAssignmentDTO
+                {
+                    TestSectionID = section.TestSectionID,
+                    Context = section.Context,
+                    ImageURL = section.ImageURL,
+                    AudioURL = section.AudioURL,
+                    FormatType = section.TestSectionType,
+                    Score = section.Score,
+                    Questions = new List<QuestionAssignmentDTO>()
+                };
+
+                var questionsResult = await _questionService.GetQuestionsByTestSectionIDAsync(section.TestSectionID);
+                if (!questionsResult.Success)
+                    continue;
+
+                foreach (var question in questionsResult.Data)
+                {
+                    var questionDTO = new QuestionAssignmentDTO
+                    {
+                        QuestionID = question.QuestionID,
+                        Content = question.Context,
+                        ImageURL = question.ImageURL,
+                        AudioURL = question.AudioURL,
+                    };
+
+                    if (section.TestSectionType == TestFormatType.Multiple || section.TestSectionType == TestFormatType.TrueFalse)
+                    {
+                        var optionResult = await _mcqOptionService.GetOptionsByQuestionIDAsync(question.QuestionID);
+                        if (optionResult.Success)
+                        {
+                            questionDTO.Options = optionResult.Data.Select(opt => new MCQOptionAssignmentDTO
+                            {
+                                OptionID= opt.MCQOptionID,
+                               Context = opt.Context,
+                                ImageURL = opt.ImageURL,
+                                AudioURL = opt.AudioURL
+                            }).ToList();
+                        }
+                    }
+
+                    sectionDTO.Questions.Add(questionDTO);
+                }
+
+                testAssignment.Sections.Add(sectionDTO);
+            }
+
+            return OperationResult<TestAssignmentDTO>.Ok(testAssignment);
+        }
+   
     }
 }

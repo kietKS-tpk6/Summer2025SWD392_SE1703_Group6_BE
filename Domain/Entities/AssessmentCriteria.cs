@@ -19,7 +19,6 @@ namespace Domain.Entities
         [ForeignKey("Subject")]
         [MaxLength(6)]
         public string SubjectID { get; set; }
-
         public double? WeightPercent { get; set; }
 
         public AssessmentCategory? Category { get; set; }
