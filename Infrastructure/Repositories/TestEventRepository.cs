@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
+using Application.DTOs;
 using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
@@ -13,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public class TestEventRepository: ITestEventRepository
+    public class TestEventRepository : ITestEventRepository
     {
         private readonly HangulLearningSystemDbContext _dbContext;
 
@@ -70,13 +71,47 @@ namespace Infrastructure.Repositories
             return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("buổi kiểm tra"));
         }
 
-
-
         public async Task<TestEvent?> GetByIdAsync(string testEventID)
         {
             return await _dbContext.TestEvent
                 .FirstOrDefaultAsync(te => te.TestEventID == testEventID && te.Status != TestEventStatus.Deleted);
         }
+
+        public async Task<OperationResult<List<TestEventWithLessonDTO>>> GetTestEventWithLessonsByClassIDAsync(string classID)
+        {
+            var result = await (from te in _dbContext.TestEvent
+                                join lesson in _dbContext.Lesson
+                                    on te.ClassLessonID equals lesson.ClassLessonID
+                                join ss in _dbContext.SyllabusSchedule
+                                    on lesson.SyllabusScheduleID equals ss.SyllabusScheduleID
+                                where lesson.ClassID == classID && te.Status != TestEventStatus.Deleted
+                                orderby te.TestID == null ? 0 : 1, te.StartAt
+                                select new TestEventWithLessonDTO
+                                {
+                                    TestEventID = te.TestEventID,
+                                    TestID = te.TestID,
+                                    Description = te.Description,
+                                    StartAt = te.StartAt,
+                                    EndAt = te.EndAt,
+                                    DurationMinutes = te.DurationMinutes,
+                                    TestType = te.TestType.ToString(),
+                                    Status = te.Status,
+                                    ScheduleTestID = te.ScheduleTestID,
+                                    AttemptLimit = te.AttemptLimit,
+                                    Password = te.Password,
+                                    ClassLessonID = te.ClassLessonID,
+                                    LessonTitle = ss.LessonTitle,
+                                    LessonStartTime = lesson.StartTime,
+                                    LessonEndTime = lesson.StartTime.AddMinutes(ss.DurationMinutes ?? 45)
+                                })
+                                .ToListAsync();
+
+            return result is { Count: > 0 }
+                ? OperationResult<List<TestEventWithLessonDTO>>.Ok(result, OperationMessages.RetrieveSuccess("buổi kiểm tra"))
+                : OperationResult<List<TestEventWithLessonDTO>>.Fail(OperationMessages.RetrieveFail("buổi kiểm tra"));
+        }
+
+
 
         //kit {Lấy tất cả TestEvent theo danh sách ClassLessonID}
         public async Task<List<TestEvent>> GetByClassLessonIDsAsync(List<string> classLessonIDs)

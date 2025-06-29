@@ -7,6 +7,7 @@ using Application.Common.Constants;
 using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
+using CloudinaryDotNet.Core;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
@@ -75,7 +76,7 @@ namespace Infrastructure.Services
                 var countResult = await _testEventRepository.CountTestEventAsync();
                 if (!countResult.Success)
                     return OperationResult<bool>.Fail(countResult.Message);
-                var newTestEventId = "TE" + countResult.Data.ToString("D4"); 
+                var newTestEventId = "TE" + countResult.Data.ToString("D4");
 
                 var newTestEvent = new TestEvent
                 {
@@ -245,7 +246,7 @@ namespace Infrastructure.Services
             {
                 return OperationResult<bool>.Fail(OperationMessages.UpdateFail("buổi kiểm tra"));
             }
-          
+
             var durationRequest = (request.EndAt - request.StartAt).TotalMinutes;
             if (durationRequest < testEventFound.DurationMinutes)
             {
@@ -277,6 +278,26 @@ namespace Infrastructure.Services
 
             return await _testEventRepository.UpdateTestEventAsync(testEventFound);
         }
+
+        public async Task<OperationResult<bool>> UpdateStatusAsync(UpdateStatusTestEventCommand request)
+        {
+            var testEventFound = await _testEventRepository.GetByIdAsync(request.TestEventIDToUpdate);
+            if (testEventFound == null)
+            {
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("buổi kiểm tra"));
+            }
+            testEventFound.Status = request.Status;
+            return await _testEventRepository.UpdateTestEventAsync(testEventFound);
+        }
+        public async Task<OperationResult<List<TestEventWithLessonDTO>>> GetTestEventWithLessonsByClassIDAsync(string classID) 
+        {
+            var classFound = await _classRepository.GetByIdAsync(classID);
+            if (!classFound.Success)
+            {
+                return OperationResult<List<TestEventWithLessonDTO>>.Fail(OperationMessages.NotFound("lớp học"));
+            }
+            return await _testEventRepository.GetTestEventWithLessonsByClassIDAsync(classFound.Data.ClassID);
+            }
         public async Task<OperationResult<List<TestByClassDTO>>> GetMidtermAndFinalTestsByClassIDAsync(string classID)
         {
             List<Lesson> lessons;

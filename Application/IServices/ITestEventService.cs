@@ -16,8 +16,9 @@ namespace Application.IServices
         Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID);
         //Hàm của Kho - Xóa Class
         Task<OperationResult<bool>> DeleteTestEventsByClassIDAsync(string classID);
-
+        Task<OperationResult<List<TestEventWithLessonDTO>>> GetTestEventWithLessonsByClassIDAsync(string classID);
         Task<OperationResult<bool>> UpdateTestEventAsync(UpdateTestEventCommand request);
+        Task<OperationResult<bool>> UpdateStatusAsync(UpdateStatusTestEventCommand request);
 
         //Hàm của kiệt  - lấy bài kiểm tra cho test
         Task<OperationResult<TestAssignmentDTO>> GetTestAssignmentForStudentAsync(string testEventID);
