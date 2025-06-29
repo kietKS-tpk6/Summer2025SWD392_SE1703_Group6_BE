@@ -237,7 +237,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result.Data);
         }
+        [HttpGet("class/{classID}/midterm-final")]
+        public async Task<IActionResult> GetMidtermAndFinalTestsByClassID(string classID)
+        {
+            var result = await _testEventService.GetMidtermAndFinalTestsByClassIDAsync(classID);
 
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
         [HttpGet("all-with-sections")]
         public async Task<IActionResult> GetAllTestsWithSections([FromQuery] string? status = null)
         {

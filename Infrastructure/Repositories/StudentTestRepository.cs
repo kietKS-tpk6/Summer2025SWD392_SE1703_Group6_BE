@@ -43,5 +43,11 @@ namespace Infrastructure.Repositories
                 return OperationResult<bool>.Fail("Lỗi cập nhật StudentTest: " + ex.Message);
             }
         }
+        public async Task<List<StudentTest>> GetByTestEventIDsAsync(List<string> testEventIDs)
+        {
+            return await _dbContext.StudentTest
+                .Where(st => testEventIDs.Contains(st.TestEventID))
+                .ToListAsync();
+        }
     }
 }

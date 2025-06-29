@@ -26,6 +26,7 @@ namespace Infrastructure.Services
         private readonly ITestSectionRepository _testSectionRepository;
         private readonly IQuestionRepository _questionRepo;
         private readonly IMCQOptionRepository _mCQOptionRepository;
+        private readonly IStudentTestRepository _studentTestRepository;
 
         public TestEventService(ITestEventRepository testEventRepository, IClassRepository classRepository,
             ILessonRepository lessonRepository,
@@ -33,7 +34,8 @@ namespace Infrastructure.Services
         ITestSectionRepository testSectionRepository,
         IQuestionRepository questionRepository,
         ITestRepository testRepository,
-        IMCQOptionRepository mCQOptionRepository)
+        IMCQOptionRepository mCQOptionRepository,
+        IStudentTestRepository studentTestRepository)
 
         {
             _testEventRepository = testEventRepository;
@@ -44,6 +46,7 @@ namespace Infrastructure.Services
             _questionRepo = questionRepository;
             _testRepository = testRepository;
             _mCQOptionRepository = mCQOptionRepository;
+            _studentTestRepository = studentTestRepository;
 
         }
         public async Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID)
@@ -195,10 +198,22 @@ namespace Infrastructure.Services
 
             var lessonIDs = lessons.Select(l => l.ClassLessonID).ToList();
             var testEvents = await _testEventRepository.GetByClassLessonIDsAsync(lessonIDs);
+            var allStudentTests = await _studentTestRepository.GetByTestEventIDsAsync(testEvents.Select(te => te.TestEventID).ToList());
+
             var result = new List<TestByClassDTO>();
+
             foreach (var ev in testEvents)
             {
                 var test = await _testRepository.GetByIdAsync(ev.TestID);
+
+                var studentTests = allStudentTests.Where(st => st.TestEventID == ev.TestEventID).ToList();
+
+                int totalSubmitted = studentTests.Count(st => st.SubmitTime != null);
+                int uniqueStudents = studentTests
+                    .Where(st => st.SubmitTime != null)
+                    .Select(st => st.StudentID)
+                    .Distinct()
+                    .Count();
 
                 result.Add(new TestByClassDTO
                 {
@@ -210,13 +225,17 @@ namespace Infrastructure.Services
                     StartAt = ev.StartAt,
                     EndAt = ev.EndAt,
                     TestType = ev.TestType.ToString(),
-                    Status = ev.Status.ToString()
+                    Status = ev.Status.ToString(),
+                    DurationMinutes = ev.DurationMinutes,
+                    AttemptLimit = ev.AttemptLimit.GetValueOrDefault(),
+                    TotalSubmittedTests = totalSubmitted,
+                    TotalStudentsSubmitted = uniqueStudents
                 });
             }
 
             return OperationResult<List<TestByClassDTO>>.Ok(result);
         }
-    
+
 
 
         public async Task<OperationResult<bool>> UpdateTestEventAsync(UpdateTestEventCommand request)
@@ -257,6 +276,50 @@ namespace Infrastructure.Services
             testEventFound.Password = string.IsNullOrWhiteSpace(request.Password) ? null : request.Password;
 
             return await _testEventRepository.UpdateTestEventAsync(testEventFound);
+        }
+        public async Task<OperationResult<List<TestByClassDTO>>> GetMidtermAndFinalTestsByClassIDAsync(string classID)
+        {
+            List<Lesson> lessons;
+            try
+            {
+                lessons = await _lessonRepository.GetByClassIDAsync(classID);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<TestByClassDTO>>.Fail("Lỗi khi truy vấn danh sách lesson: " + ex.Message);
+            }
+
+            var lessonIDs = lessons.Select(l => l.ClassLessonID).ToList();
+            var testEvents = await _testEventRepository.GetByClassLessonIDsAsync(lessonIDs);
+            var result = new List<TestByClassDTO>();
+
+            foreach (var ev in testEvents)
+            {
+                var test = await _testRepository.GetByIdAsync(ev.TestID);
+
+                if (test == null)
+                    continue;
+
+                // Chỉ lấy Midterm hoặc Final
+                if (test.Category.ToString() == TestCategory.Midterm.ToString() ||
+    test.Category.ToString() == TestCategory.Final.ToString())
+                {
+                    result.Add(new TestByClassDTO
+                    {
+                        TestEventID = ev.TestEventID,
+                        TestID = ev.TestID,
+                        TestCategory = test.Category.ToString(),
+                        TestName = test.TestName,
+                        Description = ev.Description,
+                        StartAt = ev.StartAt,
+                        EndAt = ev.EndAt,
+                        TestType = ev.TestType.ToString(),
+                        Status = ev.Status.ToString()
+                    });
+                }
+            }
+
+            return OperationResult<List<TestByClassDTO>>.Ok(result);
         }
 
     }

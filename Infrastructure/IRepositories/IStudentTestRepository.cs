@@ -13,5 +13,7 @@ namespace Infrastructure.IRepositories
         Task<StudentTest> GetByIdAsync(string studentTestID);
         Task<bool> ExistsAsync(string studentTestID);
         Task<OperationResult<bool>> UpdateAsync(StudentTest test);
+        Task<List<StudentTest>> GetByTestEventIDsAsync(List<string> testEventIDs);
+
     }
 }
