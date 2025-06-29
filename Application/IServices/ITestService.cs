@@ -19,7 +19,8 @@ namespace Application.IServices
         Task ProcessAutoApprovalAsync();
         Task<OperationResult<List<Test>>> GetAllTestsAsync();
         Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null);
-        Task<OperationResult<List<StudentTestResultDTO>>> GetStudentTestResultsByTestEventAsync(string testEventId);
+        Task<OperationResult<List<StudentTestResultDTO>>> GetListStudentTestResultsByTestEventAsync(string testEventId);
+        Task<OperationResult<StudentTestResultDTO>> GetStudentTestResultsByTestEventAsync(string testEventId, string accountId);
 
     }
 }
