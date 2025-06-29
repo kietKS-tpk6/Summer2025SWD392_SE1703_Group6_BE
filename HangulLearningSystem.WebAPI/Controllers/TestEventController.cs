@@ -24,5 +24,13 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
+        [HttpDelete("delete-by-class-id/{classId}")]
+        public async Task<IActionResult> DeleteTestEventByClassID(string classId)
+        {
+            var result = await _testEventService.DeleteTestEventsByClassIDAsync(classId);
+            if (!result.Success)
+                return BadRequest(result);
+            return Ok(result);
+        }
     }
 }
