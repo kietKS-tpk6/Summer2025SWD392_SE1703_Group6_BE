@@ -31,6 +31,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpPut("update-status")]
+        public async Task<IActionResult> UpdateTestEventStatus([FromBody] UpdateStatusTestEventCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
         [HttpDelete("delete-by-class-id/{classId}")]
         public async Task<IActionResult> DeleteTestEventByClassID(string classId)
         {

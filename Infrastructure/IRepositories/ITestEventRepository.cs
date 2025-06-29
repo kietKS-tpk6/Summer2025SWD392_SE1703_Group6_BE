@@ -16,6 +16,5 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<bool>> DeleteTestEventsByClassIDAsync(string classId);
         Task<OperationResult<bool>> UpdateTestEventAsync(TestEvent testEvent);
         Task<TestEvent?> GetByIdAsync(string testEventID);
-
     }
 }

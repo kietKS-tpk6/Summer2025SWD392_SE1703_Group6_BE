@@ -215,5 +215,16 @@ namespace Infrastructure.Services
 
             return await _testEventRepository.UpdateTestEventAsync(testEventFound);
         }
+
+        public async Task<OperationResult<bool>> UpdateStatusAsync(UpdateStatusTestEventCommand request)
+        {
+            var testEventFound = await _testEventRepository.GetByIdAsync(request.TestEventIDToUpdate);
+            if(testEventFound == null)
+            {
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("buổi kiểm tra"));
+            }
+            testEventFound.Status = request.Status;
+            return await _testEventRepository.UpdateTestEventAsync(testEventFound);
+        }
     }
 }

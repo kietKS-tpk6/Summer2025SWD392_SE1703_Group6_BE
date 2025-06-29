@@ -70,8 +70,6 @@ namespace Infrastructure.Repositories
             return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("buổi kiểm tra"));
         }
 
-
-
         public async Task<TestEvent?> GetByIdAsync(string testEventID)
         {
             return await _dbContext.TestEvent
