@@ -15,6 +15,7 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<bool>> DeleteTestEventsByClassIDAsync(string classId);
 
         Task<TestEvent?> GetByIdAsync(string testEventID);
-
+        //kit {Lấy tất cả TestEvent theo danh sách ClassLessonID}
+        Task<List<TestEvent>> GetByClassLessonIDsAsync(List<string> classLessonIDs);
     }
 }

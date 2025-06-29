@@ -68,5 +68,13 @@ namespace Infrastructure.Repositories
             return await _dbContext.TestEvent
                 .FirstOrDefaultAsync(te => te.TestEventID == testEventID && te.Status != TestEventStatus.Deleted);
         }
+
+        //kit {Lấy tất cả TestEvent theo danh sách ClassLessonID}
+        public async Task<List<TestEvent>> GetByClassLessonIDsAsync(List<string> classLessonIDs)
+        {
+            return await _dbContext.TestEvent
+                .Where(te => classLessonIDs.Contains(te.ClassLessonID))
+                .ToListAsync();
+        }
     }
 }

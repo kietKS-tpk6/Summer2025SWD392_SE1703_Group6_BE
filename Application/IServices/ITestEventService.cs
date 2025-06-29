@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
+using Domain.Entities;
 
 namespace Application.IServices
 {
@@ -17,6 +18,9 @@ namespace Application.IServices
         
         //Hàm của kiệt  - lấy bài kiểm tra cho test
         Task<OperationResult<TestAssignmentDTO>> GetTestAssignmentForStudentAsync(string testEventID);
+        
+       //kit {Lấy danh sách tất cả TestEvent theo ClassID, thông qua ClassLessonID}
+        Task<OperationResult<List<TestByClassDTO>>> GetTestsByClassIDAsync(string classID);
 
     }
 }

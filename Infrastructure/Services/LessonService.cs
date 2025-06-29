@@ -15,13 +15,11 @@ namespace Infrastructure.Services
     public class LessonService : ILessonService
     {
         private readonly ILessonRepository _lessonRepository;
-        private readonly ITestEventService _testEventService;
         private readonly IClassRepository _classRepository;
-        public LessonService(ILessonRepository lessonRepository, IClassRepository classRepository, ITestEventService testEventService)
+        public LessonService(ILessonRepository lessonRepository, IClassRepository classRepository)
         {
             _lessonRepository = lessonRepository;
             _classRepository = classRepository;
-            _testEventService = testEventService;
         }
         public async Task<OperationResult<bool>> CreateLessonAsync(LessonCreateCommand request)
         {
@@ -228,6 +226,20 @@ namespace Infrastructure.Services
             return await _lessonRepository.GetLessonContentByClassIdAsyn(classId);
         }
 
+        //kit {Truy vấn danh sách Lesson theo ClassID để phục vụ việc lấy TestEvent của lớp}
+        public async Task<OperationResult<List<Lesson>>> GetLessonsByClassIDAsync(string classID)
+        {
+            try
+            {
+                var lessons = await _lessonRepository.GetByClassIDAsync(classID);
 
+                // Nếu không có lesson nào thì vẫn trả về danh sách rỗng
+                return OperationResult<List<Lesson>>.Ok(lessons);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<Lesson>>.Fail("Lỗi khi truy vấn danh sách lesson: " + ex.Message);
+            }
+        }
     }
 }

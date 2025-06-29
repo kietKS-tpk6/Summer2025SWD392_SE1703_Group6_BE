@@ -7,11 +7,14 @@ using Infrastructure.IRepositories;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Infrastructure.Repositories;
 
 namespace Infrastructure.Services
 {
     public class TestService : ITestService
     {
+        private readonly ILessonService _classLessonService;
+        private readonly ITestEventService _testEventService;
         private readonly ITestRepository _testRepository;
         private readonly IAccountService _accountService;
         private readonly ISubjectService _subjectService;
@@ -251,5 +254,6 @@ namespace Infrastructure.Services
         {
             return await _testRepository.GetAllTestsWithFiltersAsync(status, createdBy);
         }
+      
     }
 }

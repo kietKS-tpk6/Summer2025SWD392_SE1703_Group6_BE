@@ -22,13 +22,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
         private readonly ITestService _testService;
         private readonly IAccountService _accountService;
         private readonly ITestSectionService _testSectionService;
+        private readonly ITestEventService _testEventService;
 
-        public TestController(IMediator mediator, ITestService testService, IAccountService accountService, ITestSectionService testSectionService)
+        public TestController(IMediator mediator, ITestService testService, IAccountService accountService, ITestSectionService testSectionService, ITestEventService 
+            testEventService)
         {
             _mediator = mediator;
             _testService = testService;
             _accountService = accountService;
             _testSectionService = testSectionService;
+            _testEventService = testEventService;
 
         }
 
@@ -223,6 +226,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
             {
                 return StatusCode(500, new { message = ex.Message });
             }
+        }
+
+        [HttpGet("by-class/{classID}")]
+        public async Task<IActionResult> GetTestsByClass(string classID)
+        {
+            var result = await _testEventService.GetTestsByClassIDAsync(classID);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
         }
 
         [HttpGet("all-with-sections")]

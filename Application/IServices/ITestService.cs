@@ -3,6 +3,7 @@ using Application.Common.Constants;
 using Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Application.DTOs;
 
 namespace Application.IServices
 {
@@ -18,5 +19,6 @@ namespace Application.IServices
         Task ProcessAutoApprovalAsync();
         Task<OperationResult<List<Test>>> GetAllTestsAsync();
         Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null);
+      
     }
 }
