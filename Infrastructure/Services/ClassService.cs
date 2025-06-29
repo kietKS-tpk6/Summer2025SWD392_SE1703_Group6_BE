@@ -20,17 +20,17 @@ namespace Infrastructure.Services
         private readonly ISubjectRepository _subjectRepository;
         private readonly IEnrollmentRepository _enrollmentRepository;
         private readonly ILessonService _lessonService;
-        private readonly ITestEventService _testEventService;
+        //private readonly ITestEventService _testEventService;
         private readonly IEmailService _emailService;
         public ClassService(IClassRepository classRepository, ISubjectRepository subjectRepository,
             IEnrollmentRepository enrollmentRepository, ILessonService lessonService, 
-            ITestEventService testEventService, IEmailService emailService)
+            IEmailService emailService)
         {
             _classRepository = classRepository;
             _subjectRepository = subjectRepository;
             _enrollmentRepository = enrollmentRepository;
             _lessonService = lessonService;
-            _testEventService = testEventService;
+            //_testEventService = testEventService;
             _emailService = emailService;
         }
         public async Task<int> GetEnrollmentCountAsync(string classId)
@@ -110,7 +110,7 @@ namespace Infrastructure.Services
                 await _emailService.SendClassCancelledEmailAsync(classFound.Data.ClassID);
             }
             await _lessonService.DeleteLessonByClassIDAsync(classId);
-            await _testEventService.DeleteTestEventsByClassIDAsync(classId);
+            //await _testEventService.DeleteTestEventsByClassIDAsync(classId);
             return await _classRepository.DeleteAsync(classId);
             
 
