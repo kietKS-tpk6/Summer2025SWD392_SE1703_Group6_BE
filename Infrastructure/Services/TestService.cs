@@ -416,7 +416,6 @@ namespace Infrastructure.Services
                         SubmitTime = studentTest.SubmitTime,
                         Status = studentTest.Status.ToString(),
                         InitialMark = studentTest.Mark,  // Điểm ban đầu
-                        FinalMark = studentMark?.Mark,   // Điểm chốt
                         Comment = studentMark?.Comment,  // Nhận xét
                         Sections = sectionResults
                     });

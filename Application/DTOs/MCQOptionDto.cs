@@ -8,6 +8,7 @@ namespace Application.DTOs
 {
     public class MCQOptionDTO
     {
+        public string MCQOptionID { get; set; }
         public string? Context { get; set; }
         public string? ImageURL { get; set; }
         public string? AudioURL { get; set; }

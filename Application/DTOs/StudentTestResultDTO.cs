@@ -16,7 +16,6 @@ namespace Application.DTOs
         public DateTime? SubmitTime { get; set; }
         public string Status { get; set; }
         public decimal? InitialMark { get; set; } // Điểm ban đầu từ StudentTest
-        public decimal? FinalMark { get; set; }   // Điểm chốt từ StudentMarks
         public string? Comment { get; set; }      // Nhận xét từ StudentMarks
         public List<TestSectionWithStudentAnswersDTO> Sections { get; set; }
     }
