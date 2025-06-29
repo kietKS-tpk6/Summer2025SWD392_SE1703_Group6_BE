@@ -23,15 +23,23 @@ namespace Infrastructure.Services
         private readonly ILessonRepository _lessonRepository;
         private readonly ITestRepository _testRepository;
         private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestRepository;
-        private readonly ITestService _testService;
-        private readonly ITestSectionService _testSectionService;
-        private readonly IQuestionService _questionService;
-        private readonly IMCQOptionService _mcqOptionService;
-        public TestEventService(ITestEventRepository testEventRepository, IClassRepository classRepository, ILessonRepository lessonRepository, ISyllabusScheduleTestRepository syllabusScheduleTestRepository, ITestService testService,
-        ITestSectionService testSectionService,
-        IQuestionService questionService,
-        IMCQOptionService mcqOptionService,
-        ITestRepository testRepository)
+        private readonly ITestSectionRepository _testSectionRepository;
+        private readonly IQuestionRepository _questionRepo;
+        private readonly IMCQOptionRepository _mCQOptionRepository;
+        private readonly IStudentTestRepository _studentTestRepository;
+        private readonly IAccountRepository _accountRepository;
+
+        public TestEventService(ITestEventRepository testEventRepository, IClassRepository classRepository,
+            ILessonRepository lessonRepository,
+            ISyllabusScheduleTestRepository syllabusScheduleTestRepository,
+            ITestSectionRepository testSectionRepository,
+            IQuestionRepository questionRepository,
+            ITestRepository testRepository,
+            IMCQOptionRepository mCQOptionRepository,
+            IStudentTestRepository studentTestRepository,
+            IAccountRepository accountRepository
+        )
+
         {
             _testEventRepository = testEventRepository;
             _classRepository = classRepository;
@@ -42,7 +50,9 @@ namespace Infrastructure.Services
             _questionService = questionService;
             _mcqOptionService = mcqOptionService;
             _testRepository = testRepository;
-
+            _mCQOptionRepository = mCQOptionRepository;
+            _studentTestRepository = studentTestRepository;
+            _accountRepository = accountRepository;
         }
         public async Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID)
         {
@@ -177,6 +187,47 @@ namespace Infrastructure.Services
             return OperationResult<TestAssignmentDTO>.Ok(testAssignment);
         }
 
+            var lessonIDs = lessons.Select(l => l.ClassLessonID).ToList();
+            var testEvents = await _testEventRepository.GetByClassLessonIDsAsync(lessonIDs);
+            var allStudentTests = await _studentTestRepository.GetByTestEventIDsAsync(testEvents.Select(te => te.TestEventID).ToList());
+
+            var result = new List<TestByClassDTO>();
+
+            foreach (var ev in testEvents)
+            {
+                var test = await _testRepository.GetByIdAsync(ev.TestID);
+
+                var studentTests = allStudentTests.Where(st => st.TestEventID == ev.TestEventID).ToList();
+
+                int totalSubmitted = studentTests.Count(st => st.SubmitTime != null);
+                int uniqueStudents = studentTests
+                    .Where(st => st.SubmitTime != null)
+                    .Select(st => st.StudentID)
+                    .Distinct()
+                    .Count();
+
+                result.Add(new TestByClassDTO
+                {
+                    TestEventID = ev.TestEventID,
+                    TestID = ev.TestID,
+                    TestCategory = test?.Category.ToString(),
+                    TestName = test?.TestName,
+                    Description = ev.Description,
+                    StartAt = ev.StartAt,
+                    EndAt = ev.EndAt,
+                    TestType = ev.TestType.ToString(),
+                    Status = ev.Status.ToString(),
+                    DurationMinutes = ev.DurationMinutes,
+                    AttemptLimit = ev.AttemptLimit.GetValueOrDefault(),
+                    TotalSubmittedTests = totalSubmitted,
+                    TotalStudentsSubmitted = uniqueStudents
+                });
+            }
+
+            return OperationResult<List<TestByClassDTO>>.Ok(result);
+        }
+
+
         public async Task<OperationResult<bool>> UpdateTestEventAsync(UpdateTestEventCommand request)
         {
             var testEventFound = await _testEventRepository.GetByIdAsync(request.TestEventIdToUpdate);
@@ -236,5 +287,64 @@ namespace Infrastructure.Services
             }
             return await _testEventRepository.GetTestEventWithLessonsByClassIDAsync(classFound.Data.ClassID);
             }
+        public async Task<OperationResult<List<TestByClassDTO>>> GetMidtermAndFinalTestsByClassIDAsync(string classID)
+        {
+            List<Lesson> lessons;
+            try
+            {
+                lessons = await _lessonRepository.GetByClassIDAsync(classID);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<TestByClassDTO>>.Fail("Lỗi khi truy vấn danh sách lesson: " + ex.Message);
+            }
+
+            var lessonIDs = lessons.Select(l => l.ClassLessonID).ToList();
+            var testEvents = await _testEventRepository.GetByClassLessonIDsAsync(lessonIDs);
+            var result = new List<TestByClassDTO>();
+
+            foreach (var ev in testEvents)
+            {
+                var test = await _testRepository.GetByIdAsync(ev.TestID);
+
+                if (test == null)
+                    continue;
+
+                // Chỉ lấy Midterm hoặc Final
+                if (test.Category.ToString() == TestCategory.Midterm.ToString() ||
+    test.Category.ToString() == TestCategory.Final.ToString())
+                {
+                    result.Add(new TestByClassDTO
+                    {
+                        TestEventID = ev.TestEventID,
+                        TestID = ev.TestID,
+                        TestCategory = test.Category.ToString(),
+                        TestName = test.TestName,
+                        Description = ev.Description,
+                        StartAt = ev.StartAt,
+                        EndAt = ev.EndAt,
+                        TestType = ev.TestType.ToString(),
+                        Status = ev.Status.ToString()
+                    });
+                }
+            }
+
+            return OperationResult<List<TestByClassDTO>>.Ok(result);
+        }
+
+
+        public async Task<OperationResult<TestEventStudentDTO>> GetTestEventByStudentIdAsync(string studentId)
+        {
+            var studentFound = await _accountRepository.GetAccountsByIdAsync(studentId);
+            if(studentFound == null)
+            {
+                return OperationResult<TestEventStudentDTO>.Fail(OperationMessages.NotFound("học sinh"));
+            }
+            //if(studentFound.Role != AccountRole.Student)
+            //{
+            //    return OperationResult<TestEventStudentDTO>.Fail("Không phải học sinh");
+            //}
+            return await  _testEventRepository.GetTestEventByStudentIdAsync(studentId);
+        }
     }
 }

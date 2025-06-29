@@ -110,6 +110,54 @@ namespace Infrastructure.Repositories
                 ? OperationResult<List<TestEventWithLessonDTO>>.Ok(result, OperationMessages.RetrieveSuccess("buổi kiểm tra"))
                 : OperationResult<List<TestEventWithLessonDTO>>.Fail(OperationMessages.RetrieveFail("buổi kiểm tra"));
         }
+        public async Task<OperationResult<TestEventStudentDTO>> GetTestEventByStudentIdAsync(string studentId)
+        {
+            var query = from ce in _dbContext.ClassEnrollment
+                        join c in _dbContext.Class on ce.ClassID equals c.ClassID
+                        join s in _dbContext.Subject on c.SubjectID equals s.SubjectID
+                        where ce.StudentID == studentId && c.Status == ClassStatus.Ongoing
+                        select new
+                        {
+                            c.ClassID,
+                            c.ClassName,
+                            SubjectName = s.SubjectName
+                        };
+
+            var classInfo = await query.FirstOrDefaultAsync();
+
+            if (classInfo == null)
+                return OperationResult<TestEventStudentDTO>.Fail("Không tìm thấy lớp đang học của học viên.");
+
+            var testEvents = await (from te in _dbContext.TestEvent
+                                    join l in _dbContext.Lesson on te.ClassLessonID equals l.ClassLessonID
+                                    join ss in _dbContext.SyllabusSchedule on l.SyllabusScheduleID equals ss.SyllabusScheduleID
+                                    where l.ClassID == classInfo.ClassID && te.Status == TestEventStatus.Actived 
+                                    select new TestEventInClassDTO
+                                    {
+                                        TestEventID = te.TestEventID,
+                                        TestID = te.TestID,
+                                        Description = te.Description,
+                                        StartAt = te.StartAt,
+                                        EndAt = te.EndAt,
+                                        DurationMinutes = te.DurationMinutes,
+                                        TestType = te.TestType.ToString(),
+                                        Status = te.Status,
+                                        AttemptLimit = te.AttemptLimit,
+                                        Password = te.Password,
+                                        LessonTitle = ss.LessonTitle
+                                    }).ToListAsync();
+
+            var dto = new TestEventStudentDTO
+            {
+                ClassID = classInfo.ClassID,
+                ClassName = classInfo.ClassName,
+                SubjectName = classInfo.SubjectName,
+                TestEvents = testEvents
+            };
+
+            return OperationResult<TestEventStudentDTO>.Ok(dto, OperationMessages.RetrieveSuccess("buổi kiểm tra"));
+        }
+
 
 
     }
