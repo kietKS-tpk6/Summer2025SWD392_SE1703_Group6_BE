@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
+using Application.Usecases.Command;
 using Domain.Entities;
 
 namespace Infrastructure.IRepositories
@@ -13,7 +14,7 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<bool>> CreateTestEventForCreateClassAsync(TestEvent testEvent);
         Task<OperationResult<int>> CountTestEventAsync();
         Task<OperationResult<bool>> DeleteTestEventsByClassIDAsync(string classId);
-
+        Task<OperationResult<bool>> UpdateTestEventAsync(TestEvent testEvent);
         Task<TestEvent?> GetByIdAsync(string testEventID);
 
     }

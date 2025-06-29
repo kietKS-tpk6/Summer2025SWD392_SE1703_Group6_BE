@@ -1,4 +1,5 @@
 ﻿using Application.IServices;
+using Application.Usecases.Command;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result.Message);
 
             return Ok(result);
+        }
+        [HttpPut("configure")] 
+        public async Task<IActionResult> UpdateTestEvent([FromBody] UpdateTestEventCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
         [HttpDelete("delete-by-class-id/{classId}")]
         public async Task<IActionResult> DeleteTestEventByClassID(string classId)
