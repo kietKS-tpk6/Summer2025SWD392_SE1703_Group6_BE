@@ -23,7 +23,7 @@ namespace Infrastructure.Services
         private readonly ILessonRepository _lessonRepository;
         private readonly ITestRepository _testRepository;
         private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestRepository;
-
+        private readonly IAccountRepository _accountRepository;
         private readonly ITestSectionRepository _testSectionRepository;
         private readonly IQuestionRepository _questionRepo;
         private readonly IMCQOptionRepository _mCQOptionRepository;
@@ -36,7 +36,9 @@ namespace Infrastructure.Services
         IQuestionRepository questionRepository,
         ITestRepository testRepository,
         IMCQOptionRepository mCQOptionRepository,
-        IStudentTestRepository studentTestRepository)
+        IStudentTestRepository studentTestRepository,
+         IAccountRepository accountRepository
+        )
 
         {
             _testEventRepository = testEventRepository;
@@ -48,7 +50,7 @@ namespace Infrastructure.Services
             _testRepository = testRepository;
             _mCQOptionRepository = mCQOptionRepository;
             _studentTestRepository = studentTestRepository;
-
+            _accountRepository = accountRepository;
         }
         public async Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID)
         {
@@ -343,5 +345,19 @@ namespace Infrastructure.Services
             return OperationResult<List<TestByClassDTO>>.Ok(result);
         }
 
+      
+        public async Task<OperationResult<TestEventStudentDTO>> GetTestEventByStudentIdAsync(string studentId)
+        {
+            var studentFound = await _accountRepository.GetAccountsByIdAsync(studentId);
+            if(studentFound == null)
+            {
+                return OperationResult<TestEventStudentDTO>.Fail(OperationMessages.NotFound("học sinh"));
+            }
+            //if(studentFound.Role != AccountRole.Student)
+            //{
+            //    return OperationResult<TestEventStudentDTO>.Fail("Không phải học sinh");
+            //}
+            return await  _testEventRepository.GetTestEventByStudentIdAsync(studentId);
+        }
     }
 }
