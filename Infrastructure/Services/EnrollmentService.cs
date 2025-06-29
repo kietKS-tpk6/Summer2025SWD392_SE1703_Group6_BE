@@ -149,13 +149,9 @@ namespace Infrastructure.Services
                     {
                         ClassID = classEntity.ClassID,
                         ClassName = classEntity.ClassName,
-                        SubjectName = classEntity.Subject?.SubjectName ?? "Unknown",
-                        PriceOfClass = classEntity.PriceOfClass,
-                        TeachingStartTime = classEntity.TeachingStartTime,
+                        SubjectName = classEntity.Subject?.SubjectName ?? "Unknown",                                                
                         ImageURL = classEntity.ImageURL,
-                        MaxStudentAcp = classEntity.MaxStudentAcp,
-                        CurrentEnrollments = await _enrollmentRepository.GetClassCurrentEnrollmentsAsync(classEntity.ClassID),
-                        CanEnroll = false
+                        LecturerName = classEntity.Lecturer.Fullname
                     });
                 }
             }

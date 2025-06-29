@@ -81,12 +81,8 @@ namespace Application.DTOs
         public string ClassID { get; set; }
         public string ClassName { get; set; }
         public string SubjectName { get; set; }
-        public decimal PriceOfClass { get; set; }
-        public DateTime TeachingStartTime { get; set; }
         public string ImageURL { get; set; }
         public string LecturerName { get; set; }
-        public int MaxStudentAcp { get; set; }
-        public int CurrentEnrollments { get; set; }
-        public bool CanEnroll { get; set; }
+       
     }
 }
