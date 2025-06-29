@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
+using Application.DTOs;
 using Application.Usecases.Command;
 using Domain.Entities;
 
@@ -16,5 +17,6 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<bool>> DeleteTestEventsByClassIDAsync(string classId);
         Task<OperationResult<bool>> UpdateTestEventAsync(TestEvent testEvent);
         Task<TestEvent?> GetByIdAsync(string testEventID);
+        Task<OperationResult<List<TestEventWithLessonDTO>>> GetTestEventWithLessonsByClassIDAsync(string classID);
     }
 }

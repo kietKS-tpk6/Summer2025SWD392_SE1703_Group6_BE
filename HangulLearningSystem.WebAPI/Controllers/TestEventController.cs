@@ -45,6 +45,14 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result);
             return Ok(result);
         }
+        [HttpGet("get-by-class-id/{classId}")]
+        public async Task<IActionResult> GetTestEventByClassID(string classId)
+        {
+            var result = await _testEventService.GetTestEventWithLessonsByClassIDAsync(classId);
+            if (!result.Success)
+                return BadRequest(result);
+            return Ok(result);
+        }
         [HttpGet("{testEventID}/assignment")]
         public async Task<IActionResult> GetAssignment(string testEventID)
         {

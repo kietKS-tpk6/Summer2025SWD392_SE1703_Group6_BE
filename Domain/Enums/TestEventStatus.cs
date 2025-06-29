@@ -12,7 +12,7 @@ namespace Domain.Enums
         //Bản nháp (này là TestID = null)
         Draft,
         //Đang hoạt động  
-        Active,
+        Actived,
         //Đã kết thúc
         Ended,
         //Không hoạt động
