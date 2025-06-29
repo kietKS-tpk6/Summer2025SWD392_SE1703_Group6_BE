@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
+using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
@@ -62,6 +63,14 @@ namespace Infrastructure.Repositories
                 ? OperationResult<bool>.Ok(true, OperationMessages.DeleteSuccess("buổi kiểm tra"))
                 : OperationResult<bool>.Fail(OperationMessages.DeleteFail("buổi kiểm tra"));
         }
+        public async Task<OperationResult<bool>> UpdateTestEventAsync(TestEvent testEvent)
+        {
+            _dbContext.TestEvent.Update(testEvent);
+            await _dbContext.SaveChangesAsync();
+            return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("buổi kiểm tra"));
+        }
+
+
 
         public async Task<TestEvent?> GetByIdAsync(string testEventID)
         {

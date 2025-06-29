@@ -157,5 +157,11 @@ namespace Infrastructure.Repositories
                 .Where(t => t.SyllabusScheduleID == scheduleId && t.IsActive)
                 .FirstOrDefaultAsync();
         }
+        public async Task<SyllabusScheduleTest?> GetByScheduleTestIdAsync(string scheduleTestId)
+        {
+            return await _dbContext.SyllabusScheduleTests
+             .Where(t => t.ScheduleTestID == scheduleTestId && t.IsActive)
+             .FirstOrDefaultAsync();
+        }
     }
 }

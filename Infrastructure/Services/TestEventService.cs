@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
 using Application.IServices;
+using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
@@ -19,8 +20,8 @@ namespace Infrastructure.Services
         private readonly ITestEventRepository _testEventRepository;
         private readonly IClassRepository _classRepository;
         private readonly ILessonRepository _lessonRepository;
-        private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestRepository;
         private readonly ITestRepository _testRepository;
+        private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestRepository;
 
         private readonly ITestSectionRepository _testSectionRepository;
         private readonly IQuestionRepository _questionRepo;
@@ -33,6 +34,7 @@ namespace Infrastructure.Services
         IQuestionRepository questionRepository,
         ITestRepository testRepository,
         IMCQOptionRepository mCQOptionRepository)
+
         {
             _testEventRepository = testEventRepository;
             _classRepository = classRepository;
@@ -42,6 +44,7 @@ namespace Infrastructure.Services
             _questionRepo = questionRepository;
             _testRepository = testRepository;
             _mCQOptionRepository = mCQOptionRepository;
+
         }
         public async Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID)
         {
@@ -70,21 +73,20 @@ namespace Infrastructure.Services
                 if (!countResult.Success)
                     return OperationResult<bool>.Fail(countResult.Message);
                 var newTestEventId = "TE" + countResult.Data.ToString("D4"); 
-                var randomPassword = Guid.NewGuid().ToString("N")[..10];
 
                 var newTestEvent = new TestEvent
                 {
                     TestEventID = newTestEventId,
                     TestID = null,
                     Description = null,
-                    StartAt = null,
-                    EndAt = null,
+                    StartAt = lesson.StartTime,
+                    EndAt = lesson.StartTime.AddMinutes(lesson.SyllabusSchedule.DurationMinutes ?? 60),
                     DurationMinutes = lesson.SyllabusSchedule.DurationMinutes ?? 60,
                     TestType = scheduleTest.TestType,
                     Status = TestEventStatus.Draft,
                     ScheduleTestID = scheduleTest.ScheduleTestID,
-                    AttemptLimit = 1,
-                    Password = randomPassword,
+                    AttemptLimit = null,
+                    Password = null,
                     ClassLessonID = lesson.ClassLessonID
                 };
 
@@ -178,7 +180,7 @@ namespace Infrastructure.Services
 
             return OperationResult<TestAssignmentDTO>.Ok(testAssignment);
         }
-        //kit {Lấy danh sách tất cả TestEvent theo ClassID, thông qua ClassLessonID}
+
         public async Task<OperationResult<List<TestByClassDTO>>> GetTestsByClassIDAsync(string classID)
         {
             List<Lesson> lessons;
@@ -215,5 +217,47 @@ namespace Infrastructure.Services
             return OperationResult<List<TestByClassDTO>>.Ok(result);
         }
     
+
+
+        public async Task<OperationResult<bool>> UpdateTestEventAsync(UpdateTestEventCommand request)
+        {
+            var testEventFound = await _testEventRepository.GetByIdAsync(request.TestEventIdToUpdate);
+            if (testEventFound == null)
+            {
+                return OperationResult<bool>.Fail(OperationMessages.UpdateFail("buổi kiểm tra"));
+            }
+          
+            var durationRequest = (request.EndAt - request.StartAt).TotalMinutes;
+            if (durationRequest < testEventFound.DurationMinutes)
+            {
+                return OperationResult<bool>.Fail("Thời gian kiểm tra không hợp lý.");
+            }
+            var testFound = await _testRepository.GetTestByIdAsync(request.TestID);
+            if (!testFound.Success)
+            {
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("đề kiểm tra"));
+            }
+            if (testFound.Data.Status != TestStatus.Actived)
+            {
+                return OperationResult<bool>.Fail("Không thể chọn đề kiểm tra chưa duyệt");
+            }
+            var scheduleTestFound = await _syllabusScheduleTestRepository.GetByScheduleTestIdAsync(testEventFound.ScheduleTestID);
+            if (scheduleTestFound != null)
+            {
+                if (scheduleTestFound.TestType != testFound.Data.TestType)
+                {
+                    return OperationResult<bool>.Fail("Không thể chọn đề kiểm tra khác loại buổi kiểm tra");
+                }
+            }
+            testEventFound.TestID = request.TestID;
+            testEventFound.Description = request.Description;
+            testEventFound.StartAt = request.StartAt;
+            testEventFound.EndAt = request.EndAt;
+            testEventFound.AttemptLimit = request.AttemptLimit == 0 ? null : request.AttemptLimit;
+            testEventFound.Password = string.IsNullOrWhiteSpace(request.Password) ? null : request.Password;
+
+            return await _testEventRepository.UpdateTestEventAsync(testEventFound);
+        }
+
     }
 }

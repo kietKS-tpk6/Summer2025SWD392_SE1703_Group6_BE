@@ -93,6 +93,12 @@ namespace Application.Common.Constants
         public const string SubjectCannotActivate = "Không thể kích hoạt môn học này do thiếu thông tin bắt buộc.";
         public const string ScheduleIncomplete = "Môn học chưa có đầy đủ lịch học.";
         public const string AssessmentCriteriaIncomplete = "Môn học chưa có đầy đủ tiêu chí đánh giá.";
+        //Test event 
+        public const string TestEventIDIsEmpty = "Mã buổi kiểm tra không được để trống.";
+        public const string TestIDIsEmpty = "Mã đề thi không được để trống.";
+        public const string InvalidStartEndTime = "Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc.";
+        public const string AttemptLimitInvalid = "Số lần làm bài phải lớn hơn hoặc bằng 1.";
+
     }
 }
 
