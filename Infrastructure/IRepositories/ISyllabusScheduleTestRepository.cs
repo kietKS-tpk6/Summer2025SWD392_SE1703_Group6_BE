@@ -30,6 +30,7 @@ namespace Infrastructure.IRepositories
         Task<bool> IsDuplicateTestTypeAsync(string assessmentCriteriaId, TestType testType);
 
         Task<SyllabusScheduleTest> GetTestByScheduleIdAsync(string scheduleId);
+        Task<SyllabusScheduleTest?> GetByScheduleTestIdAsync(string scheduleTestId);
 
     }
 }
