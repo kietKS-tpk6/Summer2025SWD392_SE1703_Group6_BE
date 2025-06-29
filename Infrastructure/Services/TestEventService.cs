@@ -54,7 +54,6 @@ namespace Infrastructure.Services
                 if (!countResult.Success)
                     return OperationResult<bool>.Fail(countResult.Message);
                 var newTestEventId = "TE" + countResult.Data.ToString("D4"); 
-                var randomPassword = Guid.NewGuid().ToString("N")[..10];
 
                 var newTestEvent = new TestEvent
                 {
@@ -67,8 +66,8 @@ namespace Infrastructure.Services
                     TestType = scheduleTest.TestType,
                     Status = TestEventStatus.Draft,
                     ScheduleTestID = scheduleTest.ScheduleTestID,
-                    AttemptLimit = 1,
-                    Password = randomPassword,
+                    AttemptLimit = null,
+                    Password = null,
                     ClassLessonID = lesson.ClassLessonID
                 };
 

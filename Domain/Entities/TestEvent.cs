@@ -38,7 +38,7 @@ namespace Domain.Entities
             [ForeignKey("ScheduleTest")]
             public string? ScheduleTestID { get; set; }
 
-            public int AttemptLimit { get; set; }
+            public int? AttemptLimit { get; set; }
 
             [MaxLength(50)]
             public string? Password { get; set; }
