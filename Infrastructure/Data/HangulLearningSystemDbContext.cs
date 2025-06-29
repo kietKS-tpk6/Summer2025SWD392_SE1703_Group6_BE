@@ -121,5 +121,7 @@ namespace Infrastructure.Data
         public DbSet<MCQAnswer> MCQAnswers { get; set; }
         public DbSet<MCQAnswerDetail> MCQAnswerDetails { get; set; }
         public DbSet<WritingAnswer> WritingAnswers { get; set; }
+        public DbSet<StudentMark> StudentMarks { get; set; }
+
     }
 }

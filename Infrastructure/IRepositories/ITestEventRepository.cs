@@ -19,5 +19,7 @@ namespace Infrastructure.IRepositories
         Task<TestEvent?> GetByIdAsync(string testEventID);
         Task<OperationResult<TestEventStudentDTO>> GetTestEventByStudentIdAsync(string studentId);
         Task<OperationResult<List<TestEventWithLessonDTO>>> GetTestEventWithLessonsByClassIDAsync(string classID);
+        //kit {Lấy tất cả TestEvent theo danh sách ClassLessonID}
+        Task<List<TestEvent>> GetByClassLessonIDsAsync(List<string> classLessonIDs);
     }
 }

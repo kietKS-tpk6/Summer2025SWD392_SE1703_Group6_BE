@@ -98,6 +98,7 @@ namespace Infrastructure
             services.AddScoped<IWritingAnswerRepository, WritingAnswerRepository>();
             services.AddScoped<IStudentTestRepository, StudentTestRepository>();
             services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+            services.AddScoped<IStudentMarkRepository, StudentMarkRepository>();
 
 
             //CommandHandler

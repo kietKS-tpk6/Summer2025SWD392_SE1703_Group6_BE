@@ -188,5 +188,15 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<Test>>.Fail($"Error retrieving tests with filters: {ex.Message}");
             }
         }
+        public async Task<List<Test>> GetByIdsAsync(List<string> testIDs)
+        {
+            return await _dbContext.Test
+                .Where(t => testIDs.Contains(t.TestID))
+                .ToListAsync();
+        }
+        public async Task<Test?> GetByIdAsync(string testID)
+        {
+            return await _dbContext.Test.FirstOrDefaultAsync(t => t.TestID == testID);
+        }
     }
 }

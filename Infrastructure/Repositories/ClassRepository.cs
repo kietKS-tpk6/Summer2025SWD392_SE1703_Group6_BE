@@ -342,6 +342,13 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<StudentDTO>>.Fail(OperationMessages.RetrieveFail("học sinh"));
             }
         }
+        //Kit
+        public async Task<List<Lesson>> GetByClassIDAsync(string classID)
+        {
+            return await _dbContext.Lesson
+                .Where(lesson => lesson.ClassID == classID && lesson.IsActive)
+                .ToListAsync();
+        }
 
     }
 }

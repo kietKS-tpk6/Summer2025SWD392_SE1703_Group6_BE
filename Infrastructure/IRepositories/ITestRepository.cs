@@ -17,5 +17,9 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<string>> UpdateTestStatusAsync(string testId, Domain.Enums.TestStatus status);
         Task<OperationResult<List<Test>>> GetAllTestsAsync();
         Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null);
+        // kit {Lấy danh sách bài Test theo list TestID}
+        Task<List<Test>> GetByIdsAsync(List<string> testIDs);
+        //kit {Truy vấn Test theo TestID để lấy Category và TestName}
+        Task<Test?> GetByIdAsync(string testID);
     }
 }

@@ -23,21 +23,21 @@ namespace Infrastructure.Services
         private readonly ILessonRepository _lessonRepository;
         private readonly ITestRepository _testRepository;
         private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestRepository;
+        private readonly IAccountRepository _accountRepository;
         private readonly ITestSectionRepository _testSectionRepository;
         private readonly IQuestionRepository _questionRepo;
         private readonly IMCQOptionRepository _mCQOptionRepository;
         private readonly IStudentTestRepository _studentTestRepository;
-        private readonly IAccountRepository _accountRepository;
 
         public TestEventService(ITestEventRepository testEventRepository, IClassRepository classRepository,
             ILessonRepository lessonRepository,
             ISyllabusScheduleTestRepository syllabusScheduleTestRepository,
-            ITestSectionRepository testSectionRepository,
-            IQuestionRepository questionRepository,
-            ITestRepository testRepository,
-            IMCQOptionRepository mCQOptionRepository,
-            IStudentTestRepository studentTestRepository,
-            IAccountRepository accountRepository
+        ITestSectionRepository testSectionRepository,
+        IQuestionRepository questionRepository,
+        ITestRepository testRepository,
+        IMCQOptionRepository mCQOptionRepository,
+        IStudentTestRepository studentTestRepository,
+         IAccountRepository accountRepository
         )
 
         {
@@ -45,10 +45,8 @@ namespace Infrastructure.Services
             _classRepository = classRepository;
             _lessonRepository = lessonRepository;
             _syllabusScheduleTestRepository = syllabusScheduleTestRepository;
-            _testService = testService;
-            _testSectionService = testSectionService;
-            _questionService = questionService;
-            _mcqOptionService = mcqOptionService;
+            _testSectionRepository = testSectionRepository;
+            _questionRepo = questionRepository;
             _testRepository = testRepository;
             _mCQOptionRepository = mCQOptionRepository;
             _studentTestRepository = studentTestRepository;
@@ -122,11 +120,11 @@ namespace Infrastructure.Services
             if (string.IsNullOrEmpty(testEvent.TestID))
                 return OperationResult<TestAssignmentDTO>.Fail("Test not assigned to this event yet");
 
-            var testResult = await _testService.GetTestByIdAsync(testEvent.TestID);
+            var testResult = await _testRepository.GetTestByIdAsync(testEvent.TestID);
             if (!testResult.Success)
                 return OperationResult<TestAssignmentDTO>.Fail(testResult.Message);
 
-            var testSectionsResult = await _testSectionService.GetTestSectionsByTestIdAsync(testEvent.TestID);
+            var testSectionsResult = await _testSectionRepository.GetTestSectionsByTestIdAsync(testEvent.TestID);
             if (!testSectionsResult.Success)
                 return OperationResult<TestAssignmentDTO>.Fail(testSectionsResult.Message);
 
@@ -149,12 +147,12 @@ namespace Infrastructure.Services
                     Questions = new List<QuestionAssignmentDTO>()
                 };
 
-                var questionsResult = await _questionService.GetQuestionsByTestSectionIDAsync(section.TestSectionID);
-                if (!questionsResult.Success)
-                    continue;
+                var questions = await _questionRepo.GetQuestionBySectionId(section.TestSectionID);
+                var activeQuestions = questions.Where(q => q.IsActive).ToList();
 
-                foreach (var question in questionsResult.Data)
-                {
+                foreach (var question in activeQuestions)
+
+                { 
                     var questionDTO = new QuestionAssignmentDTO
                     {
                         QuestionID = question.QuestionID,
@@ -165,10 +163,11 @@ namespace Infrastructure.Services
 
                     if (section.TestSectionType == TestFormatType.Multiple || section.TestSectionType == TestFormatType.TrueFalse)
                     {
-                        var optionResult = await _mcqOptionService.GetOptionsByQuestionIDAsync(question.QuestionID);
-                        if (optionResult.Success)
+                        var options = await _mCQOptionRepository.GetByQuestionIdAsync(question.QuestionID);
+
+                        if (options != null && options.Any())
                         {
-                            questionDTO.Options = optionResult.Data.Select(opt => new MCQOptionAssignmentDTO
+                            questionDTO.Options = options.Select(opt => new MCQOptionAssignmentDTO
                             {
                                 OptionID = opt.MCQOptionID,
                                 Context = opt.Context,
@@ -176,6 +175,7 @@ namespace Infrastructure.Services
                                 AudioURL = opt.AudioURL
                             }).ToList();
                         }
+
                     }
 
                     sectionDTO.Questions.Add(questionDTO);
@@ -186,6 +186,18 @@ namespace Infrastructure.Services
 
             return OperationResult<TestAssignmentDTO>.Ok(testAssignment);
         }
+
+        public async Task<OperationResult<List<TestByClassDTO>>> GetTestsByClassIDAsync(string classID)
+        {
+            List<Lesson> lessons;
+            try
+            {
+                lessons = await _lessonRepository.GetByClassIDAsync(classID);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<TestByClassDTO>>.Fail("Lỗi khi truy vấn danh sách lesson: " + ex.Message);
+            }
 
             var lessonIDs = lessons.Select(l => l.ClassLessonID).ToList();
             var testEvents = await _testEventRepository.GetByClassLessonIDsAsync(lessonIDs);
@@ -226,6 +238,7 @@ namespace Infrastructure.Services
 
             return OperationResult<List<TestByClassDTO>>.Ok(result);
         }
+
 
 
         public async Task<OperationResult<bool>> UpdateTestEventAsync(UpdateTestEventCommand request)
@@ -332,7 +345,7 @@ namespace Infrastructure.Services
             return OperationResult<List<TestByClassDTO>>.Ok(result);
         }
 
-
+      
         public async Task<OperationResult<TestEventStudentDTO>> GetTestEventByStudentIdAsync(string studentId)
         {
             var studentFound = await _accountRepository.GetAccountsByIdAsync(studentId);
