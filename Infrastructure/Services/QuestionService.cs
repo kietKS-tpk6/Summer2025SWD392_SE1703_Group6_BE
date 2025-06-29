@@ -356,6 +356,7 @@ namespace Infrastructure.Services
                         var options = await _mCQOptionRepository.GetByQuestionIdAsync(question.QuestionID);
                         dto.Options = options.Select(o => new MCQOptionDTO
                         {
+                            MCQOptionID = o.MCQOptionID,
                             Context = o.Context,
                             ImageURL = o.ImageURL,
                             AudioURL = o.AudioURL,

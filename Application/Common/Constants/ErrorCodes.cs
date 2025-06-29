@@ -95,6 +95,11 @@ namespace Application.Common.Constants
         public const string SubjectCannotActivate = "SubjectCannotActivate";
         public const string ScheduleIncomplete = "ScheduleIncomplete";
         public const string AssessmentCriteriaIncomplete = "AssessmentCriteriaIncomplete";
+        //TestEvent
+        public const string TestEventIDIsEmpty = "TestEventIDIsEmpty";
+        public const string TestIDIsEmpty = "TestIDIsEmpty";
+        public const string InvalidStartEndTime = "InvalidStartEndTime";
+        public const string AttemptLimitInvalid = "AttemptLimitInvalid";
 
     }
 }

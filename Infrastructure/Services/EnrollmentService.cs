@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Common.Constants;
+using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
 using Domain.Entities;
@@ -166,6 +167,12 @@ namespace Infrastructure.Services
         public async Task<int> GetClassCurrentEnrollmentsAsync(string classId)
         {
             return await _enrollmentRepository.GetClassCurrentEnrollmentsAsync(classId);
+        }
+        //kit
+        public async Task<OperationResult<List<Lesson>>> GetLessonsByClassIDAsync(string classID)
+        {
+            var lessons = await _classRepository.GetByClassIDAsync(classID);
+            return OperationResult<List<Lesson>>.Ok(lessons);
         }
     }
 }

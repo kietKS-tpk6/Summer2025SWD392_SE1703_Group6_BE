@@ -45,6 +45,8 @@ namespace Infrastructure
             services.AddScoped<LessonCreateFromScheduleCommandHandler>();
                 //Attendance 
             services.AddScoped<AttendanceCheckCommandHandler>();
+                //TestEvent
+            services.AddScoped<UpdateTestEventCommandHandler>();
             //Other
             services.AddScoped<SendOTPViaEmailCommandHandler>();
 
@@ -96,6 +98,7 @@ namespace Infrastructure
             services.AddScoped<IWritingAnswerRepository, WritingAnswerRepository>();
             services.AddScoped<IStudentTestRepository, StudentTestRepository>();
             services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+            services.AddScoped<IStudentMarkRepository, StudentMarkRepository>();
 
 
             //CommandHandler

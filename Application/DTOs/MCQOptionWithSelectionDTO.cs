@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class MCQOptionDTO
+    public class MCQOptionWithSelectionDTO
     {
         public string MCQOptionID { get; set; }
         public string? Context { get; set; }
         public string? ImageURL { get; set; }
         public string? AudioURL { get; set; }
         public bool IsCorrect { get; set; }
+        public bool IsSelected { get; set; }
     }
 }

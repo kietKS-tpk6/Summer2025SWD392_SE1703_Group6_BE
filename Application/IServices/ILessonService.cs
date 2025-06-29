@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
 using Application.Usecases.Command;
+using Domain.Entities;
 
 namespace Application.IServices
 {
@@ -33,5 +34,9 @@ namespace Application.IServices
         );
 
         Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId);
+
+        //kit {Lấy danh sách ClassLesson theo ClassID}
+        Task<OperationResult<List<Lesson>>> GetLessonsByClassIDAsync(string classID);
+
     }
 }

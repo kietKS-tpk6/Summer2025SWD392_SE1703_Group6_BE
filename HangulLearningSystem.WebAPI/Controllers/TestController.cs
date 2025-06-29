@@ -22,16 +22,29 @@ namespace HangulLearningSystem.WebAPI.Controllers
         private readonly ITestService _testService;
         private readonly IAccountService _accountService;
         private readonly ITestSectionService _testSectionService;
+        private readonly ITestEventService _testEventService;
 
-        public TestController(IMediator mediator, ITestService testService, IAccountService accountService, ITestSectionService testSectionService)
+        public TestController(IMediator mediator, ITestService testService, IAccountService accountService, ITestSectionService testSectionService, ITestEventService 
+            testEventService)
         {
             _mediator = mediator;
             _testService = testService;
             _accountService = accountService;
             _testSectionService = testSectionService;
+            _testEventService = testEventService;
 
         }
 
+        [HttpGet("test-results/{testEventId}")]
+        public async Task<IActionResult> GetStudentTestResults(string testEventId)
+        {
+            var result = await _testService.GetStudentTestResultsByTestEventAsync(testEventId);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
         [HttpPost("create")]
         public async Task<IActionResult> CreateTest([FromBody] CreateTestCommand command)
         {
@@ -225,6 +238,25 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
+        [HttpGet("by-class/{classID}")]
+        public async Task<IActionResult> GetTestsByClass(string classID)
+        {
+            var result = await _testEventService.GetTestsByClassIDAsync(classID);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
+        [HttpGet("class/{classID}/midterm-final")]
+        public async Task<IActionResult> GetMidtermAndFinalTestsByClassID(string classID)
+        {
+            var result = await _testEventService.GetMidtermAndFinalTestsByClassIDAsync(classID);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
         [HttpGet("all-with-sections")]
         public async Task<IActionResult> GetAllTestsWithSections([FromQuery] string? status = null)
         {

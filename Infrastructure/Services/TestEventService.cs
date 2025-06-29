@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
 using Application.IServices;
+using Application.Usecases.Command;
+using CloudinaryDotNet.Core;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
@@ -19,24 +21,33 @@ namespace Infrastructure.Services
         private readonly ITestEventRepository _testEventRepository;
         private readonly IClassRepository _classRepository;
         private readonly ILessonRepository _lessonRepository;
+        private readonly ITestRepository _testRepository;
         private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestRepository;
-        private readonly ITestService _testService;
-        private readonly ITestSectionService _testSectionService;
-        private readonly IQuestionService _questionService;
-        private readonly IMCQOptionService _mcqOptionService;
-        public TestEventService(ITestEventRepository testEventRepository, IClassRepository classRepository, ILessonRepository lessonRepository, ISyllabusScheduleTestRepository syllabusScheduleTestRepository, ITestService testService,
-        ITestSectionService testSectionService,
-        IQuestionService questionService,
-        IMCQOptionService mcqOptionService)
+
+        private readonly ITestSectionRepository _testSectionRepository;
+        private readonly IQuestionRepository _questionRepo;
+        private readonly IMCQOptionRepository _mCQOptionRepository;
+        private readonly IStudentTestRepository _studentTestRepository;
+
+        public TestEventService(ITestEventRepository testEventRepository, IClassRepository classRepository,
+            ILessonRepository lessonRepository,
+            ISyllabusScheduleTestRepository syllabusScheduleTestRepository,
+        ITestSectionRepository testSectionRepository,
+        IQuestionRepository questionRepository,
+        ITestRepository testRepository,
+        IMCQOptionRepository mCQOptionRepository,
+        IStudentTestRepository studentTestRepository)
+
         {
             _testEventRepository = testEventRepository;
             _classRepository = classRepository;
             _lessonRepository = lessonRepository;
             _syllabusScheduleTestRepository = syllabusScheduleTestRepository;
-             _testService = testService;
-        _testSectionService = testSectionService;
-        _questionService = questionService;
-        _mcqOptionService = mcqOptionService;
+            _testSectionRepository = testSectionRepository;
+            _questionRepo = questionRepository;
+            _testRepository = testRepository;
+            _mCQOptionRepository = mCQOptionRepository;
+            _studentTestRepository = studentTestRepository;
 
         }
         public async Task<OperationResult<bool>> SetupTestEventsByClassIDAsync(string classID)
@@ -65,22 +76,21 @@ namespace Infrastructure.Services
                 var countResult = await _testEventRepository.CountTestEventAsync();
                 if (!countResult.Success)
                     return OperationResult<bool>.Fail(countResult.Message);
-                var newTestEventId = "TE" + countResult.Data.ToString("D4"); 
-                var randomPassword = Guid.NewGuid().ToString("N")[..10];
+                var newTestEventId = "TE" + countResult.Data.ToString("D4");
 
                 var newTestEvent = new TestEvent
                 {
                     TestEventID = newTestEventId,
                     TestID = null,
                     Description = null,
-                    StartAt = null,
-                    EndAt = null,
+                    StartAt = lesson.StartTime,
+                    EndAt = lesson.StartTime.AddMinutes(lesson.SyllabusSchedule.DurationMinutes ?? 60),
                     DurationMinutes = lesson.SyllabusSchedule.DurationMinutes ?? 60,
                     TestType = scheduleTest.TestType,
                     Status = TestEventStatus.Draft,
                     ScheduleTestID = scheduleTest.ScheduleTestID,
-                    AttemptLimit = 1,
-                    Password = randomPassword,
+                    AttemptLimit = null,
+                    Password = null,
                     ClassLessonID = lesson.ClassLessonID
                 };
 
@@ -108,11 +118,11 @@ namespace Infrastructure.Services
             if (string.IsNullOrEmpty(testEvent.TestID))
                 return OperationResult<TestAssignmentDTO>.Fail("Test not assigned to this event yet");
 
-            var testResult = await _testService.GetTestByIdAsync(testEvent.TestID);
+            var testResult = await _testRepository.GetTestByIdAsync(testEvent.TestID);
             if (!testResult.Success)
                 return OperationResult<TestAssignmentDTO>.Fail(testResult.Message);
 
-            var testSectionsResult = await _testSectionService.GetTestSectionsByTestIdAsync(testEvent.TestID);
+            var testSectionsResult = await _testSectionRepository.GetTestSectionsByTestIdAsync(testEvent.TestID);
             if (!testSectionsResult.Success)
                 return OperationResult<TestAssignmentDTO>.Fail(testSectionsResult.Message);
 
@@ -135,12 +145,12 @@ namespace Infrastructure.Services
                     Questions = new List<QuestionAssignmentDTO>()
                 };
 
-                var questionsResult = await _questionService.GetQuestionsByTestSectionIDAsync(section.TestSectionID);
-                if (!questionsResult.Success)
-                    continue;
+                var questions = await _questionRepo.GetQuestionBySectionId(section.TestSectionID);
+                var activeQuestions = questions.Where(q => q.IsActive).ToList();
 
-                foreach (var question in questionsResult.Data)
-                {
+                foreach (var question in activeQuestions)
+
+                { 
                     var questionDTO = new QuestionAssignmentDTO
                     {
                         QuestionID = question.QuestionID,
@@ -151,17 +161,19 @@ namespace Infrastructure.Services
 
                     if (section.TestSectionType == TestFormatType.Multiple || section.TestSectionType == TestFormatType.TrueFalse)
                     {
-                        var optionResult = await _mcqOptionService.GetOptionsByQuestionIDAsync(question.QuestionID);
-                        if (optionResult.Success)
+                        var options = await _mCQOptionRepository.GetByQuestionIdAsync(question.QuestionID);
+
+                        if (options != null && options.Any())
                         {
-                            questionDTO.Options = optionResult.Data.Select(opt => new MCQOptionAssignmentDTO
+                            questionDTO.Options = options.Select(opt => new MCQOptionAssignmentDTO
                             {
-                                OptionID= opt.MCQOptionID,
-                               Context = opt.Context,
+                                OptionID = opt.MCQOptionID,
+                                Context = opt.Context,
                                 ImageURL = opt.ImageURL,
                                 AudioURL = opt.AudioURL
                             }).ToList();
                         }
+
                     }
 
                     sectionDTO.Questions.Add(questionDTO);
@@ -172,6 +184,164 @@ namespace Infrastructure.Services
 
             return OperationResult<TestAssignmentDTO>.Ok(testAssignment);
         }
-   
+
+        public async Task<OperationResult<List<TestByClassDTO>>> GetTestsByClassIDAsync(string classID)
+        {
+            List<Lesson> lessons;
+            try
+            {
+                lessons = await _lessonRepository.GetByClassIDAsync(classID);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<TestByClassDTO>>.Fail("Lỗi khi truy vấn danh sách lesson: " + ex.Message);
+            }
+
+            var lessonIDs = lessons.Select(l => l.ClassLessonID).ToList();
+            var testEvents = await _testEventRepository.GetByClassLessonIDsAsync(lessonIDs);
+            var allStudentTests = await _studentTestRepository.GetByTestEventIDsAsync(testEvents.Select(te => te.TestEventID).ToList());
+
+            var result = new List<TestByClassDTO>();
+
+            foreach (var ev in testEvents)
+            {
+                var test = await _testRepository.GetByIdAsync(ev.TestID);
+
+                var studentTests = allStudentTests.Where(st => st.TestEventID == ev.TestEventID).ToList();
+
+                int totalSubmitted = studentTests.Count(st => st.SubmitTime != null);
+                int uniqueStudents = studentTests
+                    .Where(st => st.SubmitTime != null)
+                    .Select(st => st.StudentID)
+                    .Distinct()
+                    .Count();
+
+                result.Add(new TestByClassDTO
+                {
+                    TestEventID = ev.TestEventID,
+                    TestID = ev.TestID,
+                    TestCategory = test?.Category.ToString(),
+                    TestName = test?.TestName,
+                    Description = ev.Description,
+                    StartAt = ev.StartAt,
+                    EndAt = ev.EndAt,
+                    TestType = ev.TestType.ToString(),
+                    Status = ev.Status.ToString(),
+                    DurationMinutes = ev.DurationMinutes,
+                    AttemptLimit = ev.AttemptLimit.GetValueOrDefault(),
+                    TotalSubmittedTests = totalSubmitted,
+                    TotalStudentsSubmitted = uniqueStudents
+                });
+            }
+
+            return OperationResult<List<TestByClassDTO>>.Ok(result);
+        }
+
+
+
+        public async Task<OperationResult<bool>> UpdateTestEventAsync(UpdateTestEventCommand request)
+        {
+            var testEventFound = await _testEventRepository.GetByIdAsync(request.TestEventIdToUpdate);
+            if (testEventFound == null)
+            {
+                return OperationResult<bool>.Fail(OperationMessages.UpdateFail("buổi kiểm tra"));
+            }
+
+            var durationRequest = (request.EndAt - request.StartAt).TotalMinutes;
+            if (durationRequest < testEventFound.DurationMinutes)
+            {
+                return OperationResult<bool>.Fail("Thời gian kiểm tra không hợp lý.");
+            }
+            var testFound = await _testRepository.GetTestByIdAsync(request.TestID);
+            if (!testFound.Success)
+            {
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("đề kiểm tra"));
+            }
+            if (testFound.Data.Status != TestStatus.Actived)
+            {
+                return OperationResult<bool>.Fail("Không thể chọn đề kiểm tra chưa duyệt");
+            }
+            var scheduleTestFound = await _syllabusScheduleTestRepository.GetByScheduleTestIdAsync(testEventFound.ScheduleTestID);
+            if (scheduleTestFound != null)
+            {
+                if (scheduleTestFound.TestType != testFound.Data.TestType)
+                {
+                    return OperationResult<bool>.Fail("Không thể chọn đề kiểm tra khác loại buổi kiểm tra");
+                }
+            }
+            testEventFound.TestID = request.TestID;
+            testEventFound.Description = request.Description;
+            testEventFound.StartAt = request.StartAt;
+            testEventFound.EndAt = request.EndAt;
+            testEventFound.AttemptLimit = request.AttemptLimit == 0 ? null : request.AttemptLimit;
+            testEventFound.Password = string.IsNullOrWhiteSpace(request.Password) ? null : request.Password;
+
+            return await _testEventRepository.UpdateTestEventAsync(testEventFound);
+        }
+
+        public async Task<OperationResult<bool>> UpdateStatusAsync(UpdateStatusTestEventCommand request)
+        {
+            var testEventFound = await _testEventRepository.GetByIdAsync(request.TestEventIDToUpdate);
+            if (testEventFound == null)
+            {
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("buổi kiểm tra"));
+            }
+            testEventFound.Status = request.Status;
+            return await _testEventRepository.UpdateTestEventAsync(testEventFound);
+        }
+        public async Task<OperationResult<List<TestEventWithLessonDTO>>> GetTestEventWithLessonsByClassIDAsync(string classID) 
+        {
+            var classFound = await _classRepository.GetByIdAsync(classID);
+            if (!classFound.Success)
+            {
+                return OperationResult<List<TestEventWithLessonDTO>>.Fail(OperationMessages.NotFound("lớp học"));
+            }
+            return await _testEventRepository.GetTestEventWithLessonsByClassIDAsync(classFound.Data.ClassID);
+            }
+        public async Task<OperationResult<List<TestByClassDTO>>> GetMidtermAndFinalTestsByClassIDAsync(string classID)
+        {
+            List<Lesson> lessons;
+            try
+            {
+                lessons = await _lessonRepository.GetByClassIDAsync(classID);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<TestByClassDTO>>.Fail("Lỗi khi truy vấn danh sách lesson: " + ex.Message);
+            }
+
+            var lessonIDs = lessons.Select(l => l.ClassLessonID).ToList();
+            var testEvents = await _testEventRepository.GetByClassLessonIDsAsync(lessonIDs);
+            var result = new List<TestByClassDTO>();
+
+            foreach (var ev in testEvents)
+            {
+                var test = await _testRepository.GetByIdAsync(ev.TestID);
+
+                if (test == null)
+                    continue;
+
+                // Chỉ lấy Midterm hoặc Final
+                if (test.Category.ToString() == TestCategory.Midterm.ToString() ||
+    test.Category.ToString() == TestCategory.Final.ToString())
+                {
+                    result.Add(new TestByClassDTO
+                    {
+                        TestEventID = ev.TestEventID,
+                        TestID = ev.TestID,
+                        TestCategory = test.Category.ToString(),
+                        TestName = test.TestName,
+                        Description = ev.Description,
+                        StartAt = ev.StartAt,
+                        EndAt = ev.EndAt,
+                        TestType = ev.TestType.ToString(),
+                        Status = ev.Status.ToString()
+                    });
+                }
+            }
+
+            return OperationResult<List<TestByClassDTO>>.Ok(result);
+        }
+
     }
 }
