@@ -21,15 +21,10 @@ namespace Infrastructure.Services
         }
         public async Task<OperationResult<List<MCQOption>>> GetOptionsByQuestionIDAsync(string questionID)
         {
-            //if (string.IsNullOrWhiteSpace(questionID))
-            //{
-            //    return OperationResult<List<MCQOption>>.Fail("Question ID không được để trống.");
-            //}
-
-
             var options = await _mcqOptionRepository.GetByQuestionIdAsync(questionID);
 
             return OperationResult<List<MCQOption>>.Ok(options);
         }
+    
     }
 }

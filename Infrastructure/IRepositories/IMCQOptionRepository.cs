@@ -13,6 +13,6 @@ namespace Infrastructure.IRepositories
         Task AddRangeAsync(List<MCQOption> options);
         Task DeleteByQuestionIdAsync(string questionId);
         Task<List<string>> GetCorrectOptionIDsAsync(string questionID);
-
+        
     }
 }

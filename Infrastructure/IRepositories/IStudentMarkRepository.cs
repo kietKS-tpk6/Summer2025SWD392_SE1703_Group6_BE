@@ -7,9 +7,9 @@ using Domain.Entities;
 
 namespace Infrastructure.IRepositories
 {
-    public interface IMCQAnswerDetailRepository
+    public interface IStudentMarkRepository
     {
-        Task<List<MCQAnswerDetail>> GetByMCQAnswerIdAsync(string mcqAnswerId);
+        Task<StudentMark> GetByStudentTestIdAsync(string studentTestId);
 
     }
 }

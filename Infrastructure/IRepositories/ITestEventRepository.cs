@@ -18,5 +18,7 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<bool>> UpdateTestEventAsync(TestEvent testEvent);
         Task<TestEvent?> GetByIdAsync(string testEventID);
         Task<OperationResult<List<TestEventWithLessonDTO>>> GetTestEventWithLessonsByClassIDAsync(string classID);
+        //kit {Lấy tất cả TestEvent theo danh sách ClassLessonID}
+        Task<List<TestEvent>> GetByClassLessonIDsAsync(List<string> classLessonIDs);
     }
 }

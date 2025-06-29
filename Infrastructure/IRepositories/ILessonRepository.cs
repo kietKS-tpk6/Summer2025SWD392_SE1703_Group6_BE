@@ -22,5 +22,7 @@ namespace Infrastructure.IRepositories
         Task<bool> CreateManyAsync(List<Lesson> lessons);
         Task<Lesson?> GetLessonByClassLessonIDAsync(string classLessonID);
         Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId);
+        //kit {Lấy danh sách Lesson theo ClassID}
+        Task<List<Lesson>> GetByClassIDAsync(string classID);
     }
 }

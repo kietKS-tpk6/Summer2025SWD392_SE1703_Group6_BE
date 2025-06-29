@@ -98,5 +98,6 @@ namespace Infrastructure.Repositories
                 .Where(l => l.ClassID == classId && l.IsActive)
                 .ToListAsync();
         }
+
     }
 }

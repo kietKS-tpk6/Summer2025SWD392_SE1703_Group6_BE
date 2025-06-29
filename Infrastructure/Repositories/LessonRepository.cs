@@ -175,5 +175,12 @@ namespace Infrastructure.Repositories
             return OperationResult<List<LessonContentDTO>>.Ok(result);
         }
 
+        //kit {Lấy danh sách Lesson theo ClassID để phục vụ truy vấn các bài kiểm tra của lớp}
+        public async Task<List<Lesson>> GetByClassIDAsync(string classID)
+        {
+            return await _dbContext.Lesson
+                .Where(l => l.ClassID == classID)
+                .ToListAsync();
+        }
     }
 }

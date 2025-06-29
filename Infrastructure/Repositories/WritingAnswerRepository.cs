@@ -7,6 +7,7 @@ using Application.Common.Constants;
 using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -41,6 +42,11 @@ namespace Infrastructure.Repositories
                 return OperationResult<bool>.Fail("Lỗi khi lưu WritingAnswer: " + ex.Message);
             }
         }
-   
+
+        public async Task<WritingAnswer> GetByStudentTestAndQuestionAsync(string studentTestId, string questionId)
+        {
+            return await _dbContext.WritingAnswers
+                .FirstOrDefaultAsync(wa => wa.StudentTestID == studentTestId && wa.QuestionID == questionId);
+        }
     }
 }

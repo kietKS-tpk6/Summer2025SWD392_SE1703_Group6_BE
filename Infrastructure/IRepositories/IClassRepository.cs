@@ -36,5 +36,8 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<ClassDTO?>> GetClassDTOByIdAsync(string id);
         Task<OperationResult<List<StudentDTO>>> GetStudentsByClassIdAsync(string classId);
         Task<OperationResult<bool>> IsClassNameDuplicateAsync(string className);
+        //kit
+        Task<List<Lesson>> GetByClassIDAsync(string classID);
+
     }
 }
