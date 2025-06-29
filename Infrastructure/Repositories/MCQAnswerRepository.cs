@@ -71,6 +71,10 @@ namespace Infrastructure.Repositories
                 return OperationResult<bool>.Fail("Lỗi lưu MCQAnswer: " + ex.Message);
             }
         }
-    
+        public async Task<MCQAnswer> GetByStudentTestAndQuestionAsync(string studentTestId, string questionId)
+        {
+            return await _dbContext.MCQAnswers
+                .FirstOrDefaultAsync(ma => ma.StudentTestID == studentTestId && ma.QuestionID == questionId);
+        }
     }
 }

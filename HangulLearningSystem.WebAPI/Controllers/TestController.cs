@@ -35,6 +35,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
         }
 
+        [HttpGet("test-results/{testEventId}")]
+        public async Task<IActionResult> GetStudentTestResults(string testEventId)
+        {
+            var result = await _testService.GetStudentTestResultsByTestEventAsync(testEventId);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
         [HttpPost("create")]
         public async Task<IActionResult> CreateTest([FromBody] CreateTestCommand command)
         {

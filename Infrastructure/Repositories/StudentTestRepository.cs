@@ -49,5 +49,11 @@ namespace Infrastructure.Repositories
                 .Where(st => testEventIDs.Contains(st.TestEventID))
                 .ToListAsync();
         }
+        public async Task<List<StudentTest>> GetByTestEventIdAsync(string testEventId)
+        {
+            return await _dbContext.StudentTest
+                .Where(st => st.TestEventID == testEventId)
+                .ToListAsync();
+        }
     }
 }

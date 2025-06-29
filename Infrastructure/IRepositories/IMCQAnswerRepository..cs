@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.Common.Constants;
 
 using Application.DTOs;
+using Domain.Entities;
 
 namespace Infrastructure.IRepositories
 {
@@ -13,5 +14,7 @@ namespace Infrastructure.IRepositories
     {
         Task<OperationResult<bool>> SaveAnswerAsync(string studentTestID, string questionID, List<string> selectedOptionIDs);
         Task<MCQAnswerDTO> GetAnswerAsync(string studentTestID, string questionID);
+        Task<MCQAnswer> GetByStudentTestAndQuestionAsync(string studentTestId, string questionId);
+
     }
 }

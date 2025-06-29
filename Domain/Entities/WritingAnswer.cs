@@ -25,7 +25,7 @@ namespace Domain.Entities
 
         public string StudentEssay { get; set; }
 
-        public string Feedback { get; set; }
+        public string? Feedback { get; set; }
 
         public int? Score { get; set; }
 
