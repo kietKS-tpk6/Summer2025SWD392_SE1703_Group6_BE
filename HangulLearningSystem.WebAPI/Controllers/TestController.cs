@@ -127,7 +127,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 {
                     TestID = testId,
                     NewStatus = request.Status,
-                    //RequestingAccountID = accountId
+                    RequestingAccountID = accountId
                 };
 
                 var result = await _mediator.Send(command);
