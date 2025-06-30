@@ -346,12 +346,12 @@ namespace Infrastructure.Services
         }
 
       
-        public async Task<OperationResult<TestEventStudentDTO>> GetTestEventByStudentIdAsync(string studentId)
+        public async Task<OperationResult<List<TestEventStudentDTO>>> GetTestEventByStudentIdAsync(string studentId)
         {
             var studentFound = await _accountRepository.GetAccountsByIdAsync(studentId);
             if(studentFound == null)
             {
-                return OperationResult<TestEventStudentDTO>.Fail(OperationMessages.NotFound("học sinh"));
+                return OperationResult<List<TestEventStudentDTO>>.Fail(OperationMessages.NotFound("học sinh"));
             }
             //if(studentFound.Role != AccountRole.Student)
             //{

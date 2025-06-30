@@ -110,55 +110,63 @@ namespace Infrastructure.Repositories
                 ? OperationResult<List<TestEventWithLessonDTO>>.Ok(result, OperationMessages.RetrieveSuccess("buổi kiểm tra"))
                 : OperationResult<List<TestEventWithLessonDTO>>.Fail(OperationMessages.RetrieveFail("buổi kiểm tra"));
         }
-        public async Task<OperationResult<TestEventStudentDTO>> GetTestEventByStudentIdAsync(string studentId)
+        public async Task<OperationResult<List<TestEventStudentDTO>>> GetTestEventByStudentIdAsync(string studentId)
         {
-            var query = from ce in _dbContext.ClassEnrollment
-                        join c in _dbContext.Class on ce.ClassID equals c.ClassID
-                        join s in _dbContext.Subject on c.SubjectID equals s.SubjectID
-                        where ce.StudentID == studentId && c.Status == ClassStatus.Ongoing
-                        select new
-                        {
-                            c.ClassID,
-                            c.ClassName,
-                            SubjectName = s.SubjectName
-                        };
+            var classQuery = from ce in _dbContext.ClassEnrollment
+                             join c in _dbContext.Class on ce.ClassID equals c.ClassID
+                             join s in _dbContext.Subject on c.SubjectID equals s.SubjectID
+                             where ce.StudentID == studentId && c.Status == ClassStatus.Ongoing
+                             select new
+                             {
+                                 c.ClassID,
+                                 c.ClassName,
+                                 SubjectName = s.SubjectName
+                             };
 
-            var classInfo = await query.FirstOrDefaultAsync();
+            var classInfos = await classQuery.ToListAsync();
 
-            if (classInfo == null)
-                return OperationResult<TestEventStudentDTO>.Fail("Không tìm thấy lớp đang học của học viên.");
+            if (!classInfos.Any())
+                return OperationResult<List<TestEventStudentDTO>>.Fail("Không tìm thấy lớp đang học của học viên.");
 
-            var testEvents = await (from te in _dbContext.TestEvent
-                                    join l in _dbContext.Lesson on te.ClassLessonID equals l.ClassLessonID
-                                    join ss in _dbContext.SyllabusSchedule on l.SyllabusScheduleID equals ss.SyllabusScheduleID
-                                    where l.ClassID == classInfo.ClassID && te.Status == TestEventStatus.Actived 
-                                    select new TestEventInClassDTO
-                                    {
-                                        TestEventID = te.TestEventID,
-                                        TestID = te.TestID,
-                                        Description = te.Description,
-                                        StartAt = te.StartAt,
-                                        EndAt = te.EndAt,
-                                        DurationMinutes = te.DurationMinutes,
-                                        TestType = te.TestType.ToString(),
-                                        Status = te.Status,
-                                        AttemptLimit = te.AttemptLimit,
-                                        Password = te.Password,
-                                        LessonTitle = ss.LessonTitle
-                                    }).ToListAsync();
+            var classIds = classInfos.Select(c => c.ClassID).ToList();
 
-            var dto = new TestEventStudentDTO
+            var testEventsQuery = from te in _dbContext.TestEvent
+                                  join l in _dbContext.Lesson on te.ClassLessonID equals l.ClassLessonID
+                                  join ss in _dbContext.SyllabusSchedule on l.SyllabusScheduleID equals ss.SyllabusScheduleID
+                                  where classIds.Contains(l.ClassID) && te.Status == TestEventStatus.Actived
+                                  select new
+                                  {
+                                      ClassID = l.ClassID,
+                                      TestEvent = new TestEventInClassDTO
+                                      {
+                                          TestEventID = te.TestEventID,
+                                          TestID = te.TestID,
+                                          Description = te.Description,
+                                          StartAt = te.StartAt,
+                                          EndAt = te.EndAt,
+                                          DurationMinutes = te.DurationMinutes,
+                                          TestType = te.TestType.ToString(),
+                                          Status = te.Status,
+                                          AttemptLimit = te.AttemptLimit,
+                                          Password = te.Password,
+                                          LessonTitle = ss.LessonTitle
+                                      }
+                                  };
+
+            var testEventMap = await testEventsQuery
+                .GroupBy(x => x.ClassID)
+                .ToDictionaryAsync(g => g.Key, g => g.Select(x => x.TestEvent).ToList());
+
+            var result = classInfos.Select(ci => new TestEventStudentDTO
             {
-                ClassID = classInfo.ClassID,
-                ClassName = classInfo.ClassName,
-                SubjectName = classInfo.SubjectName,
-                TestEvents = testEvents
-            };
+                ClassID = ci.ClassID,
+                ClassName = ci.ClassName,
+                SubjectName = ci.SubjectName,
+                TestEvents = testEventMap.ContainsKey(ci.ClassID) ? testEventMap[ci.ClassID] : new List<TestEventInClassDTO>()
+            }).ToList();
 
-            return OperationResult<TestEventStudentDTO>.Ok(dto, OperationMessages.RetrieveSuccess("buổi kiểm tra"));
+            return OperationResult<List<TestEventStudentDTO>>.Ok(result, OperationMessages.RetrieveSuccess("danh sách buổi kiểm tra"));
         }
-
-
 
 
         //kit {Lấy tất cả TestEvent theo danh sách ClassLessonID}
