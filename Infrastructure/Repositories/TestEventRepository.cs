@@ -167,6 +167,43 @@ namespace Infrastructure.Repositories
 
             return OperationResult<List<TestEventStudentDTO>>.Ok(result, OperationMessages.RetrieveSuccess("danh sách buổi kiểm tra"));
         }
+        public async Task<OperationResult<TestEventWithLessonDTO>> GetTestEventWithLessonDTOByIDAsync(string testEventID)
+        {
+            var result = await (
+                from te in _dbContext.TestEvent
+                join lesson in _dbContext.Lesson on te.ClassLessonID equals lesson.ClassLessonID
+                join ss in _dbContext.SyllabusSchedule on lesson.SyllabusScheduleID equals ss.SyllabusScheduleID
+                where te.TestEventID == testEventID
+                select new TestEventWithLessonDTO
+                {
+                    TestEventID = te.TestEventID,
+                    TestID = te.TestID,
+                    Description = te.Description,
+                    StartAt = te.StartAt,
+                    EndAt = te.EndAt,
+                    DurationMinutes = te.DurationMinutes,
+                    TestType = te.TestType.ToString(),
+                    Status = te.Status,
+                    ScheduleTestID = te.ScheduleTestID,
+                    AttemptLimit = te.AttemptLimit,
+                    Password = te.Password,
+                    ClassLessonID = te.ClassLessonID,
+                    LessonTitle = ss.LessonTitle,
+                    LessonStartTime = lesson.StartTime,
+                    LessonEndTime = lesson.StartTime.AddMinutes((double)(ss.DurationMinutes ?? 45)) 
+                }
+            ).FirstOrDefaultAsync();
+
+            if (result is null)
+            {
+                return OperationResult<TestEventWithLessonDTO>.Fail(
+                    OperationMessages.RetrieveFail("buổi kiểm tra"));
+            }
+
+            return OperationResult<TestEventWithLessonDTO>.Ok(
+                result,
+                OperationMessages.RetrieveSuccess("buổi kiểm tra"));
+        }
 
 
         //kit {Lấy tất cả TestEvent theo danh sách ClassLessonID}

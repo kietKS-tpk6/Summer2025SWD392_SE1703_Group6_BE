@@ -359,5 +359,14 @@ namespace Infrastructure.Services
             //}
             return await  _testEventRepository.GetTestEventByStudentIdAsync(studentId);
         }
+        public async Task<OperationResult<TestEventWithLessonDTO>> GetTestEventWithLessonDTOByIDAsync(string testEventID)
+        {
+            var testEventFound = await _testEventRepository.GetByIdAsync(testEventID);
+            if(testEventFound == null)
+            {
+                return OperationResult<TestEventWithLessonDTO>.Fail(OperationMessages.NotFound("buổi kiểm tra"));
+            }
+            return await _testEventRepository.GetTestEventWithLessonDTOByIDAsync(testEventID);
+        }
     }
 }
