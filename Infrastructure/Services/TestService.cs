@@ -150,16 +150,16 @@ namespace Infrastructure.Services
 
                 var account = accountResult.Data;
 
-                var roleEnum = NormalizeRole(account.Role);
-                if (roleEnum == null)
-                    return OperationResult<string>.Fail("Invalid role");
-
                 var canTransition = CanTransitionStatus(
                     test.Status,
                     command.NewStatus,
-                    roleEnum.Value,
+                    account.Role, 
                     test.CreateBy == command.RequestingAccountID
                 );
+
+                if (!canTransition.Success)
+                    return OperationResult<string>.Fail(canTransition.Message);
+
                 return await _testRepository.UpdateTestStatusAsync(command.TestID, command.NewStatus);
             }
             catch (Exception ex)
@@ -168,19 +168,6 @@ namespace Infrastructure.Services
             }
         }
 
-        private AccountRole? NormalizeRole(string role)
-        {
-            if (string.IsNullOrWhiteSpace(role))
-                return null;
-
-            return role.Trim().ToLower() switch
-            {
-                "Lecture" => AccountRole.Lecture,
-                "Manager" => AccountRole.Manager,
-                "Student" => AccountRole.Student,
-                _ => null
-            };
-        }
         public async Task<OperationResult<string>> DeleteTestAsync(DeleteTestCommand command)
         {
             try
@@ -251,7 +238,7 @@ namespace Infrastructure.Services
             }
         }
 
-        private OperationResult<string> CanTransitionStatus(TestStatus currentStatus, TestStatus newStatus, AccountRole userRole, bool isCreator)
+        private OperationResult<string> CanTransitionStatus(TestStatus currentStatus, TestStatus newStatus, string userRole, bool isCreator)
         {
             switch (currentStatus)
             {
@@ -261,7 +248,7 @@ namespace Infrastructure.Services
                     break;
 
                 case TestStatus.Pending:
-                    if (userRole == AccountRole.Manager)
+                    if (string.Equals(userRole, "Manager", StringComparison.OrdinalIgnoreCase))
                     {
                         if (newStatus == TestStatus.Actived || newStatus == TestStatus.Rejected)
                             return OperationResult<string>.Ok("");
@@ -269,7 +256,7 @@ namespace Infrastructure.Services
                     break;
 
                 case TestStatus.Actived:
-                    if (userRole == AccountRole.Manager && newStatus == TestStatus.Deleted)
+                    if (string.Equals(userRole, "Manager", StringComparison.OrdinalIgnoreCase) && newStatus == TestStatus.Deleted)
                         return OperationResult<string>.Ok("");
                     break;
 
