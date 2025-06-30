@@ -114,12 +114,20 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 //var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 //if (string.IsNullOrEmpty(accountId))
                 //    return Unauthorized("Invalid token");
+                var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(accountId))
+                {
+                    accountId = request.AccountID;
+                }
+
+                if (string.IsNullOrEmpty(accountId))
+                    return BadRequest("AccountID is required either in JWT token or request body");
 
                 var command = new UpdateTestStatusCommand
                 {
                     TestID = testId,
                     NewStatus = request.Status,
-                    //RequestingAccountID = accountId
+                    RequestingAccountID = accountId
                 };
 
                 var result = await _mediator.Send(command);
@@ -386,6 +394,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
     public class UpdateTestStatusRequest
     {
         public TestStatus Status { get; set; }
+        public string AccountID { get; set; } 
     }
 
 }
