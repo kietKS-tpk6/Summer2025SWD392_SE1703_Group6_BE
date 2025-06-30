@@ -19,12 +19,15 @@ namespace Application.IServices
         Task<OperationResult<bool>> UpdateQuestionAsync(UpdateQuestionCommand command);
         Task<OperationResult<bool>> ValidateQuestionExistsAsync(string questionId);
         OperationResult<bool> ValidateExactlyOneContent(string? context, string? imageUrl, string? audioUrl);
-        OperationResult<bool> ValidateMCQOptions(List<MCQOptionDTO>? options);
+        //Kho - Tạm đổi từ MCQOptionDTO sang MCQOptionUpdateQuestionDTO (không có MCQOptionID)
+        OperationResult<bool> ValidateMCQOptions(List<MCQOptionUpdateQuestionDTO>? options);
         Task<Question?> GetByIdAsync(string questionId);
         Task<Question?> GetQuestionByIdAsync(string questionId);
         Task<OperationResult<List<TestSectionWithQuestionsDTO>>> GetQuestionsByTestIdAsync(string testId);
-        Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionDTO> options);
-        OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionDTO>? options);
+        //Kho - Tạm đổi từ MCQOptionDTO sang MCQOptionUpdateQuestionDTO (không có MCQOptionID)
+        Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionUpdateQuestionDTO> options);
+        //Kho - Tạm đổi từ MCQOptionDTO sang MCQOptionUpdateQuestionDTO (không có MCQOptionID)
+        OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionUpdateQuestionDTO>? options);
         Task<OperationResult<bool>> UpdateMultipleQuestionsAsync(List<UpdateQuestionCommand> commands);
         Task<OperationResult<List<Question>>> GetQuestionsByTestSectionIDAsync(string testSectionID);
 
