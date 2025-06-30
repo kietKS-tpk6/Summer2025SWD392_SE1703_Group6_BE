@@ -15,7 +15,7 @@ namespace Domain.Entities
     {
         [Key]
         [Column("StudentMarkID")]
-        public Guid StudentMarkID { get; set; }
+        public string StudentMarkID { get; set; }
 
         [Column("AccountID")]
         [StringLength(6)]

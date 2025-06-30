@@ -42,7 +42,7 @@ namespace Infrastructure.Services
             {
                 var testSections = await _testSectionRepository.GetTestSectionsByTestIdAsync(testId);
 
-                if (testSections == null || !testSections.Any())
+                if (testSections == null || !testSections.Data.Any())
                 {
                     return OperationResult<GetTestScoresDTO>.Fail("No test sections found for this test");
                 }
@@ -50,13 +50,13 @@ namespace Infrastructure.Services
                 var result = new GetTestScoresDTO
                 {
                     TestId = testId,
-                    TestSections = testSections.Select(ts => new TestSectionScoreDto
+                    TestSections = testSections.Data.Select(ts => new TestSectionScoreDTO
                     {
                         TestSectionId = ts.TestSectionID,
                         Context = ts.Context,
                         Score = ts.Score
                     }).ToList(),
-                    TotalScore = testSections.Sum(ts => ts.Score)
+                    TotalScore = testSections.Data.Sum(ts => ts.Score)
                 };
 
                 return OperationResult<GetTestScoresDTO>.Ok(result);
@@ -89,7 +89,7 @@ namespace Infrastructure.Services
                 if (studentTest.Mark == null && studentTest.TestEvent?.TestID != null)
                 {
                     var testSections = await _testSectionRepository.GetTestSectionsByTestIdAsync(studentTest.TestEvent.TestID);
-                    finalMark = testSections.Sum(ts => ts.Score);
+                    finalMark = testSections.Data.Sum(ts => ts.Score);
                 }
 
                 // Check if student marks already exists
@@ -99,8 +99,8 @@ namespace Infrastructure.Services
                 if (existingStudentMarks != null)
                 {
                     // Check if it's midterm or final - cannot be changed
-                    if (assessmentCriteria.Category == AssessmentCategory.Midterm ||
-                        assessmentCriteria.Category == AssessmentCategory.Final)
+                    if (assessmentCriteria.Data.Category == AssessmentCategory.Midterm ||
+                        assessmentCriteria.Data.Category == AssessmentCategory.Final)
                     {
                         return OperationResult<string>.Fail("Cannot update marks for Midterm or Final assessments - they are automatically calculated from test results");
                     }
@@ -116,7 +116,7 @@ namespace Infrastructure.Services
                 else
                 {
                     // Create new record
-                    var newStudentMarks = new StudentMarks
+                    var newStudentMarks = new StudentMark
                     {
                         StudentMarkID = GenerateStudentMarkId(),
                         AccountID = studentTest.StudentID,
@@ -126,8 +126,8 @@ namespace Infrastructure.Services
                         StudentTestID = studentTestId,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow,
-                        IsFinalized = assessmentCriteria.Category == AssessmentCategory.Midterm ||
-                                     assessmentCriteria.Category == AssessmentCategory.Final
+                        IsFinalized = assessmentCriteria.Data.Category == AssessmentCategory.Midterm ||
+                                     assessmentCriteria.Data.Category == AssessmentCategory.Final
                     };
 
                     await _studentMarksRepository.CreateAsync(newStudentMarks);
@@ -157,8 +157,8 @@ namespace Infrastructure.Services
                 }
 
                 // Check if it's midterm or final - cannot be changed by lecturer
-                if (assessmentCriteria.Category == AssessmentCategory.Midterm ||
-                    assessmentCriteria.Category == AssessmentCategory.Final)
+                if (assessmentCriteria.Data.Category == AssessmentCategory.Midterm ||
+                    assessmentCriteria.Data.Category == AssessmentCategory.Final)
                 {
                     return OperationResult<bool>.Fail("Cannot manually update marks for Midterm or Final assessments - they are automatically calculated from test results");
                 }
@@ -209,7 +209,7 @@ namespace Infrastructure.Services
                         if (studentTest.Mark == null && studentTest.TestEvent?.TestID != null)
                         {
                             var testSections = await _testSectionRepository.GetTestSectionsByTestIdAsync(studentTest.TestEvent.TestID);
-                            finalMark = testSections.Sum(ts => ts.Score);
+                            finalMark = testSections.Data.Sum(ts => ts.Score);
                         }
 
                         // Check if student marks already exists
@@ -228,7 +228,7 @@ namespace Infrastructure.Services
                         else
                         {
                             // Create new record
-                            var newStudentMarks = new StudentMarks
+                            var newStudentMarks = new StudentMark
                             {
                                 StudentMarkID = GenerateStudentMarkId(),
                                 AccountID = studentTest.StudentID,
@@ -238,8 +238,8 @@ namespace Infrastructure.Services
                                 StudentTestID = studentTestDto.StudentTestId,
                                 CreatedAt = DateTime.UtcNow,
                                 UpdatedAt = DateTime.UtcNow,
-                                IsFinalized = assessmentCriteria.Category == AssessmentCategory.Midterm ||
-                                             assessmentCriteria.Category == AssessmentCategory.Final
+                                IsFinalized = assessmentCriteria.Data.Category == AssessmentCategory.Midterm ||
+                                             assessmentCriteria.Data.Category == AssessmentCategory.Final
                             };
 
                             await _studentMarksRepository.CreateAsync(newStudentMarks);
@@ -270,12 +270,12 @@ namespace Infrastructure.Services
                 return OperationResult<BatchUpdateResultDTO>.Fail(ex.Message);
             }
         }
-
+        private static int _studentMarkCounter = 0;
         private string GenerateStudentMarkId()
         {
-            // Tạo ID 6 ký tự theo format của hệ thống
-            var timestamp = DateTime.Now.ToString("yyMMddHHmmss");
-            return timestamp.Substring(0, 6);
+            _studentMarkCounter++; 
+            string number = _studentMarkCounter.ToString("D6"); 
+            return $"IM{number}";
         }
     }
 }

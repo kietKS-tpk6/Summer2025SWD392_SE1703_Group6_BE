@@ -17,5 +17,7 @@ namespace Infrastructure.IRepositories
         Task<List<StudentMark>> GetByAssessmentCriteriaAndClassAsync(string assessmentCriteriaId, string classId);
         Task<List<StudentMark>> GetByStudentIdAsync(string studentId);
         Task<int> CountAsync();
+        Task<List<StudentMark>> GetByStudentTestIdAsync(string studentTestId);
+
     }
 }

@@ -9,7 +9,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class StudentMarksController : ControllerBase
     {
         private readonly IMediator _mediator;

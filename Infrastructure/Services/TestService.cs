@@ -400,7 +400,7 @@ namespace Infrastructure.Services
                     SubmitTime = studentTest.SubmitTime,
                     Status = studentTest.Status.ToString(),
                     InitialMark = studentTest.Mark,
-                    Comment = studentMark?.Comment,
+                    Comment = studentTest?.Feedback, // Nhận xét từ giảng viên
                     Sections = sectionResults
                 };
 
@@ -539,7 +539,7 @@ namespace Infrastructure.Services
                         SubmitTime = studentTest.SubmitTime,
                         Status = studentTest.Status.ToString(),
                         InitialMark = studentTest.Mark,  // Điểm ban đầu
-                        Comment = studentMark?.Comment,  // Nhận xét
+                        Comment = studentTest?.Feedback,  // Nhận xét
                         Sections = sectionResults
                     });
                 }
