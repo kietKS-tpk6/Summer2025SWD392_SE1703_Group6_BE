@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Infrastructure.Repositories;
 using Application.DTOs;
+using Microsoft.Identity.Client;
 
 namespace Infrastructure.Services
 {
@@ -290,7 +291,142 @@ namespace Infrastructure.Services
         {
             return await _testRepository.GetAllTestsWithFiltersAsync(status, createdBy);
         }
-        public async Task<OperationResult<List<StudentTestResultDTO>>> GetStudentTestResultsByTestEventAsync(string testEventId)
+        public async Task<OperationResult<StudentTestResultDTO>> GetStudentTestResultsByTestEventAsync(string testEventId, string accountId)
+        {
+            try
+            {
+                // 1. Lấy danh sách StudentTest theo TestEventID
+                var studentTests = await _studentTestRepository.GetByTestEventIdAsync(testEventId);
+
+                if (studentTests == null || !studentTests.Any())
+                    return OperationResult<StudentTestResultDTO>.Fail("Không tìm thấy bài kiểm tra nào cho sự kiện này.");
+
+                // 2. Lọc ra bài kiểm tra của học sinh có accountId
+                var studentTest = studentTests.FirstOrDefault(st => st.StudentID == accountId);
+                if (studentTest == null)
+                    return OperationResult<StudentTestResultDTO>.Fail("Không tìm thấy bài làm của học sinh.");
+
+                // 3. Lấy thông tin TestEvent để có TestID
+                var testEvent = await _testEventRepository.GetByIdAsync(testEventId);
+                if (testEvent == null)
+                    return OperationResult<StudentTestResultDTO>.Fail("Không tìm thấy sự kiện kiểm tra.");
+
+                // 4. Lấy thông tin học sinh
+                var student = await _accountRepository.GetAccountsByIdAsync(studentTest.StudentID);
+                string studentName = student?.FirstName + " " + student?.LastName ?? "Unknown";
+
+                // 5. Lấy điểm chốt từ StudentMarks
+                var studentMark = await _studentMarkRepository.GetByStudentTestIdAsync(studentTest.StudentTestID);
+
+                // 6. Lấy các section của bài test
+                var sections = await _testSectionRepository.GetByTestIdAsync(testEvent.TestID);
+                if (sections == null || !sections.Any())
+                    return OperationResult<StudentTestResultDTO>.Fail("Bài kiểm tra không có phần nào.");
+
+                var sectionResults = new List<TestSectionWithStudentAnswersDTO>();
+
+                foreach (var section in sections)
+                {
+                    var questions = (await _questionRepo.GetQuestionBySectionId(section.TestSectionID))
+                                    .Where(q => q.IsActive).ToList();
+
+                    var questionResults = new List<QuestionWithStudentAnswerDTO>();
+
+                    foreach (var question in questions)
+                    {
+                        var questionDto = new QuestionWithStudentAnswerDTO
+                        {
+                            QuestionID = question.QuestionID,
+                            Context = question.Context,
+                            ImageURL = question.ImageURL,
+                            AudioURL = question.AudioURL,
+                            Type = question.Type ?? TestFormatType.Writing,
+                            Score = question.Score,
+                            IsActive = question.IsActive,
+                            Options = null,
+                            StudentAnswer = null
+                        };
+
+                        if (section.TestSectionType == TestFormatType.Multiple || section.TestSectionType == TestFormatType.TrueFalse)
+                        {
+                            var options = await _mcqOptionRepository.GetByQuestionIdAsync(question.QuestionID);
+                            var mcqAnswer = await _mcqAnswerRepository.GetByStudentTestAndQuestionAsync(
+                                studentTest.StudentTestID, question.QuestionID);
+
+                            List<string> selectedOptionIds = new List<string>();
+                            if (mcqAnswer != null)
+                            {
+                                var answerDetails = await _mcqAnswerDetailRepository.GetByMCQAnswerIdAsync(mcqAnswer.MCQAnswerID);
+                                selectedOptionIds = answerDetails.Select(ad => ad.MCQOptionID).ToList();
+                            }
+
+                            questionDto.Options = options.Select(o => new MCQOptionWithAnswerDTO
+                            {
+                                MCQOptionID = o.MCQOptionID,
+                                Context = o.Context,
+                                ImageURL = o.ImageURL,
+                                AudioURL = o.AudioURL,
+                                IsCorrect = o.IsCorrect,
+                                IsSelected = selectedOptionIds.Contains(o.MCQOptionID)
+                            }).ToList();
+
+                            questionDto.StudentAnswer = new StudentAnswerDetailDTO
+                            {
+                                MCQAnswerID = mcqAnswer?.MCQAnswerID,
+                                SelectedOptionIDs = selectedOptionIds
+                            };
+                        }
+                        else if (section.TestSectionType == TestFormatType.Writing)
+                        {
+                            var writingAnswer = await _writingAnswerRepository.GetByStudentTestAndQuestionAsync(
+                                studentTest.StudentTestID, question.QuestionID);
+
+                            questionDto.StudentAnswer = new StudentAnswerDetailDTO
+                            {
+                                WritingAnswerID = writingAnswer?.WritingAnswerID,
+                                StudentEssay = writingAnswer?.StudentEssay,
+                                Feedback = writingAnswer?.Feedback,
+                                WritingScore = writingAnswer?.Score
+                            };
+                        }
+
+                        questionResults.Add(questionDto);
+                    }
+
+                    sectionResults.Add(new TestSectionWithStudentAnswersDTO
+                    {
+                        TestSectionID = section.TestSectionID,
+                        Context = section.Context,
+                        TestSectionType = section.TestSectionType,
+                        Score = section.Score,
+                        Questions = questionResults
+                    });
+                }
+
+                var finalResult = new StudentTestResultDTO
+                {
+                    StudentTestID = studentTest.StudentTestID,
+                    StudentID = studentTest.StudentID,
+                    StudentName = studentName,
+                    TestID = testEvent.TestID,
+                    StartTime = studentTest.StartTime,
+                    SubmitTime = studentTest.SubmitTime,
+                    Status = studentTest.Status.ToString(),
+                    InitialMark = studentTest.Mark,
+                    Comment = studentMark?.Comment,
+                    Sections = sectionResults
+                };
+
+                return OperationResult<StudentTestResultDTO>.Ok(finalResult);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<StudentTestResultDTO>.Fail($"Lỗi khi lấy kết quả bài kiểm tra: {ex.Message}");
+            }
+        }
+
+
+        public async Task<OperationResult<List<StudentTestResultDTO>>> GetListStudentTestResultsByTestEventAsync(string testEventId)
         {
             try
             {
