@@ -1,7 +1,6 @@
 ﻿using Application.Common.Constants;
 using Application.DTOs;
 using Application.IServices;
-using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Domain.Enums;
 using System;
@@ -14,7 +13,7 @@ namespace Infrastructure.Services
 {
     public class StudentMarksService : IStudentMarksService
     {
-        private readonly IStudentMarksRepository _studentMarksRepository;
+        private readonly IStudentMarkRepository _studentMarksRepository;
         private readonly IStudentTestRepository _studentTestRepository;
         private readonly IAssessmentCriteriaRepository _assessmentCriteriaRepository;
         private readonly ITestSectionRepository _testSectionRepository;
@@ -22,7 +21,7 @@ namespace Infrastructure.Services
         private readonly ITestEventRepository _testEventRepository;
 
         public StudentMarksService(
-            IStudentMarksRepository studentMarksRepository,
+            IStudentMarkRepository studentMarksRepository,
             IStudentTestRepository studentTestRepository,
             IAssessmentCriteriaRepository assessmentCriteriaRepository,
             ITestSectionRepository testSectionRepository,

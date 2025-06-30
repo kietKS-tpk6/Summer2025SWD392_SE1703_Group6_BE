@@ -9,7 +9,13 @@ namespace Infrastructure.IRepositories
 {
     public interface IStudentMarkRepository
     {
-        Task<StudentMark> GetByStudentTestIdAsync(string studentTestId);
-
+        Task<StudentMark> GetByIdAsync(string id);
+        Task<StudentMark> GetByStudentAndAssessmentCriteriaAsync(string studentId, string assessmentCriteriaId, string classId);
+        Task<StudentMark> CreateAsync(StudentMark studentMarks);
+        Task<StudentMark> UpdateAsync(StudentMark studentMarks);
+        Task<bool> DeleteAsync(string id);
+        Task<List<StudentMark>> GetByAssessmentCriteriaAndClassAsync(string assessmentCriteriaId, string classId);
+        Task<List<StudentMark>> GetByStudentIdAsync(string studentId);
+        Task<int> CountAsync();
     }
 }
