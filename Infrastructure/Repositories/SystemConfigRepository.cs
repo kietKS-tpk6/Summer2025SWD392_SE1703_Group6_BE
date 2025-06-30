@@ -34,5 +34,13 @@ namespace Infrastructure.Repositories
                 config,
                 OperationMessages.RetrieveSuccess("cấu hình"));
         }
+        public async Task<OperationResult<bool>> UpdateSystemConfigAsync(SystemConfig config)
+        {
+            _dbContext.SystemConfig.Update(config);
+            var result = await _dbContext.SaveChangesAsync();
+            return result > 0
+                ? OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("cấu hình"))
+                : OperationResult<bool>.Fail(OperationMessages.UpdateFail("cấu hình"));
+        }
     }
 }

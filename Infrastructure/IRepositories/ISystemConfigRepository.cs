@@ -11,5 +11,6 @@ namespace Infrastructure.IRepositories
     public interface ISystemConfigRepository
     {
         Task<OperationResult<SystemConfig>> GetConfig(string key);
+        Task<OperationResult<bool>> UpdateSystemConfigAsync(SystemConfig config);
     }
 }

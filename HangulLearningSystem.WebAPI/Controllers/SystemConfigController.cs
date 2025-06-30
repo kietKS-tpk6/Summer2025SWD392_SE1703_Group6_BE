@@ -1,4 +1,5 @@
 ﻿using Application.IServices;
+using Application.Usecases.Command;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +23,14 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if (!result.Success)
                 return BadRequest(result.Message);
 
+            return Ok(result);
+        }
+        [HttpPut("update-config")]
+        public async Task<IActionResult> UpdateConfig([FromBody] UpdateSystemConfigCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (!result.Success)
+                return BadRequest(result);
             return Ok(result);
         }
     }
