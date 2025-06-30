@@ -35,5 +35,9 @@ namespace Infrastructure.Services
             systemConfig.Data.UpdatedAt = DateTime.UtcNow.AddHours(7);
             return await _systemConfigRepository.UpdateSystemConfigAsync(systemConfig.Data);
         }
+        public async Task<OperationResult<List<SystemConfig>>> GetListSystemConfigAsync()
+        {
+            return await _systemConfigRepository.GetListSystemConfigAsync();
+        }
     }
 }

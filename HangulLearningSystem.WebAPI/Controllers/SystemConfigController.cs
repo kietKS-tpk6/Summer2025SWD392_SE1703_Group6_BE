@@ -16,15 +16,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
             _systemConfigService = systemConfigService;
         }
-        [HttpGet("get-config-by-key/{key}")]
-        public async Task<IActionResult> GetConfigByKey(string key)
-        {
-            var result = await _systemConfigService.GetConfig(key);
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            return Ok(result);
-        }
         [HttpPut("update-config")]
         public async Task<IActionResult> UpdateConfig([FromBody] UpdateSystemConfigCommand command)
         {
@@ -33,5 +24,23 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result);
             return Ok(result);
         }
+        [HttpGet("get-all-config")]
+        public async Task<IActionResult> GetAllConfig()
+        {
+            var result = await _systemConfigService.GetListSystemConfigAsync();
+            if (!result.Success)
+                return BadRequest(result);
+            return Ok(result);
+        }
+        [HttpGet("get-config-by-key/{key}")]
+        public async Task<IActionResult> GetConfigByKey(string key)
+        {
+            var result = await _systemConfigService.GetConfig(key);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+      
     }
 }

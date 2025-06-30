@@ -42,5 +42,22 @@ namespace Infrastructure.Repositories
                 ? OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("cấu hình"))
                 : OperationResult<bool>.Fail(OperationMessages.UpdateFail("cấu hình"));
         }
+        public async Task<OperationResult<List<SystemConfig>>> GetListSystemConfigAsync()
+        {
+            var configs = await _dbContext.SystemConfig
+                .AsNoTracking()
+                .ToListAsync();
+
+            if (!configs.Any())
+            {
+                return OperationResult<List<SystemConfig>>.Fail(
+                    OperationMessages.NotFound("cấu hình"));
+            }
+
+            return OperationResult<List<SystemConfig>>.Ok(
+                configs,
+                OperationMessages.RetrieveSuccess("cấu hình"));
+        }
+
     }
 }

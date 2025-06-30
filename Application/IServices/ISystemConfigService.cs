@@ -13,5 +13,6 @@ namespace Application.IServices
     {
         Task<OperationResult<SystemConfig>> GetConfig(string key);
         Task<OperationResult<bool>> UpdateSystemConfigAsync(UpdateSystemConfigCommand request);
+        Task<OperationResult<List<SystemConfig>>> GetListSystemConfigAsync();
     }
 }
