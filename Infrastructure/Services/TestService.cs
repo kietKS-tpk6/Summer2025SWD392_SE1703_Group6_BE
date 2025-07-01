@@ -551,6 +551,17 @@ namespace Infrastructure.Services
                 return OperationResult<List<StudentTestResultDTO>>.Fail($"Lỗi khi lấy kết quả bài kiểm tra: {ex.Message}");
             }
         }
-   
+
+        //Kho - làm tạm hàm update status mới
+        public async Task<OperationResult<string>> UpdateTestStatusFixAsync(UpdateTestStatusFixCommand request)
+        {
+            var testFound = await _testRepository.GetByIdAsync(request.TestID);
+            if (testFound == null)
+            {
+                return OperationResult<string>.Fail(OperationMessages.NotFound("đề kiểm tra"));
+            }
+            testFound.Status = request.TestStatus; 
+            return await _testRepository.UpdateTestAsync(testFound);
+        }
     }
 }
