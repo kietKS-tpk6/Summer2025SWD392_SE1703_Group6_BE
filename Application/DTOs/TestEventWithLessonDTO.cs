@@ -15,7 +15,8 @@ namespace Application.DTOs
         public DateTime? StartAt { get; set; }
         public DateTime? EndAt { get; set; }
         public int DurationMinutes { get; set; }
-        public string TestType { get; set; }
+        public TestType  TestType { get; set; }
+        public AssessmentCategory? AssessmentCategory { get; set; }
         public TestEventStatus Status { get; set; }
         public string? ScheduleTestID { get; set; }
         public int? AttemptLimit { get; set; }
