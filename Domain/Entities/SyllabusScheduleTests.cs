@@ -34,5 +34,8 @@ namespace Domain.Entities
 
         [Required]
         public virtual SyllabusSchedule SyllabusSchedule { get; set; }
+
+        [ForeignKey("Class")]
+        public string ClassID { get; set; }
     }
 }

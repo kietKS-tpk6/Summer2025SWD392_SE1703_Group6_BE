@@ -20,10 +20,10 @@ namespace Infrastructure.Repositories
         public async Task<StudentMark> GetByIdAsync(string id)
         {
             return await _context.StudentMarks
-                .Include(sm => sm.AccountID)
-                .Include(sm => sm.AssessmentCriteriaID)
+                .Include(sm => sm.Account)
                 .Include(sm => sm.GradedByAccount)
                 .Include(sm => sm.Class)
+                .Include(sm => sm.StudentTest)
                 .FirstOrDefaultAsync(sm => sm.StudentMarkID == id);
         }
 

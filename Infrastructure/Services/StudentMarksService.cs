@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Infrastructure.IRepositories;
+using Infrastructure.Repositories;
 
 namespace Infrastructure.Services
 {
@@ -19,6 +20,9 @@ namespace Infrastructure.Services
         private readonly ITestSectionRepository _testSectionRepository;
         private readonly ITestRepository _testRepository;
         private readonly ITestEventRepository _testEventRepository;
+        private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestsRepository;
+        private readonly ILessonRepository _lessonRepository;
+
 
         public StudentMarksService(
             IStudentMarkRepository studentMarksRepository,
@@ -26,7 +30,9 @@ namespace Infrastructure.Services
             IAssessmentCriteriaRepository assessmentCriteriaRepository,
             ITestSectionRepository testSectionRepository,
             ITestRepository testRepository,
-            ITestEventRepository testEventRepository)
+            ITestEventRepository testEventRepository,
+            ISyllabusScheduleTestRepository syllabusScheduleTestsRepository,
+            ILessonRepository lessonRepository)
         {
             _studentMarksRepository = studentMarksRepository;
             _studentTestRepository = studentTestRepository;
@@ -34,6 +40,8 @@ namespace Infrastructure.Services
             _testSectionRepository = testSectionRepository;
             _testRepository = testRepository;
             _testEventRepository = testEventRepository;
+            _syllabusScheduleTestsRepository = syllabusScheduleTestsRepository;
+            _lessonRepository = lessonRepository;
         }
 
         public async Task<OperationResult<GetTestScoresDTO>> GetTestScoresByTestIdAsync(string testId)
@@ -64,6 +72,91 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 return OperationResult<GetTestScoresDTO>.Fail(ex.Message);
+            }
+        }
+
+        public async Task<OperationResult<string>> CreateStudentMarkFromStudentTestAsync(string studentTestId)
+        {
+            try
+            {
+                // Get StudentTest with related data
+                var studentTest = await _studentTestRepository.GetByIdAsync(studentTestId);
+                if (studentTest == null)
+                {
+                    return OperationResult<string>.Fail("Student test not found");
+                }
+
+                if (studentTest.Mark == null)
+                {
+                    return OperationResult<string>.Fail("Student test has no mark to transfer");
+                }
+
+                // Get TestEvent
+                var testEvent = await _testEventRepository.GetByIdAsync(studentTest.TestEventID);
+                if (testEvent == null)
+                {
+                    return OperationResult<string>.Fail("Test event not found");
+                }
+
+                // Get ClassID through the chain: StudentTest -> TestEvent -> Lesson -> ClassID
+                string classId = null;
+                if (!string.IsNullOrEmpty(testEvent.ClassLessonID))
+                {
+                    // You'll need to add a LessonRepository to get the lesson and its ClassID
+                    // For now, assuming you have a method to get ClassID from ClassLessonID
+                    // This might require adding ILessonRepository to your dependencies
+                    var lessonDetail = await _lessonRepository.GetLessonDetailByLessonIDAsync(testEvent.ClassLessonID);
+                    if (lessonDetail != null)
+                    {
+                        classId = lessonDetail.ClassID;
+                    }
+
+                }
+
+                // Get SyllabusScheduleTest
+                var syllabusScheduleTest = await _syllabusScheduleTestsRepository.GetByScheduleTestIdAsync(testEvent.ScheduleTestID);
+                if (syllabusScheduleTest == null)
+                {
+                    return OperationResult<string>.Fail("Syllabus schedule test not found");
+                }
+
+                // Get AssessmentCriteria
+                var assessmentCriteria = await _assessmentCriteriaRepository.GetByIdAsync(syllabusScheduleTest.AssessmentCriteriaID);
+                if (assessmentCriteria == null)
+                {
+                    return OperationResult<string>.Fail("Assessment criteria not found");
+                }
+
+                // Check if StudentMark already exists
+                var existingStudentMark = await _studentMarksRepository.GetByStudentAndAssessmentCriteriaAsync(
+                    studentTest.StudentID, syllabusScheduleTest.AssessmentCriteriaID, classId);
+
+                if (existingStudentMark != null)
+                {
+                    return OperationResult<string>.Fail("Student mark already exists for this assessment criteria");
+                }
+
+                // Create new StudentMark
+                var newStudentMark = new StudentMark
+                {
+                    StudentMarkID = GenerateStudentMarkId(),
+                    AccountID = studentTest.StudentID,
+                    AssessmentCriteriaID = syllabusScheduleTest.AssessmentCriteriaID,
+                    ClassID = classId,
+                    Mark = studentTest.Mark,
+                    StudentTestID = studentTestId,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsFinalized = assessmentCriteria.Data.Category == AssessmentCategory.Midterm ||
+                                 assessmentCriteria.Data.Category == AssessmentCategory.Final
+                };
+
+                await _studentMarksRepository.CreateAsync(newStudentMark);
+                return OperationResult<string>.Ok(newStudentMark.StudentMarkID, "Student mark created successfully from student test");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<string>.Fail($"Error creating student mark: {ex.Message}");
             }
         }
 
@@ -270,6 +363,119 @@ namespace Infrastructure.Services
                 return OperationResult<BatchUpdateResultDTO>.Fail(ex.Message);
             }
         }
+
+        public async Task<OperationResult<List<StudentMarkDTO>>> GetStudentMarksByStudentIdAsync(string studentId)
+        {
+            try
+            {
+                var studentMarks = await _studentMarksRepository.GetByStudentIdAsync(studentId);
+
+                var result = studentMarks.Select(sm => new StudentMarkDTO
+                {
+                    StudentMarkID = sm.StudentMarkID,
+                    AccountID = sm.AccountID,
+                    AssessmentCriteriaID = sm.AssessmentCriteriaID,
+                    Mark = sm.Mark,
+                    Comment = sm.Comment,
+                    GradedBy = sm.GradedBy,
+                    GradedAt = sm.GradedAt,
+                    IsFinalized = sm.IsFinalized,
+                    CreatedAt = sm.CreatedAt,
+                    UpdatedAt = sm.UpdatedAt,
+                    ClassID = sm.ClassID
+                }).ToList();
+
+                return OperationResult<List<StudentMarkDTO>>.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<StudentMarkDTO>>.Fail(ex.Message);
+            }
+        }
+
+        public async Task<OperationResult<List<StudentMarkDTO>>> GetStudentMarksByClassAndAssessmentAsync(string classId, string assessmentCriteriaId)
+        {
+            try
+            {
+                var studentMarks = await _studentMarksRepository.GetByAssessmentCriteriaAndClassAsync(assessmentCriteriaId, classId);
+
+                var result = studentMarks.Select(sm => new StudentMarkDTO
+                {
+                    StudentMarkID = sm.StudentMarkID,
+                    AccountID = sm.AccountID,
+                    AssessmentCriteriaID = sm.AssessmentCriteriaID,
+                    Mark = sm.Mark,
+                    Comment = sm.Comment,
+                    GradedBy = sm.GradedBy,
+                    GradedAt = sm.GradedAt,
+                    IsFinalized = sm.IsFinalized,
+                    CreatedAt = sm.CreatedAt,
+                    UpdatedAt = sm.UpdatedAt,
+                    ClassID = sm.ClassID
+                }).ToList();
+
+                return OperationResult<List<StudentMarkDTO>>.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<StudentMarkDTO>>.Fail(ex.Message);
+            }
+        }
+
+        private async Task<decimal> GetFinalMarkFromStudentTest(StudentTest studentTest)
+        {
+            // If student test already has mark, use it
+            if (studentTest.Mark.HasValue)
+            {
+                return studentTest.Mark.Value;
+            }
+
+            // Otherwise calculate from test sections
+            if (studentTest.TestEvent?.TestID != null)
+            {
+                var testSections = await _testSectionRepository.GetTestSectionsByTestIdAsync(studentTest.TestEvent.TestID);
+                if (testSections.Success && testSections.Data.Any())
+                {
+                    return testSections.Data.Sum(ts => ts.Score);
+                }
+            }
+
+            return 0;
+        }
+        public async Task<OperationResult<bool>> DeleteStudentMarkAsync(string studentMarkId)
+        {
+            try
+            {
+                var studentMark = await _studentMarksRepository.GetByIdAsync(studentMarkId);
+                if (studentMark == null)
+                {
+                    return OperationResult<bool>.Fail("Student mark not found");
+                }
+
+                // Check if the mark is finalized (Midterm or Final assessments)
+                var assessmentCriteria = await _assessmentCriteriaRepository.GetByIdAsync(studentMark.AssessmentCriteriaID);
+                if (assessmentCriteria.Success &&
+                    (assessmentCriteria.Data.Category == AssessmentCategory.Midterm ||
+                     assessmentCriteria.Data.Category == AssessmentCategory.Final))
+                {
+                    return OperationResult<bool>.Fail("Cannot delete marks for Midterm or Final assessments");
+                }
+
+                // Check if the mark is finalized
+                if (studentMark.IsFinalized)
+                {
+                    return OperationResult<bool>.Fail("Cannot delete finalized student marks");
+                }
+
+                await _studentMarksRepository.DeleteAsync(studentMarkId);
+                return OperationResult<bool>.Ok(true, "Student mark deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<bool>.Fail($"Error deleting student mark: {ex.Message}");
+            }
+        }
+
         private static int _studentMarkCounter = 0;
         private string GenerateStudentMarkId()
         {

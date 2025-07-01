@@ -128,6 +128,10 @@ namespace Infrastructure
             services.AddScoped<UpdateStudentMarksFromStudentTestCommandHandler>();
             services.AddScoped<UpdateStudentMarksByLecturerCommandHandler>();
             services.AddScoped<BatchUpdateStudentMarksFromStudentTestsCommandHandler>();
+            services.AddScoped<CreateStudentMarkFromStudentTestCommandHandler>();
+            services.AddScoped<GetStudentMarksByClassAndAssessmentQueryHandler>();
+            services.AddScoped<GetStudentMarksByStudentIdQueryHandler>();
+            services.AddScoped<DeleteStudentMarkCommandHandler>();
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();

@@ -34,6 +34,18 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpPost("create-from-student-test/{studentTestId}")]
+        public async Task<IActionResult> CreateFromStudentTest(string studentTestId)
+        {
+            var command = new CreateStudentMarkFromStudentTestCommand { StudentTestId = studentTestId };
+            var result = await _mediator.Send(command);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+
         /// <summary>
         /// Update student marks from student test (system auto-grading)
         /// </summary>
@@ -68,6 +80,46 @@ namespace HangulLearningSystem.WebAPI.Controllers
         [HttpPost("batch-update-from-student-tests")]
         public async Task<IActionResult> BatchUpdateFromStudentTests([FromBody] BatchUpdateStudentMarksFromStudentTestsCommand command)
         {
+            var result = await _mediator.Send(command);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+
+        [HttpGet("student/{studentId}")]
+        public async Task<IActionResult> GetStudentMarksByStudentId(string studentId)
+        {
+            var query = new GetStudentMarksByStudentIdQuery { StudentId = studentId };
+            var result = await _mediator.Send(query);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+
+        [HttpGet("class/{classId}/assessment/{assessmentCriteriaId}")]
+        public async Task<IActionResult> GetStudentMarksByClassAndAssessment(string classId, string assessmentCriteriaId)
+        {
+            var query = new GetStudentMarksByClassAndAssessmentQuery
+            {
+                ClassId = classId,
+                AssessmentCriteriaId = assessmentCriteriaId
+            };
+            var result = await _mediator.Send(query);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{studentMarkId}")]
+        public async Task<IActionResult> DeleteStudentMark(string studentMarkId)
+        {
+            var command = new DeleteStudentMarkCommand { StudentMarkId = studentMarkId };
             var result = await _mediator.Send(command);
 
             if (!result.Success)
