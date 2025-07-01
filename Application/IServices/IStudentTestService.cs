@@ -12,6 +12,6 @@ namespace Application.IServices
     {
         Task<OperationResult<bool>> ValidateStudentTestExistsAsync(string studentTestID);
 
-        Task<OperationResult<bool>> SubmitStudentTestAsync(string studentTestID, string testID, List<SectionAnswerDTO> sectionAnswers);
+        Task<OperationResult<bool>> SubmitStudentTestAsync(string studentID,string testID, List<SectionAnswerDTO> sectionAnswers);
     }
 }

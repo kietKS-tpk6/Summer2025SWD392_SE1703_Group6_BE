@@ -222,13 +222,13 @@ namespace Infrastructure.Services
                 {
                     TestEventID = ev.TestEventID,
                     TestID = ev.TestID,
-                    TestCategory = test?.Category.ToString(),
+                    TestCategory = test?.Category,
                     TestName = test?.TestName,
                     Description = ev.Description,
                     StartAt = ev.StartAt,
                     EndAt = ev.EndAt,
-                    TestType = ev.TestType.ToString(),
-                    Status = ev.Status.ToString(),
+                    TestType = ev.TestType,
+                    Status = ev.Status,
                     DurationMinutes = ev.DurationMinutes,
                     AttemptLimit = ev.AttemptLimit.GetValueOrDefault(),
                     TotalSubmittedTests = totalSubmitted,
@@ -331,13 +331,13 @@ namespace Infrastructure.Services
                     {
                         TestEventID = ev.TestEventID,
                         TestID = ev.TestID,
-                        TestCategory = test.Category.ToString(),
+                        TestCategory = test.Category,
                         TestName = test.TestName,
                         Description = ev.Description,
                         StartAt = ev.StartAt,
                         EndAt = ev.EndAt,
-                        TestType = ev.TestType.ToString(),
-                        Status = ev.Status.ToString()
+                        TestType = ev.TestType,
+                        Status = ev.Status
                     });
                 }
             }
