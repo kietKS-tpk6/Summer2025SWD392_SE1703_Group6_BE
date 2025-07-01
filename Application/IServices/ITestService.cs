@@ -21,6 +21,7 @@ namespace Application.IServices
         Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null);
         Task<OperationResult<List<StudentTestResultDTO>>> GetListStudentTestResultsByTestEventAsync(string testEventId);
         Task<OperationResult<StudentTestResultDTO>> GetStudentTestResultsByTestEventAsync(string testEventId, string accountId);
-
+        //Kho - làm tạm hàm update status mới
+        Task<OperationResult<string>> UpdateTestStatusFixAsync(UpdateTestStatusFixCommand request);
     }
 }
