@@ -22,6 +22,8 @@ namespace Infrastructure.Services
         private readonly IMCQAnswerRepository _mcqAnswerRepo;
         private readonly IWritingAnswerRepository _writingAnswerRepo;
         private readonly ITestRepository _testRepo;
+        private readonly ITestEventRepository _testEventRepository;
+
 
         private readonly HangulLearningSystemDbContext _dbContext;
 
@@ -33,7 +35,8 @@ namespace Infrastructure.Services
             IMCQAnswerRepository mcqAnswerRepo,
             IWritingAnswerRepository writingAnswerRepo,
             HangulLearningSystemDbContext dbContext,
-            ITestRepository testRepository)
+            ITestRepository testRepository,
+            ITestEventRepository testEventRepository)
         {
             _studentTestRepo = studentTestRepo;
             _questionRepo = questionRepo;
@@ -43,6 +46,7 @@ namespace Infrastructure.Services
             _writingAnswerRepo = writingAnswerRepo;
             _dbContext = dbContext;
             _testRepo = testRepository;
+            _testEventRepository = testEventRepository;
         }
 
         public async Task<OperationResult<bool>> ValidateStudentTestExistsAsync(string studentTestID)
@@ -51,9 +55,9 @@ namespace Infrastructure.Services
             return exists ? OperationResult<bool>.Ok(true) : OperationResult<bool>.Fail("StudentTest không tồn tại.");
         }
         public async Task<OperationResult<bool>> SubmitStudentTestAsync(
-      string studentTestID,
-      string testID,
-      List<SectionAnswerDTO> sectionAnswers)
+        string studentID,
+        string testEventID,
+        List<SectionAnswerDTO> sectionAnswers)
         {
             await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
@@ -61,6 +65,22 @@ namespace Infrastructure.Services
                 decimal totalScore = 0m;
                 bool hasWriting = false;
                 bool hasMCQ = false;
+
+                // Generate new StudentTest ID
+                string studentTestID = await GenerateStudentTestIDAsync();
+
+                // Create new StudentTest entity
+                var studentTest = new StudentTest
+                {
+                    StudentTestID = studentTestID,
+                    StudentID = studentID,
+                    TestEventID = testEventID,
+                    StartTime = DateTime.Now,
+                    SubmitTime = DateTime.Now,
+                    Status = StudentTestStatus.Submitted // Will be updated based on test type
+                };
+                await _studentTestRepo.AddAsync(studentTest);
+                await _dbContext.SaveChangesAsync();
 
                 foreach (var section in sectionAnswers)
                 {
@@ -101,14 +121,8 @@ namespace Infrastructure.Services
                         }
                     }
                 }
-
-                var studentTest = await _studentTestRepo.GetByIdAsync(studentTestID);
-                if (studentTest == null)
-                {
-                    await transaction.RollbackAsync();
-                    return OperationResult<bool>.Fail("Không tìm thấy bài làm.");
-                }
-
+                
+                    var testID = await _testEventRepository.GetTestIDByTestEventIDAsync(testEventID);
                 var test = await _testRepo.GetTestByIdAsync(testID);
                 if (test == null)
                 {
@@ -116,7 +130,7 @@ namespace Infrastructure.Services
                     return OperationResult<bool>.Fail("Không tìm thấy bài kiểm tra.");
                 }
 
-                // Determine new status
+                // Determine status based on test type
                 var newStatus = test.Data.TestType switch
                 {
                     TestType.MCQ => StudentTestStatus.Graded,
@@ -125,30 +139,46 @@ namespace Infrastructure.Services
                     _ => StudentTestStatus.Submitted
                 };
 
-                // Update only the fields we need to change
-                studentTest.SubmitTime = DateTime.Now;
+                // Update student test with final values
                 studentTest.Mark = hasMCQ ? totalScore : null;
                 studentTest.Status = newStatus;
 
-                // Use specific property updates to avoid constraint issues
-                var entry = _dbContext.Entry(studentTest);
-                entry.Property(e => e.SubmitTime).IsModified = true;
-                entry.Property(e => e.Mark).IsModified = true;
-                entry.Property(e => e.Status).IsModified = true;
-
+                // Add the new student test to database
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return OperationResult<bool>.Ok(true, "Nộp bài và xử lý thành công.");
+                return OperationResult<bool>.Ok(true, "Tạo và nộp bài thành công.");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return OperationResult<bool>.Fail("Lỗi hệ thống khi lưu bài: " + ex.Message);
+                return OperationResult<bool>.Fail("Lỗi hệ thống khi tạo bài: " + ex.Message);
             }
         }
 
+        private async Task<string> GenerateStudentTestIDAsync()
+        {
+            // Get all StudentTest IDs that start with "ST" and have 4 digits
+            var existingIDs = await _dbContext.StudentTest
+                .Where(st => st.StudentTestID.StartsWith("ST") && st.StudentTestID.Length == 6)
+                .Select(st => st.StudentTestID)
+                .ToListAsync();
 
+            // Extract numbers and find the maximum
+            var maxNumber = 0;
+            foreach (var id in existingIDs)
+            {
+                var numberPart = id.Substring(2);
+                if (int.TryParse(numberPart, out int number))
+                {
+                    maxNumber = Math.Max(maxNumber, number);
+                }
+            }
+
+            // Generate next ID
+            var nextNumber = maxNumber + 1;
+            return $"ST{nextNumber:D4}"; // Format as ST0001, ST0002, etc.
+        }
     }
 
 }

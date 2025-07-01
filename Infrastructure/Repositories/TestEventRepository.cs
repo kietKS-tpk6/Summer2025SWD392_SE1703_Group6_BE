@@ -213,5 +213,14 @@ namespace Infrastructure.Repositories
                 .Where(te => classLessonIDs.Contains(te.ClassLessonID))
                 .ToListAsync();
         }
+        //kit {Lấy testID  theo testEvent}
+
+        public async Task<string?> GetTestIDByTestEventIDAsync(string testEventID)
+        {
+            return await _dbContext.TestEvent
+                .Where(te => te.TestEventID == testEventID && te.Status != TestEventStatus.Deleted)
+                .Select(te => te.TestID)
+                .FirstOrDefaultAsync();
+        }
     }
 }

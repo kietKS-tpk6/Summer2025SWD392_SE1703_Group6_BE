@@ -23,11 +23,8 @@ namespace Application.Usecases.CommandHandler
 
         public async Task<OperationResult<bool>> Handle(SubmitStudentTestCommand request, CancellationToken cancellationToken)
         {
-            var validate = await _studentTestService.ValidateStudentTestExistsAsync(request.StudentTestID);
-            if (!validate.Success)
-                return OperationResult<bool>.Fail(validate.Message);
-
-            return await _studentTestService.SubmitStudentTestAsync(request.StudentTestID, request.TestID,request.SectionAnswers);
+           
+            return await _studentTestService.SubmitStudentTestAsync(request.StudentId, request.TestEventID, request.SectionAnswers);
         }
     }
 
