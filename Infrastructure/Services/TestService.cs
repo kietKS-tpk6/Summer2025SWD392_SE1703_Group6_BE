@@ -226,5 +226,13 @@ namespace Infrastructure.Services
         {
             return await _testRepository.GetAllTestsWithFiltersAsync(status, createdBy);
         }
+        public async Task<OperationResult<List<Test>>> GetTestsWithAdvancedFiltersAsync(
+    AssessmentCategory? category = null,
+    string? subjectId = null,
+    TestType? testType = null,
+    TestStatus? status = null)
+        {
+            return await _testRepository.GetTestsWithAdvancedFiltersAsync(category, subjectId, testType, status);
+        }
     }
 }

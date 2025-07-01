@@ -188,5 +188,49 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<Test>>.Fail($"Error retrieving tests with filters: {ex.Message}");
             }
         }
+        public async Task<OperationResult<List<Test>>> GetTestsWithAdvancedFiltersAsync(
+    AssessmentCategory? category = null,
+    string? subjectId = null,
+    TestType? testType = null,
+    TestStatus? status = null)
+        {
+            try
+            {
+                var query = _dbContext.Test
+                    .Include(t => t.Account)
+                    .Include(t => t.Subject)
+                    .Where(t => t.Status != TestStatus.Deleted);
+
+                if (category.HasValue)
+                {
+                    query = query.Where(t => t.Category == category.Value);
+                }
+
+                if (!string.IsNullOrEmpty(subjectId))
+                {
+                    query = query.Where(t => t.SubjectID == subjectId);
+                }
+
+                if (testType.HasValue)
+                {
+                    query = query.Where(t => t.TestType == testType.Value);
+                }
+
+                if (status.HasValue)
+                {
+                    query = query.Where(t => t.Status == status.Value);
+                }
+
+                var tests = await query
+                    .OrderByDescending(t => t.CreateAt)
+                    .ToListAsync();
+
+                return OperationResult<List<Test>>.Ok(tests);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<Test>>.Fail($"Error retrieving tests with advanced filters: {ex.Message}");
+            }
+        }
     }
 }

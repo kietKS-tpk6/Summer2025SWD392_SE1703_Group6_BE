@@ -3,6 +3,8 @@ using Application.Common.Constants;
 using Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Application.DTOs;
+using Domain.Enums;
 
 namespace Application.IServices
 {
@@ -18,5 +20,10 @@ namespace Application.IServices
         Task ProcessAutoApprovalAsync();
         Task<OperationResult<List<Test>>> GetAllTestsAsync();
         Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null);
+        Task<OperationResult<List<Test>>> GetTestsWithAdvancedFiltersAsync(
+    AssessmentCategory? category = null,
+    string? subjectId = null,
+    TestType? testType = null,
+    TestStatus? status = null);
     }
 }
