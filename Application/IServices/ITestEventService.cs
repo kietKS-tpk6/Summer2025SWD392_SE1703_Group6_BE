@@ -20,6 +20,7 @@ namespace Application.IServices
         Task<OperationResult<bool>> UpdateTestEventAsync(UpdateTestEventCommand request);
         Task<OperationResult<bool>> UpdateStatusAsync(UpdateStatusTestEventCommand request);
         Task<OperationResult<List<TestEventStudentDTO>>> GetTestEventByStudentIdAsync(string studentId);
+        Task<OperationResult<TestEventWithLessonDTO>> GetTestEventWithLessonDTOByIDAsync(string testEventID);
 
         //Hàm của kiệt  - lấy bài kiểm tra cho test
         Task<OperationResult<TestAssignmentDTO>> GetTestAssignmentForStudentAsync(string testEventID);

@@ -11,8 +11,8 @@ namespace Application.Usecases.Command
 {
     public class SubmitStudentTestCommand : IRequest<OperationResult<bool>>
     {
-        public string StudentTestID { get; set; }
-        public string TestID { get; set; }
+        public string StudentId { get; set; }
+        public string TestEventID { get; set; }
         public List<SectionAnswerDTO> SectionAnswers { get; set; }
     }
 }

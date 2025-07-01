@@ -10,6 +10,7 @@ using Application.Common.Constants;
 using Application.DTOs;
 using Domain.Entities;
 using Infrastructure.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HangulLearningSystem.WebAPI.Controllers
 {
@@ -80,7 +81,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-
+        [HttpPut("update-status-fix")]
+        public async Task<IActionResult> UpdateTestStatusFix(UpdateTestStatusFixCommand request)
+        {
+            var result = await _mediator.Send(request);
+            if(!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
         [HttpPut("{testId}")]
         public async Task<IActionResult> UpdateTest(string testId, [FromBody] UpdateTestCommand command)
         {

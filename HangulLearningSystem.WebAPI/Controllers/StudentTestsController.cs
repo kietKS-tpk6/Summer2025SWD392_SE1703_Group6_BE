@@ -1,4 +1,5 @@
-﻿using Application.Common.Constants;
+﻿using System.Security.Claims;
+using Application.Common.Constants;
 using Application.Common.Shared;
 using Application.DTOs;
 using Application.IServices;
@@ -22,9 +23,21 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
             _studentTestService = studentTestService;
         }
+
         [HttpPost("submit")]
         public async Task<IActionResult> SubmitStudentTest([FromBody] SubmitStudentTestCommand command)
         {
+            // Lấy AccountID từ token
+            var accountIdClaim = User.FindFirst("AccountID") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (accountIdClaim == null)
+            {
+                return Unauthorized("Không tìm thấy AccountID trong token");
+            }
+
+            // Gán AccountID vào command
+            command.StudentId = accountIdClaim.Value;
+
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }

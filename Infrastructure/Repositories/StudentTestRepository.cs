@@ -55,5 +55,17 @@ namespace Infrastructure.Repositories
                 .Where(st => st.TestEventID == testEventId)
                 .ToListAsync();
         }
+        public async Task<OperationResult<bool>> AddAsync(StudentTest studentTest)
+        {
+            try
+            {
+                await _dbContext.StudentTest.AddAsync(studentTest);
+                return OperationResult<bool>.Ok(true, "Thêm StudentTest thành công");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<bool>.Fail($"Lỗi khi thêm StudentTest: {ex.Message}");
+            }
+        }
     }
 }

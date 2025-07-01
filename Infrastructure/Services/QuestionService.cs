@@ -260,8 +260,8 @@ namespace Infrastructure.Services
         }
 
 
-
-        public OperationResult<bool> ValidateMCQOptions(List<MCQOptionDTO>? options)
+        //Kho - tạm đổi sang DTO MCQOptionUpdateQuestionDTO (không có ID)
+        public OperationResult<bool> ValidateMCQOptions(List<MCQOptionUpdateQuestionDTO>? options)
         {
             if (options == null || !options.Any())
                 return OperationResult<bool>.Fail("Danh sách đáp án không được rỗng.");
@@ -379,8 +379,8 @@ namespace Infrastructure.Services
 
             return OperationResult<List<TestSectionWithQuestionsDTO>>.Ok(result);
         }
-
-        public async Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionDTO> options)
+        //Kho - Tạm đổi từ MCQOptionDTO sang MCQOptionUpdateQuestionDTO (không có MCQOptionID)
+        public async Task<OperationResult<bool>> ValidateOptionCountLimitAsync(List<MCQOptionUpdateQuestionDTO> options)
         {
             var configResult = await _systemConfigService.GetConfig("max_mcq_option_per_question");
 
@@ -401,8 +401,8 @@ namespace Infrastructure.Services
 
             return OperationResult<bool>.Ok(true);
         }
-
-        public OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionDTO>? options)
+        //Kho - Tạm đổi từ MCQOptionDTO sang MCQOptionUpdateQuestionDTO
+        public OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionUpdateQuestionDTO>? options)
         {
             if (options == null || !options.Any())
                 return OperationResult<bool>.Fail("Danh sách đáp án không được rỗng.");
