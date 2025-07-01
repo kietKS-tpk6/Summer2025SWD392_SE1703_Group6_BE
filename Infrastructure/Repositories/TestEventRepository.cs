@@ -84,6 +84,12 @@ namespace Infrastructure.Repositories
                                     on te.ClassLessonID equals lesson.ClassLessonID
                                 join ss in _dbContext.SyllabusSchedule
                                     on lesson.SyllabusScheduleID equals ss.SyllabusScheduleID
+                                join sst in _dbContext.SyllabusScheduleTests
+                                    on te.ScheduleTestID equals sst.ScheduleTestID into sstJoin
+                                from sst in sstJoin.DefaultIfEmpty()
+                                join ac in _dbContext.AssessmentCriteria
+                                    on sst.AssessmentCriteriaID equals ac.AssessmentCriteriaID into acJoin
+                                from ac in acJoin.DefaultIfEmpty()
                                 where lesson.ClassID == classID && te.Status != TestEventStatus.Deleted
                                 orderby te.TestID == null ? 0 : 1, te.StartAt
                                 select new TestEventWithLessonDTO
@@ -94,7 +100,7 @@ namespace Infrastructure.Repositories
                                     StartAt = te.StartAt,
                                     EndAt = te.EndAt,
                                     DurationMinutes = te.DurationMinutes,
-                                    TestType = te.TestType.ToString(),
+                                    TestType = te.TestType,
                                     Status = te.Status,
                                     ScheduleTestID = te.ScheduleTestID,
                                     AttemptLimit = te.AttemptLimit,
@@ -102,7 +108,8 @@ namespace Infrastructure.Repositories
                                     ClassLessonID = te.ClassLessonID,
                                     LessonTitle = ss.LessonTitle,
                                     LessonStartTime = lesson.StartTime,
-                                    LessonEndTime = lesson.StartTime.AddMinutes(ss.DurationMinutes ?? 45)
+                                    LessonEndTime = lesson.StartTime.AddMinutes(ss.DurationMinutes ?? 45),
+                                    AssessmentCategory = ac.Category
                                 })
                                 .ToListAsync();
 
@@ -173,6 +180,10 @@ namespace Infrastructure.Repositories
                 from te in _dbContext.TestEvent
                 join lesson in _dbContext.Lesson on te.ClassLessonID equals lesson.ClassLessonID
                 join ss in _dbContext.SyllabusSchedule on lesson.SyllabusScheduleID equals ss.SyllabusScheduleID
+                join sst in _dbContext.SyllabusScheduleTests on te.ScheduleTestID equals sst.ScheduleTestID into sstJoin
+                from sst in sstJoin.DefaultIfEmpty()
+                join ac in _dbContext.AssessmentCriteria on sst.AssessmentCriteriaID equals ac.AssessmentCriteriaID into acJoin
+                from ac in acJoin.DefaultIfEmpty()
                 where te.TestEventID == testEventID
                 select new TestEventWithLessonDTO
                 {
@@ -182,7 +193,7 @@ namespace Infrastructure.Repositories
                     StartAt = te.StartAt,
                     EndAt = te.EndAt,
                     DurationMinutes = te.DurationMinutes,
-                    TestType = te.TestType.ToString(),
+                    TestType = te.TestType,
                     Status = te.Status,
                     ScheduleTestID = te.ScheduleTestID,
                     AttemptLimit = te.AttemptLimit,
@@ -190,7 +201,8 @@ namespace Infrastructure.Repositories
                     ClassLessonID = te.ClassLessonID,
                     LessonTitle = ss.LessonTitle,
                     LessonStartTime = lesson.StartTime,
-                    LessonEndTime = lesson.StartTime.AddMinutes((double)(ss.DurationMinutes ?? 45)) 
+                    LessonEndTime = lesson.StartTime.AddMinutes((double)(ss.DurationMinutes ?? 45)),
+                    AssessmentCategory = ac.Category
                 }
             ).FirstOrDefaultAsync();
 
@@ -204,6 +216,7 @@ namespace Infrastructure.Repositories
                 result,
                 OperationMessages.RetrieveSuccess("buổi kiểm tra"));
         }
+
 
 
         //kit {Lấy tất cả TestEvent theo danh sách ClassLessonID}
