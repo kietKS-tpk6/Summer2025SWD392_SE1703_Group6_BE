@@ -79,7 +79,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if (string.IsNullOrEmpty(accountID))
                 return Unauthorized("Không thể xác định tài khoản từ token.");
 
-            // Gọi service
+            // Gọi kiểm tra hợp lệ
+            var validateResult = await _studentTestService.ValidStudentGetExamAsync(testEventID, accountID);
+            if (!validateResult.Success)
+                return BadRequest(validateResult.Message);
+
+            // Gọi service lấy đề
             var result = await _testEventService.GetTestAssignmentForStudentAsync(testEventID);
             if (!result.Success)
                 return BadRequest(result.Message);
