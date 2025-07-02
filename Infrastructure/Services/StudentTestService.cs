@@ -23,6 +23,10 @@ namespace Infrastructure.Services
         private readonly IWritingAnswerRepository _writingAnswerRepo;
         private readonly ITestRepository _testRepo;
         private readonly ITestEventRepository _testEventRepository;
+        private readonly ILessonRepository _lessonRepository;
+        private readonly IEnrollmentRepository _enrollmentRepository;
+
+
 
 
         private readonly HangulLearningSystemDbContext _dbContext;
@@ -36,7 +40,9 @@ namespace Infrastructure.Services
             IWritingAnswerRepository writingAnswerRepo,
             HangulLearningSystemDbContext dbContext,
             ITestRepository testRepository,
-            ITestEventRepository testEventRepository)
+            ITestEventRepository testEventRepository,
+            ILessonRepository lessonRepository,
+            IEnrollmentRepository enrollmentRepository)
         {
             _studentTestRepo = studentTestRepo;
             _questionRepo = questionRepo;
@@ -47,6 +53,8 @@ namespace Infrastructure.Services
             _dbContext = dbContext;
             _testRepo = testRepository;
             _testEventRepository = testEventRepository;
+            _lessonRepository = lessonRepository;
+            _enrollmentRepository = enrollmentRepository;
         }
 
         public async Task<OperationResult<bool>> ValidateStudentTestExistsAsync(string studentTestID)
@@ -135,7 +143,7 @@ namespace Infrastructure.Services
                 {
                     TestType.MCQ => StudentTestStatus.Graded,
                     TestType.Writing => StudentTestStatus.WaitingForWritingGrading,
-                    TestType.Mix => hasWriting ? StudentTestStatus.WaitingForWritingGrading : StudentTestStatus.AutoGradedWatingForWritingGrading,
+                    TestType.Mix => hasWriting ? StudentTestStatus.WaitingForWritingGrading : StudentTestStatus.AutoGradedWaitingForWritingGrading,
                     _ => StudentTestStatus.Submitted
                 };
 
@@ -179,6 +187,39 @@ namespace Infrastructure.Services
             var nextNumber = maxNumber + 1;
             return $"ST{nextNumber:D4}"; // Format as ST0001, ST0002, etc.
         }
+
+        public async Task<OperationResult<bool>> ValidStudentGetExamAsync(string testEventId, string accountId)
+        {
+            // 1. Lấy thông tin TestEvent
+            var testEvent = await _testEventRepository.GetByIdAsync(testEventId);
+            if (testEvent == null)
+                return OperationResult<bool>.Fail("Không tìm thấy TestEvent.");
+
+            var attemptLimit = testEvent.AttemptLimit;
+            var classLessonId = testEvent.ClassLessonID;
+
+            // 2. Lấy Lesson để lấy ClassID
+            var lesson = await _lessonRepository.GetLessonByClassLessonIDAsync(classLessonId);
+            if (lesson == null)
+                return OperationResult<bool>.Fail("Không tìm thấy buổi học (Lesson).");
+
+            var classId = lesson.ClassID;
+
+            // 3. Kiểm tra học sinh có trong lớp hay không 
+            var isStudentInClass = await _enrollmentRepository.IsStudentEnrolledAsync(accountId, classId);
+            if (!isStudentInClass)
+                return OperationResult<bool>.Fail("Học sinh không thuộc lớp này, không thể làm bài.");
+
+            // 4. Đếm số lần học sinh đã làm bài trong StudentTests
+            var attemptCount = await _studentTestRepo.CountAttemptsAsync(testEventId, accountId);
+
+            if (attemptLimit.HasValue && attemptCount >= attemptLimit.Value)
+                return OperationResult<bool>.Fail("Đã vượt quá số lần làm bài cho phép.");
+
+            // 5. Hợp lệ
+            return OperationResult<bool>.Ok(true);
+        }
+
     }
 
 }

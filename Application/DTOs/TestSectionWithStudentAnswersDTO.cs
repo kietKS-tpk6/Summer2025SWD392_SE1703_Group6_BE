@@ -12,7 +12,9 @@ namespace Application.DTOs
         public string TestSectionID { get; set; }
         public string? Context { get; set; }
         public TestFormatType TestSectionType { get; set; }
-        public decimal Score { get; set; }
+        public decimal SectionScore { get; set; }
+        public decimal StudentGetScore { get; set; }
+
         public List<QuestionWithStudentAnswerDTO> Questions { get; set; }
     }
 }

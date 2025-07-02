@@ -69,5 +69,10 @@ namespace Infrastructure.Repositories
                 return OperationResult<bool>.Fail($"Lỗi khi thêm StudentTest: {ex.Message}");
             }
         }
+        public async Task<int> CountAttemptsAsync(string testEventId, string studentId)
+        {
+            return await _dbContext.StudentTest
+                .CountAsync(x => x.TestEventID == testEventId && x.StudentID == studentId);
+        }
     }
 }

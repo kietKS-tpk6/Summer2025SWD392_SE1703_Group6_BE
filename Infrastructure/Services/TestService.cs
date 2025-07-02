@@ -385,7 +385,7 @@ namespace Infrastructure.Services
                         TestSectionID = section.TestSectionID,
                         Context = section.Context,
                         TestSectionType = section.TestSectionType,
-                        Score = section.Score,
+                        SectionScore = section.Score,
                         Questions = questionResults
                     });
                 }
@@ -524,8 +524,10 @@ namespace Infrastructure.Services
                             TestSectionID = section.TestSectionID,
                             Context = section.Context,
                             TestSectionType = section.TestSectionType,
-                            Score = section.Score,
-                            Questions = questionResults
+                            SectionScore = section.Score,
+                            Questions = questionResults,
+
+                            
                         });
                     }
 

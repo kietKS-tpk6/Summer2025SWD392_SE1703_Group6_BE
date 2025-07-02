@@ -1,5 +1,6 @@
 ﻿using Application.IServices;
 using Application.Usecases.Command;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ITestEventService _testEventService;
-        public TestEventController(IMediator mediator, ITestEventService testEventService)
+        private readonly IStudentTestService  _studentTestService;
+        public TestEventController(IMediator mediator, ITestEventService testEventService, IStudentTestService studentTestService)
         {
             _mediator = mediator;
             _testEventService = testEventService;
+            _studentTestService = studentTestService;
         }
         [HttpPost("setup-test-event/{classId}")]
         public async Task<IActionResult> SetupTestEvent(string classId)
@@ -72,11 +75,17 @@ namespace HangulLearningSystem.WebAPI.Controllers
         [HttpGet("{testEventID}/assignment")]
         public async Task<IActionResult> GetAssignment(string testEventID)
         {
+            var accountID = User.FindFirst("AccountID")?.Value;
+            if (string.IsNullOrEmpty(accountID))
+                return Unauthorized("Không thể xác định tài khoản từ token.");
+
+            // Gọi service
             var result = await _testEventService.GetTestAssignmentForStudentAsync(testEventID);
             if (!result.Success)
                 return BadRequest(result.Message);
 
             return Ok(result.Data);
         }
+
     }
 }
