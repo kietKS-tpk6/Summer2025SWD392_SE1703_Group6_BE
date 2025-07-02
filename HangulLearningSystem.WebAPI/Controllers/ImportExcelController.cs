@@ -12,14 +12,28 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             _importExcelService = importExcelService;
         }
-        [HttpPost("import-schedule-excel")]
-        [Consumes("multipart/form-data")]
+        [HttpPost("schedule/import/excel")]
         public async Task<IActionResult> ImportScheduleExcel([FromForm] UploadExcelRequest request)
         {
            var result = await _importExcelService.ImportScheduleByExcelAsync(request.File);
             if(!result.Success) return BadRequest(result);
             return Ok(result);
         }
+        [HttpGet("schedule/import/guide-doc")]
+        public IActionResult DownloadScheduleGuideDoc()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "HuongDanNhapLichHoc.docx");
+            var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            var fileName = "HuongDanNhapLichHoc.docx";
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound(new { Message = "Không tìm thấy file hướng dẫn." });
+
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, contentType, fileName);
+        }
+
+
 
         [HttpPost("mcq/import/excel")]
         public async Task<IActionResult> ImportMCQExcel([FromForm] UploadExcelRequest request)
