@@ -348,12 +348,25 @@ namespace Infrastructure.Services
                         }
 
                         // Calculate total score from test sections if student test mark is null
-                        decimal finalMark = studentTest.Mark ?? 0;
+                        // Ưu tiên điểm được truyền từ frontend nếu có
+                        decimal finalMark;
 
-                        if (studentTest.Mark == null && studentTest.TestEvent?.TestID != null)
+                        if (studentTestDto.Mark != null)
+                        {
+                            finalMark = studentTestDto.Mark.Value;
+                        }
+                        else if (studentTest.Mark != null)
+                        {
+                            finalMark = studentTest.Mark.Value;
+                        }
+                        else if (studentTest.TestEvent?.TestID != null)
                         {
                             var testSections = await _testSectionRepository.GetTestSectionsByTestIdAsync(studentTest.TestEvent.TestID);
                             finalMark = testSections.Data.Sum(ts => ts.Score);
+                        }
+                        else
+                        {
+                            finalMark = 0; // fallback nếu không có gì cả
                         }
 
                         // Check if student marks already exists
@@ -362,6 +375,11 @@ namespace Infrastructure.Services
 
                         if (existingStudentMarks != null)
                         {
+                            if (existingStudentMarks.IsFinalized)
+                            {
+                                result.Errors.Add($"Cannot update finalized mark for student {studentTest.StudentID}");
+                                continue;
+                            }
                             // Update existing record
                             existingStudentMarks.Mark = finalMark;
                             existingStudentMarks.UpdatedAt = DateTime.UtcNow;
@@ -405,7 +423,7 @@ namespace Infrastructure.Services
                 }
                 else
                 {
-                    return OperationResult<BatchUpdateResultDTO>.Fail("No student marks were updated");
+                    return OperationResult<BatchUpdateResultDTO>.Fail("No student marks were updated due to all being finalized");
                 }
             }
             catch (Exception ex)
