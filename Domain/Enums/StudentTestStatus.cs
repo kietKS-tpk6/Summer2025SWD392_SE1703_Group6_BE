@@ -11,7 +11,7 @@ namespace Domain.Enums
         Pending,             // Chưa làm
         Submitted,           // Đã nộp bài
         AutoGraded,          // Đã chấm tự động (ví dụ trắc nghiệm)
-        WaitingForGrading,
+        WaitingForWritingGrading,
         Graded,              // Đã chấm (bao gồm tự động và thủ công)
         Published            // Đã công bố điểm
     }

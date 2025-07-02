@@ -134,8 +134,8 @@ namespace Infrastructure.Services
                 var newStatus = test.Data.TestType switch
                 {
                     TestType.MCQ => StudentTestStatus.Graded,
-                    TestType.Writing => StudentTestStatus.WaitingForGrading,
-                    TestType.Mix => hasWriting ? StudentTestStatus.WaitingForGrading : StudentTestStatus.AutoGraded,
+                    TestType.Writing => StudentTestStatus.WaitingForWritingGrading,
+                    TestType.Mix => hasWriting ? StudentTestStatus.WaitingForWritingGrading : StudentTestStatus.AutoGradedWatingForWritingGrading,
                     _ => StudentTestStatus.Submitted
                 };
 
