@@ -318,6 +318,7 @@ namespace Infrastructure.Services
                                     .Where(q => q.IsActive).ToList();
 
                     var questionResults = new List<QuestionWithStudentAnswerDTO>();
+                    decimal studentSectionScore = 0; // Điểm học sinh đạt được trong section này
 
                     foreach (var question in questions)
                     {
@@ -341,10 +342,16 @@ namespace Infrastructure.Services
                                 studentTest.StudentTestID, question.QuestionID);
 
                             List<string> selectedOptionIds = new List<string>();
+                            bool isCorrect = false;
+
                             if (mcqAnswer != null)
                             {
                                 var answerDetails = await _mcqAnswerDetailRepository.GetByMCQAnswerIdAsync(mcqAnswer.MCQAnswerID);
                                 selectedOptionIds = answerDetails.Select(ad => ad.MCQOptionID).ToList();
+
+                                // Kiểm tra xem câu trả lời có đúng không
+                                var correctOptions = options.Where(o => o.IsCorrect).Select(o => o.MCQOptionID).ToList();
+                                isCorrect = selectedOptionIds.OrderBy(x => x).SequenceEqual(correctOptions.OrderBy(x => x));
                             }
 
                             questionDto.Options = options.Select(o => new MCQOptionWithAnswerDTO
@@ -362,23 +369,40 @@ namespace Infrastructure.Services
                                 MCQAnswerID = mcqAnswer?.MCQAnswerID,
                                 SelectedOptionIDs = selectedOptionIds
                             };
+
+                            // Tính điểm cho câu MCQ: nếu đúng thì lấy điểm đầy đủ, sai thì 0
+                            if (isCorrect)
+                            {
+                                studentSectionScore += question.Score;
+                            }
                         }
                         else if (section.TestSectionType == TestFormatType.Writing)
                         {
                             var writingAnswer = await _writingAnswerRepository.GetByStudentTestAndQuestionAsync(
                                 studentTest.StudentTestID, question.QuestionID);
 
+                            // Với Writing, Score của question sẽ lấy từ WritingAnswer.Score thay vì question.Score
+                            questionDto.Score = writingAnswer?.Score ?? 0;
+
                             questionDto.StudentAnswer = new StudentAnswerDetailDTO
                             {
                                 WritingAnswerID = writingAnswer?.WritingAnswerID,
                                 StudentEssay = writingAnswer?.StudentEssay,
                                 Feedback = writingAnswer?.Feedback,
-                                WritingScore = writingAnswer?.Score
                             };
+
+                            // Tính điểm cho câu Writing: lấy từ Score trong WritingAnswer
+                            if (writingAnswer?.Score.HasValue == true)
+                            {
+                                studentSectionScore += writingAnswer.Score.Value;
+                            }
                         }
 
                         questionResults.Add(questionDto);
                     }
+
+                    // Đối với MCQ sections, studentSectionScore đã được tính trong vòng lặp questions ở trên
+                    // Không cần tính lại ở đây
 
                     sectionResults.Add(new TestSectionWithStudentAnswersDTO
                     {
@@ -386,6 +410,7 @@ namespace Infrastructure.Services
                         Context = section.Context,
                         TestSectionType = section.TestSectionType,
                         SectionScore = section.Score,
+                        StudentGetScore = studentSectionScore, // Điểm học sinh đạt được
                         Questions = questionResults
                     });
                 }
@@ -400,7 +425,7 @@ namespace Infrastructure.Services
                     SubmitTime = studentTest.SubmitTime,
                     Status = studentTest.Status.ToString(),
                     OriginalSubmissionScore = studentTest.Mark,
-                   Comment = studentTest?.Feedback, // Nhận xét từ giảng viên
+                    Comment = studentTest?.Feedback, // Nhận xét từ giảng viên
                     Sections = sectionResults
                 };
 
@@ -411,7 +436,6 @@ namespace Infrastructure.Services
                 return OperationResult<StudentTestResultDTO>.Fail($"Lỗi khi lấy kết quả bài kiểm tra: {ex.Message}");
             }
         }
-
 
         public async Task<OperationResult<List<StudentTestResultDTO>>> GetListStudentTestResultsByTestEventAsync(string testEventId)
         {
@@ -452,6 +476,7 @@ namespace Infrastructure.Services
                                        .Where(q => q.IsActive).ToList();
 
                         var questionResults = new List<QuestionWithStudentAnswerDTO>();
+                        decimal studentSectionScore = 0; // Điểm học sinh đạt được trong section này
 
                         foreach (var question in questions)
                         {
@@ -479,10 +504,16 @@ namespace Infrastructure.Services
                                     studentTest.StudentTestID, question.QuestionID);
 
                                 List<string> selectedOptionIds = new List<string>();
+                                bool isCorrect = false;
+
                                 if (mcqAnswer != null)
                                 {
                                     var answerDetails = await _mcqAnswerDetailRepository.GetByMCQAnswerIdAsync(mcqAnswer.MCQAnswerID);
                                     selectedOptionIds = answerDetails.Select(ad => ad.MCQOptionID).ToList();
+
+                                    // Kiểm tra xem câu trả lời có đúng không
+                                    var correctOptions = options.Where(o => o.IsCorrect).Select(o => o.MCQOptionID).ToList();
+                                    isCorrect = selectedOptionIds.OrderBy(x => x).SequenceEqual(correctOptions.OrderBy(x => x));
                                 }
 
                                 questionDto.Options = options.Select(o => new MCQOptionWithAnswerDTO
@@ -500,6 +531,12 @@ namespace Infrastructure.Services
                                     MCQAnswerID = mcqAnswer?.MCQAnswerID,
                                     SelectedOptionIDs = selectedOptionIds
                                 };
+
+                                // Tính điểm cho câu MCQ: nếu đúng thì lấy điểm đầy đủ, sai thì 0
+                                if (isCorrect)
+                                {
+                                    studentSectionScore += question.Score;
+                                }
                             }
                             else if (section.TestSectionType == TestFormatType.Writing)
                             {
@@ -507,13 +544,21 @@ namespace Infrastructure.Services
                                 var writingAnswer = await _writingAnswerRepository.GetByStudentTestAndQuestionAsync(
                                     studentTest.StudentTestID, question.QuestionID);
 
+                                // Với Writing, Score của question sẽ lấy từ WritingAnswer.Score thay vì question.Score
+                                questionDto.Score = writingAnswer?.Score ?? 0;
+
                                 questionDto.StudentAnswer = new StudentAnswerDetailDTO
                                 {
                                     WritingAnswerID = writingAnswer?.WritingAnswerID,
                                     StudentEssay = writingAnswer?.StudentEssay,
                                     Feedback = writingAnswer?.Feedback,
-                                    WritingScore = writingAnswer?.Score
                                 };
+
+                                // Tính điểm cho câu Writing: lấy từ Score trong WritingAnswer
+                                if (writingAnswer?.Score.HasValue == true)
+                                {
+                                    studentSectionScore += writingAnswer.Score.Value;
+                                }
                             }
 
                             questionResults.Add(questionDto);
@@ -525,9 +570,8 @@ namespace Infrastructure.Services
                             Context = section.Context,
                             TestSectionType = section.TestSectionType,
                             SectionScore = section.Score,
-                            Questions = questionResults,
-
-                            
+                            StudentGetScore = studentSectionScore, // Điểm học sinh đạt được
+                            Questions = questionResults
                         });
                     }
 
@@ -553,7 +597,6 @@ namespace Infrastructure.Services
                 return OperationResult<List<StudentTestResultDTO>>.Fail($"Lỗi khi lấy kết quả bài kiểm tra: {ex.Message}");
             }
         }
-
         //Kho - làm tạm hàm update status mới
         public async Task<OperationResult<string>> UpdateTestStatusFixAsync(UpdateTestStatusFixCommand request)
         {

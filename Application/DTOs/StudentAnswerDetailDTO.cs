@@ -13,6 +13,5 @@ namespace Application.DTOs
         public string? WritingAnswerID { get; set; }
         public string? StudentEssay { get; set; }
         public string? Feedback { get; set; }
-        public decimal? WritingScore { get; set; }
     }
 }
