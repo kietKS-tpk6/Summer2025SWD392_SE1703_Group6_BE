@@ -20,6 +20,13 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if(!result.Success) return BadRequest(result);
             return Ok(result);
         }
+        [HttpPost("import-mcq-excel")]
+        public async Task<IActionResult> ImportMCQExcel([FromForm] UploadExcelRequest request)
+        {
+            var result = await _importExcelService.ImportMCQByExcelAsync(request.File);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
     }
     public class UploadExcelRequest
     {

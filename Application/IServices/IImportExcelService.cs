@@ -12,5 +12,6 @@ namespace Application.IServices
     public  interface IImportExcelService
     {
         Task<OperationResult<List<ScheduleExcelDTO>>> ImportScheduleByExcelAsync(IFormFile file);
+        Task<OperationResult<List<QuestionMCQExcelDTO>>> ImportMCQByExcelAsync(IFormFile file);
     }
 }
