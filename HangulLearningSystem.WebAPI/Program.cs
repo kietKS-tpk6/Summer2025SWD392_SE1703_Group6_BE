@@ -11,7 +11,8 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
-
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
@@ -31,6 +32,7 @@ if (string.IsNullOrEmpty(jwtKey) || string.IsNullOrEmpty(jwtIssuer) || string.Is
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddControllers();
+
 
 // Swagger - Chỉ cần một lần cấu hình
 builder.Services.AddEndpointsApiExplorer();
@@ -145,7 +147,13 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
-
+//Cấu hình cho phép lấy file tĩnh 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Resources")),
+    RequestPath = "/resources"
+});
 // Middleware để log tất cả requests
 app.Use(async (context, next) =>
 {
