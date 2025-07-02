@@ -63,7 +63,6 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.StudentMarks
                 .Where(sm => sm.AssessmentCriteriaID == assessmentCriteriaId && sm.ClassID == classId)
-                .Include(sm => sm.AccountID)
                 .ToListAsync();
         }
 
