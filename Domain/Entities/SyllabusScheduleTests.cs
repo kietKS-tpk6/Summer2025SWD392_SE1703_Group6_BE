@@ -32,7 +32,5 @@ namespace Domain.Entities
         [MaxLength(6)] 
         public string AssessmentCriteriaID { get; set; } 
 
-        [Required]
-        public virtual SyllabusSchedule SyllabusSchedule { get; set; }
     }
 }

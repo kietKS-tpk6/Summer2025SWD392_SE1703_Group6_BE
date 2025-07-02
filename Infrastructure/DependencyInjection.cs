@@ -4,6 +4,8 @@ using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
 using Application.Usecases.CommandHandler;
+using Application.Usecases.CommandHandlers;
+using Application.Usecases.QueryHandlers;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
@@ -75,6 +77,9 @@ namespace Infrastructure
             services.AddScoped<IWritingAnswerService, WritingAnswerService>();
             services.AddScoped<IStudentTestService, StudentTestService>();
             services.AddScoped<IMCQOptionService, MCQOptionService>();
+            services.AddScoped<IStudentMarksService, StudentMarksService>();
+            services.AddScoped<IStudentMarkRepository, StudentMarksRepository>();
+            services.AddScoped<ITestSectionRepository, TestSectionRepository>();
 
             services.AddScoped<IAttendanceService, AttendanceService>();
             //Repositories
@@ -98,7 +103,7 @@ namespace Infrastructure
             services.AddScoped<IWritingAnswerRepository, WritingAnswerRepository>();
             services.AddScoped<IStudentTestRepository, StudentTestRepository>();
             services.AddScoped<IAttendanceRepository, AttendanceRepository>();
-            services.AddScoped<IStudentMarkRepository, StudentMarkRepository>();
+            services.AddScoped<IStudentMarkRepository, StudentMarksRepository>();
 
 
             //CommandHandler
@@ -118,6 +123,15 @@ namespace Infrastructure
             services.AddScoped<UpdateTestCommandHandler>();
             services.AddScoped<UpdateTestStatusCommandHandler>();
             services.AddScoped<DeleteTestCommandHandler>();
+
+            services.AddScoped<GetTestScoresByTestIdQueryHandler>();
+            services.AddScoped<UpdateStudentMarksFromStudentTestCommandHandler>();
+            services.AddScoped<UpdateStudentMarksByLecturerCommandHandler>();
+            services.AddScoped<BatchUpdateStudentMarksFromStudentTestsCommandHandler>();
+            services.AddScoped<CreateStudentMarkFromStudentTestCommandHandler>();
+            services.AddScoped<GetStudentMarksByClassAndAssessmentQueryHandler>();
+            services.AddScoped<GetStudentMarksByStudentIdQueryHandler>();
+            services.AddScoped<DeleteStudentMarkCommandHandler>();
 
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();

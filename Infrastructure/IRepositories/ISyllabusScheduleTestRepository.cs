@@ -31,6 +31,5 @@ namespace Infrastructure.IRepositories
 
         Task<SyllabusScheduleTest> GetTestByScheduleIdAsync(string scheduleId);
         Task<SyllabusScheduleTest?> GetByScheduleTestIdAsync(string scheduleTestId);
-
     }
 }
