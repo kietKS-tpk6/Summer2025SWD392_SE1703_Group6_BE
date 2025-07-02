@@ -131,6 +131,8 @@ namespace Infrastructure.Services
             var testAssignment = new TestAssignmentDTO
             {
                 TestID = testEvent.TestID,
+                TestType= testEvent.TestType.ToString(),
+                DurationMinutes = testEvent.DurationMinutes,
                 Sections = new List<TestSectionAssignmentDTO>()
             };
 

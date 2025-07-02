@@ -9,9 +9,8 @@ namespace Application.DTOs
 {
     public class TestAssignmentDTO
     {
-        public string TestEventID { get; set; }
         public string TestID { get; set; }
-        public TestType TestType { get; set; }
+        public string TestType { get; set; }
         public int DurationMinutes { get; set; }
         public List<TestSectionAssignmentDTO> Sections { get; set; }
     }
