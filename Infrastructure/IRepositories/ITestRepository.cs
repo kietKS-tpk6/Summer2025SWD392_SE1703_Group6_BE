@@ -2,6 +2,7 @@
 using Application.Common.Constants;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace Infrastructure.IRepositories
 {
@@ -17,6 +18,11 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<string>> UpdateTestStatusAsync(string testId, Domain.Enums.TestStatus status);
         Task<OperationResult<List<Test>>> GetAllTestsAsync();
         Task<OperationResult<List<Test>>> GetAllTestsWithFiltersAsync(string? status = null, string? createdBy = null);
+        Task<OperationResult<List<Test>>> GetTestsWithAdvancedFiltersAsync(
+    AssessmentCategory? category = null,
+    string? subjectId = null,
+    TestType? testType = null,
+    TestStatus? status = null);
         // kit {Lấy danh sách bài Test theo list TestID}
         Task<List<Test>> GetByIdsAsync(List<string> testIDs);
         //kit {Truy vấn Test theo TestID để lấy Category và TestName}

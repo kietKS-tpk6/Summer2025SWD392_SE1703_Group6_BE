@@ -400,7 +400,7 @@ namespace Infrastructure.Services
                     SubmitTime = studentTest.SubmitTime,
                     Status = studentTest.Status.ToString(),
                     OriginalSubmissionScore = studentTest.Mark,
-                    Comment = studentMark?.Comment,
+                   Comment = studentTest?.Feedback, // Nhận xét từ giảng viên
                     Sections = sectionResults
                 };
 
@@ -539,7 +539,7 @@ namespace Infrastructure.Services
                         SubmitTime = studentTest.SubmitTime,
                         Status = studentTest.Status.ToString(),
                         OriginalSubmissionScore = studentTest.Mark,  // Điểm ban đầu
-                        Comment = studentMark?.Comment,  // Nhận xét
+                        Comment = studentTest?.Feedback,  // Nhận xét
                         Sections = sectionResults
                     });
                 }
@@ -562,6 +562,14 @@ namespace Infrastructure.Services
             }
             testFound.Status = request.TestStatus; 
             return await _testRepository.UpdateTestAsync(testFound);
+        }
+        public async Task<OperationResult<List<Test>>> GetTestsWithAdvancedFiltersAsync(
+    AssessmentCategory? category = null,
+    string? subjectId = null,
+    TestType? testType = null,
+    TestStatus? status = null)
+        {
+            return await _testRepository.GetTestsWithAdvancedFiltersAsync(category, subjectId, testType, status);
         }
     }
 }

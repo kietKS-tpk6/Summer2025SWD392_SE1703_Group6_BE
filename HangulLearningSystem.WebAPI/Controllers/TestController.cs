@@ -10,6 +10,7 @@ using Application.Common.Constants;
 using Application.DTOs;
 using Domain.Entities;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HangulLearningSystem.WebAPI.Controllers
@@ -399,7 +400,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-    }
+    
 
     public class UpdateTestStatusRequest
     {
@@ -407,4 +408,52 @@ namespace HangulLearningSystem.WebAPI.Controllers
         public string AccountID { get; set; } 
     }
 
+    [HttpGet("advanced-search")]
+        public async Task<IActionResult> GetTestsWithAdvancedFilters(
+    [FromQuery] AssessmentCategory? category = null,
+    [FromQuery] string? subjectId = null,
+    [FromQuery] TestType? testType = null,
+    [FromQuery] TestStatus? status = null)
+        {
+            try
+            {
+                var result = await _testService.GetTestsWithAdvancedFiltersAsync(category, subjectId, testType, status);
+
+                if (!result.Success)
+                    return BadRequest(new { message = result.Message });
+
+                var dtos = result.Data.Select(test => new TestResponseDTO
+                {
+                    TestID = test.TestID,
+                    CreateBy = test.CreateBy,
+                    CreatedByName = test.Account?.Fullname ?? "Unknown",
+                    SubjectID = test.SubjectID,
+                    SubjectName = test.Subject?.SubjectName ?? "Unknown",
+                    CreateAt = test.CreateAt,
+                    UpdateAt = (DateTime)test.UpdateAt,
+                    Status = test.Status,
+                    Category = test.Category,
+                    TestType = test.TestType,
+                }).ToList();
+
+                return Ok(new
+                {
+                    message = "Tests retrieved successfully with advanced filters",
+                    total = dtos.Count,
+                    filters = new
+                    {
+                        category = category?.ToString(),
+                        subjectId = subjectId,
+                        testType = testType?.ToString(),
+                        status = status?.ToString()
+                    },
+                    data = dtos
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+    }
 }
