@@ -79,6 +79,8 @@ namespace Infrastructure.Services
         {
             try
             {
+                Console.WriteLine($"Starting CreateStudentMarkFromStudentTestAsync with studentTestId: {studentTestId}");
+
                 // Get StudentTest with related data
                 var studentTest = await _studentTestRepository.GetByIdAsync(studentTestId);
                 if (studentTest == null)
@@ -86,46 +88,64 @@ namespace Infrastructure.Services
                     return OperationResult<string>.Fail("Student test not found");
                 }
 
+                Console.WriteLine($"StudentTest found: {studentTest.StudentTestID}, Mark: {studentTest.Mark}");
+
                 if (studentTest.Mark == null)
                 {
                     return OperationResult<string>.Fail("Student test has no mark to transfer");
                 }
 
-                // Get TestEvent
-                var testEvent = await _testEventRepository.GetByIdAsync(studentTest.TestEventID);
-                if (testEvent == null)
+                // Load TestEvent if not included
+                if (studentTest.TestEvent == null)
                 {
-                    return OperationResult<string>.Fail("Test event not found");
+                    Console.WriteLine("TestEvent is null, trying to load separately");
+                    var testEvent = await _testEventRepository.GetByIdAsync(studentTest.TestEventID);
+                    if (testEvent == null)
+                    {
+                        return OperationResult<string>.Fail("Test event not found");
+                    }
+                    studentTest.TestEvent = testEvent;
                 }
 
-                // Get ClassID through the chain: StudentTest -> TestEvent -> Lesson -> ClassID
+                Console.WriteLine($"TestEvent found: {studentTest.TestEvent.TestEventID}, ClassLessonID: {studentTest.TestEvent.ClassLessonID}");
+
+                // Get ClassID through the chain
                 string classId = null;
-                if (!string.IsNullOrEmpty(testEvent.ClassLessonID))
+                if (!string.IsNullOrEmpty(studentTest.TestEvent.ClassLessonID))
                 {
-                    // You'll need to add a LessonRepository to get the lesson and its ClassID
-                    // For now, assuming you have a method to get ClassID from ClassLessonID
-                    // This might require adding ILessonRepository to your dependencies
-                    var lessonDetail = await _lessonRepository.GetLessonDetailByLessonIDAsync(testEvent.ClassLessonID);
-                    if (lessonDetail != null)
+                    var lessonDetail = await _lessonRepository.GetLessonDetailByLessonIDAsync(studentTest.TestEvent.ClassLessonID);
+                    if (lessonDetail != null && !string.IsNullOrEmpty(lessonDetail.ClassID))
                     {
                         classId = lessonDetail.ClassID;
+                        Console.WriteLine($"ClassID found: {classId}");
                     }
-
+                    else
+                    {
+                        return OperationResult<string>.Fail("Could not find ClassID from the lesson associated with this test event");
+                    }
+                }
+                else
+                {
+                    return OperationResult<string>.Fail("Test event does not have an associated class lesson");
                 }
 
                 // Get SyllabusScheduleTest
-                var syllabusScheduleTest = await _syllabusScheduleTestsRepository.GetByScheduleTestIdAsync(testEvent.ScheduleTestID);
+                var syllabusScheduleTest = await _syllabusScheduleTestsRepository.GetByScheduleTestIdAsync(studentTest.TestEvent.ScheduleTestID);
                 if (syllabusScheduleTest == null)
                 {
                     return OperationResult<string>.Fail("Syllabus schedule test not found");
                 }
 
+                Console.WriteLine($"SyllabusScheduleTest found: AssessmentCriteriaID: {syllabusScheduleTest.AssessmentCriteriaID}");
+
                 // Get AssessmentCriteria
                 var assessmentCriteria = await _assessmentCriteriaRepository.GetByIdAsync(syllabusScheduleTest.AssessmentCriteriaID);
-                if (assessmentCriteria == null)
+                if (assessmentCriteria == null || !assessmentCriteria.Success)
                 {
                     return OperationResult<string>.Fail("Assessment criteria not found");
                 }
+
+                Console.WriteLine($"AssessmentCriteria found: {assessmentCriteria.Data.Category}");
 
                 // Check if StudentMark already exists
                 var existingStudentMark = await _studentMarksRepository.GetByStudentAndAssessmentCriteriaAsync(
@@ -136,10 +156,18 @@ namespace Infrastructure.Services
                     return OperationResult<string>.Fail("Student mark already exists for this assessment criteria");
                 }
 
-                // Create new StudentMark
+                // Validate all IDs before creating StudentMark
+                Console.WriteLine($"Validating IDs:");
+                Console.WriteLine($"- StudentID (AccountID): {studentTest.StudentID}");
+                Console.WriteLine($"- AssessmentCriteriaID: {syllabusScheduleTest.AssessmentCriteriaID}");
+                Console.WriteLine($"- ClassID: {classId}");
+                Console.WriteLine($"- StudentTestID: {studentTestId}");
+
+                // Create new StudentMark with proper ID handling
+                var newStudentMarkId = GenerateStudentMarkId();
                 var newStudentMark = new StudentMark
                 {
-                    StudentMarkID = GenerateStudentMarkId(),
+                    StudentMarkID = newStudentMarkId,
                     AccountID = studentTest.StudentID,
                     AssessmentCriteriaID = syllabusScheduleTest.AssessmentCriteriaID,
                     ClassID = classId,
@@ -151,11 +179,34 @@ namespace Infrastructure.Services
                                  assessmentCriteria.Data.Category == AssessmentCategory.Final
                 };
 
-                await _studentMarksRepository.CreateAsync(newStudentMark);
-                return OperationResult<string>.Ok(newStudentMark.StudentMarkID, "Student mark created successfully from student test");
+                Console.WriteLine($"Creating StudentMark with ID: {newStudentMarkId}");
+
+                try
+                {
+                    await _studentMarksRepository.CreateAsync(newStudentMark);
+                    Console.WriteLine("StudentMark created successfully");
+                    return OperationResult<string>.Ok(newStudentMark.StudentMarkID, "Student mark created successfully from student test");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error creating StudentMark: {ex.Message}");
+                    Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+
+                    // Log detailed information about the entity being saved
+                    Console.WriteLine($"Entity details:");
+                    Console.WriteLine($"- StudentMarkID: {newStudentMark.StudentMarkID} (Type: {newStudentMark.StudentMarkID?.GetType()})");
+                    Console.WriteLine($"- AccountID: {newStudentMark.AccountID} (Type: {newStudentMark.AccountID?.GetType()})");
+                    Console.WriteLine($"- AssessmentCriteriaID: {newStudentMark.AssessmentCriteriaID} (Type: {newStudentMark.AssessmentCriteriaID?.GetType()})");
+                    Console.WriteLine($"- ClassID: {newStudentMark.ClassID} (Type: {newStudentMark.ClassID?.GetType()})");
+                    Console.WriteLine($"- StudentTestID: {newStudentMark.StudentTestID} (Type: {newStudentMark.StudentTestID?.GetType()})");
+
+                    throw;
+                }
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Exception in CreateStudentMarkFromStudentTestAsync: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return OperationResult<string>.Fail($"Error creating student mark: {ex.Message}");
             }
         }
@@ -479,8 +530,8 @@ namespace Infrastructure.Services
         private static int _studentMarkCounter = 0;
         private string GenerateStudentMarkId()
         {
-            _studentMarkCounter++; 
-            string number = _studentMarkCounter.ToString("D6"); 
+            _studentMarkCounter++;
+            string number = _studentMarkCounter.ToString("D6");
             return $"IM{number}";
         }
     }

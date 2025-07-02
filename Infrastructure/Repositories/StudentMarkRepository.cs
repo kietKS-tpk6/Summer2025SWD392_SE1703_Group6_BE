@@ -10,16 +10,16 @@ namespace Infrastructure.Repositories
 {
     public class StudentMarksRepository : IStudentMarkRepository
     {
-        private readonly HangulLearningSystemDbContext _context;
+        private readonly HangulLearningSystemDbContext _dbContext;
 
-        public StudentMarksRepository(HangulLearningSystemDbContext context)
+        public StudentMarksRepository(HangulLearningSystemDbContext dbContext)
         {
-            _context = context;
+            _dbContext = dbContext;
         }
 
         public async Task<StudentMark> GetByIdAsync(string id)
         {
-            return await _context.StudentMarks
+            return await _dbContext.StudentMarks
                 .Include(sm => sm.Account)
                 .Include(sm => sm.GradedByAccount)
                 .Include(sm => sm.Class)
@@ -29,7 +29,7 @@ namespace Infrastructure.Repositories
 
         public async Task<StudentMark> GetByStudentAndAssessmentCriteriaAsync(string studentId, string assessmentCriteriaId, string classId)
         {
-            return await _context.StudentMarks
+            return await _dbContext.StudentMarks
                 .FirstOrDefaultAsync(sm => sm.AccountID == studentId &&
                                           sm.AssessmentCriteriaID == assessmentCriteriaId &&
                                           sm.ClassID == classId);
@@ -37,15 +37,15 @@ namespace Infrastructure.Repositories
 
         public async Task<StudentMark> CreateAsync(StudentMark studentMarks)
         {
-            _context.StudentMarks.Add(studentMarks);
-            await _context.SaveChangesAsync();
+            _dbContext.StudentMarks.Add(studentMarks);
+            await _dbContext.SaveChangesAsync();
             return studentMarks;
         }
 
         public async Task<StudentMark> UpdateAsync(StudentMark studentMarks)
         {
-            _context.StudentMarks.Update(studentMarks);
-            await _context.SaveChangesAsync();
+            _dbContext.StudentMarks.Update(studentMarks);
+            await _dbContext.SaveChangesAsync();
             return studentMarks;
         }
 
@@ -54,14 +54,14 @@ namespace Infrastructure.Repositories
             var entity = await GetByIdAsync(id);
             if (entity == null) return false;
 
-            _context.StudentMarks.Remove(entity);
-            await _context.SaveChangesAsync();
+            _dbContext.StudentMarks.Remove(entity);
+            await _dbContext.SaveChangesAsync();
             return true;
         }
 
         public async Task<List<StudentMark>> GetByAssessmentCriteriaAndClassAsync(string assessmentCriteriaId, string classId)
         {
-            return await _context.StudentMarks
+            return await _dbContext.StudentMarks
                 .Where(sm => sm.AssessmentCriteriaID == assessmentCriteriaId && sm.ClassID == classId)
                 .Include(sm => sm.AccountID)
                 .ToListAsync();
@@ -69,7 +69,7 @@ namespace Infrastructure.Repositories
 
         public async Task<List<StudentMark>> GetByStudentIdAsync(string studentId)
         {
-            return await _context.StudentMarks
+            return await _dbContext.StudentMarks
                 .Where(sm => sm.AccountID == studentId)
                 .Include(sm => sm.AssessmentCriteriaID)
                 .Include(sm => sm.Class)
@@ -78,12 +78,12 @@ namespace Infrastructure.Repositories
 
         public async Task<int> CountAsync()
         {
-            return await _context.StudentMarks.CountAsync();
+            return await _dbContext.StudentMarks.CountAsync();
         }
 
         public async Task<List<StudentMark>> GetByStudentTestIdAsync(string studentTestId)
         {
-            return await _context.StudentMarks
+            return await _dbContext.StudentMarks
                 .Where(sm => sm.StudentTestID == studentTestId)
                 .ToListAsync();
         }

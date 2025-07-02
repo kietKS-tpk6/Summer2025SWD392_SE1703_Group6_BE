@@ -22,7 +22,9 @@ namespace Infrastructure.Repositories
 
         public async Task<StudentTest> GetByIdAsync(string studentTestID)
         {
-            return await _dbContext.StudentTest.FirstOrDefaultAsync(x => x.StudentTestID == studentTestID);
+            return await _dbContext.StudentTest
+        .Include(st => st.TestEvent) 
+        .FirstOrDefaultAsync(x => x.StudentTestID == studentTestID);
         }
 
         public async Task<bool> ExistsAsync(string studentTestID)
