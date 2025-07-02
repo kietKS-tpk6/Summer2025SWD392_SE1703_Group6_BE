@@ -399,7 +399,7 @@ namespace Infrastructure.Services
                     StartTime = studentTest.StartTime,
                     SubmitTime = studentTest.SubmitTime,
                     Status = studentTest.Status.ToString(),
-                    InitialMark = studentTest.Mark,
+                    OriginalSubmissionScore = studentTest.Mark,
                     Comment = studentMark?.Comment,
                     Sections = sectionResults
                 };
@@ -538,7 +538,7 @@ namespace Infrastructure.Services
                         StartTime = studentTest.StartTime,
                         SubmitTime = studentTest.SubmitTime,
                         Status = studentTest.Status.ToString(),
-                        InitialMark = studentTest.Mark,  // Điểm ban đầu
+                        OriginalSubmissionScore = studentTest.Mark,  // Điểm ban đầu
                         Comment = studentMark?.Comment,  // Nhận xét
                         Sections = sectionResults
                     });
