@@ -14,6 +14,7 @@ using Infrastructure.Services.BackgroundServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OfficeOpenXml;
 
 namespace Infrastructure
 {
@@ -26,6 +27,8 @@ namespace Infrastructure
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             //Background service
             services.AddHostedService<ClassStatusBackgroundService>();
+            //EPPPlus
+            ExcelPackage.License.SetNonCommercialPersonal("Hangul Learning System");
             //CommandHandler 
             //Authent
             services.AddScoped<LoginCommandHandler>();
@@ -53,6 +56,7 @@ namespace Infrastructure
             services.AddScoped<SendOTPViaEmailCommandHandler>();
 
             //Services 
+            services.AddScoped<IImportExcelService, ImportExcelService>();
             services.AddScoped<ILessonService, LessonService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
