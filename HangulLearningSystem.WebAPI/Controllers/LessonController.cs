@@ -77,6 +77,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return NotFound(result.Message);
             }
         }
+        [HttpDelete("delete-by-class-id/{classID}")]
+        public async Task<IActionResult> DeleteLessonsByClassID(string classID)
+        {
+            var result = await _lessonService.DeleteLessonByClassIDAsync(classID);
+            if (result.Success && result.Data)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return NotFound(result.Message);
+            }
+        }
 
         [HttpGet("get-by-class/{classID}")]
         public async Task<IActionResult> GetLessonsByClassID(string classID)
