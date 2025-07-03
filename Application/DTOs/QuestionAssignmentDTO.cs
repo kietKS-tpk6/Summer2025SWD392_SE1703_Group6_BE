@@ -13,7 +13,8 @@ namespace Application.DTOs
         public string? Content { get; set; }
         public string? ImageURL { get; set; }
         public string? AudioURL { get; set; }
-        public TestFormatType FormatType { get; set; }
-        public List<MCQOptionAssignmentDTO>? Options { get; set; } // MCQ or TrueFalse only
+        public int? NumberOfCorrectAnswers { get; set; }
+        public List<MCQOptionAssignmentDTO>? Options { get; set; }
+
     }
 }

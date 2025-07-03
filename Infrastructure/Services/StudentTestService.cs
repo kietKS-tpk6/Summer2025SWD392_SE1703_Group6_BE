@@ -193,7 +193,7 @@ namespace Infrastructure.Services
             // 1. Lấy thông tin TestEvent
             var testEvent = await _testEventRepository.GetByIdAsync(testEventId);
             if (testEvent == null)
-                return OperationResult<bool>.Fail("Không tìm thấy TestEvent.");
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("Bài kiểm tra"));
 
             var attemptLimit = testEvent.AttemptLimit;
             var classLessonId = testEvent.ClassLessonID;
@@ -201,7 +201,7 @@ namespace Infrastructure.Services
             // 2. Lấy Lesson để lấy ClassID
             var lesson = await _lessonRepository.GetLessonByClassLessonIDAsync(classLessonId);
             if (lesson == null)
-                return OperationResult<bool>.Fail("Không tìm thấy buổi học (Lesson).");
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("Buổi học"));
 
             var classId = lesson.ClassID;
 
@@ -212,7 +212,6 @@ namespace Infrastructure.Services
 
             // 4. Đếm số lần học sinh đã làm bài trong StudentTests
             var attemptCount = await _studentTestRepo.CountAttemptsAsync(testEventId, accountId);
-
             if (attemptLimit.HasValue && attemptCount >= attemptLimit.Value)
                 return OperationResult<bool>.Fail("Đã vượt quá số lần làm bài cho phép.");
 

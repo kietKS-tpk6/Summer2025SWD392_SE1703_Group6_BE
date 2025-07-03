@@ -169,6 +169,12 @@ namespace Infrastructure.Services
 
                         if (options != null && options.Any())
                         {
+                            var numberOfCorrectAnswers = options.Count(opt => opt.IsCorrect);
+
+                            // Gán số câu đúng lên question
+                            questionDTO.NumberOfCorrectAnswers = numberOfCorrectAnswers;
+
+                            // Không cần gán vào từng option nữa
                             questionDTO.Options = options.Select(opt => new MCQOptionAssignmentDTO
                             {
                                 OptionID = opt.MCQOptionID,
@@ -177,8 +183,8 @@ namespace Infrastructure.Services
                                 AudioURL = opt.AudioURL
                             }).ToList();
                         }
-
                     }
+
 
                     sectionDTO.Questions.Add(questionDTO);
                 }
