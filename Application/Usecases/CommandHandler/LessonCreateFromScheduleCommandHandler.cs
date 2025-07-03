@@ -66,6 +66,10 @@ namespace Application.Usecases.CommandHandler
             }
 
             var schedules = schedulesResult.Data;
+            for (int i = 0; i < schedules.Count; i++)
+            {
+                schedules[i].DayOfWeek = request.DaysOfWeek[i % request.DaysOfWeek.Count];
+            }
 
             var createResult = await _lessonService.CreateLessonsFromSchedulesAsync(
                 request.ClassId,

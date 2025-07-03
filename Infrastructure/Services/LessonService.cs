@@ -139,65 +139,50 @@ namespace Infrastructure.Services
 
 
         public async Task<OperationResult<bool>> CreateLessonsFromSchedulesAsync(
-         string classId,
-         string lecturerId,
-         TimeOnly startHour,
-         List<DayOfWeek> selectedDays,
-         List<SyllabusScheduleCreateLessonDTO> schedules,
-         DateTime startTime
-        )
+             string classId,
+             string lecturerId,
+             TimeOnly startHour,
+             List<DayOfWeek> selectedDays,
+             List<SyllabusScheduleCreateLessonDTO> schedules,
+             DateTime startTime
+         )
         {
             try
             {
                 var lessonsToCreate = new List<Lesson>();
                 var startDate = startTime.Date;
-                int currentScheduleIndex = 0;
                 int baseWeek = schedules.Min(s => s.Week);
-                int totalSchedules = schedules.Count;
 
                 var numLesson = await _lessonRepository.CountAsync();
-                string firstLessonID = "L" + (numLesson + lessonsToCreate.Count).ToString("D6");
-                string firstRoomUrl = "https://meet.jit.si/hangullearningsystem/" + Guid.NewGuid().ToString("N").Substring(0, 16);
 
-                lessonsToCreate.Add(new Lesson
+                for (int i = 0; i < schedules.Count; i++)
                 {
-                    ClassLessonID = firstLessonID,
-                    ClassID = classId,
-                    LecturerID = lecturerId,
-                    SyllabusScheduleID = schedules[0].SyllabusScheduleId,
-                    StartTime = startTime.Date.Add(startHour.ToTimeSpan()),
-                    LinkMeetURL = firstRoomUrl,
-                    IsActive = true
-                });
+                    var schedule = schedules[i];
+                    DateTime lessonDate;
 
-                currentScheduleIndex++;
-
-                while (currentScheduleIndex < totalSchedules)
-                {
-                    foreach (var day in selectedDays)
+                    if (i == 0)
                     {
-                        if (currentScheduleIndex >= totalSchedules) break;
-
-                        var schedule = schedules[currentScheduleIndex];
-                        int weekOffset = schedule.Week - baseWeek;
-
-                        var targetDate = GetNextWeekday(startDate, day, weekOffset);
-                        string newLessonID = "L" + (numLesson + lessonsToCreate.Count).ToString("D6");
-                        string roomUrl = "https://meet.jit.si/hangullearningsystem/" + Guid.NewGuid().ToString("N").Substring(0, 16);
-
-                        lessonsToCreate.Add(new Lesson
-                        {
-                            ClassLessonID = newLessonID,
-                            ClassID = classId,
-                            LecturerID = lecturerId,
-                            SyllabusScheduleID = schedule.SyllabusScheduleId,
-                            StartTime = targetDate.Add(startHour.ToTimeSpan()),
-                            LinkMeetURL = roomUrl,
-                            IsActive = true
-                        });
-
-                        currentScheduleIndex++;
+                        lessonDate = startTime.Date;
                     }
+                    else
+                    {
+                        int weekOffset = schedule.Week - baseWeek;
+                        lessonDate = GetNextWeekday(startDate, schedule.DayOfWeek, weekOffset);
+                    }
+
+                    string lessonID = "L" + (numLesson + lessonsToCreate.Count).ToString("D6");
+                    string roomUrl = "https://meet.jit.si/hangullearningsystem/" + Guid.NewGuid().ToString("N").Substring(0, 16);
+
+                    lessonsToCreate.Add(new Lesson
+                    {
+                        ClassLessonID = lessonID,
+                        ClassID = classId,
+                        LecturerID = lecturerId,
+                        SyllabusScheduleID = schedule.SyllabusScheduleId,
+                        StartTime = lessonDate.Add(startHour.ToTimeSpan()),
+                        LinkMeetURL = roomUrl,
+                        IsActive = true
+                    });
                 }
 
                 var saveResult = await _lessonRepository.CreateManyAsync(lessonsToCreate);
@@ -217,6 +202,8 @@ namespace Infrastructure.Services
             int daysToAdd = ((int)targetDay - (int)start.DayOfWeek + 7) % 7;
             return start.AddDays(daysToAdd + 7 * weekOffset);
         }
+
+
 
         public async Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId)
         {
