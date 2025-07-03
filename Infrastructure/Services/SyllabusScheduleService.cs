@@ -22,17 +22,20 @@ namespace Infrastructure.Services
         private readonly ISyllabusScheduleRepository _syllabusScheduleRepository;
         private readonly ISyllabusScheduleTestService _syllabusScheduleTestService;
         private readonly IAssessmentCriteriaService _assessmentCriteriaService;
+        private readonly IClassRepository _classRepository;
 
         public SyllabusScheduleService(
             ISyllabusScheduleRepository syllabusScheduleRepository,
             ISyllabusScheduleTestService syllabusScheduleTestService,
             IAssessmentCriteriaService assessmentCriteriaService,
-            HangulLearningSystemDbContext dbContext)
+            HangulLearningSystemDbContext dbContext,
+            IClassRepository classRepository)
         {
             _syllabusScheduleRepository = syllabusScheduleRepository;
             _syllabusScheduleTestService = syllabusScheduleTestService;
             _assessmentCriteriaService = assessmentCriteriaService;
             _dbContext = dbContext;
+            _classRepository = classRepository;
         }
 
         public async Task<OperationResult<int>> GetMaxSlotPerWeekAsync(string subjectId)
@@ -501,6 +504,31 @@ namespace Infrastructure.Services
 
             return OperationResult<bool>.Ok(true);
         }
+        public async Task<OperationResult<List<SyllabusScheduleResourceDTO>>> GetScheduleResourcesByClassIdAsync(string classId)
+        {
+            var subjectIDResult = await _classRepository.GetSubjectIDByOngoingClassID(classId);
 
+            var schedules = await _syllabusScheduleRepository.GetSyllabusSchedulesBySubjectIdAsync(subjectIDResult.Data);
+
+            if (schedules == null || !schedules.Any())
+                return OperationResult<List<SyllabusScheduleResourceDTO>>.Fail("Không có lịch học nào cho môn học này.");
+
+            var result = schedules.Select(s => new SyllabusScheduleResourceDTO
+            {
+                SyllabusScheduleID = s.SyllabusScheduleID,
+                Resources = s.Resources
+            }).ToList();
+
+            return OperationResult<List<SyllabusScheduleResourceDTO>>.Ok(result, OperationMessages.RetrieveSuccess("resources lịch học"));
+        }
+
+        public async Task<OperationResult<string?>> GetResourcesByScheduleIDAsync(string syllabusScheduleID)
+        {
+            var result = await _syllabusScheduleRepository.GetByIdAsync(syllabusScheduleID);
+            if (!result.Success || result.Data == null)
+                return OperationResult<string?>.Fail($"Không tìm thấy slot với ID {syllabusScheduleID}");
+
+            return OperationResult<string?>.Ok(result.Data.Resources);
+        }
     }
 }

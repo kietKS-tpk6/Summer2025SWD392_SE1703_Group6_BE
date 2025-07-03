@@ -106,5 +106,47 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
+        [HttpGet("ongoing-class/{classID}/schedules-basic")]
+        public async Task<IActionResult> GetSchedulesBasicInfoByOngoingClassID(string classID)
+        {
+            if (string.IsNullOrWhiteSpace(classID))
+                return BadRequest("ClassID không được để trống.");
+
+            var result = await _syllabusScheduleService.GetScheduleResourcesByClassIdAsync(classID);
+
+            if (!result.Success)
+                return NotFound(new { result.Message });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = result.Message,
+                Data = result.Data
+            });
+        }
+        [HttpGet("resource/{syllabusScheduleID}")]
+        public async Task<IActionResult> GetResourcesBySyllabusScheduleID(string syllabusScheduleID)
+        {
+            if (string.IsNullOrWhiteSpace(syllabusScheduleID))
+                return BadRequest("SyllabusScheduleID không được để trống.");
+
+            var result = await _syllabusScheduleService.GetResourcesByScheduleIDAsync(syllabusScheduleID);
+
+            if (!result.Success)
+                return NotFound(new { Success = false, Message = result.Message });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Lấy thông tin Resources thành công.",
+                Data = new
+                {
+                    SyllabusScheduleID = syllabusScheduleID,
+                    Resources = result.Data
+                }
+            });
+        }
+
+
     }
 }

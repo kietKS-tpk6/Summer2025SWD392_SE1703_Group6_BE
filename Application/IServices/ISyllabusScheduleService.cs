@@ -27,5 +27,8 @@ namespace Application.IServices
         Task<List<SyllabusScheduleDTO>> GetScheduleBySubjectAndWeekAsync(string subjectId, int? week);
         Task<OperationResult<bool>> UpdateBulkScheduleWithTestAsync(string subjectId, List<SyllabusScheduleUpdateItemDTO> scheduleItems);
         OperationResult<bool> ValidateTestTypeDuplicatedInInput(IEnumerable<SyllabusScheduleUpdateItemDTO> items);
+        Task<OperationResult<List<SyllabusScheduleResourceDTO>>> GetScheduleResourcesByClassIdAsync(string classId);
+        Task<OperationResult<string?>> GetResourcesByScheduleIDAsync(string syllabusScheduleID);
+
     }
 }

@@ -349,6 +349,17 @@ namespace Infrastructure.Repositories
                 .Where(lesson => lesson.ClassID == classID && lesson.IsActive)
                 .ToListAsync();
         }
+        public async Task<OperationResult<string>> GetSubjectIDByOngoingClassID(string classId)
+        {
+            var classEntity = await _dbContext.Class
+                .Where(c => c.ClassID == classId && c.Status == ClassStatus.Ongoing)
+                .Select(c => new { c.SubjectID })
+                .FirstOrDefaultAsync();
 
+            if (classEntity == null || string.IsNullOrWhiteSpace(classEntity.SubjectID))
+                return OperationResult<string>.Fail("Không tìm thấy lớp đang học tương ứng hoặc lớp không hợp lệ.");
+
+            return OperationResult<string>.Ok(classEntity.SubjectID, OperationMessages.RetrieveSuccess("SubjectID"));
+        }
     }
 }
