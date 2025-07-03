@@ -12,5 +12,6 @@ namespace Application.DTOs
         public string SyllabusScheduleId { get; set; }
         public int Week { get; set; }
         public int DurationMinutes { get; set; }
+        public DayOfWeek DayOfWeek { get; set; }
     }
 }
