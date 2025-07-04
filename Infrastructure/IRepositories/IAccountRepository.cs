@@ -35,6 +35,6 @@ namespace Infrastructure.IRepositories
         Task<Account?> GetAccountsByIdAsync(string accountId);
         Task<bool> UpdateAccountAsync(Account account);
         Task<List<Account>> SearchAccountsAsync(SearchAccountsQueryCommand command);
-
+        Task<OperationResult<List<AccountDTO>>> GetFreeLecturersAsync(CheckLecturerFreeCommand request);
     }
 }

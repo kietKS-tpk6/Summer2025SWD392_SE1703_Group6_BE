@@ -38,5 +38,6 @@ namespace Application.IServices
         Task<OperationResult<AccountDTO>> UpdateAccountAsync(UpdateAccountCommand command);
         Task<OperationResult<List<AccountDTO>>> SearchAccountsAsync(SearchAccountsQueryCommand command);
 
+        Task<OperationResult<List<AccountDTO>>> GetFreeLecturersAsync(CheckLecturerFreeCommand request);
     }
 }

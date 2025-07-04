@@ -377,6 +377,82 @@ namespace Infrastructure.Repositories
                 .Take(1000)
                 .ToList();
         }
+        public async Task<OperationResult<List<AccountDTO>>> GetFreeLecturersAsync(CheckLecturerFreeCommand request)
+        {
+            var maxDuration = await _dbContext.SyllabusSchedule
+                .Where(s => s.SubjectID == request.SubjectID)
+                .MaxAsync(s => (int?)s.DurationMinutes) ?? 0;
+
+            if (maxDuration == 0)
+                return OperationResult<List<AccountDTO>>.Fail("Không tìm thấy thời lượng học cho môn học.");
+
+            // Bước 2: Tính các khoảng thời gian cần kiểm tra
+            var timeRanges = new List<(DateTime Start, DateTime End)>();
+
+            // 2.1. Tiết đầu tiên đúng ngày DateStart
+            var firstStart = request.DateStart;
+            var firstEnd = firstStart.AddMinutes(maxDuration);
+            timeRanges.Add((firstStart, firstEnd));
+
+            // 2.2. Các tiết lặp theo DayOfWeek
+            foreach (var dow in request.dayOfWeeks)
+            {
+                int offsetDays = ((int)dow - (int)request.DateStart.DayOfWeek + 7) % 7;
+
+                // Nếu trùng với DateStart đã thêm ở trên thì bỏ qua
+                if (offsetDays == 0) continue;
+
+                var start = request.DateStart.Date.AddDays(offsetDays).Add(request.Time.ToTimeSpan());
+                var end = start.AddMinutes(maxDuration);
+                timeRanges.Add((start, end));
+            }
+
+            // Bước 3: Lấy lesson đang active
+            var activeLessons = await _dbContext.Lesson
+                .Where(l => l.IsActive)
+                .Select(l => new
+                {
+                    l.LecturerID,
+                    l.StartTime
+                })
+                .ToListAsync();
+
+            // Bước 4: Lọc những LecturerID bị trùng thời gian
+            var conflictingLecturerIds = activeLessons
+                .Where(lesson => timeRanges.Any(t =>
+                    lesson.StartTime < t.End &&
+                    lesson.StartTime.AddMinutes(maxDuration) > t.Start))
+                .Select(l => l.LecturerID)
+                .Distinct()
+                .ToList();
+
+            // Bước 5: Lấy danh sách giảng viên rảnh
+            var freeLecturers = await _dbContext.Accounts
+                .Where(a => a.Role == AccountRole.Lecture && a.Status == AccountStatus.Active)
+                .Where(a => !conflictingLecturerIds.Contains(a.AccountID))
+                .Select(a => new AccountDTO
+                {
+                    AccountID = a.AccountID,
+                    LastName = a.LastName,
+                    FirstName = a.FirstName,
+                    Gender = a.Gender.ToString(),
+                    PhoneNumber = a.PhoneNumber,
+                    Email = a.Email,
+                    BirthDate = a.BirthDate,
+                    Role = a.Role.ToString(),
+                    Status = a.Status.ToString(),
+                    Img = a.Image
+                })
+                .ToListAsync();
+
+            if (!freeLecturers.Any())
+                return OperationResult<List<AccountDTO>>.Fail("Không có giảng viên rảnh.");
+
+            return OperationResult<List<AccountDTO>>.Ok(freeLecturers);
+        }
+
+
+
 
 
     }

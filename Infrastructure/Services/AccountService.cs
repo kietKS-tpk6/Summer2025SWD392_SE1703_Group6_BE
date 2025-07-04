@@ -402,7 +402,10 @@ namespace Infrastructure.Services
 
             return OperationResult<List<AccountDTO>>.Ok(dtos, OperationMessages.RetrieveSuccess("tài khoản"));
         }
-
+        public async Task<OperationResult<List<AccountDTO>>> GetFreeLecturersAsync(CheckLecturerFreeCommand request)
+        {
+            return await _accountRepository.GetFreeLecturersAsync(request);
+        }
 
     }
 }
