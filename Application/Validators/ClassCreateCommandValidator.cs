@@ -28,12 +28,12 @@ namespace Application.Validators
                 .WithErrorCode(nameof(ErrorCodes.ClassNameIsEmpty))
                 .WithMessage(ValidationMessages.ClassNameIsEmpty);
             RuleFor(x => x.MinStudentAcp)
-                .GreaterThan(0)
+                .GreaterThanOrEqualTo(0)
                 .WithErrorCode(nameof(ErrorCodes.MinStudentAcpInvalid))
                 .WithMessage(ValidationMessages.MinStudentAcpInvalid);
 
             RuleFor(x => x.MaxStudentAcp)
-                .GreaterThan(0)
+                .GreaterThanOrEqualTo(0)
                 .WithErrorCode(nameof(ErrorCodes.MaxStudentAcpInvalid))
                 .WithMessage(ValidationMessages.MaxStudentAcpInvalid);
 
