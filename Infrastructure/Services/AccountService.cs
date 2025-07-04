@@ -402,7 +402,15 @@ namespace Infrastructure.Services
 
             return OperationResult<List<AccountDTO>>.Ok(dtos, OperationMessages.RetrieveSuccess("tài khoản"));
         }
+        public async Task<OperationResult<string>> GetAccountImageAsync(string accountID)
+        {
+            var acc = await _accountRepository.GetAccountsByIdAsync(accountID);
 
+            if (string.IsNullOrEmpty(acc.Image))
+                return OperationResult<string>.Fail("Image not found.");
+
+            return OperationResult<string>.Ok(acc.Image);
+        }
 
     }
 }

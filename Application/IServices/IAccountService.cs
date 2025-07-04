@@ -37,6 +37,7 @@ namespace Application.IServices
         Task<OperationResult<List<AccountDTO>>> GetListAccountByRoleAsync(AccountRole accountRole);
         Task<OperationResult<AccountDTO>> UpdateAccountAsync(UpdateAccountCommand command);
         Task<OperationResult<List<AccountDTO>>> SearchAccountsAsync(SearchAccountsQueryCommand command);
+        Task<OperationResult<string>> GetAccountImageAsync(string accountID);
 
     }
 }

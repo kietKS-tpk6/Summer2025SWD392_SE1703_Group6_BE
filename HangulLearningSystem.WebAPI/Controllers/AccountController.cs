@@ -130,6 +130,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result.Data);
         }
+        [HttpGet("{accountID}/image")]
+        public async Task<IActionResult> GetAccountImage(string accountID)
+        {
+            var result = await _accountService.GetAccountImageAsync(accountID);
 
+            if (!result.Success)
+                return NotFound(result);
+
+            return Ok(result);
+        }
     }
 }
