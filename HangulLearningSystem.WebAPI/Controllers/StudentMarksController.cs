@@ -19,21 +19,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
         }
 
-        /// <summary>
-        /// Get all scores of a test by test ID
-        /// </summary>
-        [HttpGet("test/{testId}/scores")]
-        public async Task<IActionResult> GetTestScoresByTestId(string testId)
-        {
-            var query = new GetTestScoresByTestIdQuery { TestId = testId };
-            var result = await _mediator.Send(query);
-
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            return Ok(result);
-        }
-
+ 
         [HttpPost("create-from-student-test/{studentTestId}")]
         public async Task<IActionResult> CreateFromStudentTest(string studentTestId)
         {
@@ -61,20 +47,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update student marks by lecturer (manual grading)
-        /// </summary>
-        [HttpPut("update-by-lecturer")]
-        public async Task<IActionResult> UpdateByLecturer([FromBody] UpdateStudentMarksByLecturerCommand command)
-        {
-            var result = await _mediator.Send(command);
-
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            return Ok(result);
-        }
-
-        /// <summary>
         /// Batch update student marks from multiple student tests (system auto-grading)
         /// </summary>
         [HttpPost("batch-update-from-student-tests")]
@@ -87,12 +59,10 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
-
-        [HttpGet("student/{studentId}")]
-        public async Task<IActionResult> GetStudentMarksByStudentId(string studentId)
+        [HttpPut("update-by-lecturer")]
+        public async Task<IActionResult> UpdateByLecturer([FromBody] UpdateStudentMarksByLecturerCommand command)
         {
-            var query = new GetStudentMarksByStudentIdQuery { StudentId = studentId };
-            var result = await _mediator.Send(query);
+            var result = await _mediator.Send(command);
 
             if (!result.Success)
                 return BadRequest(result.Message);
@@ -100,6 +70,18 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(result);
         }
 
+
+        [HttpDelete("{studentMarkId}")]
+        public async Task<IActionResult> DeleteStudentMark(string studentMarkId)
+        {
+            var command = new DeleteStudentMarkCommand { StudentMarkId = studentMarkId };
+            var result = await _mediator.Send(command);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
         [HttpGet("class/{classId}/assessment/{assessmentCriteriaId}")]
         public async Task<IActionResult> GetStudentMarksByClassAndAssessment(string classId, string assessmentCriteriaId)
         {
@@ -115,17 +97,31 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
-
-        [HttpDelete("{studentMarkId}")]
-        public async Task<IActionResult> DeleteStudentMark(string studentMarkId)
+        [HttpGet("student/{studentId}")]
+        public async Task<IActionResult> GetStudentMarksByStudentId(string studentId)
         {
-            var command = new DeleteStudentMarkCommand { StudentMarkId = studentMarkId };
-            var result = await _mediator.Send(command);
+            var query = new GetStudentMarksByStudentIdQuery { StudentId = studentId };
+            var result = await _mediator.Send(query);
 
             if (!result.Success)
                 return BadRequest(result.Message);
 
             return Ok(result);
         }
+        /// <summary>
+        /// Get all scores of a test by test ID
+        /// </summary>
+        [HttpGet("test/{testId}/scores")]
+        public async Task<IActionResult> GetTestScoresByTestId(string testId)
+        {
+            var query = new GetTestScoresByTestIdQuery { TestId = testId };
+            var result = await _mediator.Send(query);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+
     }
 }

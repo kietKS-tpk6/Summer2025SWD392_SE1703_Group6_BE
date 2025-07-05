@@ -21,6 +21,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _mediator = mediator;
             _accountService = accountService;
         }
+       
         [HttpPost("create-account")]
         public async Task<IActionResult> Create([FromBody] CreateAccountCommand command, CancellationToken cancellationToken)
         {
@@ -35,6 +36,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(OperationMessages.CreateFail);
             }
         }
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateAccount([FromBody] UpdateAccountCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (result.Success)
+                return Ok(result);
+
+            return BadRequest(result);
+        }
+
         [HttpGet("list-account-with-role-gender-status")]
         public async Task<IActionResult> ListAccountWithRole([FromQuery] GetPaginatedAccountListCommand command, CancellationToken cancellationToken)
         {
@@ -106,21 +117,8 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result.Data);
         }
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateAccount([FromBody] UpdateAccountCommand command)
-        {
-            var result = await _mediator.Send(command);
-            if (result.Success)
-                return Ok(result);
-
-            return BadRequest(result);
-        }
-        [HttpPost("search")]
-        public async Task<IActionResult> SearchAccounts([FromBody] SearchAccountsQueryCommand command)
-        {
-            var result = await _mediator.Send(command);
-            return result.Success ? Ok(result) : BadRequest(result);
-        }
+       
+       
         [HttpGet("{accountId}")]
         public async Task<IActionResult> GetById(string accountId)
         {
@@ -139,6 +137,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return NotFound(result);
 
             return Ok(result);
+        }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchAccounts([FromQuery] SearchAccountsQueryCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
     }
 }

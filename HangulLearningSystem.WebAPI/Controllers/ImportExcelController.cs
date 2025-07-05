@@ -19,22 +19,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if(!result.Success) return BadRequest(result);
             return Ok(result);
         }
-        [HttpGet("schedule/import/guide-doc")]
-        public IActionResult DownloadScheduleGuideDoc()
-        {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "HuongDanNhapLichHoc.docx");
-            var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-            var fileName = "HuongDanNhapLichHoc.docx";
-
-            if (!System.IO.File.Exists(filePath))
-                return NotFound(new { Message = "Không tìm thấy file hướng dẫn." });
-
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            return File(fileBytes, contentType, fileName);
-        }
-
-
-
+       
         [HttpPost("mcq/import/excel")]
         public async Task<IActionResult> ImportMCQExcel([FromForm] UploadExcelRequest request)
         {
@@ -48,6 +33,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "HuongDanNhapCauHoi.docx");
             var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
             var fileName = "HuongDanNhapCauHoi.docx";
+
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, contentType, fileName);
+        }
+        [HttpGet("schedule/import/guide-doc")]
+        public IActionResult DownloadScheduleGuideDoc()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "HuongDanNhapLichHoc.docx");
+            var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            var fileName = "HuongDanNhapLichHoc.docx";
+
+            if (!System.IO.File.Exists(filePath))
+                return NotFound(new { Message = "Không tìm thấy file hướng dẫn." });
 
             var fileBytes = System.IO.File.ReadAllBytes(filePath);
             return File(fileBytes, contentType, fileName);

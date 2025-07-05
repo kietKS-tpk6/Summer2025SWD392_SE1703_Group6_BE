@@ -26,7 +26,23 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _studentTestService = studentTestService;
             _testService = testService;
         }
+        [HttpPost("submit")]
+        public async Task<IActionResult> SubmitStudentTest([FromBody] SubmitStudentTestCommand command)
+        {
+            // Lấy AccountID từ token
+            var accountIdClaim = User.FindFirst("AccountID") ?? User.FindFirst(ClaimTypes.NameIdentifier);
 
+            if (accountIdClaim == null)
+            {
+                return Unauthorized("Không tìm thấy AccountID trong token");
+            }
+
+            // Gán AccountID vào command
+            command.StudentId = accountIdClaim.Value;
+
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
 
         [HttpGet("list-test-results/{testEventId}")]
         public async Task<IActionResult> GetStudentTestResults(string testEventId)
@@ -48,22 +64,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result.Data);
         }
-        [HttpPost("submit")]
-        public async Task<IActionResult> SubmitStudentTest([FromBody] SubmitStudentTestCommand command)
-        {
-            // Lấy AccountID từ token
-            var accountIdClaim = User.FindFirst("AccountID") ?? User.FindFirst(ClaimTypes.NameIdentifier);
-
-            if (accountIdClaim == null)
-            {
-                return Unauthorized("Không tìm thấy AccountID trong token");
-            }
-
-            // Gán AccountID vào command
-            command.StudentId = accountIdClaim.Value;
-
-            var result = await _mediator.Send(command);
-            return result.Success ? Ok(result) : BadRequest(result);
-        }
+      
     }
 }

@@ -33,7 +33,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
         //    var result = await _mediator.Send(command, cancellationToken);
         //    return Ok(result);
         //}
+        [HttpPut("bulk-update")]
+        public async Task<IActionResult> UpdateBulkSchedule([FromBody] UpdateSyllabusScheduleListCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (!result.Success)
+                return BadRequest(result);
 
+            return Ok(result);
+        }
         [HttpGet("max-slot/{subjectId}")]
         public async Task<IActionResult> GetMaxSlotPerWeek(string subjectId)
         {
@@ -97,15 +105,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        [HttpPut("bulk-update")]
-        public async Task<IActionResult> UpdateBulkSchedule([FromBody] UpdateSyllabusScheduleListCommand command)
-        {
-            var result = await _mediator.Send(command);
-            if (!result.Success)
-                return BadRequest(result);
-
-            return Ok(result);
-        }
+       
         [HttpGet("ongoing-class/{classID}/schedules-basic")]
         public async Task<IActionResult> GetSchedulesBasicInfoByOngoingClassID(string classID)
         {
