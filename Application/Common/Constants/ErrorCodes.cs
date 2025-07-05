@@ -100,6 +100,11 @@ namespace Application.Common.Constants
         public const string TestIDIsEmpty = "TestIDIsEmpty";
         public const string InvalidStartEndTime = "InvalidStartEndTime";
         public const string AttemptLimitInvalid = "AttemptLimitInvalid";
+        //Check lectures free 
+        public const string DateStartInvalid = "DateStartInvalid";
+        public const string TimeIsEmpty = "TimeIsEmpty";
+        public const string DayOfWeeksIsNull = "DayOfWeeksIsNull";
+        public const string DayOfWeeksOutOfRange = "DayOfWeeksOutOfRange";
 
     }
 }
