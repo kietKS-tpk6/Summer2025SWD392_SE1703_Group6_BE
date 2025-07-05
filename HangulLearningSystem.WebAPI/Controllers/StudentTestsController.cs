@@ -18,12 +18,36 @@ namespace HangulLearningSystem.WebAPI.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IStudentTestService _studentTestService;
-        public StudentTestsController(IMediator mediator, IStudentTestService studentTestService)
+        private readonly ITestService _testService;
+
+        public StudentTestsController(IMediator mediator, IStudentTestService studentTestService, ITestService testService)
         {
             _mediator = mediator;
             _studentTestService = studentTestService;
+            _testService = testService;
         }
 
+
+        [HttpGet("list-test-results/{testEventId}")]
+        public async Task<IActionResult> GetStudentTestResults(string testEventId)
+        {
+            var result = await _testService.GetListStudentTestResultsByTestEventAsync(testEventId);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
+        [HttpGet("test-results/{testEventId}")]
+        public async Task<IActionResult> GetStudentTestResults(string testEventId, [FromQuery] string accountId)
+        {
+            var result = await _testService.GetStudentTestResultsByTestEventAsync(testEventId, accountId);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
+        }
         [HttpPost("submit")]
         public async Task<IActionResult> SubmitStudentTest([FromBody] SubmitStudentTestCommand command)
         {

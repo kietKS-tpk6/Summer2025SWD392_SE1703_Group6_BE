@@ -292,7 +292,7 @@ namespace Infrastructure.Services
                 return result;
             }
 
-            throw new ArgumentException($"Trạng thái '{status}' không hợp lệ. Chỉ chấp nhận: Active, Inactive, Banned.");
+            throw new ArgumentException($"Trạng thái '{status}' không hợp lệ. Chỉ chấp nhận: Active, Blocked,Deleted");
         }
 
         /// <summary>

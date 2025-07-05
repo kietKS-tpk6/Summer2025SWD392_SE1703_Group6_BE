@@ -37,26 +37,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
         }
 
-        [HttpGet("list-test-results/{testEventId}")]
-        public async Task<IActionResult> GetStudentTestResults(string testEventId)
-        {
-            var result = await _testService.GetListStudentTestResultsByTestEventAsync(testEventId);
-
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            return Ok(result.Data);
-        }
-        [HttpGet("test-results/{testEventId}")]
-        public async Task<IActionResult> GetStudentTestResults(string testEventId, [FromQuery] string accountId)
-        {
-            var result = await _testService.GetStudentTestResultsByTestEventAsync(testEventId, accountId);
-
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            return Ok(result.Data);
-        }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateTest([FromBody] CreateTestCommand command)
@@ -268,25 +248,8 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        [HttpGet("by-class/{classID}")]
-        public async Task<IActionResult> GetTestsByClass(string classID)
-        {
-            var result = await _testEventService.GetTestsByClassIDAsync(classID);
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            return Ok(result.Data);
-        }
-        [HttpGet("class/{classID}/midterm-final")]
-        public async Task<IActionResult> GetMidtermAndFinalTestsByClassID(string classID)
-        {
-            var result = await _testEventService.GetMidtermAndFinalTestsByClassIDAsync(classID);
-
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            return Ok(result.Data);
-        }
+       
+      
         [HttpGet("all-with-sections")]
         public async Task<IActionResult> GetAllTestsWithSections([FromQuery] string? status = null)
         {
