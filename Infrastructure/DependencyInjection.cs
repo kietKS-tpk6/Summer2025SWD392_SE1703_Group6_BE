@@ -148,6 +148,9 @@ namespace Infrastructure
             services.AddScoped<UpdateTestSectionCommandHandler>();
             services.AddScoped<DeleteTestSectionCommandHandler>();
             services.AddScoped<CreateWritingBaremsCommandHandler>();
+            services.AddScoped<GetWritingBaremsByQuestionIDCommandHandler>();
+            services.AddScoped<GetWritingQuestionsByTestIDCommandHandler>();
+
             services.AddMediatR(cfg =>
            cfg.RegisterServicesFromAssembly(Assembly.Load("Application"))
        );

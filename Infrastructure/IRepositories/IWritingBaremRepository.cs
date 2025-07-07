@@ -11,6 +11,8 @@ namespace Infrastructure.IRepositories
     {
         Task AddRangeAsync(List<WritingBarem> barems);
         Task<List<WritingBarem>> GetByQuestionIDAsync(string questionID);
+        Task<WritingBarem?> GetByIDAsync(string writingBaremID);
+        Task UpdateAsync(WritingBarem barem);
 
     }
 }

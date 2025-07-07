@@ -29,6 +29,17 @@ namespace Infrastructure.Repositories
                 .Where(b => b.QuestionID == questionID)
                 .ToListAsync();
         }
+        public async Task<WritingBarem?> GetByIDAsync(string writingBaremID)
+        {
+            return await _dbContext.WritingBarem
+                .FirstOrDefaultAsync(x => x.WritingBaremID == writingBaremID);
+        }
+
+        public async Task UpdateAsync(WritingBarem barem)
+        {
+            _dbContext.WritingBarem.Update(barem);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 
 }

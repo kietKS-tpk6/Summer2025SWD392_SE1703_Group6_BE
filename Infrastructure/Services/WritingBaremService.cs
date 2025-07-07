@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
 using Application.IServices;
+using Application.Usecases.Command;
 using Domain.Entities;
 using Infrastructure.IRepositories;
 namespace Infrastructure.Services
@@ -23,6 +24,20 @@ namespace Infrastructure.Services
 
         public async Task<OperationResult<bool>> ValidateCreateBaremsAsync(List<CreateWritingBaremDTO> barems)
         {
+            // Kiểm tra dữ liệu từng bản ghi
+            foreach (var b in barems)
+            {
+                if (string.IsNullOrWhiteSpace(b.CriteriaName))
+                    return OperationResult<bool>.Fail("Tên tiêu chí không được để trống.");
+
+                if (b.MaxScore <= 0)
+                    return OperationResult<bool>.Fail("Điểm tối đa phải lớn hơn 0.");
+
+                if (string.IsNullOrWhiteSpace(b.QuestionID))
+                    return OperationResult<bool>.Fail("Mỗi barem phải có QuestionID.");
+            }
+
+            // Kiểm tra tồn tại của QuestionID
             var questionIDs = barems.Select(b => b.QuestionID).Distinct().ToList();
             var validQuestions = await _questionRepository.GetByIDsAsync(questionIDs);
             var validIDs = validQuestions.Select(q => q.QuestionID).ToHashSet();
@@ -34,6 +49,7 @@ namespace Infrastructure.Services
 
             return OperationResult<bool>.Ok(true);
         }
+
 
         public async Task<OperationResult<bool>> CreateWritingBaremsAsync(List<CreateWritingBaremDTO> barems)
         {
@@ -62,6 +78,35 @@ namespace Infrastructure.Services
             }).ToList();
 
             return OperationResult<List<WritingBaremDTO>>.Ok(result);
+        }
+        public async Task<OperationResult<bool>> ValidateUpdateBaremAsync(UpdateWritingBaremCommand command)
+        {
+            if (string.IsNullOrWhiteSpace(command.CriteriaName))
+                return OperationResult<bool>.Fail("Tên tiêu chí không được để trống.");
+
+            if (command.MaxScore <= 0)
+                return OperationResult<bool>.Fail("Điểm tối đa phải lớn hơn 0.");
+
+            var existing = await _writingBaremRepository.GetByIDAsync(command.WritingBaremID);
+            if (existing == null)
+                return OperationResult<bool>.Fail("Không tìm thấy barem chấm điểm.");
+
+            return OperationResult<bool>.Ok(true);
+        }
+
+        public async Task<OperationResult<bool>> UpdateWritingBaremAsync(UpdateWritingBaremCommand command)
+        {
+            var barem = await _writingBaremRepository.GetByIDAsync(command.WritingBaremID);
+            if (barem == null)
+                return OperationResult<bool>.Fail("Không tìm thấy barem chấm điểm.");
+
+            barem.CriteriaName = command.CriteriaName;
+            barem.MaxScore = command.MaxScore;
+            barem.Description = command.Description;
+
+            await _writingBaremRepository.UpdateAsync(barem);
+
+            return OperationResult<bool>.Ok(true, "Cập nhật thành công.");
         }
     }
 

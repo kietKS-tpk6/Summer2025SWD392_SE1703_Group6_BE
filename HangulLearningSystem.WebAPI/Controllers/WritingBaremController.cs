@@ -20,6 +20,16 @@ namespace HangulLearningSystem.WebAPI.Controllers
         {
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
+
+        }
+        [HttpPut("{writingBaremID}")]
+        public async Task<IActionResult> UpdateWritingBarem(string writingBaremID, [FromBody] UpdateWritingBaremCommand command)
+        {
+            if (writingBaremID != command.WritingBaremID)
+                return BadRequest("ID trong URL không khớp với body.");
+
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
         [HttpGet("{questionID}")]
         public async Task<IActionResult> GetWritingBaremsByQuestionID(string questionID)
@@ -35,5 +45,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+       
     }
 }
