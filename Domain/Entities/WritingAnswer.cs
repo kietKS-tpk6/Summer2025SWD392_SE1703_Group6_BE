@@ -27,7 +27,7 @@ namespace Domain.Entities
 
         public string? Feedback { get; set; }
 
-        public int? Score { get; set; }
+        public decimal? Score { get; set; }
 
         // Navigation properties
         public virtual StudentTest StudentTest { get; set; }

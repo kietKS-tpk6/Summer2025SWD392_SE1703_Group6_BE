@@ -10,6 +10,7 @@ using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.IRepositories;
 using Infrastructure.Data;
+using Application.Usecases.Command;
 
 namespace Infrastructure.Services
 {
@@ -219,6 +220,71 @@ namespace Infrastructure.Services
             return OperationResult<bool>.Ok(true);
         }
 
+        public async Task<OperationResult<bool>> GradeWritingAnswerAsync(GradeWritingAnswerCommand request)
+        {
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                var writingAnswer = await _dbContext.WritingAnswers
+                    .FirstOrDefaultAsync(w => w.WritingAnswerID == request.WritingAnswerID);
+
+                if (writingAnswer == null)
+                    return OperationResult<bool>.Fail("Không tìm thấy bài viết.");
+
+                var studentTest = await _dbContext.StudentTest
+                    .FirstOrDefaultAsync(s => s.StudentTestID == request.StudentTestID);
+
+                if (studentTest == null)
+                    return OperationResult<bool>.Fail("Không tìm thấy bài làm của học sinh.");
+
+                if (studentTest.Status != StudentTestStatus.AutoGradedWaitingForWritingGrading &&
+                    studentTest.Status != StudentTestStatus.WaitingForWritingGrading)
+                {
+                    return OperationResult<bool>.Fail("Chỉ có thể chấm bài viết khi bài làm đang chờ chấm viết.");
+                }
+
+                //Cập nhật điểm & feedback
+                writingAnswer.Score = request.WritingScore;
+                writingAnswer.Feedback = request.Feedback;
+                _dbContext.WritingAnswers.Update(writingAnswer);
+
+                studentTest.Mark = (studentTest.Mark ?? 0) + request.WritingScore;
+                studentTest.Feedback = request.Feedback;
+                studentTest.GradeBy = request.GraderAccountID;
+                studentTest.GradeAt = DateTime.Now;
+                studentTest.Status = StudentTestStatus.Graded;
+
+                _dbContext.StudentTest.Update(studentTest);
+
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return OperationResult<bool>.Ok(true, "Chấm điểm bài viết thành công.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return OperationResult<bool>.Fail("Lỗi khi chấm điểm bài viết: " + ex.Message);
+            }
+        }
+            public async Task<OperationResult<bool>> ValidateWritingScoreAsync(string testSectionID, decimal writingScore)
+        {
+            var sectionResult = await _sectionRepo.GetTestSectionByIdAsync(testSectionID);
+            if (!sectionResult.Success || sectionResult.Data == null)
+                return OperationResult<bool>.Fail("Không tìm thấy phần thi.");
+
+            var totalScore = await _sectionRepo.GetTotalScoreBySectionID(testSectionID);
+            if (writingScore > totalScore)
+            {
+                return OperationResult<bool>.Fail($"Điểm chấm ({writingScore}) vượt quá điểm tối đa ({totalScore}) của phần thi.");
+            }
+
+            return OperationResult<bool>.Ok(true);
+        }
+
     }
 
 }
+
+

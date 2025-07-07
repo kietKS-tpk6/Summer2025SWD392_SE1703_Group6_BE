@@ -151,6 +151,12 @@ namespace Infrastructure.Repositories
                 .Where(s => s.TestID == testID && s.TestSectionType == type && s.IsActive)
                 .ToListAsync();
         }
+        public async Task<decimal> GetTotalScoreBySectionID(string testSectionID)
+        {
+            return await _dbContext.TestSection
+                .Where(q => q.TestSectionID == testSectionID && q.IsActive)
+                .SumAsync(q => (decimal?)q.Score) ?? 0;
+        }
     }
 
 }

@@ -7,6 +7,7 @@ using Application.Usecases.Command;
 using Domain.Enums;
 using Infrastructure.Services;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HangulLearningSystem.WebAPI.Controllers
@@ -41,6 +42,22 @@ namespace HangulLearningSystem.WebAPI.Controllers
             command.StudentId = accountIdClaim.Value;
 
             var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [Authorize(Roles = "Lecture")]
+        [HttpPut("writing/grade")]
+        public async Task<IActionResult> GradeWritingAnswer([FromBody] GradeWritingAnswerCommand command)
+        {
+            var accountId = User.FindFirst("AccountID")?.Value;
+
+            if (string.IsNullOrEmpty(accountId))
+                return Unauthorized("Không xác định được tài khoản từ token.");
+
+            command.GraderAccountID = accountId;
+
+            var result = await _mediator.Send(command);
+
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
