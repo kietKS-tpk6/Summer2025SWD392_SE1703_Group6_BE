@@ -28,7 +28,7 @@ namespace Application.Usecases.CommandHandler
             {
                 _logger.LogInformation($"Processing refund approval for PaymentID: {request.PaymentID}");
 
-                var result = await _paymentService.ApproveRefundAsync(request.PaymentID, request.ManagerID, request.ApprovalNote);
+                var result = await _paymentService.ApproveRefundAsync(request.PaymentID, request.ManagerID);
 
                 return result;
             }

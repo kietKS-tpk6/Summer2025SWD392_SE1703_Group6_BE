@@ -455,7 +455,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<RefundResponseDTO> RequestRefundAsync(string paymentId, string studentId, string reason)
+        public async Task<RefundResponseDTO> RequestRefundAsync(string paymentId, string studentId)
         {
             try
             {
@@ -524,7 +524,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<RefundResponseDTO> ApproveRefundAsync(string paymentId, string managerId, string approvalNote)
+        public async Task<RefundResponseDTO> ApproveRefundAsync(string paymentId, string managerId)
         {
             try
             {

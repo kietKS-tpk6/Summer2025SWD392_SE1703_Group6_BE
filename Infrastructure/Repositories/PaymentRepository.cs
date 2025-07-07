@@ -89,7 +89,7 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                return  $"Error retrieving payments by status: {ex.Message}";
+                return new List<Payment>(); 
             }
         }
     }

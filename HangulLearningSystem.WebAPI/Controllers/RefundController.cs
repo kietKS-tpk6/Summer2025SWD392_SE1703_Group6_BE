@@ -77,7 +77,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                     return BadRequest(new { message = "Student ID is required" });
                 }
 
-                var result = await _paymentService.RequestRefundAsync(request.PaymentID, request.StudentID, request.Reason);
+                var result = await _paymentService.RequestRefundAsync(request.PaymentID, request.StudentID);
 
                 if (result.Success)
                 {
@@ -120,7 +120,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                     return BadRequest(new { message = "Manager ID is required" });
                 }
 
-                var result = await _paymentService.ApproveRefundAsync(paymentId, request.ManagerID, request.ApprovalNote);
+                var result = await _paymentService.ApproveRefundAsync(paymentId, request.ManagerID);
 
                 if (result.Success)
                 {
