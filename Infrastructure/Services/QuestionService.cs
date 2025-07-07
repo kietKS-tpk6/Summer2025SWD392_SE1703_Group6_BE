@@ -210,6 +210,8 @@ namespace Infrastructure.Services
             // Validate options
             if (command.Options == null || !command.Options.Any())
                 return OperationResult<bool>.Fail("Câu hỏi dạng trắc nghiệm phải có ít nhất một đáp án.");
+            if (!command.Options.Any(opt => opt.IsCorrect))
+                return OperationResult<bool>.Fail("Phải có ít nhất một đáp án đúng (IsCorrect = true).");
 
             var optionValidation = ValidateMCQOptions(command.Options);
             if (!optionValidation.Success)
@@ -431,6 +433,45 @@ namespace Infrastructure.Services
 
             return OperationResult<List<Question>>.Ok(activeQuestions);
         }
+
+        public async Task<OperationResult<List<WritingQuestionWithBaremsDTO>>> GetWritingQuestionsWithBaremsByTestIDAsync(string testID)
+        {
+            var writingSections = await _testSectionRepository.GetByTestIDAndTypeAsync(testID, TestFormatType.Writing);
+
+            var writingSectionIDs = writingSections.Select(s => s.TestSectionID).ToList();
+
+            if (!writingSectionIDs.Any())
+                return OperationResult<List<WritingQuestionWithBaremsDTO>>.Ok(new());
+
+            var questions = await _questionRepo.GetByTestSectionIDsAsync(writingSectionIDs);
+
+            var result = new List<WritingQuestionWithBaremsDTO>();
+
+            foreach (var question in questions)
+            {
+                var barems = await _dbContext.WritingBarem
+                    .Where(b => b.QuestionID == question.QuestionID)
+                    .ToListAsync();
+
+                result.Add(new WritingQuestionWithBaremsDTO
+                {
+                    QuestionID = question.QuestionID,
+                    Context = question.Context,
+                    ImageURL = question.ImageURL,
+                    AudioURL = question.AudioURL,
+                    Barems = barems.Select(b => new WritingBaremDTO
+                    {
+                        WritingBaremID = b.WritingBaremID,
+                        CriteriaName = b.CriteriaName,
+                        MaxScore = b.MaxScore,
+                        Description = b.Description
+                    }).ToList()
+                });
+            }
+
+            return OperationResult<List<WritingQuestionWithBaremsDTO>>.Ok(result);
+        }
+
     }
 
 }
