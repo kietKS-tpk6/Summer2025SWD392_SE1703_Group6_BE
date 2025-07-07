@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Application.Common.Constants;
 using Domain.Enums;
+using System.Linq.Expressions;
+using Application.DTOs;
 
 namespace Infrastructure.Repositories
 {
@@ -241,6 +243,162 @@ namespace Infrastructure.Repositories
         public async Task<Test?> GetByIdAsync(string testID)
         {
             return await _dbContext.Test.FirstOrDefaultAsync(t => t.TestID == testID);
+        }
+        private async Task<OperationResult<(List<TestDetailDTO> Items, int TotalCount)>> GetPaginatedTestListAsync(
+        Expression<Func<Test, bool>> predicate, int page, int pageSize)
+        {
+            var query = _dbContext.Test
+                .Include(t => t.Account)
+                .Include(t => t.Subject)
+                .Where(predicate);
+
+            var totalCount = await query.CountAsync();
+
+            var pagedTests = await query
+                .OrderByDescending(t => t.CreateAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var items = pagedTests.Select(t => new TestDetailDTO
+            {
+                TestID = t.TestID,
+                CreateBy = t.CreateBy,
+                SubjectID = t.SubjectID,
+                CreateAt = t.CreateAt,
+                UpdateAt = (DateTime)t.UpdateAt,
+                Status = t.Status,
+                Category = t.Category,
+                TestType = t.TestType,
+                CreatedByName = t.Account?.FirstName,
+                SubjectName = t.Subject?.SubjectName
+            }).ToList();
+
+            return OperationResult<(List<TestDetailDTO>, int)>.Ok((items, totalCount));
+        }
+
+        public Task<OperationResult<(List<TestDetailDTO>, int)>> GetPaginatedListAsync(int page, int pageSize)
+        {
+            return GetPaginatedTestListAsync(t => t.Status != TestStatus.Deleted, page, pageSize);
+        }
+
+        public Task<OperationResult<(List<TestDetailDTO>, int)>> GetPaginatedListByStatusAsync(string status, int page, int pageSize)
+        {
+            if (!Enum.TryParse<TestStatus>(status, out var parsedStatus))
+            {
+                return Task.FromResult(OperationResult<(List<TestDetailDTO>, int)>
+                    .Fail(OperationMessages.InvalidInput("Trạng thái")));
+            }
+
+            return GetPaginatedTestListAsync(t => t.Status == parsedStatus, page, pageSize);
+        }
+
+        public Task<OperationResult<(List<TestDetailDTO>, int)>> GetPaginatedListByCreatorAsync(string createdBy, int page, int pageSize)
+        {
+            return GetPaginatedTestListAsync(t => t.Status != TestStatus.Deleted && t.CreateBy == createdBy, page, pageSize);
+        }
+
+        public Task<OperationResult<(List<TestDetailDTO>, int)>> GetPaginatedListBySubjectAsync(string subjectId, int page, int pageSize)
+        {
+            return GetPaginatedTestListAsync(t => t.Status != TestStatus.Deleted && t.SubjectID == subjectId, page, pageSize);
+        }
+
+        public Task<OperationResult<(List<TestDetailDTO>, int)>> GetPaginatedListByTestTypeAsync(TestType testType, int page, int pageSize)
+        {
+            return GetPaginatedTestListAsync(t => t.Status != TestStatus.Deleted && t.TestType == testType, page, pageSize);
+        }
+
+        public Task<OperationResult<(List<TestDetailDTO>, int)>> GetPaginatedListByCategoryAsync(AssessmentCategory category, int page, int pageSize)
+        {
+            return GetPaginatedTestListAsync(t => t.Status != TestStatus.Deleted && t.Category == category, page, pageSize);
+        }
+
+        public async Task<OperationResult<(List<TestDetailDTO>, int)>> GetPaginatedListWithFiltersAsync(
+             string? status = null,
+             string? createdBy = null,
+             string? subjectId = null,
+             TestType? testType = null,
+             AssessmentCategory? category = null,
+             int page = 1,
+             int pageSize = 10)
+        {
+            try
+            {
+                var query = _dbContext.Test
+                    .Include(t => t.Account)
+                    .Include(t => t.Subject)
+                    .Where(t => t.Status != TestStatus.Deleted);
+
+                if (!string.IsNullOrEmpty(status) && Enum.TryParse<TestStatus>(status, out var parsedStatus))
+                {
+                    query = query.Where(t => t.Status == parsedStatus);
+                }
+
+                if (!string.IsNullOrEmpty(createdBy))
+                {
+                    query = query.Where(t => t.CreateBy == createdBy);
+                }
+
+                if (!string.IsNullOrEmpty(subjectId))
+                {
+                    query = query.Where(t => t.SubjectID == subjectId);
+                }
+
+                if (testType.HasValue)
+                {
+                    query = query.Where(t => t.TestType == testType.Value);
+                }
+
+                if (category.HasValue)
+                {
+                    query = query.Where(t => t.Category == category.Value);
+                }
+
+                var totalCount = await query.CountAsync();
+
+                var pagedTests = await query
+                    .OrderByDescending(t => t.CreateAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                var items = pagedTests.Select(t => new TestDetailDTO
+                {
+                    TestID = t.TestID,
+                    CreateBy = t.CreateBy,
+                    SubjectID = t.SubjectID,
+                    CreateAt = t.CreateAt,
+                    UpdateAt = (DateTime)t.UpdateAt,
+                    Status = t.Status,
+                    Category = t.Category,
+                    TestType = t.TestType,
+                    CreatedByName = t.Account?.FirstName,
+                    SubjectName = t.Subject?.SubjectName
+                }).ToList();
+
+                return OperationResult<(List<TestDetailDTO>, int)>.Ok((items, totalCount));
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<(List<TestDetailDTO>, int)>.Fail($"Error retrieving paginated tests: {ex.Message}");
+            }
+        }
+
+        private static TestDetailDTO MapToDTO(Test t, string? creatorName = null, string? subjectName = null)
+        {
+            return new TestDetailDTO
+            {
+                TestID = t.TestID,
+                CreateBy = t.CreateBy,
+                SubjectID = t.SubjectID,
+                CreateAt = t.CreateAt,
+                UpdateAt = (DateTime)t.UpdateAt,
+                Status = t.Status,
+                Category = t.Category,
+                TestType = t.TestType,
+                CreatedByName = creatorName ?? t.Account?.FirstName,
+                SubjectName = subjectName ?? t.Subject?.SubjectName
+            };
         }
     }
 }

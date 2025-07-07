@@ -26,7 +26,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         private readonly ITestSectionService _testSectionService;
         private readonly ITestEventService _testEventService;
 
-        public TestController(IMediator mediator, ITestService testService, IAccountService accountService, ITestSectionService testSectionService, ITestEventService 
+        public TestController(IMediator mediator, ITestService testService, IAccountService accountService, ITestSectionService testSectionService, ITestEventService
             testEventService)
         {
             _mediator = mediator;
@@ -34,9 +34,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _accountService = accountService;
             _testSectionService = testSectionService;
             _testEventService = testEventService;
-
         }
-
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateTest([FromBody] CreateTestCommand command)
@@ -62,16 +60,18 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
         [HttpPut("update-status-fix")]
         public async Task<IActionResult> UpdateTestStatusFix(UpdateTestStatusFixCommand request)
         {
             var result = await _mediator.Send(request);
-            if(!result.Success)
+            if (!result.Success)
             {
                 return BadRequest(result);
             }
             return Ok(result);
         }
+
         [HttpPut("{testId}")]
         public async Task<IActionResult> UpdateTest(string testId, [FromBody] UpdateTestCommand command)
         {
@@ -144,12 +144,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 //        return Unauthorized("Invalid token");
 
                 var command = new DeleteTestCommand
-            {
-                TestID = testId,
-                //RequestingAccountID = accountId
-            };
+                {
+                    TestID = testId,
+                    //RequestingAccountID = accountId
+                };
 
-            var result = await _mediator.Send(command);
+                var result = await _mediator.Send(command);
                 return Ok(new { message = result });
             }
             catch (ArgumentException ex)
@@ -186,8 +186,8 @@ namespace HangulLearningSystem.WebAPI.Controllers
             try
             {
                 var accountId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(accountId))
-                    return Unauthorized("Invalid token");
+                //if (string.IsNullOrEmpty(accountId))
+                //    return Unauthorized("Invalid token");
 
                 var result = await _testService.GetTestsByAccountIdAsync(accountId);
 
@@ -201,6 +201,140 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
+        [HttpGet("get-all-paginated")]
+        public async Task<IActionResult> GetAllTestsPaginated([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var result = await _testService.GetListAsync(page, pageSize);
+
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("get-by-status")]
+        public async Task<IActionResult> GetTestsByStatus([FromQuery] string status, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var result = await _testService.GetListByStatusAsync(status, page, pageSize);
+
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("get-by-creator")]
+        public async Task<IActionResult> GetTestsByCreator([FromQuery] string createdBy, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var result = await _testService.GetListByCreatorAsync(createdBy, page, pageSize);
+
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("get-by-subject")]
+        public async Task<IActionResult> GetTestsBySubject([FromQuery] string subjectId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var result = await _testService.GetListBySubjectAsync(subjectId, page, pageSize);
+
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("get-by-test-type")]
+        public async Task<IActionResult> GetTestsByTestType([FromQuery] TestType testType, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var result = await _testService.GetListByTestTypeAsync(testType, page, pageSize);
+
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("get-by-category")]
+        public async Task<IActionResult> GetTestsByCategory([FromQuery] AssessmentCategory category, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var result = await _testService.GetListByCategoryAsync(category, page, pageSize);
+
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("get-with-filters")]
+        public async Task<IActionResult> GetTestsWithFilters(
+            [FromQuery] string? status = null,
+            [FromQuery] string? createdBy = null,
+            [FromQuery] string? subjectId = null,
+            [FromQuery] TestType? testType = null,
+            [FromQuery] AssessmentCategory? category = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var result = await _testService.GetListWithFiltersAsync(status, createdBy, subjectId, testType, category, page, pageSize);
+
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTests([FromQuery] string? status = null, [FromQuery] string? createdBy = null)
         {
@@ -232,7 +366,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
                     Status = test.Status,
                     Category = test.Category,
                     TestType = test.TestType,
-                    TotalSections = 0 
+                    TotalSections = 0
                 }).ToList();
 
                 return Ok(new
@@ -248,8 +382,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-       
-      
         [HttpGet("all-with-sections")]
         public async Task<IActionResult> GetAllTestsWithSections([FromQuery] string? status = null)
         {
@@ -318,7 +450,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         }
 
         [HttpGet("pending-for-approval")]
-        public async Task<IActionResult> GetPendingTestsForApproval()
+        public async Task<IActionResult> GetPendingTestsForApproval([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
@@ -332,91 +464,54 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 //    }
                 //}
 
-                var result = await _testService.GetAllTestsWithFiltersAsync("Pending");
+                var result = await _testService.GetListByStatusAsync("Pending", page, pageSize);
 
                 if (!result.Success)
-                    return BadRequest(new { message = result.Message });
+                    return BadRequest(result.Message);
 
-                var dtos = result.Data.Select(test => new TestResponseDTO
-                {
-                    TestID = test.TestID,
-                    CreateBy = test.CreateBy,
-                    CreatedByName = test.Account?.Fullname ?? "Unknown",
-                    SubjectID = test.SubjectID,
-                    SubjectName = test.Subject?.SubjectName ?? "Unknown",
-                    CreateAt = test.CreateAt,
-                    UpdateAt = (DateTime)test.UpdateAt,
-                    Status = test.Status,
-                    Category = test.Category,
-                    TestType = test.TestType
-                }).ToList();
-
-                return Ok(new
-                {
-                    message = "Pending tests retrieved successfully",
-                    total = dtos.Count,
-                    data = dtos
-                });
+                return Ok(result.Data);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-    
 
-    public class UpdateTestStatusRequest
-    {
-        public TestStatus Status { get; set; }
-        public string AccountID { get; set; } 
-    }
-
-    [HttpGet("advanced-search")]
+        [HttpGet("advanced-search")]
         public async Task<IActionResult> GetTestsWithAdvancedFilters(
-    [FromQuery] AssessmentCategory? category = null,
-    [FromQuery] string? subjectId = null,
-    [FromQuery] TestType? testType = null,
-    [FromQuery] TestStatus? status = null)
+            [FromQuery] AssessmentCategory? category = null,
+            [FromQuery] string? subjectId = null,
+            [FromQuery] TestType? testType = null,
+            [FromQuery] TestStatus? status = null,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = await _testService.GetTestsWithAdvancedFiltersAsync(category, subjectId, testType, status);
+                var result = await _testService.GetListWithFiltersAsync(
+                    status?.ToString(),
+                    null,
+                    subjectId,
+                    testType,
+                    category,
+                    page,
+                    pageSize);
 
                 if (!result.Success)
-                    return BadRequest(new { message = result.Message });
+                    return BadRequest(result.Message);
 
-                var dtos = result.Data.Select(test => new TestResponseDTO
-                {
-                    TestID = test.TestID,
-                    CreateBy = test.CreateBy,
-                    CreatedByName = test.Account?.Fullname ?? "Unknown",
-                    SubjectID = test.SubjectID,
-                    SubjectName = test.Subject?.SubjectName ?? "Unknown",
-                    CreateAt = test.CreateAt,
-                    UpdateAt = (DateTime)test.UpdateAt,
-                    Status = test.Status,
-                    Category = test.Category,
-                    TestType = test.TestType,
-                }).ToList();
-
-                return Ok(new
-                {
-                    message = "Tests retrieved successfully with advanced filters",
-                    total = dtos.Count,
-                    filters = new
-                    {
-                        category = category?.ToString(),
-                        subjectId = subjectId,
-                        testType = testType?.ToString(),
-                        status = status?.ToString()
-                    },
-                    data = dtos
-                });
+                return Ok(result.Data);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
             }
+        }
+
+        public class UpdateTestStatusRequest
+        {
+            public TestStatus Status { get; set; }
+            public string AccountID { get; set; }
         }
     }
 }
