@@ -59,25 +59,25 @@ namespace HangulLearningSystem.WebAPI.Controllers
         /// <summary>
         /// Request a refund for a payment
         /// </summary>
-        /// <param name="command">Refund request details</param>
+        /// <param name="request">Refund request details</param>
         /// <returns>Refund request result</returns>
         [HttpPost("request")]
         [Authorize] // Add authorization as needed
-        public async Task<IActionResult> RequestRefund([FromBody] RefundRequestCommand command)
+        public async Task<IActionResult> RequestRefund([FromBody] RefundRequestDTO request)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(command.PaymentID))
+                if (string.IsNullOrWhiteSpace(request.PaymentID))
                 {
                     return BadRequest(new { message = "Payment ID is required" });
                 }
 
-                if (string.IsNullOrWhiteSpace(command.StudentID))
+                if (string.IsNullOrWhiteSpace(request.StudentID))
                 {
                     return BadRequest(new { message = "Student ID is required" });
                 }
 
-                var result = await _mediator.Send(command);
+                var result = await _paymentService.RequestRefundAsync(request.PaymentID, request.StudentID, request.Reason);
 
                 if (result.Success)
                 {
@@ -102,11 +102,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
         /// Approve a refund request (Manager only)
         /// </summary>
         /// <param name="paymentId">Payment ID to approve refund for</param>
-        /// <param name="command">Approval details</param>
+        /// <param name="request">Approval details</param>
         /// <returns>Approval result</returns>
         [HttpPost("approve/{paymentId}")]
         [Authorize(Roles = "Manager")] // Restrict to managers only
-        public async Task<IActionResult> ApproveRefund(string paymentId, [FromBody] ApproveRefundCommand command)
+        public async Task<IActionResult> ApproveRefund(string paymentId, [FromBody] ApproveRefundRequestDTO request)
         {
             try
             {
@@ -115,14 +115,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
                     return BadRequest(new { message = "Payment ID is required" });
                 }
 
-                command.PaymentID = paymentId;
-
-                if (string.IsNullOrWhiteSpace(command.ManagerID))
+                if (string.IsNullOrWhiteSpace(request.ManagerID))
                 {
                     return BadRequest(new { message = "Manager ID is required" });
                 }
 
-                var result = await _mediator.Send(command);
+                var result = await _paymentService.ApproveRefundAsync(paymentId, request.ManagerID, request.ApprovalNote);
 
                 if (result.Success)
                 {
@@ -183,38 +181,3 @@ namespace HangulLearningSystem.WebAPI.Controllers
         }
     }
 }
-
-// Alternative: Add refund endpoints to existing PaymentController
-// Add these methods to your existing PaymentController:
-
-/*
-[HttpGet("refund/eligibility/{paymentId}")]
-public async Task<IActionResult> CheckRefundEligibility(string paymentId, [FromQuery] string studentId)
-{
-    // Same implementation as above
-}
-
-[HttpPost("refund/request")]
-public async Task<IActionResult> RequestRefund([FromBody] RefundRequestCommand command)
-{
-    // Same implementation as above
-}
-
-[HttpPost("refund/approve/{paymentId}")]
-public async Task<IActionResult> ApproveRefund(string paymentId, [FromBody] ApproveRefundCommand command)
-{
-    // Same implementation as above
-}
-
-[HttpGet("refund/pending")]
-public async Task<IActionResult> GetPendingRefundRequests()
-{
-    // Same implementation as above
-}
-
-[HttpGet("refund/history")]
-public async Task<IActionResult> GetRefundHistory([FromQuery] string studentId = null)
-{
-    // Same implementation as above
-}
-*/
