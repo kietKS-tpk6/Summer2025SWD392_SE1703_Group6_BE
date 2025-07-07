@@ -7,7 +7,10 @@ namespace Application.DTOs
     {
         public string PaymentID { get; set; }
         public string StudentID { get; set; }
-        public string Reason { get; set; }
+    }
+    public class ApproveRefundRequestDTO
+    {
+        public string ManagerID { get; set; }
     }
 
     public class RefundResponseDTO
@@ -30,7 +33,6 @@ namespace Application.DTOs
         public decimal Amount { get; set; }
         public DateTime RequestDate { get; set; }
         public DateTime EnrolledDate { get; set; }
-        public string Reason { get; set; }
         public PaymentStatus Status { get; set; }
     }
 
