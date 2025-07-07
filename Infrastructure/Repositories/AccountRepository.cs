@@ -164,6 +164,7 @@ namespace Infrastructure.Repositories
                 .Take(pageSize)
                 .Select(x => new AccountForManageDTO
                 {
+                    AccountID = x.AccountID,
                     LastName = x.LastName,
                     FirstName = x.FirstName,
                     Gender = x.Gender,

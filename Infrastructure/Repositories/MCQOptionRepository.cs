@@ -48,7 +48,11 @@ namespace Infrastructure.Repositories
                 .Select(o => o.MCQOptionID)
                 .ToListAsync();
         }
-
+        public async Task DeleteAsync(MCQOption option)
+        {
+            _dbContext.MCQOption.Remove(option);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 
 }
