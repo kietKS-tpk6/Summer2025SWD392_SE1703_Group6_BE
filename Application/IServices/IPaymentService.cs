@@ -15,5 +15,11 @@ namespace Application.IServices
         Task<Payment> GetPaymentAsync(string paymentId);
         string GetQrCodeUrl(string paymentId, decimal total);
         string GetWebhookUrl();
+
+        Task<RefundEligibilityDTO> CheckRefundEligibilityAsync(string paymentId, string studentId);
+        Task<RefundResponseDTO> RequestRefundAsync(string paymentId, string studentId);
+        Task<RefundResponseDTO> ApproveRefundAsync(string paymentId, string managerId);
+        Task<List<RefundListItemDTO>> GetPendingRefundRequestsAsync();
+        Task<List<RefundListItemDTO>> GetRefundHistoryAsync(string studentId = null);
     }
 }

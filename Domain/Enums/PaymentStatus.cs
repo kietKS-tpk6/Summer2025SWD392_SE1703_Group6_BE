@@ -10,7 +10,7 @@ namespace Domain.Enums
     {
         Paid,
         Pending,
-        Cancelled,
+        RequestRefund,
         Refunded
     }
 }
