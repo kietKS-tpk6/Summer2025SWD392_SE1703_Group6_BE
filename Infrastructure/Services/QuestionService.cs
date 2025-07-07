@@ -210,6 +210,8 @@ namespace Infrastructure.Services
             // Validate options
             if (command.Options == null || !command.Options.Any())
                 return OperationResult<bool>.Fail("Câu hỏi dạng trắc nghiệm phải có ít nhất một đáp án.");
+            if (!command.Options.Any(opt => opt.IsCorrect))
+                return OperationResult<bool>.Fail("Phải có ít nhất một đáp án đúng (IsCorrect = true).");
 
             var optionValidation = ValidateMCQOptions(command.Options);
             if (!optionValidation.Success)
