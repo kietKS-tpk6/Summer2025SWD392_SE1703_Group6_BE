@@ -27,6 +27,8 @@ namespace Domain.Entities
         public decimal MaxScore { get; set; }
 
         public string? Description { get; set; }
+        public bool IsActive { get; set; } = true;
+
 
         public Question Question { get; set; }
     }

@@ -8,14 +8,8 @@ using MediatR;
 
 namespace Application.Usecases.Command
 {
-
-    public class UpdateWritingBaremCommand : IRequest<OperationResult<bool>>
+    public class DeleteWritingBaremCommand : IRequest<OperationResult<bool>>
     {
         public string WritingBaremID { get; set; }
-        public string CriteriaName { get; set; }
-        public decimal MaxScore { get; set; }
-        public string? Description { get; set; }
-
     }
-
 }

@@ -45,6 +45,13 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }
-       
+        [HttpDelete("{writingBaremID}")]
+        public async Task<IActionResult> DeleteWritingBarem(string writingBaremID)
+        {
+            var command = new DeleteWritingBaremCommand { WritingBaremID = writingBaremID };
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
     }
 }

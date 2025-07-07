@@ -7,6 +7,7 @@ using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
+
 namespace Infrastructure.Repositories
 {
     public class WritingBaremRepository : IWritingBaremRepository
@@ -23,16 +24,18 @@ namespace Infrastructure.Repositories
             await _dbContext.WritingBarem.AddRangeAsync(barems);
             await _dbContext.SaveChangesAsync();
         }
+
         public async Task<List<WritingBarem>> GetByQuestionIDAsync(string questionID)
         {
             return await _dbContext.WritingBarem
-                .Where(b => b.QuestionID == questionID)
+                .Where(b => b.QuestionID == questionID && b.IsActive)
                 .ToListAsync();
         }
+
         public async Task<WritingBarem?> GetByIDAsync(string writingBaremID)
         {
             return await _dbContext.WritingBarem
-                .FirstOrDefaultAsync(x => x.WritingBaremID == writingBaremID);
+                .FirstOrDefaultAsync(x => x.WritingBaremID == writingBaremID && x.IsActive);
         }
 
         public async Task UpdateAsync(WritingBarem barem)
@@ -41,5 +44,4 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
     }
-
 }

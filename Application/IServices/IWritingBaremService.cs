@@ -16,6 +16,7 @@ namespace Application.IServices
         Task<OperationResult<List<WritingBaremDTO>>> GetByQuestionIDAsync(string questionID);
         Task<OperationResult<bool>> UpdateWritingBaremAsync(UpdateWritingBaremCommand command);
         Task<OperationResult<bool>> ValidateUpdateBaremAsync(UpdateWritingBaremCommand command);
+        Task<OperationResult<bool>> SoftDeleteWritingBaremAsync(string writingBaremID);
 
     }
 

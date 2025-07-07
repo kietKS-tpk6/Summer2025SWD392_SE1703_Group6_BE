@@ -108,6 +108,17 @@ namespace Infrastructure.Services
 
             return OperationResult<bool>.Ok(true, "Cập nhật thành công.");
         }
+        public async Task<OperationResult<bool>> SoftDeleteWritingBaremAsync(string writingBaremID)
+        {
+            var barem = await _writingBaremRepository.GetByIDAsync(writingBaremID);
+            if (barem == null)
+                return OperationResult<bool>.Fail("Không tìm thấy barem để xoá.");
+
+            barem.IsActive = false;
+
+            await _writingBaremRepository.UpdateAsync(barem);
+            return OperationResult<bool>.Ok(true, "Xóa mềm thành công.");
+        }
     }
 
 }
