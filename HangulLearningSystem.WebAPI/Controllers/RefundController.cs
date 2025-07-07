@@ -125,7 +125,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         }
 
         [HttpGet("pending")]
-        //[Authorize(Roles = "Manager")] // Restrict to managers only
+        //[Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetPendingRefundRequests()
         {
             try
