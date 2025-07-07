@@ -23,14 +23,17 @@ namespace Infrastructure.Services
         private readonly IMCQOptionRepository _mCQOptionRepository;
         private readonly HangulLearningSystemDbContext _dbContext;
         private readonly ISystemConfigService _systemConfigService;
+        private readonly ITestRepository _testRepository;
 
-        public QuestionService(IQuestionRepository questionRepo, ITestSectionRepository testSectionRepository, IMCQOptionRepository mCQOptionRepository, HangulLearningSystemDbContext dbContext, ISystemConfigService systemConfigService)
+
+        public QuestionService(IQuestionRepository questionRepo, ITestSectionRepository testSectionRepository, IMCQOptionRepository mCQOptionRepository, HangulLearningSystemDbContext dbContext, ISystemConfigService systemConfigService,ITestRepository testRepository)
         {
             _questionRepo = questionRepo;
             _testSectionRepository = testSectionRepository;
             _mCQOptionRepository = mCQOptionRepository;
             _dbContext = dbContext;
             _systemConfigService = systemConfigService;
+            _testRepository = testRepository;
         }
 
 
@@ -492,6 +495,43 @@ namespace Infrastructure.Services
 
             await _mCQOptionRepository.DeleteAsync(toDelete);
             return OperationResult<bool>.Ok(true, "Xóa đáp án thành công.");
+        }
+        public async Task<OperationResult<bool>> SoftDeleteQuestionAsync(string questionId)
+        {
+            var question = await _questionRepo.GetByIdAsync(questionId);
+            if (question == null)
+                return OperationResult<bool>.Fail("Không tìm thấy câu hỏi.");
+
+            if (!question.IsActive)
+                return OperationResult<bool>.Fail("Câu hỏi đã bị vô hiệu hóa trước đó.");
+
+            // Lấy section của câu hỏi
+            var sectionResult = await _testSectionRepository.GetTestSectionByIdAsync(question.TestSectionID);
+            if (!sectionResult.Success || sectionResult.Data == null)
+                return OperationResult<bool>.Fail("Không tìm thấy phần thi chứa câu hỏi.");
+
+            var testID = sectionResult.Data.TestID;
+
+            // Gọi repository để lấy test
+            var testResult = await _testRepository.GetTestByIdAsync(testID);
+            if (!testResult.Success || testResult.Data == null)
+                return OperationResult<bool>.Fail("Không tìm thấy bài kiểm tra chứa phần thi.");
+
+            if (testResult.Data.Status != TestStatus.Drafted)
+                return OperationResult<bool>.Fail("Chỉ có thể xóa câu hỏi khi bài kiểm tra đang ở trạng thái 'Drafted'.");
+
+            // Kiểm tra còn lại ít nhất 1 câu active sau khi xóa
+            var questionsInSection = await _questionRepo.GetQuestionBySectionId(sectionResult.Data.TestSectionID);
+            var activeQuestions = questionsInSection.Where(q => q.IsActive && q.QuestionID != questionId).ToList();
+
+            if (!activeQuestions.Any())
+                return OperationResult<bool>.Fail("Không thể xóa. Mỗi phần thi phải có ít nhất 1 câu hỏi đang hoạt động.");
+
+            question.IsActive = false;
+            question.Score = 0;
+
+            await _questionRepo.UpdateAsync(question);
+            return OperationResult<bool>.Ok(true, "Xóa mềm câu hỏi thành công.");
         }
 
     }

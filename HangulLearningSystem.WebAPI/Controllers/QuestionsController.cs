@@ -50,6 +50,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpPut("soft-delete/{questionId}")]
+        public async Task<IActionResult> SoftDeleteQuestion(string questionId)
+        {
+            var result = await _mediator.Send(new SoftDeleteQuestionCommand { QuestionID = questionId });
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
         [HttpGet("by-test/{testId}")]
         public async Task<IActionResult> GetQuestionsByTestId(string testId)
         {
