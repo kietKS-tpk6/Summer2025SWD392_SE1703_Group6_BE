@@ -471,6 +471,28 @@ namespace Infrastructure.Services
 
             return OperationResult<List<WritingQuestionWithBaremsDTO>>.Ok(result);
         }
+        public async Task<OperationResult<bool>> DeleteMCQOptionAsync(string questionID, string mcqOptionID)
+        {
+            var question = await _questionRepo.GetByIdAsync(questionID);
+            if (question == null)
+                return OperationResult<bool>.Fail("Không tìm thấy câu hỏi.");
+
+            var options = await _mCQOptionRepository.GetByQuestionIdAsync(questionID);
+            if (options == null || !options.Any())
+                return OperationResult<bool>.Fail("Không tìm thấy danh sách đáp án.");
+
+            var toDelete = options.FirstOrDefault(o => o.MCQOptionID == mcqOptionID);
+            if (toDelete == null)
+                return OperationResult<bool>.Fail("Không tìm thấy đáp án cần xóa.");
+
+            // Kiểm tra nếu đang xóa đáp án đúng cuối cùng thì từ chối
+            var remainingCorrectOptions = options.Count(o => o.IsCorrect && o.MCQOptionID != mcqOptionID);
+            if (toDelete.IsCorrect && remainingCorrectOptions == 0)
+                return OperationResult<bool>.Fail("Phải có ít nhất một đáp án đúng sau khi xóa.");
+
+            await _mCQOptionRepository.DeleteAsync(toDelete);
+            return OperationResult<bool>.Ok(true, "Xóa đáp án thành công.");
+        }
 
     }
 

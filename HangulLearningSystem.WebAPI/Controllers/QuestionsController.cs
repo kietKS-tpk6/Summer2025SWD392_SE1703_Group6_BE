@@ -44,6 +44,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpDelete("mcq-option")]
+        public async Task<IActionResult> DeleteMCQOption([FromBody] DeleteMCQOptionCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
         [HttpGet("by-test/{testId}")]
         public async Task<IActionResult> GetQuestionsByTestId(string testId)
         {
