@@ -411,6 +411,10 @@ namespace Infrastructure.Services
 
             return OperationResult<string>.Ok(acc.Image);
         }
+        public async Task<OperationResult<List<AccountDTO>>> GetFreeLecturersAsync(CheckLecturerFreeCommand request)
+        {
+            return await _accountRepository.GetFreeLecturersAsync(request);
+        }
 
     }
 }

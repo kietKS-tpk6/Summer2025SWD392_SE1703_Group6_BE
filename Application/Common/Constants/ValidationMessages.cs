@@ -98,6 +98,11 @@ namespace Application.Common.Constants
         public const string TestIDIsEmpty = "Mã đề thi không được để trống.";
         public const string InvalidStartEndTime = "Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc.";
         public const string AttemptLimitInvalid = "Số lần làm bài phải lớn hơn hoặc bằng 1.";
+        //Check lectures free
+        public const string DateStartInvalid = "Ngày bắt đầu phải hợp lệ.";
+        public const string TimeIsEmpty = "Thời gian không được để trống.";
+        public const string DayOfWeeksIsNull = "Danh sách ngày học không được để trống.";
+        public const string DayOfWeeksOutOfRange = "Giá trị trong danh sách ngày học phải từ 0 đến 6.";
 
     }
 }

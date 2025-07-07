@@ -39,5 +39,6 @@ namespace Application.IServices
         Task<OperationResult<List<AccountDTO>>> SearchAccountsAsync(SearchAccountsQueryCommand command);
         Task<OperationResult<string>> GetAccountImageAsync(string accountID);
 
+        Task<OperationResult<List<AccountDTO>>> GetFreeLecturersAsync(CheckLecturerFreeCommand request);
     }
 }

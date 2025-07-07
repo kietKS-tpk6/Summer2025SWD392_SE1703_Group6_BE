@@ -144,5 +144,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("get-lecturer-free")]
+        public async Task<IActionResult> GetFreeLecturers([FromQuery] CheckLecturerFreeCommand request)
+        {
+            var result = await _mediator.Send(request);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }
