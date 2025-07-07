@@ -14,6 +14,6 @@ namespace Application.Usecases.Command
         public string SubjectID { get; set; }
         public DateTime DateStart { get; set; }
         public TimeOnly Time { get; set; }
-        public List<DayOfWeek> dayOfWeeks { get; set; }
+        public List<int> dayOfWeeks { get; set; }
     }
 }
