@@ -14,7 +14,8 @@ namespace Infrastructure.IRepositories
         Task AddRangeAsync(IEnumerable<Question> questions);
         Task UpdateRangeAsync(IEnumerable<Question> questions);
         Task<Question?> GetByIdAsync(string questionId);
-        Task UpdateAsync(Question question); 
+        Task UpdateAsync(Question question);
+        Task<List<Question>> GetByIDsAsync(List<string> IDs);
 
     }
 }

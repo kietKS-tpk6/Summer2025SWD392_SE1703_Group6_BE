@@ -92,6 +92,29 @@ namespace Infrastructure.Data
             modelBuilder.Entity<TestSection>()
                 .Property(a => a.TestSectionType)
                 .HasConversion<string>();
+            modelBuilder.Entity<WritingBarem>(entity =>
+            {
+                entity.HasKey(w => w.WritingBaremID);
+
+                entity.Property(w => w.WritingBaremID)
+                    .HasMaxLength(6)
+                    .IsRequired();
+
+                entity.Property(w => w.QuestionID)
+                    .HasMaxLength(8)
+                    .IsRequired();
+
+                entity.Property(w => w.CriteriaName)
+                    .HasMaxLength(250)
+                    .IsRequired();
+
+                entity.Property(w => w.MaxScore)
+                    .HasColumnType("decimal(5,2)")
+                    .IsRequired();
+
+                entity.Property(w => w.Description)
+                    .HasColumnType("nvarchar(max)");
+            });
 
             base.OnModelCreating(modelBuilder);
         }
@@ -122,6 +145,7 @@ namespace Infrastructure.Data
         public DbSet<MCQAnswerDetail> MCQAnswerDetails { get; set; }
         public DbSet<WritingAnswer> WritingAnswers { get; set; }
         public DbSet<StudentMark> StudentMarks { get; set; }
+        public DbSet<WritingBarem> WritingBarem { get; set; }
 
     }
 }

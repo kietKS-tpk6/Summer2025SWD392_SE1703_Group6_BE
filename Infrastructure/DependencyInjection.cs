@@ -84,6 +84,7 @@ namespace Infrastructure
             services.AddScoped<IStudentMarksService, StudentMarksService>();
             services.AddScoped<IStudentMarkRepository, StudentMarksRepository>();
             services.AddScoped<ITestSectionRepository, TestSectionRepository>();
+            services.AddScoped<IWritingBaremService, WritingBaremService>();
 
             services.AddScoped<IAttendanceService, AttendanceService>();
             //Repositories
@@ -108,6 +109,7 @@ namespace Infrastructure
             services.AddScoped<IStudentTestRepository, StudentTestRepository>();
             services.AddScoped<IAttendanceRepository, AttendanceRepository>();
             services.AddScoped<IStudentMarkRepository, StudentMarksRepository>();
+            services.AddScoped<IWritingBaremRepository, WritingBaremRepository>();
 
 
             //CommandHandler
@@ -145,7 +147,7 @@ namespace Infrastructure
             services.AddScoped<CreateTestSectionCommandHandler>();
             services.AddScoped<UpdateTestSectionCommandHandler>();
             services.AddScoped<DeleteTestSectionCommandHandler>();
-
+            services.AddScoped<CreateWritingBaremsCommandHandler>();
             services.AddMediatR(cfg =>
            cfg.RegisterServicesFromAssembly(Assembly.Load("Application"))
        );

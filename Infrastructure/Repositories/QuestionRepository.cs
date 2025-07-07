@@ -53,5 +53,11 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Question.Where(q => q.TestSectionID == sectionId).ToListAsync();
         }
+        public async Task<List<Question>> GetByIDsAsync(List<string> ids)
+        {
+            return await _dbContext.Question
+                .Where(q => ids.Contains(q.QuestionID))
+                .ToListAsync();
+        }
     }
 }
