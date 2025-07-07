@@ -4,6 +4,7 @@ using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.IRepositories;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,7 @@ namespace Infrastructure.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IClassRepository _classRepository;
+        private readonly IEnrollmentRepository _enrollmentRepository;
         private readonly IConfiguration _configuration;
         private readonly ILogger<PaymentService> _logger;
 
@@ -27,12 +29,14 @@ namespace Infrastructure.Services
             IPaymentRepository paymentRepository,
             ITransactionRepository transactionRepository,
             IClassRepository classRepository,
+            IEnrollmentRepository enrollmentRepository,
             IConfiguration configuration,
             ILogger<PaymentService> logger)
         {
             _paymentRepository = paymentRepository;
             _transactionRepository = transactionRepository;
             _classRepository = classRepository;
+            _enrollmentRepository = enrollmentRepository;
             _configuration = configuration;
             _logger = logger;
         }
@@ -361,6 +365,324 @@ namespace Infrastructure.Services
             }
 
             return string.Empty;
+        }
+
+        public async Task<RefundEligibilityDTO> CheckRefundEligibilityAsync(string paymentId, string studentId)
+        {
+            try
+            {
+                _logger.LogInformation($"Checking refund eligibility for PaymentID: {paymentId}, StudentID: {studentId}");
+
+                var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
+                if (payment == null)
+                {
+                    return new RefundEligibilityDTO
+                    {
+                        IsEligible = false,
+                        Message = "Payment not found"
+                    };
+                }
+
+                // Check if payment belongs to student
+                if (payment.AccountID != studentId)
+                {
+                    return new RefundEligibilityDTO
+                    {
+                        IsEligible = false,
+                        Message = "Payment does not belong to this student"
+                    };
+                }
+
+                // Check if payment is paid
+                if (payment.Status != PaymentStatus.Paid)
+                {
+                    return new RefundEligibilityDTO
+                    {
+                        IsEligible = false,
+                        Message = "Payment is not in paid status"
+                    };
+                }
+
+                // Get enrollment information
+                var enrollments = await _enrollmentRepository.GetEnrollmentsByStudentIdAsync(studentId);
+                var enrollment = enrollments.FirstOrDefault(e => e.ClassID == payment.ClassID);
+
+                if (enrollment == null)
+                {
+                    return new RefundEligibilityDTO
+                    {
+                        IsEligible = false,
+                        Message = "Enrollment not found for this class"
+                    };
+                }
+
+                // Check 7-day rule
+                var enrolledDate = enrollment.EnrolledDate;
+                var deadlineDate = enrolledDate.AddDays(7);
+                var currentDate = DateTime.UtcNow;
+
+                if (currentDate > deadlineDate)
+                {
+                    return new RefundEligibilityDTO
+                    {
+                        IsEligible = false,
+                        Message = "Refund period has expired. Refunds are only available within 7 days of enrollment.",
+                        DaysRemaining = 0,
+                        EnrolledDate = enrolledDate,
+                        DeadlineDate = deadlineDate
+                    };
+                }
+
+                var daysRemaining = (int)(deadlineDate - currentDate).TotalDays;
+
+                return new RefundEligibilityDTO
+                {
+                    IsEligible = true,
+                    Message = $"Eligible for refund. {daysRemaining} days remaining.",
+                    DaysRemaining = daysRemaining,
+                    EnrolledDate = enrolledDate,
+                    DeadlineDate = deadlineDate
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error checking refund eligibility for PaymentID: {paymentId}");
+                return new RefundEligibilityDTO
+                {
+                    IsEligible = false,
+                    Message = $"Error checking eligibility: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<RefundResponseDTO> RequestRefundAsync(string paymentId, string studentId, string reason)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing refund request for PaymentID: {paymentId}");
+
+                // Check eligibility first
+                var eligibility = await CheckRefundEligibilityAsync(paymentId, studentId);
+                if (!eligibility.IsEligible)
+                {
+                    return new RefundResponseDTO
+                    {
+                        Success = false,
+                        Message = eligibility.Message,
+                        PaymentID = paymentId
+                    };
+                }
+
+                var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
+
+                // Check if already requested refund
+                if (payment.Status == PaymentStatus.RequestRefund)
+                {
+                    return new RefundResponseDTO
+                    {
+                        Success = false,
+                        Message = "Refund has already been requested for this payment",
+                        PaymentID = paymentId,
+                        Status = payment.Status
+                    };
+                }
+
+                if (payment.Status == PaymentStatus.Refunded)
+                {
+                    return new RefundResponseDTO
+                    {
+                        Success = false,
+                        Message = "This payment has already been refunded",
+                        PaymentID = paymentId,
+                        Status = payment.Status
+                    };
+                }
+
+                // Update payment status to RequestRefund
+                payment.Status = PaymentStatus.RequestRefund;
+                var updateResult = await _paymentRepository.UpdatePaymentAsync(payment);
+
+                if (!updateResult.Contains("successfully", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new RefundResponseDTO
+                    {
+                        Success = false,
+                        Message = "Failed to update payment status",
+                        PaymentID = paymentId
+                    };
+                }
+
+                _logger.LogInformation($"Refund request created successfully for PaymentID: {paymentId}");
+
+                return new RefundResponseDTO
+                {
+                    Success = true,
+                    Message = "Refund request submitted successfully. It will be reviewed by management.",
+                    PaymentID = paymentId,
+                    Status = PaymentStatus.RequestRefund,
+                    RequestDate = DateTime.UtcNow
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error processing refund request for PaymentID: {paymentId}");
+                return new RefundResponseDTO
+                {
+                    Success = false,
+                    Message = $"Error processing refund request: {ex.Message}",
+                    PaymentID = paymentId
+                };
+            }
+        }
+
+        public async Task<RefundResponseDTO> ApproveRefundAsync(string paymentId, string managerId, string approvalNote)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing refund approval for PaymentID: {paymentId} by Manager: {managerId}");
+
+                var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
+                if (payment == null)
+                {
+                    return new RefundResponseDTO
+                    {
+                        Success = false,
+                        Message = "Payment not found",
+                        PaymentID = paymentId
+                    };
+                }
+
+                if (payment.Status != PaymentStatus.RequestRefund)
+                {
+                    return new RefundResponseDTO
+                    {
+                        Success = false,
+                        Message = "Payment is not in refund request status",
+                        PaymentID = paymentId,
+                        Status = payment.Status
+                    };
+                }
+
+                // Update payment status to Refunded
+                payment.Status = PaymentStatus.Refunded;
+                var updateResult = await _paymentRepository.UpdatePaymentAsync(payment);
+
+                if (!updateResult.Contains("successfully", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new RefundResponseDTO
+                    {
+                        Success = false,
+                        Message = "Failed to update payment status",
+                        PaymentID = paymentId
+                    };
+                }
+
+                _logger.LogInformation($"Refund approved successfully for PaymentID: {paymentId}");
+
+                return new RefundResponseDTO
+                {
+                    Success = true,
+                    Message = "Refund approved successfully",
+                    PaymentID = paymentId,
+                    Status = PaymentStatus.Refunded,
+                    ApprovalDate = DateTime.UtcNow
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error approving refund for PaymentID: {paymentId}");
+                return new RefundResponseDTO
+                {
+                    Success = false,
+                    Message = $"Error approving refund: {ex.Message}",
+                    PaymentID = paymentId
+                };
+            }
+        }
+
+        public async Task<List<RefundListItemDTO>> GetPendingRefundRequestsAsync()
+        {
+            try
+            {
+                var pendingRefunds = await _paymentRepository.GetPaymentsByStatusAsync(PaymentStatus.RequestRefund);
+                var refundList = new List<RefundListItemDTO>();
+
+                foreach (var payment in pendingRefunds)
+                {
+                    var enrollments = await _enrollmentRepository.GetEnrollmentsByStudentIdAsync(payment.AccountID);
+                    var enrollment = enrollments.FirstOrDefault(e => e.ClassID == payment.ClassID);
+
+                    refundList.Add(new RefundListItemDTO
+                    {
+                        PaymentID = payment.PaymentID,
+                        StudentID = payment.AccountID,
+                        StudentName = payment.Account?.Fullname ?? "Unknown",
+                        ClassID = payment.ClassID,
+                        ClassName = payment.Class?.ClassName ?? "Unknown",
+                        Amount = payment.Total,
+                        RequestDate = payment.DayCreate, // You might want to add a separate RequestDate field to Payment entity
+                        EnrolledDate = enrollment?.EnrolledDate ?? DateTime.MinValue,
+                        Reason = "Standard refund request", // You might want to add a Reason field to Payment entity
+                        Status = payment.Status
+                    });
+                }
+
+                return refundList;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving pending refund requests");
+                return new List<RefundListItemDTO>();
+            }
+        }
+
+        public async Task<List<RefundListItemDTO>> GetRefundHistoryAsync(string studentId = null)
+        {
+            try
+            {
+                List<Payment> payments;
+
+                if (string.IsNullOrEmpty(studentId))
+                {
+                    // Get all refunded payments for management view
+                    payments = await _paymentRepository.GetPaymentsByStatusAsync(PaymentStatus.Refunded);
+                }
+                else
+                {
+                    // Get refunded payments for specific student
+                    var allPayments = await _paymentRepository.GetPaymentsByAccountIdAsync(studentId);
+                    payments = allPayments.Where(p => p.Status == PaymentStatus.Refunded).ToList();
+                }
+
+                var refundList = new List<RefundListItemDTO>();
+
+                foreach (var payment in payments)
+                {
+                    var enrollments = await _enrollmentRepository.GetEnrollmentsByStudentIdAsync(payment.AccountID);
+                    var enrollment = enrollments.FirstOrDefault(e => e.ClassID == payment.ClassID);
+
+                    refundList.Add(new RefundListItemDTO
+                    {
+                        PaymentID = payment.PaymentID,
+                        StudentID = payment.AccountID,
+                        StudentName = payment.Account?.Fullname ?? "Unknown",
+                        ClassID = payment.ClassID,
+                        ClassName = payment.Class?.ClassName ?? "Unknown",
+                        Amount = payment.Total,
+                        RequestDate = payment.DayCreate, // You might want to add a separate RequestDate field
+                        EnrolledDate = enrollment?.EnrolledDate ?? DateTime.MinValue,
+                        Reason = "Standard refund request", // You might want to add a Reason field
+                        Status = payment.Status
+                    });
+                }
+
+                return refundList.OrderByDescending(r => r.RequestDate).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving refund history");
+                return new List<RefundListItemDTO>();
+            }
         }
     }
 }
