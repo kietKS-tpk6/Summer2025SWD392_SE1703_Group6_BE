@@ -393,13 +393,13 @@ namespace Infrastructure.Services
                     };
                 }
 
-                // Check if payment is paid
+                // Check if payment is paid (only paid payments can be refunded)
                 if (payment.Status != PaymentStatus.Paid)
                 {
                     return new RefundEligibilityDTO
                     {
                         IsEligible = false,
-                        Message = "Payment is not in paid status"
+                        Message = $"Payment is not eligible for refund. Current status: {payment.Status}"
                     };
                 }
 
@@ -416,7 +416,7 @@ namespace Infrastructure.Services
                     };
                 }
 
-                // Check 7-day rule
+                // Check 7-day rule from enrollment date
                 var enrolledDate = enrollment.EnrolledDate;
                 var deadlineDate = enrolledDate.AddDays(7);
                 var currentDate = DateTime.UtcNow;
@@ -433,7 +433,7 @@ namespace Infrastructure.Services
                     };
                 }
 
-                var daysRemaining = (int)(deadlineDate - currentDate).TotalDays;
+                var daysRemaining = (int)Math.Ceiling((deadlineDate - currentDate).TotalDays);
 
                 return new RefundEligibilityDTO
                 {
@@ -459,7 +459,7 @@ namespace Infrastructure.Services
         {
             try
             {
-                _logger.LogInformation($"Processing refund request for PaymentID: {paymentId}");
+                _logger.LogInformation($"Processing refund request for PaymentID: {paymentId}, StudentID: {studentId}");
 
                 // Check eligibility first
                 var eligibility = await CheckRefundEligibilityAsync(paymentId, studentId);
@@ -475,24 +475,13 @@ namespace Infrastructure.Services
 
                 var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
 
-                // Check if already requested refund
-                if (payment.Status == PaymentStatus.RequestRefund)
+                // Double-check the payment is in Paid status
+                if (payment.Status != PaymentStatus.Paid)
                 {
                     return new RefundResponseDTO
                     {
                         Success = false,
-                        Message = "Refund has already been requested for this payment",
-                        PaymentID = paymentId,
-                        Status = payment.Status
-                    };
-                }
-
-                if (payment.Status == PaymentStatus.Refunded)
-                {
-                    return new RefundResponseDTO
-                    {
-                        Success = false,
-                        Message = "This payment has already been refunded",
+                        Message = $"Payment is not eligible for refund. Current status: {payment.Status}",
                         PaymentID = paymentId,
                         Status = payment.Status
                     };
@@ -557,7 +546,7 @@ namespace Infrastructure.Services
                     return new RefundResponseDTO
                     {
                         Success = false,
-                        Message = "Payment is not in refund request status",
+                        Message = $"Payment is not in refund request status. Current status: {payment.Status}",
                         PaymentID = paymentId,
                         Status = payment.Status
                     };
@@ -620,14 +609,13 @@ namespace Infrastructure.Services
                         ClassID = payment.ClassID,
                         ClassName = payment.Class?.ClassName ?? "Unknown",
                         Amount = payment.Total,
-                        RequestDate = payment.DayCreate, // You might want to add a separate RequestDate field to Payment entity
+                        PaymentDate = payment.DayCreate,
                         EnrolledDate = enrollment?.EnrolledDate ?? DateTime.MinValue,
-                        Reason = "Standard refund request", // You might want to add a Reason field to Payment entity
                         Status = payment.Status
                     });
                 }
 
-                return refundList;
+                return refundList.OrderByDescending(r => r.PaymentDate).ToList();
             }
             catch (Exception ex)
             {
@@ -669,14 +657,13 @@ namespace Infrastructure.Services
                         ClassID = payment.ClassID,
                         ClassName = payment.Class?.ClassName ?? "Unknown",
                         Amount = payment.Total,
-                        RequestDate = payment.DayCreate, // You might want to add a separate RequestDate field
+                        PaymentDate = payment.DayCreate,
                         EnrolledDate = enrollment?.EnrolledDate ?? DateTime.MinValue,
-                        Reason = "Standard refund request", // You might want to add a Reason field
                         Status = payment.Status
                     });
                 }
 
-                return refundList.OrderByDescending(r => r.RequestDate).ToList();
+                return refundList.OrderByDescending(r => r.PaymentDate).ToList();
             }
             catch (Exception ex)
             {

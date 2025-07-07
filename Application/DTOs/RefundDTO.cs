@@ -31,7 +31,7 @@ namespace Application.DTOs
         public string ClassID { get; set; }
         public string ClassName { get; set; }
         public decimal Amount { get; set; }
-        public DateTime RequestDate { get; set; }
+        public DateTime PaymentDate { get; set; }
         public DateTime EnrolledDate { get; set; }
         public PaymentStatus Status { get; set; }
     }
