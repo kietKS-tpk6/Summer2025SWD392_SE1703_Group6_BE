@@ -480,6 +480,21 @@ namespace Infrastructure.Services
             if (question == null)
                 return OperationResult<bool>.Fail("Không tìm thấy câu hỏi.");
 
+            // Lấy TestSection
+            var sectionResult = await _testSectionRepository.GetTestSectionByIdAsync(question.TestSectionID);
+            if (!sectionResult.Success || sectionResult.Data == null)
+                return OperationResult<bool>.Fail("Không tìm thấy phần thi chứa câu hỏi.");
+
+            var testID = sectionResult.Data.TestID;
+
+            // Lấy Test
+            var testResult = await _testRepository.GetTestByIdAsync(testID);
+            if (!testResult.Success || testResult.Data == null)
+                return OperationResult<bool>.Fail("Không tìm thấy bài kiểm tra chứa phần thi.");
+
+            if (testResult.Data.Status != TestStatus.Drafted)
+                return OperationResult<bool>.Fail("Chỉ có thể xóa đáp án khi bài kiểm tra đang ở trạng thái 'Drafted'.");
+
             var options = await _mCQOptionRepository.GetByQuestionIdAsync(questionID);
             if (options == null || !options.Any())
                 return OperationResult<bool>.Fail("Không tìm thấy danh sách đáp án.");
@@ -496,6 +511,7 @@ namespace Infrastructure.Services
             await _mCQOptionRepository.DeleteAsync(toDelete);
             return OperationResult<bool>.Ok(true, "Xóa đáp án thành công.");
         }
+
         public async Task<OperationResult<bool>> SoftDeleteQuestionAsync(string questionId)
         {
             var question = await _questionRepo.GetByIdAsync(questionId);
