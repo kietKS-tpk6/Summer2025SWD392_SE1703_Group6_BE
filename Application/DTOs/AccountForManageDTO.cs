@@ -9,6 +9,7 @@ namespace Application.DTOs
 {
     public class AccountForManageDTO
     {
+        public string AccountID { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public Gender Gender { get; set; }
