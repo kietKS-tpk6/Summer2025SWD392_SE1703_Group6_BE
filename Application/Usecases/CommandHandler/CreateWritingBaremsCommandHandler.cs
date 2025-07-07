@@ -29,6 +29,9 @@ namespace Application.Usecases.CommandHandler
             var validationResult = await _writingBaremService.ValidateCreateBaremsAsync(request.Barems);
             if (!validationResult.Success)
                 return validationResult;
+            var validationScoreResult = await _writingBaremService.ValidateWritingBaremsAsync(request.Barems);
+            if (!validationScoreResult.Success)
+                return validationScoreResult;
 
             // Gọi service xử lý
             return await _writingBaremService.CreateWritingBaremsAsync(request.Barems);

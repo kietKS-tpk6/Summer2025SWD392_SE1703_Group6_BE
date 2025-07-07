@@ -17,6 +17,7 @@ namespace Application.IServices
         Task<OperationResult<bool>> UpdateWritingBaremAsync(UpdateWritingBaremCommand command);
         Task<OperationResult<bool>> ValidateUpdateBaremAsync(UpdateWritingBaremCommand command);
         Task<OperationResult<bool>> SoftDeleteWritingBaremAsync(string writingBaremID);
+        Task<OperationResult<bool>> ValidateWritingBaremsAsync(List<CreateWritingBaremDTO> barems);
 
     }
 

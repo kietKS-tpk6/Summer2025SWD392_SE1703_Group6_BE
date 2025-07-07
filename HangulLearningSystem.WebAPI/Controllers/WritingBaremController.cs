@@ -22,12 +22,10 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
 
         }
-        [HttpPut("{writingBaremID}")]
-        public async Task<IActionResult> UpdateWritingBarem(string writingBaremID, [FromBody] UpdateWritingBaremCommand command)
+        [HttpPut("Update-barem")]
+        public async Task<IActionResult> UpdateWritingBarem( [FromBody] UpdateWritingBaremCommand command)
         {
-            if (writingBaremID != command.WritingBaremID)
-                return BadRequest("ID trong URL không khớp với body.");
-
+          
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }

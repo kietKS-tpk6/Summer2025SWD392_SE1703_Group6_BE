@@ -12,6 +12,7 @@ namespace Application.DTOs
         public string? Context { get; set; }
         public string? ImageURL { get; set; }
         public string? AudioURL { get; set; }
+        public decimal Score { get; set; }
         public List<WritingBaremDTO> Barems { get; set; }
     }
 }
