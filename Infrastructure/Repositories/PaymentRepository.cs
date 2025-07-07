@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -74,6 +75,22 @@ namespace Infrastructure.Repositories
         public async Task<int> GetTotalPaymentsCountAsync()
         {
             return await _dbContext.Payment.CountAsync();
+        }
+        public async Task<List<Payment>> GetPaymentsByStatusAsync(PaymentStatus status)
+        {
+            try
+            {
+                return await _dbContext.Payment
+                    .Include(p => p.Account)
+                    .Include(p => p.Class)
+                    .Where(p => p.Status == status)
+                    .OrderByDescending(p => p.DayCreate)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                return  $"Error retrieving payments by status: {ex.Message}";
+            }
         }
     }
 }
