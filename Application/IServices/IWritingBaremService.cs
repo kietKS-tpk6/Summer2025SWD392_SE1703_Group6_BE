@@ -12,6 +12,8 @@ namespace Application.IServices
     {
         Task<OperationResult<bool>> ValidateCreateBaremsAsync(List<CreateWritingBaremDTO> barems);
         Task<OperationResult<bool>> CreateWritingBaremsAsync(List<CreateWritingBaremDTO> barems);
+        Task<OperationResult<List<WritingBaremDTO>>> GetByQuestionIDAsync(string questionID);
+
     }
 
 }

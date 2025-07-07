@@ -10,6 +10,7 @@ namespace Infrastructure.IRepositories
     public interface IWritingBaremRepository
     {
         Task AddRangeAsync(List<WritingBarem> barems);
+        Task<List<WritingBarem>> GetByQuestionIDAsync(string questionID);
 
     }
 }

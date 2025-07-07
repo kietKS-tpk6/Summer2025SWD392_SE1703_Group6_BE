@@ -7,6 +7,8 @@ using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Application.DTOs;
+using Domain.Enums;
 
 namespace Infrastructure.Repositories
 {
@@ -59,5 +61,13 @@ namespace Infrastructure.Repositories
                 .Where(q => ids.Contains(q.QuestionID))
                 .ToListAsync();
         }
+
+        public async Task<List<Question>> GetByTestSectionIDsAsync(List<string> testSectionIDs)
+        {
+            return await _dbContext.Question
+                .Where(q => testSectionIDs.Contains(q.TestSectionID) && q.IsActive)
+                .ToListAsync();
+        }
+
     }
 }

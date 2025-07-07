@@ -145,6 +145,12 @@ namespace Infrastructure.Repositories
             var count = await _dbContext.TestSection.CountAsync();
             return $"TS{(count + 1):D4}";
         }
+        public async Task<List<TestSection>> GetByTestIDAndTypeAsync(string testID, TestFormatType type)
+        {
+            return await _dbContext.TestSection
+                .Where(s => s.TestID == testID && s.TestSectionType == type && s.IsActive)
+                .ToListAsync();
+        }
     }
 
 }

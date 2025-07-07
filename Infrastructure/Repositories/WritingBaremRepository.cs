@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
-
+using Microsoft.EntityFrameworkCore;
 namespace Infrastructure.Repositories
 {
     public class WritingBaremRepository : IWritingBaremRepository
@@ -22,6 +22,12 @@ namespace Infrastructure.Repositories
         {
             await _dbContext.WritingBarem.AddRangeAsync(barems);
             await _dbContext.SaveChangesAsync();
+        }
+        public async Task<List<WritingBarem>> GetByQuestionIDAsync(string questionID)
+        {
+            return await _dbContext.WritingBarem
+                .Where(b => b.QuestionID == questionID)
+                .ToListAsync();
         }
     }
 

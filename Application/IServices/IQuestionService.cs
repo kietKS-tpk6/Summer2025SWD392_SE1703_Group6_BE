@@ -30,6 +30,7 @@ namespace Application.IServices
         OperationResult<bool> ValidateMCQOptionsNoDuplicate(List<MCQOptionUpdateQuestionDTO>? options);
         Task<OperationResult<bool>> UpdateMultipleQuestionsAsync(List<UpdateQuestionCommand> commands);
         Task<OperationResult<List<Question>>> GetQuestionsByTestSectionIDAsync(string testSectionID);
+        Task<OperationResult<List<WritingQuestionWithBaremsDTO>>> GetWritingQuestionsWithBaremsByTestIDAsync(string testID);
 
     }
 }

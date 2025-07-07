@@ -49,6 +49,20 @@ namespace Infrastructure.Services
             await _writingBaremRepository.AddRangeAsync(entities);
             return OperationResult<bool>.Ok(true, "Tạo thành công.");
         }
+        public async Task<OperationResult<List<WritingBaremDTO>>> GetByQuestionIDAsync(string questionID)
+        {
+            var barems = await _writingBaremRepository.GetByQuestionIDAsync(questionID);
+
+            var result = barems.Select(b => new WritingBaremDTO
+            {
+                WritingBaremID = b.WritingBaremID,
+                CriteriaName = b.CriteriaName,
+                MaxScore = b.MaxScore,
+                Description = b.Description,
+            }).ToList();
+
+            return OperationResult<List<WritingBaremDTO>>.Ok(result);
+        }
     }
 
 }

@@ -21,5 +21,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(command);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("{questionID}")]
+        public async Task<IActionResult> GetWritingBaremsByQuestionID(string questionID)
+        {
+            var command = new GetWritingBaremsByQuestionIDCommand { QuestionID = questionID };
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+        [HttpGet("by-test/{testID}")]
+        public async Task<IActionResult> GetWritingQuestionsByTestID(string testID)
+        {
+            var command = new GetWritingQuestionsByTestIDCommand { TestID = testID };
+            var result = await _mediator.Send(command);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }
