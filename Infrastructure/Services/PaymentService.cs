@@ -59,7 +59,6 @@ namespace Infrastructure.Services
                 if (string.IsNullOrWhiteSpace(command.AccountID))
                     throw new ArgumentException("AccountID is required");
 
-                // Kiểm tra AccountID và ClassID có tồn tại không
                 var classResult = await _classRepository.GetByIdAsync(command.ClassID);
                 var classEntity = classResult.Data;
                 if (classEntity == null)
@@ -68,7 +67,6 @@ namespace Infrastructure.Services
                 if (classEntity.Status != ClassStatus.Open)
                     throw new ArgumentException("Class is not available for enrollment");
 
-                // Tạo PaymentID duy nhất
                 string paymentId;
                 int retry = 0;
                 do
@@ -84,7 +82,6 @@ namespace Infrastructure.Services
 
                 _logger.LogInformation($"Class price from entity: {classEntity.PriceOfClass}");
 
-                // Tạo entity Payment
                 var payment = new Payment
                 {
                     PaymentID = paymentId,
@@ -169,8 +166,7 @@ namespace Infrastructure.Services
                         Message = "Payment ID not found in transaction"
                     };
                 }
-                
-                // Chỉ xử lý transaction IN (nhận tiền)
+
                 if (transaction.TransferType?.ToLower() != "in")
                 {
                     return new WebhookResponseDTO
@@ -232,13 +228,11 @@ namespace Infrastructure.Services
             }
 
             _logger.LogInformation($"Payment found. Expected amount: {payment.Total}, Received: {amountReceived}");
-            
-            // Kiểm tra số tiền (cho phép sai lệch nhỏ do làm tròn)
+
             decimal expectedAmount = payment.Total/100;
-            if (Math.Abs(expectedAmount  - amountReceived) > 1m) // Cho phép sai lệch 1 VND
+            if (Math.Abs(expectedAmount  - amountReceived) > 1m) 
             {
                 _logger.LogWarning($"Amount mismatch for payment {paymentId}. Expected: {expectedAmount}, Received: {amountReceived}");
-                // Vẫn cập nhật nếu số tiền nhận được >= số tiền yêu cầu
                 if (amountReceived < expectedAmount)
                 {
                     return false;
@@ -281,7 +275,6 @@ namespace Infrastructure.Services
 
             if (string.IsNullOrEmpty(baseUrl))
             {
-                // Fallback - có thể lấy từ HttpContext nếu cần
                 baseUrl = "https://localhost:7000";
             }
 
@@ -325,7 +318,6 @@ namespace Infrastructure.Services
 
         private string ExtractPaymentIdFromTransaction(TransactionDTO transaction)
         {
-            // Thử extract từ Description trước
             string paymentId = ExtractPaymentIdFromDescription(transaction.Description);
 
             if (!string.IsNullOrEmpty(paymentId))
@@ -333,16 +325,12 @@ namespace Infrastructure.Services
                 return paymentId;
             }
 
-            // Thử extract từ Content
             paymentId = ExtractPaymentIdFromDescription(transaction.Content);
 
             if (!string.IsNullOrEmpty(paymentId))
             {
                 return paymentId;
             }
-
-            // Thử extract từ ReferenceCode
-            //paymentId = ExtractPaymentIdFromDescription(transaction.ReferenceCode);
 
             return paymentId ?? string.Empty;
         }
@@ -352,7 +340,6 @@ namespace Infrastructure.Services
             if (string.IsNullOrEmpty(description))
                 return string.Empty;
 
-            // Pattern để tìm PM theo sau bởi 4 chữ số
             string pattern = @"PM\d{4}";
 
             Match match = Regex.Match(description, pattern);
@@ -383,7 +370,6 @@ namespace Infrastructure.Services
                     };
                 }
 
-                // Check if payment belongs to student
                 if (payment.AccountID != studentId)
                 {
                     return new RefundEligibilityDTO
@@ -393,7 +379,6 @@ namespace Infrastructure.Services
                     };
                 }
 
-                // Check if payment is paid (only paid payments can be refunded)
                 if (payment.Status != PaymentStatus.Paid)
                 {
                     return new RefundEligibilityDTO
@@ -403,7 +388,6 @@ namespace Infrastructure.Services
                     };
                 }
 
-                // Get enrollment information
                 var enrollments = await _enrollmentRepository.GetEnrollmentsByStudentIdAsync(studentId);
                 var enrollment = enrollments.FirstOrDefault(e => e.ClassID == payment.ClassID);
 
@@ -416,7 +400,6 @@ namespace Infrastructure.Services
                     };
                 }
 
-                // Check 7-day rule from enrollment date
                 var enrolledDate = enrollment.EnrolledDate;
                 var deadlineDate = enrolledDate.AddDays(7);
                 var currentDate = DateTime.UtcNow;
@@ -461,7 +444,6 @@ namespace Infrastructure.Services
             {
                 _logger.LogInformation($"Processing refund request for PaymentID: {paymentId}, StudentID: {studentId}");
 
-                // Check eligibility first
                 var eligibility = await CheckRefundEligibilityAsync(paymentId, studentId);
                 if (!eligibility.IsEligible)
                 {
@@ -475,7 +457,6 @@ namespace Infrastructure.Services
 
                 var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
 
-                // Double-check the payment is in Paid status
                 if (payment.Status != PaymentStatus.Paid)
                 {
                     return new RefundResponseDTO
@@ -487,7 +468,6 @@ namespace Infrastructure.Services
                     };
                 }
 
-                // Update payment status to RequestRefund
                 payment.Status = PaymentStatus.RequestRefund;
                 var updateResult = await _paymentRepository.UpdatePaymentAsync(payment);
 
@@ -552,7 +532,6 @@ namespace Infrastructure.Services
                     };
                 }
 
-                // Update payment status to Refunded
                 payment.Status = PaymentStatus.Refunded;
                 var updateResult = await _paymentRepository.UpdatePaymentAsync(payment);
 
@@ -632,12 +611,10 @@ namespace Infrastructure.Services
 
                 if (string.IsNullOrEmpty(studentId))
                 {
-                    // Get all refunded payments for management view
                     payments = await _paymentRepository.GetPaymentsByStatusAsync(PaymentStatus.Refunded);
                 }
                 else
                 {
-                    // Get refunded payments for specific student
                     var allPayments = await _paymentRepository.GetPaymentsByAccountIdAsync(studentId);
                     payments = allPayments.Where(p => p.Status == PaymentStatus.Refunded).ToList();
                 }
