@@ -145,6 +145,8 @@ namespace Infrastructure
             services.AddScoped<CreateTestSectionCommandHandler>();
             services.AddScoped<UpdateTestSectionCommandHandler>();
             services.AddScoped<DeleteTestSectionCommandHandler>();
+            services.AddScoped<RefundRequestCommandHandler>();
+            services.AddScoped<ApproveRefundCommandHandler>();
 
             services.AddMediatR(cfg =>
            cfg.RegisterServicesFromAssembly(Assembly.Load("Application"))
