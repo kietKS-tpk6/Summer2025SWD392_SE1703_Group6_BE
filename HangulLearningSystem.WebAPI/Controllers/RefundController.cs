@@ -22,14 +22,8 @@ namespace HangulLearningSystem.WebAPI.Controllers
             _paymentService = paymentService;
         }
 
-        /// <summary>
-        /// Check if a payment is eligible for refund
-        /// </summary>
-        /// <param name="paymentId">Payment ID to check</param>
-        /// <param name="studentId">Student ID making the request</param>
-        /// <returns>Refund eligibility information</returns>
         [HttpGet("eligibility/{paymentId}")]
-        [Authorize] // Add authorization as needed
+        //[Authorize] 
         public async Task<IActionResult> CheckRefundEligibility(string paymentId, [FromQuery] string studentId)
         {
             try
@@ -56,13 +50,8 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Request a refund for a payment
-        /// </summary>
-        /// <param name="request">Refund request details</param>
-        /// <returns>Refund request result</returns>
         [HttpPost("request")]
-        [Authorize] // Add authorization as needed
+        //[Authorize] 
         public async Task<IActionResult> RequestRefund([FromBody] RefundRequestDTO request)
         {
             try
@@ -98,14 +87,8 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Approve a refund request (Manager only)
-        /// </summary>
-        /// <param name="paymentId">Payment ID to approve refund for</param>
-        /// <param name="request">Approval details</param>
-        /// <returns>Approval result</returns>
         [HttpPost("approve/{paymentId}")]
-        [Authorize(Roles = "Manager")] // Restrict to managers only
+        //[Authorize(Roles = "Manager")]
         public async Task<IActionResult> ApproveRefund(string paymentId, [FromBody] ApproveRefundRequestDTO request)
         {
             try
@@ -141,12 +124,8 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Get pending refund requests (Manager only)
-        /// </summary>
-        /// <returns>List of pending refund requests</returns>
         [HttpGet("pending")]
-        [Authorize(Roles = "Manager")] // Restrict to managers only
+        //[Authorize(Roles = "Manager")] // Restrict to managers only
         public async Task<IActionResult> GetPendingRefundRequests()
         {
             try
@@ -160,13 +139,8 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Get refund history
-        /// </summary>
-        /// <param name="studentId">Optional: Student ID to filter by (for student view)</param>
-        /// <returns>List of refund history</returns>
         [HttpGet("history")]
-        [Authorize] // Add authorization as needed
+        //[Authorize] 
         public async Task<IActionResult> GetRefundHistory([FromQuery] string studentId = null)
         {
             try
