@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application.Common.Constants;
+﻿using Application.Common.Constants;
 using Application.IServices;
 using Application.Usecases.Command;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.IRepositories;
-
 namespace Infrastructure.Services
 {
     public class TaskService : ITaskService
@@ -36,7 +31,8 @@ namespace Infrastructure.Services
                     DateStart = command.DateStart,
                     Deadline = command.Deadline,
                     Note = command.Note,
-                    ResourcesURL = command.ResourcesURL
+                    ResourcesURL = command.ResourcesURL,
+                    Status = Domain.Enums.TaskStatus.InProgress 
                 };
 
                 var taskResult = await _taskRepository.CreateTaskAsync(workTask);
@@ -73,6 +69,9 @@ namespace Infrastructure.Services
             try
             {
                 var tasks = await _taskRepository.GetTasksByLecturerIdAsync(lecturerId);
+
+                await AutoCompleteExpiredTasksAsync(tasks);
+
                 return OperationResult<List<WorkTask>>.Ok(tasks, "Lấy danh sách task thành công");
             }
             catch (Exception ex)
@@ -90,6 +89,13 @@ namespace Infrastructure.Services
                 {
                     return OperationResult<WorkTask?>.Fail("Không tìm thấy task");
                 }
+
+                if (task.ShouldAutoCompleteNow)
+                {
+                    await _taskRepository.UpdateTaskStatusAsync(taskId, Domain.Enums.TaskStatus.Completed.ToString());
+                    task.Status = Domain.Enums.TaskStatus.Completed;
+                }
+
                 return OperationResult<WorkTask?>.Ok(task, "Lấy thông tin task thành công");
             }
             catch (Exception ex)
@@ -102,7 +108,23 @@ namespace Infrastructure.Services
         {
             try
             {
-                var result = await _taskRepository.UpdateTaskStatusAsync(taskId, status);
+                if (!Enum.TryParse<Domain.Enums.TaskStatus>(status, true, out var taskStatus))
+                {
+                    return OperationResult<string?>.Fail("Trạng thái task không hợp lệ");
+                }
+
+                var task = await _taskRepository.GetTaskByIdAsync(taskId);
+                if (task == null)
+                {
+                    return OperationResult<string?>.Fail("Không tìm thấy task");
+                }
+
+                if (taskStatus == Domain.Enums.TaskStatus.Completed && !task.RequiresManualCompletion)
+                {
+                   
+                }
+
+                var result = await _taskRepository.UpdateTaskStatusAsync(taskId, taskStatus.ToString());
                 if (!result.Success)
                 {
                     return OperationResult<string?>.Fail(result.Message);
@@ -120,6 +142,9 @@ namespace Infrastructure.Services
             try
             {
                 var tasks = await _taskRepository.GetAllTasksAsync();
+
+                await AutoCompleteExpiredTasksAsync(tasks);
+
                 return OperationResult<List<WorkTask>>.Ok(tasks, "Lấy tất cả task thành công");
             }
             catch (Exception ex)
@@ -144,6 +169,42 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 return OperationResult<string?>.Fail($"Lỗi khi xóa task: {ex.Message}");
+            }
+        }
+
+        private async Task AutoCompleteExpiredTasksAsync(List<WorkTask> tasks)
+        {
+            var tasksToComplete = tasks.Where(t => t.ShouldAutoCompleteNow).ToList();
+
+            foreach (var task in tasksToComplete)
+            {
+                await _taskRepository.UpdateTaskStatusAsync(task.TaskID, Domain.Enums.TaskStatus.Completed.ToString());
+                task.Status = Domain.Enums.TaskStatus.Completed;
+            }
+        }
+
+        public async Task<OperationResult<int>> AutoCompleteExpiredTasksAsync()
+        {
+            try
+            {
+                var allTasks = await _taskRepository.GetAllTasksAsync();
+                var tasksToComplete = allTasks.Where(t => t.ShouldAutoCompleteNow).ToList();
+
+                int completedCount = 0;
+                foreach (var task in tasksToComplete)
+                {
+                    var result = await _taskRepository.UpdateTaskStatusAsync(task.TaskID, Domain.Enums.TaskStatus.Completed.ToString());
+                    if (result.Success)
+                    {
+                        completedCount++;
+                    }
+                }
+
+                return OperationResult<int>.Ok(completedCount, $"Đã tự động hoàn thành {completedCount} task");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<int>.Fail($"Lỗi khi tự động hoàn thành task: {ex.Message}");
             }
         }
 
