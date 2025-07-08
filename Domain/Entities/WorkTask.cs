@@ -29,5 +29,9 @@ namespace Domain.Entities
         public string? Note { get; set; }
 
         public string? ResourcesURL { get; set; }
+
+        [MaxLength(20)]
+        public TaskStatus Status { get; set; }
+
     }
 }
