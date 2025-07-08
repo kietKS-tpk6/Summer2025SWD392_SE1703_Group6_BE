@@ -85,7 +85,7 @@ namespace Infrastructure
             services.AddScoped<IStudentMarkRepository, StudentMarksRepository>();
             services.AddScoped<ITestSectionRepository, TestSectionRepository>();
             services.AddScoped<IWritingBaremService, WritingBaremService>();
-
+            services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IAttendanceService, AttendanceService>();
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
@@ -110,6 +110,8 @@ namespace Infrastructure
             services.AddScoped<IAttendanceRepository, AttendanceRepository>();
             services.AddScoped<IStudentMarkRepository, StudentMarksRepository>();
             services.AddScoped<IWritingBaremRepository, WritingBaremRepository>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
+            services.AddScoped<IScheduleWorkRepository, ScheduleWorkRepository>();
 
 
             //CommandHandler
