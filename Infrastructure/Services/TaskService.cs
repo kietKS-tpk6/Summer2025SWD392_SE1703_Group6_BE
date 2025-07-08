@@ -26,10 +26,8 @@ namespace Infrastructure.Services
         {
             try
             {
-                // Tạo TaskID tự động
                 string taskId = await GenerateTaskIdAsync();
 
-                // Tạo WorkTask
                 var workTask = new WorkTask
                 {
                     TaskID = taskId,
@@ -41,14 +39,12 @@ namespace Infrastructure.Services
                     ResourcesURL = command.ResourcesURL
                 };
 
-                // Lưu WorkTask
                 var taskResult = await _taskRepository.CreateTaskAsync(workTask);
-                if (!taskResult.IsSuccess)
+                if (!taskResult.Success)
                 {
-                    return OperationResult<string?>.Failure(taskResult.Message);
+                    return OperationResult<string?>.Fail(taskResult.Message);
                 }
 
-                // Tạo ScheduleWork để gán task cho lecturer
                 string scheduleWorkId = await GenerateScheduleWorkIdAsync();
                 var scheduleWork = new ScheduleWork
                 {
@@ -58,18 +54,17 @@ namespace Infrastructure.Services
                 };
 
                 var scheduleResult = await _scheduleWorkRepository.CreateScheduleWorkAsync(scheduleWork);
-                if (!scheduleResult.IsSuccess)
+                if (!scheduleResult.Success)
                 {
-                    // Nếu tạo ScheduleWork thất bại, xóa WorkTask đã tạo
                     await _taskRepository.DeleteTaskAsync(taskId);
-                    return OperationResult<string?>.Failure(scheduleResult.Message);
+                    return OperationResult<string?>.Fail(scheduleResult.Message);
                 }
 
-                return OperationResult<string?>.Success(taskId, "Tạo task thành công");
+                return OperationResult<string?>.Ok(taskId, "Tạo task thành công");
             }
             catch (Exception ex)
             {
-                return OperationResult<string?>.Failure($"Lỗi khi tạo task: {ex.Message}");
+                return OperationResult<string?>.Fail($"Lỗi khi tạo task: {ex.Message}");
             }
         }
 
@@ -78,11 +73,11 @@ namespace Infrastructure.Services
             try
             {
                 var tasks = await _taskRepository.GetTasksByLecturerIdAsync(lecturerId);
-                return OperationResult<List<WorkTask>>.Success(tasks, "Lấy danh sách task thành công");
+                return OperationResult<List<WorkTask>>.Ok(tasks, "Lấy danh sách task thành công");
             }
             catch (Exception ex)
             {
-                return OperationResult<List<WorkTask>>.Failure($"Lỗi khi lấy danh sách task: {ex.Message}");
+                return OperationResult<List<WorkTask>>.Fail($"Lỗi khi lấy danh sách task: {ex.Message}");
             }
         }
 
@@ -93,13 +88,13 @@ namespace Infrastructure.Services
                 var task = await _taskRepository.GetTaskByIdAsync(taskId);
                 if (task == null)
                 {
-                    return OperationResult<WorkTask?>.Failure("Không tìm thấy task");
+                    return OperationResult<WorkTask?>.Fail("Không tìm thấy task");
                 }
-                return OperationResult<WorkTask?>.Success(task, "Lấy thông tin task thành công");
+                return OperationResult<WorkTask?>.Ok(task, "Lấy thông tin task thành công");
             }
             catch (Exception ex)
             {
-                return OperationResult<WorkTask?>.Failure($"Lỗi khi lấy thông tin task: {ex.Message}");
+                return OperationResult<WorkTask?>.Fail($"Lỗi khi lấy thông tin task: {ex.Message}");
             }
         }
 
@@ -108,15 +103,15 @@ namespace Infrastructure.Services
             try
             {
                 var result = await _taskRepository.UpdateTaskStatusAsync(taskId, status);
-                if (!result.IsSuccess)
+                if (!result.Success)
                 {
-                    return OperationResult<string?>.Failure(result.Message);
+                    return OperationResult<string?>.Fail(result.Message);
                 }
-                return OperationResult<string?>.Success(taskId, "Cập nhật trạng thái task thành công");
+                return OperationResult<string?>.Ok(taskId, "Cập nhật trạng thái task thành công");
             }
             catch (Exception ex)
             {
-                return OperationResult<string?>.Failure($"Lỗi khi cập nhật trạng thái task: {ex.Message}");
+                return OperationResult<string?>.Fail($"Lỗi khi cập nhật trạng thái task: {ex.Message}");
             }
         }
 
@@ -125,11 +120,11 @@ namespace Infrastructure.Services
             try
             {
                 var tasks = await _taskRepository.GetAllTasksAsync();
-                return OperationResult<List<WorkTask>>.Success(tasks, "Lấy tất cả task thành công");
+                return OperationResult<List<WorkTask>>.Ok(tasks, "Lấy tất cả task thành công");
             }
             catch (Exception ex)
             {
-                return OperationResult<List<WorkTask>>.Failure($"Lỗi khi lấy tất cả task: {ex.Message}");
+                return OperationResult<List<WorkTask>>.Fail($"Lỗi khi lấy tất cả task: {ex.Message}");
             }
         }
 
@@ -137,26 +132,23 @@ namespace Infrastructure.Services
         {
             try
             {
-                // Xóa ScheduleWork trước
                 await _scheduleWorkRepository.DeleteByTaskIdAsync(taskId);
 
-                // Sau đó xóa WorkTask
                 var result = await _taskRepository.DeleteTaskAsync(taskId);
-                if (!result.IsSuccess)
+                if (!result.Success)
                 {
-                    return OperationResult<string?>.Failure(result.Message);
+                    return OperationResult<string?>.Fail(result.Message);
                 }
-                return OperationResult<string?>.Success(taskId, "Xóa task thành công");
+                return OperationResult<string?>.Ok(taskId, "Xóa task thành công");
             }
             catch (Exception ex)
             {
-                return OperationResult<string?>.Failure($"Lỗi khi xóa task: {ex.Message}");
+                return OperationResult<string?>.Fail($"Lỗi khi xóa task: {ex.Message}");
             }
         }
 
         private async Task<string> GenerateTaskIdAsync()
         {
-            // Tạo ID theo format TSKxxx (TSK + 3 số)
             var lastTask = await _taskRepository.GetLastTaskAsync();
             if (lastTask == null)
             {
@@ -170,7 +162,6 @@ namespace Infrastructure.Services
 
         private async Task<string> GenerateScheduleWorkIdAsync()
         {
-            // Tạo ID theo format SCHxxx (SCH + 3 số)
             var lastScheduleWork = await _scheduleWorkRepository.GetLastScheduleWorkAsync();
             if (lastScheduleWork == null)
             {
