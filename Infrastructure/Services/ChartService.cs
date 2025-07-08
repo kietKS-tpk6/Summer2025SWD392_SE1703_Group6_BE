@@ -21,5 +21,23 @@ namespace Infrastructure.Services
         {
             return await _chartRepository.GetStudentSignupMonthlyAsync();
         }
-    }
+        public async Task<OperationResult<List<RevenueByMonthDTO>>> GetRevenueByMonthAsync()
+        {
+            return await _chartRepository.GetRevenueByMonthAsync();
+        }
+
+        public async Task<OperationResult<List<ClassCountBySubjectDTO>>> GetClassCountBySubjectAsync()
+        {
+            return await _chartRepository.GetClassCountBySubjectAsync();
+        }
+        public async Task<OperationResult<List<ClassStatusDistributionDTO>>> GetClassStatusDistributionAsync()
+        {
+            return await _chartRepository.GetClassStatusDistributionAsync();
+        }
+        public async Task<OperationResult<List<SubjectIncomeDTO>>> GetIncomeBySubjectAsync()
+        {
+            return await _chartRepository.GetIncomeBySubjectAsync();
+        }
+    
+}
 }
