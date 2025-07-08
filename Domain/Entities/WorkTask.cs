@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -30,8 +26,35 @@ namespace Domain.Entities
 
         public string? ResourcesURL { get; set; }
 
-        [MaxLength(20)]
-        public TaskStatus Status { get; set; }
+        [Column(TypeName = "nvarchar(20)")]
+        public Enums.TaskStatus Status { get; set; } = Enums.TaskStatus.InProgress;
 
+        /// <summary>
+        /// Helper property to get TaskType enum from string Type
+        /// </summary>
+        [NotMapped]
+        public TaskType TaskType
+        {
+            get
+            {
+                if (Enum.TryParse<TaskType>(Type, out var taskType))
+                {
+                    return taskType;
+                }
+                return TaskType.Other;
+            }
+        }
+
+        [NotMapped]
+        public bool RequiresManualCompletion => TaskType.RequiresManualCompletion();
+
+        [NotMapped]
+        public bool ShouldAutoCompleteOnDeadline => !RequiresManualCompletion;
+
+        [NotMapped]
+        public bool IsDeadlinePassed => DateTime.Now >= Deadline;
+
+        [NotMapped]
+        public bool ShouldAutoCompleteNow => ShouldAutoCompleteOnDeadline && IsDeadlinePassed && Status == Enums.TaskStatus.InProgress;
     }
 }
