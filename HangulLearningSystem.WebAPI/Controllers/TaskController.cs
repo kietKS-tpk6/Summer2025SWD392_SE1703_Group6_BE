@@ -8,6 +8,7 @@ using Application.Usecases.Query;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static HangulLearningSystem.WebAPI.Controllers.TestController;
 
 namespace WebAPI.Controllers
 {
@@ -122,9 +123,20 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{taskId}/status")]
-        public async Task<IActionResult> UpdateTaskStatus(string taskId, [FromBody] string status)
+        public async Task<IActionResult> UpdateTaskStatus(string taskId, [FromBody] UpdateTaskStatusRequest request)
         {
-            var command = new UpdateTaskStatusCommand { TaskId = taskId, Status = status };
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var command = new UpdateTaskStatusCommand
+            {
+                TaskId = taskId,
+                Status = request.Status,
+                LecturerID = request.LecturerID // Add lecturer ID for validation if needed
+            };
+
             var result = await _mediator.Send(command);
 
             if (result.Success)
@@ -143,6 +155,40 @@ namespace WebAPI.Controllers
                 Message = result.Message
             });
         }
+
+        [HttpPut("{taskId}/complete")]
+        public async Task<IActionResult> CompleteTask(string taskId, [FromBody] CompleteTaskRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var command = new CompleteTaskCommand
+            {
+                TaskId = taskId,
+                LecturerID = request.LecturerID,
+            };
+
+            var result = await _mediator.Send(command);
+
+            if (result.Success)
+            {
+                return Ok(new
+                {
+                    Success = true,
+                    Data = result.Data,
+                    Message = result.Message
+                });
+            }
+
+            return BadRequest(new
+            {
+                Success = false,
+                Message = result.Message
+            });
+        }
+
 
         [HttpDelete("{taskId}")]
         //[Authorize(Roles = "Manager")]
