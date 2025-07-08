@@ -56,6 +56,7 @@ namespace Infrastructure
             services.AddScoped<SendOTPViaEmailCommandHandler>();
 
             //Services 
+            services.AddScoped<IChartService, ChartService>();
             services.AddScoped<IDashboardManagerService, DashboardManagerService>();
             services.AddScoped<IImportExcelService, ImportExcelService>();
             services.AddScoped<ILessonService, LessonService>();
@@ -89,6 +90,7 @@ namespace Infrastructure
 
             services.AddScoped<IAttendanceService, AttendanceService>();
             //Repositories
+            services.AddScoped<IChartRepository, ChartRepository>();
             services.AddScoped<IDashboardManagerRepository, DashboardManagerRepository>();
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
