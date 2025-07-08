@@ -13,7 +13,7 @@ namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class TaskController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("create")]
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         public async Task<IActionResult> CreateTask([FromBody] TaskCreateCommand command)
         {
             if (!ModelState.IsValid)
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("all")]
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetAllTasks()
         {
             var query = new GetAllTasksQuery();
@@ -145,7 +145,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{taskId}")]
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         public async Task<IActionResult> DeleteTask(string taskId)
         {
             var command = new DeleteTaskCommand { TaskId = taskId };

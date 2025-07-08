@@ -140,7 +140,7 @@ namespace Infrastructure
             services.AddScoped<GetStudentMarksByClassAndAssessmentQueryHandler>();
             services.AddScoped<GetStudentMarksByStudentIdQueryHandler>();
             services.AddScoped<DeleteStudentMarkCommandHandler>();
-
+            services.AddScoped<TaskCreateCommandHandler>();
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();
