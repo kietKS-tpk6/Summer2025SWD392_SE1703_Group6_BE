@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application.Usecases.Command;
+﻿using Application.Usecases.Command;
 using FluentValidation;
+using Domain.Enums;
 
 namespace Application.Validators
 {
@@ -22,26 +18,29 @@ namespace Application.Validators
                 .IsInEnum()
                 .WithMessage("Type phải là một giá trị hợp lệ");
 
-            RuleFor(x => x.Content)
-                .NotEmpty()
-                .WithMessage("Content không được để trống")
-                .MaximumLength(255)
-                .WithMessage("Content không được vượt quá 255 ký tự");
-
-            RuleFor(x => x.DateStart)
-                .NotEmpty()
-                .WithMessage("DateStart không được để trống");
-
             RuleFor(x => x.Deadline)
                 .NotEmpty()
-                .WithMessage("Deadline không được để trống")
-                .GreaterThan(x => x.DateStart)
-                .WithMessage("Deadline phải sau DateStart");
+                .WithMessage("Deadline không được để trống");
+
+            RuleFor(x => x.Content)
+                .MaximumLength(255)
+                .WithMessage("Content không được vượt quá 255 ký tự")
+                .When(x => !string.IsNullOrEmpty(x.Content));
 
             RuleFor(x => x.Note)
                 .MaximumLength(255)
                 .WithMessage("Note không được vượt quá 255 ký tự")
                 .When(x => !string.IsNullOrEmpty(x.Note));
+
+            RuleFor(x => x.DateStart)
+                .LessThan(x => x.Deadline)
+                .WithMessage("DateStart phải trước Deadline")
+                .When(x => x.DateStart != default(DateTime));
+
+            RuleFor(x => x.ResourcesURL)
+                .NotEmpty()
+                .WithMessage("ResourcesURL không được để trống khi TaskType là Meeting")
+                .When(x => x.Type == TaskType.Meeting);
 
             RuleFor(x => x.ResourcesURL)
                 .Must(BeAValidUrl)
