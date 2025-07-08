@@ -134,7 +134,6 @@ namespace WebAPI.Controllers
             {
                 TaskId = taskId,
                 Status = request.Status,
-                LecturerID = request.LecturerID // Add lecturer ID for validation if needed
             };
 
             var result = await _mediator.Send(command);
