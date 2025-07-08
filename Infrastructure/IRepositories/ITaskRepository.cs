@@ -17,5 +17,7 @@ namespace Infrastructure.IRepositories
         Task<List<WorkTask>> GetAllTasksAsync();
         Task<OperationResult<string?>> DeleteTaskAsync(string taskId);
         Task<WorkTask?> GetLastTaskAsync();
+        Task<List<WorkTask>> GetTasksToAutoCompleteAsync();
+        Task<OperationResult<int>> BulkUpdateTaskStatusAsync(List<string> taskIds, string status);
     }
 }

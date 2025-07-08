@@ -9,6 +9,5 @@ namespace Application.DTOs
     public class CompleteTaskRequest
     {
         public string LecturerID { get; set; } = string.Empty;
-        public string? CompletionNote { get; set; }
     }
 }
