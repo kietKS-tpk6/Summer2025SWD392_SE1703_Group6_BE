@@ -19,5 +19,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _dashboardManagerService.GetDataForSidebarRightAsync();
             return Ok(result);
         }
+        [HttpGet("overview")]
+        public async Task<IActionResult> GetOverview()
+        {
+            var result = await _dashboardManagerService.GetOverviewAsync();
+            return Ok(result);
+        }
     }
 }

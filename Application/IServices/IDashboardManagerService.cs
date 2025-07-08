@@ -11,5 +11,6 @@ namespace Application.IServices
     public interface IDashboardManagerService
     {
         Task<OperationResult<ManagerSidebarRightDTO>> GetDataForSidebarRightAsync();
+        Task<OperationResult<ManagerDashboardOverviewDTO>> GetOverviewAsync();
     }
 }

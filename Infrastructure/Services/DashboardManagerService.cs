@@ -21,5 +21,9 @@ namespace Infrastructure.Services
         {
             return await _dashboardManagerRepository.GetDataForSidebarRightAsync();
         }
+        public async Task<OperationResult<ManagerDashboardOverviewDTO>> GetOverviewAsync()
+        {
+            return await _dashboardManagerRepository.GetOverviewAsync();
+        }
     }
 }

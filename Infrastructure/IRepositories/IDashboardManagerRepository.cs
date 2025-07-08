@@ -11,5 +11,6 @@ namespace Infrastructure.IRepositories
     public interface IDashboardManagerRepository
     {
         Task<OperationResult<ManagerSidebarRightDTO>> GetDataForSidebarRightAsync();
+        Task<OperationResult<ManagerDashboardOverviewDTO>> GetOverviewAsync();
     }
 }

@@ -107,5 +107,29 @@ namespace Infrastructure.Repositories
             return OperationResult<ManagerSidebarRightDTO>.Ok(result, OperationMessages.RetrieveSuccess("dữ liệu sidebar phải của Manager"));
         }
 
+        public async Task<OperationResult<ManagerDashboardOverviewDTO>> GetOverviewAsync()
+        {
+            var totalLecturers = await _dbContext.Accounts
+                .CountAsync(a => a.Role == AccountRole.Lecture);
+
+            var totalSubjects = await _dbContext.Subject.CountAsync(s => s.Status == SubjectStatus.Active);
+
+            var activeClasses = await _dbContext.Class
+                .CountAsync(c => c.Status == ClassStatus.Ongoing);
+
+            var totalRevenue = await _dbContext.Payment
+                .Where(p => p.Status == PaymentStatus.Paid)
+                .SumAsync(p => (decimal?)p.Total) ?? 0;
+
+            var dto = new ManagerDashboardOverviewDTO
+            {
+                TotalLecturers = totalLecturers,
+                TotalSubjects = totalSubjects,
+                ActiveClasses = activeClasses,
+                TotalRevenue = totalRevenue
+            };
+
+            return OperationResult<ManagerDashboardOverviewDTO>.Ok(dto, OperationMessages.RetrieveSuccess("dữ liệu tổng quan dashboard"));
+        }
     }
 }
