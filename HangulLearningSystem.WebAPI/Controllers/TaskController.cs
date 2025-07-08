@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Usecases.Command;
+using Application.Usecases.Query;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +57,7 @@ namespace WebAPI.Controllers
             var query = new GetTasksByLecturerIdQuery { LecturerId = lecturerId };
             var result = await _mediator.Send(query);
 
-            if (result.IsSuccess)
+            if (result.Success)
             {
                 return Ok(new
                 {
@@ -79,7 +80,7 @@ namespace WebAPI.Controllers
             var query = new GetTaskByIdQuery { TaskId = taskId };
             var result = await _mediator.Send(query);
 
-            if (result.IsSuccess)
+            if (result.Success)
             {
                 return Ok(new
                 {
@@ -103,7 +104,7 @@ namespace WebAPI.Controllers
             var query = new GetAllTasksQuery();
             var result = await _mediator.Send(query);
 
-            if (result.IsSuccess)
+            if (result.Success)
             {
                 return Ok(new
                 {
@@ -126,7 +127,7 @@ namespace WebAPI.Controllers
             var command = new UpdateTaskStatusCommand { TaskId = taskId, Status = status };
             var result = await _mediator.Send(command);
 
-            if (result.IsSuccess)
+            if (result.Success)
             {
                 return Ok(new
                 {
@@ -150,7 +151,7 @@ namespace WebAPI.Controllers
             var command = new DeleteTaskCommand { TaskId = taskId };
             var result = await _mediator.Send(command);
 
-            if (result.IsSuccess)
+            if (result.Success)
             {
                 return Ok(new
                 {
