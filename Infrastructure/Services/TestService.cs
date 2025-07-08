@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Infrastructure.Repositories;
 using Application.DTOs;
 using Microsoft.Identity.Client;
+using Application.Common.Shared;
 
 namespace Infrastructure.Services
 {
@@ -33,7 +34,7 @@ namespace Infrastructure.Services
         private readonly IStudentMarkRepository _studentMarkRepository;
         private readonly ITestEventRepository _testEventRepository;
 
-        
+
 
 
         public TestService(
@@ -65,7 +66,7 @@ namespace Infrastructure.Services
             _mcqAnswerDetailRepository = mCQAnswerDetailRepository;
             _mcqOptionRepository = mCQOptionRepository;
             _mcqAnswerRepository = mCQAnswerRepository;
-            _testEventRepository= testEventRepository;
+            _testEventRepository = testEventRepository;
 
         }
 
@@ -153,7 +154,7 @@ namespace Infrastructure.Services
                 var canTransition = CanTransitionStatus(
                     test.Status,
                     command.NewStatus,
-                    account.Role, 
+                    account.Role,
                     test.CreateBy == command.RequestingAccountID
                 );
 
@@ -217,12 +218,12 @@ namespace Infrastructure.Services
             try
             {
                 var configResult = await _systemConfigService.GetConfig("auto_approve_test_after_pending_duration");
-                int days = 3; 
+                int days = 3;
 
                 if (configResult.Success && configResult.Data != null && !string.IsNullOrEmpty(configResult.Data.Value))
                 {
                     if (!int.TryParse(configResult.Data.Value, out days))
-                        days = 3; 
+                        days = 3;
                 }
 
                 var pendingTests = await _testRepository.GetPendingTestsOlderThanDaysAsync(days);
@@ -282,30 +283,24 @@ namespace Infrastructure.Services
         {
             try
             {
-                // 1. Lấy danh sách StudentTest theo TestEventID
                 var studentTests = await _studentTestRepository.GetByTestEventIdAsync(testEventId);
 
                 if (studentTests == null || !studentTests.Any())
                     return OperationResult<StudentTestResultDTO>.Fail("Không tìm thấy bài kiểm tra nào cho sự kiện này.");
 
-                // 2. Lọc ra bài kiểm tra của học sinh có accountId
                 var studentTest = studentTests.FirstOrDefault(st => st.StudentID == accountId);
                 if (studentTest == null)
                     return OperationResult<StudentTestResultDTO>.Fail("Không tìm thấy bài làm của học sinh.");
 
-                // 3. Lấy thông tin TestEvent để có TestID
                 var testEvent = await _testEventRepository.GetByIdAsync(testEventId);
                 if (testEvent == null)
                     return OperationResult<StudentTestResultDTO>.Fail("Không tìm thấy sự kiện kiểm tra.");
 
-                // 4. Lấy thông tin học sinh
                 var student = await _accountRepository.GetAccountsByIdAsync(studentTest.StudentID);
                 string studentName = student?.FirstName + " " + student?.LastName ?? "Unknown";
 
-                // 5. Lấy điểm chốt từ StudentMarks
                 var studentMark = await _studentMarkRepository.GetByStudentTestIdAsync(studentTest.StudentTestID);
 
-                // 6. Lấy các section của bài test
                 var sections = await _testSectionRepository.GetByTestIdAsync(testEvent.TestID);
                 if (sections == null || !sections.Any())
                     return OperationResult<StudentTestResultDTO>.Fail("Bài kiểm tra không có phần nào.");
@@ -318,7 +313,7 @@ namespace Infrastructure.Services
                                     .Where(q => q.IsActive).ToList();
 
                     var questionResults = new List<QuestionWithStudentAnswerDTO>();
-                    decimal studentSectionScore = 0; // Điểm học sinh đạt được trong section này
+                    decimal studentSectionScore = 0; 
 
                     foreach (var question in questions)
                     {
@@ -349,7 +344,6 @@ namespace Infrastructure.Services
                                 var answerDetails = await _mcqAnswerDetailRepository.GetByMCQAnswerIdAsync(mcqAnswer.MCQAnswerID);
                                 selectedOptionIds = answerDetails.Select(ad => ad.MCQOptionID).ToList();
 
-                                // Kiểm tra xem câu trả lời có đúng không
                                 var correctOptions = options.Where(o => o.IsCorrect).Select(o => o.MCQOptionID).ToList();
                                 isCorrect = selectedOptionIds.OrderBy(x => x).SequenceEqual(correctOptions.OrderBy(x => x));
                             }
@@ -370,7 +364,6 @@ namespace Infrastructure.Services
                                 SelectedOptionIDs = selectedOptionIds
                             };
 
-                            // Tính điểm cho câu MCQ: nếu đúng thì lấy điểm đầy đủ, sai thì 0
                             if (isCorrect)
                             {
                                 studentSectionScore += question.Score;
@@ -381,7 +374,6 @@ namespace Infrastructure.Services
                             var writingAnswer = await _writingAnswerRepository.GetByStudentTestAndQuestionAsync(
                                 studentTest.StudentTestID, question.QuestionID);
 
-                            // Với Writing, Score của question sẽ lấy từ WritingAnswer.Score thay vì question.Score
                             questionDto.Score = writingAnswer?.Score ?? 0;
 
                             questionDto.StudentAnswer = new StudentAnswerDetailDTO
@@ -391,7 +383,6 @@ namespace Infrastructure.Services
                                 Feedback = writingAnswer?.Feedback,
                             };
 
-                            // Tính điểm cho câu Writing: lấy từ Score trong WritingAnswer
                             if (writingAnswer?.Score.HasValue == true)
                             {
                                 studentSectionScore += writingAnswer.Score.Value;
@@ -401,16 +392,13 @@ namespace Infrastructure.Services
                         questionResults.Add(questionDto);
                     }
 
-                    // Đối với MCQ sections, studentSectionScore đã được tính trong vòng lặp questions ở trên
-                    // Không cần tính lại ở đây
-
                     sectionResults.Add(new TestSectionWithStudentAnswersDTO
                     {
                         TestSectionID = section.TestSectionID,
                         Context = section.Context,
                         TestSectionType = section.TestSectionType,
                         SectionScore = section.Score,
-                        StudentGetScore = studentSectionScore, // Điểm học sinh đạt được
+                        StudentGetScore = studentSectionScore, 
                         Questions = questionResults
                     });
                 }
@@ -425,7 +413,7 @@ namespace Infrastructure.Services
                     SubmitTime = studentTest.SubmitTime,
                     Status = studentTest.Status.ToString(),
                     OriginalSubmissionScore = studentTest.Mark,
-                    Comment = studentTest?.Feedback, // Nhận xét từ giảng viên
+                    Comment = studentTest?.Feedback, 
                     Sections = sectionResults
                 };
 
@@ -441,13 +429,11 @@ namespace Infrastructure.Services
         {
             try
             {
-                // 1. Lấy danh sách StudentTest theo TestEventID
                 var studentTests = await _studentTestRepository.GetByTestEventIdAsync(testEventId);
 
                 if (studentTests == null || !studentTests.Any())
                     return OperationResult<List<StudentTestResultDTO>>.Fail("Không tìm thấy bài kiểm tra nào cho sự kiện này.");
 
-                // 2. Lấy thông tin TestEvent để có TestID
                 var testEvent = await _testEventRepository.GetByIdAsync(testEventId);
                 if (testEvent == null)
                     return OperationResult<List<StudentTestResultDTO>>.Fail("Không tìm thấy sự kiện kiểm tra.");
@@ -456,27 +442,22 @@ namespace Infrastructure.Services
 
                 foreach (var studentTest in studentTests)
                 {
-                    // 3. Lấy thông tin học sinh
                     var student = await _accountRepository.GetAccountsByIdAsync(studentTest.StudentID);
                     string studentName = student?.FirstName + " " + student?.LastName ?? "Unknown";
-
-                    // 4. Lấy điểm chốt từ StudentMarks
                     var studentMark = await _studentMarkRepository.GetByStudentTestIdAsync(studentTest.StudentTestID);
 
-                    // 5. Lấy thông tin Test và các Section - sử dụng TestID từ TestEvent
                     var sections = await _testSectionRepository.GetByTestIdAsync(testEvent.TestID);
                     if (sections == null || !sections.Any()) continue;
 
                     var sectionResults = new List<TestSectionWithStudentAnswersDTO>();
 
                     foreach (var section in sections)
-                    {
-                        // 6. Lấy danh sách câu hỏi trong section
+                    {                       
                         var questions = (await _questionRepo.GetQuestionBySectionId(section.TestSectionID))
                                        .Where(q => q.IsActive).ToList();
 
                         var questionResults = new List<QuestionWithStudentAnswerDTO>();
-                        decimal studentSectionScore = 0; // Điểm học sinh đạt được trong section này
+                        decimal studentSectionScore = 0; 
 
                         foreach (var question in questions)
                         {
@@ -493,13 +474,10 @@ namespace Infrastructure.Services
                                 StudentAnswer = null
                             };
 
-                            // 7. Xử lý theo loại câu hỏi
                             if (section.TestSectionType == TestFormatType.Multiple || section.TestSectionType == TestFormatType.TrueFalse)
                             {
-                                // Lấy các option của câu hỏi
                                 var options = await _mcqOptionRepository.GetByQuestionIdAsync(question.QuestionID);
 
-                                // Lấy đáp án học sinh cho câu hỏi MCQ
                                 var mcqAnswer = await _mcqAnswerRepository.GetByStudentTestAndQuestionAsync(
                                     studentTest.StudentTestID, question.QuestionID);
 
@@ -511,7 +489,6 @@ namespace Infrastructure.Services
                                     var answerDetails = await _mcqAnswerDetailRepository.GetByMCQAnswerIdAsync(mcqAnswer.MCQAnswerID);
                                     selectedOptionIds = answerDetails.Select(ad => ad.MCQOptionID).ToList();
 
-                                    // Kiểm tra xem câu trả lời có đúng không
                                     var correctOptions = options.Where(o => o.IsCorrect).Select(o => o.MCQOptionID).ToList();
                                     isCorrect = selectedOptionIds.OrderBy(x => x).SequenceEqual(correctOptions.OrderBy(x => x));
                                 }
@@ -532,7 +509,6 @@ namespace Infrastructure.Services
                                     SelectedOptionIDs = selectedOptionIds
                                 };
 
-                                // Tính điểm cho câu MCQ: nếu đúng thì lấy điểm đầy đủ, sai thì 0
                                 if (isCorrect)
                                 {
                                     studentSectionScore += question.Score;
@@ -540,11 +516,9 @@ namespace Infrastructure.Services
                             }
                             else if (section.TestSectionType == TestFormatType.Writing)
                             {
-                                // Lấy đáp án học sinh cho câu hỏi Writing
                                 var writingAnswer = await _writingAnswerRepository.GetByStudentTestAndQuestionAsync(
                                     studentTest.StudentTestID, question.QuestionID);
 
-                                // Với Writing, Score của question sẽ lấy từ WritingAnswer.Score thay vì question.Score
                                 questionDto.Score = writingAnswer?.Score ?? 0;
 
                                 questionDto.StudentAnswer = new StudentAnswerDetailDTO
@@ -553,8 +527,7 @@ namespace Infrastructure.Services
                                     StudentEssay = writingAnswer?.StudentEssay,
                                     Feedback = writingAnswer?.Feedback,
                                 };
-
-                                // Tính điểm cho câu Writing: lấy từ Score trong WritingAnswer
+                               
                                 if (writingAnswer?.Score.HasValue == true)
                                 {
                                     studentSectionScore += writingAnswer.Score.Value;
@@ -570,7 +543,7 @@ namespace Infrastructure.Services
                             Context = section.Context,
                             TestSectionType = section.TestSectionType,
                             SectionScore = section.Score,
-                            StudentGetScore = studentSectionScore, // Điểm học sinh đạt được
+                            StudentGetScore = studentSectionScore, 
                             Questions = questionResults
                         });
                     }
@@ -580,12 +553,12 @@ namespace Infrastructure.Services
                         StudentTestID = studentTest.StudentTestID,
                         StudentID = studentTest.StudentID,
                         StudentName = studentName,
-                        TestID = testEvent.TestID,  // Lấy TestID từ TestEvent
+                        TestID = testEvent.TestID,  
                         StartTime = studentTest.StartTime,
                         SubmitTime = studentTest.SubmitTime,
                         Status = studentTest.Status.ToString(),
-                        OriginalSubmissionScore = studentTest.Mark,  // Điểm ban đầu
-                        Comment = studentTest?.Feedback,  // Nhận xét
+                        OriginalSubmissionScore = studentTest.Mark,  
+                        Comment = studentTest?.Feedback,
                         Sections = sectionResults
                     });
                 }
@@ -742,7 +715,7 @@ namespace Infrastructure.Services
             {
                 return OperationResult<string>.Fail(OperationMessages.NotFound("đề kiểm tra"));
             }
-            testFound.Status = request.TestStatus; 
+            testFound.Status = request.TestStatus;
             return await _testRepository.UpdateTestAsync(testFound);
         }
         public async Task<OperationResult<List<Test>>> GetTestsWithAdvancedFiltersAsync(
@@ -752,6 +725,156 @@ namespace Infrastructure.Services
     TestStatus? status = null)
         {
             return await _testRepository.GetTestsWithAdvancedFiltersAsync(category, subjectId, testType, status);
+        }
+
+    public async Task<OperationResult<PagedResult<TestDetailDTO>>> GetListAsync(int page, int pageSize)
+        {
+            var operationResult = await _testRepository.GetPaginatedListAsync(page, pageSize);
+
+            if (!operationResult.Success)
+            {
+                return OperationResult<PagedResult<TestDetailDTO>>.Fail(operationResult.Message);
+            }
+
+            var (items, total) = operationResult.Data;
+
+            var result = new PagedResult<TestDetailDTO>
+            {
+                Items = items,
+                TotalItems = total,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+            return OperationResult<PagedResult<TestDetailDTO>>.Ok(result, OperationMessages.RetrieveSuccess("danh sách test"));
+        }
+
+        public async Task<OperationResult<PagedResult<TestDetailDTO>>> GetListByStatusAsync(string status, int page, int pageSize)
+        {
+            var operationResult = await _testRepository.GetPaginatedListByStatusAsync(status, page, pageSize);
+
+            if (!operationResult.Success)
+                return OperationResult<PagedResult<TestDetailDTO>>.Fail(operationResult.Message);
+
+            var (items, total) = operationResult.Data;
+
+            var result = new PagedResult<TestDetailDTO>
+            {
+                Items = items,
+                TotalItems = total,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+            return OperationResult<PagedResult<TestDetailDTO>>.Ok(result, OperationMessages.RetrieveSuccess("test theo trạng thái"));
+        }
+
+        public async Task<OperationResult<PagedResult<TestDetailDTO>>> GetListByCreatorAsync(string createdBy, int page, int pageSize)
+        {
+            var operationResult = await _testRepository.GetPaginatedListByCreatorAsync(createdBy, page, pageSize);
+
+            if (!operationResult.Success)
+                return OperationResult<PagedResult<TestDetailDTO>>.Fail(operationResult.Message);
+
+            var (items, total) = operationResult.Data;
+
+            var result = new PagedResult<TestDetailDTO>
+            {
+                Items = items,
+                TotalItems = total,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+            return OperationResult<PagedResult<TestDetailDTO>>.Ok(result, OperationMessages.RetrieveSuccess("test theo người tạo"));
+        }
+
+        public async Task<OperationResult<PagedResult<TestDetailDTO>>> GetListBySubjectAsync(string subjectId, int page, int pageSize)
+        {
+            var operationResult = await _testRepository.GetPaginatedListBySubjectAsync(subjectId, page, pageSize);
+
+            if (!operationResult.Success)
+                return OperationResult<PagedResult<TestDetailDTO>>.Fail(operationResult.Message);
+
+            var (items, total) = operationResult.Data;
+
+            var result = new PagedResult<TestDetailDTO>
+            {
+                Items = items,
+                TotalItems = total,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+            return OperationResult<PagedResult<TestDetailDTO>>.Ok(result, OperationMessages.RetrieveSuccess("test theo môn học"));
+        }
+
+        public async Task<OperationResult<PagedResult<TestDetailDTO>>> GetListByTestTypeAsync(TestType testType, int page, int pageSize)
+        {
+            var operationResult = await _testRepository.GetPaginatedListByTestTypeAsync(testType, page, pageSize);
+
+            if (!operationResult.Success)
+                return OperationResult<PagedResult<TestDetailDTO>>.Fail(operationResult.Message);
+
+            var (items, total) = operationResult.Data;
+
+            var result = new PagedResult<TestDetailDTO>
+            {
+                Items = items,
+                TotalItems = total,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+            return OperationResult<PagedResult<TestDetailDTO>>.Ok(result, OperationMessages.RetrieveSuccess("test theo loại test"));
+        }
+
+        public async Task<OperationResult<PagedResult<TestDetailDTO>>> GetListByCategoryAsync(AssessmentCategory category, int page, int pageSize)
+        {
+            var operationResult = await _testRepository.GetPaginatedListByCategoryAsync(category, page, pageSize);
+
+            if (!operationResult.Success)
+                return OperationResult<PagedResult<TestDetailDTO>>.Fail(operationResult.Message);
+
+            var (items, total) = operationResult.Data;
+
+            var result = new PagedResult<TestDetailDTO>
+            {
+                Items = items,
+                TotalItems = total,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+            return OperationResult<PagedResult<TestDetailDTO>>.Ok(result, OperationMessages.RetrieveSuccess("test theo danh mục"));
+        }
+
+        public async Task<OperationResult<PagedResult<TestDetailDTO>>> GetListWithFiltersAsync(
+            string? status = null,
+            string? createdBy = null,
+            string? subjectId = null,
+            TestType? testType = null,
+            AssessmentCategory? category = null,
+            int page = 1,
+            int pageSize = 10)
+        {
+            var operationResult = await _testRepository.GetPaginatedListWithFiltersAsync(
+                status, createdBy, subjectId, testType, category, page, pageSize);
+
+            if (!operationResult.Success)
+                return OperationResult<PagedResult<TestDetailDTO>>.Fail(operationResult.Message);
+
+            var (items, total) = operationResult.Data;
+
+            var result = new PagedResult<TestDetailDTO>
+            {
+                Items = items,
+                TotalItems = total,
+                PageNumber = page,
+                PageSize = pageSize
+            };
+
+            return OperationResult<PagedResult<TestDetailDTO>>.Ok(result, OperationMessages.RetrieveSuccess("test với bộ lọc"));
         }
     }
 }
