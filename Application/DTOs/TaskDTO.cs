@@ -32,6 +32,7 @@ namespace Application.DTOs
         public DateTime Deadline { get; set; }
         public string? Note { get; set; }
         public string? ResourcesURL { get; set; }
+        public string Status { get; set; } 
     }
 
     public class TaskListDTO
