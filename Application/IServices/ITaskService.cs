@@ -15,6 +15,7 @@ namespace Application.IServices
         Task<OperationResult<List<WorkTask>>> GetTasksByLecturerIdAsync(string lecturerId);
         Task<OperationResult<WorkTask?>> GetTaskByIdAsync(string taskId);
         Task<OperationResult<string?>> UpdateTaskStatusAsync(string taskId, string status);
+        Task<OperationResult<string?>> CompleteTaskAsync(string taskId, string lecturerID);
         Task<OperationResult<List<WorkTask>>> GetAllTasksAsync();
         Task<OperationResult<string?>> DeleteTaskAsync(string taskId);
         Task<OperationResult<int>> AutoCompleteExpiredTasksAsync();
