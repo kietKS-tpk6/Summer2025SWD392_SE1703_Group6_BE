@@ -45,7 +45,7 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.TaskID == taskId);
         }
 
-        public async Task<OperationResult<string?>> UpdateTaskStatusAsync(string taskId, string status)
+        public async Task<OperationResult<string?>> UpdateTaskStatusAsync(string taskId, string status, DateTime? dateStart = null, DateTime? deadline = null)
         {
             try
             {
@@ -62,6 +62,16 @@ namespace Infrastructure.Repositories
                 }
 
                 task.Status = taskStatus;
+
+                if (dateStart.HasValue)
+                {
+                    task.DateStart = dateStart.Value;
+                }
+
+                if (deadline.HasValue)
+                {
+                    task.Deadline = deadline.Value;
+                }
                 await _dbContext.SaveChangesAsync();
                 return OperationResult<string?>.Ok(taskId, "Cập nhật trạng thái thành công");
             }

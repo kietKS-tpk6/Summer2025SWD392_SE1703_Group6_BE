@@ -21,7 +21,7 @@ namespace Application.Usecases.CommandHandler
 
         public async Task<OperationResult<string?>> Handle(UpdateTaskStatusCommand request, CancellationToken cancellationToken)
         {
-            return await _taskService.UpdateTaskStatusAsync(request.TaskId, request.Status);
+            return await _taskService.UpdateTaskStatusAsync(request.TaskId, request.Status, request.DateStart, request.Deadline);
         }
     }
 }

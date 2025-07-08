@@ -130,6 +130,8 @@ namespace WebAPI.Controllers
             {
                 TaskId = taskId,
                 Status = request.Status,
+                DateStart = request.DateStart,
+                Deadline = request.Deadline
             };
 
             var result = await _mediator.Send(command);

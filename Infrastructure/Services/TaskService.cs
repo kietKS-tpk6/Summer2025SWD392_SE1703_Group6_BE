@@ -104,7 +104,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<OperationResult<string?>> UpdateTaskStatusAsync(string taskId, string status)
+        public async Task<OperationResult<string?>> UpdateTaskStatusAsync(string taskId, string status, DateTime? dateStart = null, DateTime? deadline = null)
         {
             try
             {
@@ -119,7 +119,7 @@ namespace Infrastructure.Services
                     return OperationResult<string?>.Fail("Không tìm thấy task");
                 }
 
-                var result = await _taskRepository.UpdateTaskStatusAsync(taskId, taskStatus.ToString());
+                var result = await _taskRepository.UpdateTaskStatusAsync(taskId, taskStatus.ToString(), dateStart, deadline);
                 if (!result.Success)
                 {
                     return OperationResult<string?>.Fail(result.Message);

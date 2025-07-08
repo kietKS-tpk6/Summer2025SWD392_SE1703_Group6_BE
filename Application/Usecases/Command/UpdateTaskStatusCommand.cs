@@ -7,6 +7,8 @@ namespace Application.Usecases.Command
     {
         public string TaskId { get; set; }
         public string Status { get; set; }
+        public DateTime? DateStart { get; set; }
+        public DateTime? Deadline { get; set; }
     }
 
 }

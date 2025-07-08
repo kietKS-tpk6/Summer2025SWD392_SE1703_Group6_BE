@@ -13,7 +13,7 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<string?>> CreateTaskAsync(WorkTask workTask);
         Task<List<WorkTask>> GetTasksByLecturerIdAsync(string lecturerId);
         Task<WorkTask?> GetTaskByIdAsync(string taskId);
-        Task<OperationResult<string?>> UpdateTaskStatusAsync(string taskId, string status);
+        Task<OperationResult<string?>> UpdateTaskStatusAsync(string taskId, string status, DateTime? dateStart = null, DateTime? deadline = null);
         Task<List<WorkTask>> GetAllTasksAsync();
         Task<OperationResult<string?>> DeleteTaskAsync(string taskId);
         Task<WorkTask?> GetLastTaskAsync();
