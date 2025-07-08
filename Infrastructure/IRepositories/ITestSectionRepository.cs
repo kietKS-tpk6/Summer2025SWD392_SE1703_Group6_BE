@@ -23,6 +23,8 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<string>> UpdateTestSectionAsync(TestSection testSection);
         Task<OperationResult<string>> DeleteTestSectionAsync(string testSectionId);
         Task<string> GenerateNextTestSectionIdAsync();
+        Task<List<TestSection>> GetByTestIDAndTypeAsync(string testID, TestFormatType type);
+        Task<decimal> GetTotalScoreBySectionID(string testSectionID);
 
     }
 }

@@ -19,7 +19,7 @@ namespace Application.Usecases.Command
         public string Role { get; set; }
         public string Status { get; set; }
         public DateOnly BirthDate { get; set; }
-        public string? Image { get; set; }
+        public string? Img { get; set; }
     }
 
 }

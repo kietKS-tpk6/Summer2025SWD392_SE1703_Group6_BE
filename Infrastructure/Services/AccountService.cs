@@ -326,7 +326,7 @@ namespace Infrastructure.Services
             existingAccount.LastName = command.LastName;
             existingAccount.PhoneNumber = command.PhoneNumber;
             existingAccount.BirthDate = command.BirthDate;
-            existingAccount.Image = command.Image;
+            existingAccount.Image = command.Img;
 
             var normalizedRole = NormalizeRole(command.Role);
             existingAccount.Role = normalizedRole ?? existingAccount.Role;
