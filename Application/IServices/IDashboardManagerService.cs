@@ -12,5 +12,6 @@ namespace Application.IServices
     {
         Task<OperationResult<ManagerSidebarRightDTO>> GetDataForSidebarRightAsync();
         Task<OperationResult<ManagerDashboardOverviewDTO>> GetOverviewAsync();
+        Task<OperationResult<List<ManagerAlertTaskDTO>>> GetAlertTasksAsync();
     }
 }

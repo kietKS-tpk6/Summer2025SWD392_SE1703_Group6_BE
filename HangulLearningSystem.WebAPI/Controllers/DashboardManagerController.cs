@@ -25,5 +25,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _dashboardManagerService.GetOverviewAsync();
             return Ok(result);
         }
+        [HttpGet("alert-task")]
+        public async Task<IActionResult> GetAlertTask()
+        {
+            var result = await _dashboardManagerService.GetAlertTasksAsync();
+            return Ok(result);
+        }
     }
 }

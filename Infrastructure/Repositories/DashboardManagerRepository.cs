@@ -131,5 +131,95 @@ namespace Infrastructure.Repositories
 
             return OperationResult<ManagerDashboardOverviewDTO>.Ok(dto, OperationMessages.RetrieveSuccess("dữ liệu tổng quan dashboard"));
         }
+        public async Task<OperationResult<List<ManagerAlertTaskDTO>>> GetAlertTasksAsync()
+        {
+            var today = DateTime.Today;
+
+            var alerts = new List<ManagerAlertTaskDTO>();
+
+            var classReadyToApprove = await (
+                from c in _dbContext.Class
+                where c.Status == ClassStatus.Pending &&
+                      c.TeachingStartTime <= today &&
+                      _dbContext.ClassEnrollment.Count(e => e.ClassID == c.ClassID) >= c.MinStudentAcp
+                select new ManagerAlertTaskDTO
+                {
+                    Type = "class_approval",
+                    Message = $"📌 Lớp '{c.ClassName}' đủ điều kiện mở, cần được duyệt.",
+                    Deadline = c.TeachingStartTime,
+                    Severity = "warning"
+                }).ToListAsync();
+            alerts.AddRange(classReadyToApprove);
+
+            var lowEnrollment = await (
+                from c in _dbContext.Class
+                where c.Status == ClassStatus.Pending &&
+                      c.TeachingStartTime > today &&
+                      c.TeachingStartTime <= today.AddDays(5)
+                let studentCount = _dbContext.ClassEnrollment.Count(e => e.ClassID == c.ClassID)
+                where studentCount < c.MinStudentAcp
+                select new ManagerAlertTaskDTO
+                {
+                    Type = "low_enrollment",
+                    Message = $"⚠️ Lớp '{c.ClassName}' sắp tới ngày khai giảng nhưng chưa đủ học viên.",
+                    Deadline = c.TeachingStartTime,
+                    Severity = "urgent"
+                }).ToListAsync();
+            alerts.AddRange(lowEnrollment);
+
+            var testMissingInfo = await (
+           from e in _dbContext.TestEvent
+           join lesson in _dbContext.Lesson on e.ClassLessonID equals lesson.ClassLessonID
+           join cls in _dbContext.Class on lesson.ClassID equals cls.ClassID
+           join schedule in _dbContext.SyllabusSchedule on lesson.SyllabusScheduleID equals schedule.SyllabusScheduleID
+           join scheduletest in _dbContext.SyllabusScheduleTests on schedule.SyllabusScheduleID equals scheduletest.SyllabusScheduleID
+           join assessment in _dbContext.AssessmentCriteria on scheduletest.AssessmentCriteriaID equals assessment.AssessmentCriteriaID
+           where e.Status == TestEventStatus.Draft &&
+                 (assessment.Category == AssessmentCategory.Midterm || assessment.Category == AssessmentCategory.Final) &&
+                 cls.Status == ClassStatus.Ongoing
+           select new ManagerAlertTaskDTO
+           {
+               Type = "test_event_missing",
+               Message = $"📝 Đề kiểm tra '{assessment.Category}' của lớp '{cls.ClassName}' cần cập nhật thông tin.",
+               Deadline = lesson.StartTime.AddDays(-3),
+               Severity = "info"
+           })
+           .Distinct()
+           .OrderBy(x => x.Deadline) 
+           .ToListAsync();
+
+            alerts.AddRange(testMissingInfo);
+
+
+            var testNotReviewedCount = await _dbContext.Test
+                .CountAsync(t => t.Status == TestStatus.Pending);
+
+            if (testNotReviewedCount > 0)
+            {
+                alerts.Add(new ManagerAlertTaskDTO
+                {
+                    Type = "test_not_reviewed",
+                    Message = $"🧐 Có {testNotReviewedCount} đề kiểm tra đang chờ được phê duyệt.",
+                    Deadline = null,
+                    Severity = "warning"
+                });
+            }
+
+            var pendingRefundCount = await _dbContext.Payment
+                .CountAsync(p => p.Status == PaymentStatus.RequestRefund);
+
+            if (pendingRefundCount > 0)
+            {
+                alerts.Add(new ManagerAlertTaskDTO
+                {
+                    Type = "payment_pending",
+                    Message = $"💰 Có {pendingRefundCount} giao dịch thanh toán đang chờ xử lý hoàn tiền.",
+                    Deadline = null,
+                    Severity = "info"
+                });
+            }
+
+            return OperationResult<List<ManagerAlertTaskDTO>>.Ok(alerts, OperationMessages.RetrieveSuccess("danh sách cảnh báo / hành động"));
+        }
     }
 }

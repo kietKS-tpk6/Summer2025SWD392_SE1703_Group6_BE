@@ -25,5 +25,9 @@ namespace Infrastructure.Services
         {
             return await _dashboardManagerRepository.GetOverviewAsync();
         }
+        public async Task<OperationResult<List<ManagerAlertTaskDTO>>> GetAlertTasksAsync()
+        {
+            return await _dashboardManagerRepository.GetAlertTasksAsync();
+        }
     }
 }
