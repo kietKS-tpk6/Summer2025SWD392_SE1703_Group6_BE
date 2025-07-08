@@ -26,7 +26,6 @@ namespace Domain.Entities
 
         public string? ResourcesURL { get; set; }
 
-        [Column(TypeName = "nvarchar(20)")]
         public Enums.TaskStatus Status { get; set; } = Enums.TaskStatus.InProgress;
 
         /// <summary>

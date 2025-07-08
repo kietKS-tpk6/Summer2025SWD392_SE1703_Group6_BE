@@ -6,6 +6,7 @@ using Application.Usecases.Command;
 using Application.Usecases.CommandHandler;
 using Application.Usecases.CommandHandlers;
 using Application.Usecases.QueryHandlers;
+using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
@@ -87,6 +88,8 @@ namespace Infrastructure
             services.AddScoped<IWritingBaremService, WritingBaremService>();
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IAttendanceService, AttendanceService>();
+            services.AddHostedService<TaskAutoCompleteBackgroundService>();
+
             //Repositories
             services.AddScoped<ILessonRepository, LessonRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();

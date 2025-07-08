@@ -17,5 +17,7 @@ namespace Application.IServices
         Task<OperationResult<string?>> UpdateTaskStatusAsync(string taskId, string status);
         Task<OperationResult<List<WorkTask>>> GetAllTasksAsync();
         Task<OperationResult<string?>> DeleteTaskAsync(string taskId);
+        Task<OperationResult<int>> AutoCompleteExpiredTasksAsync();
+
     }
 }
