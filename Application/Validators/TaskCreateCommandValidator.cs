@@ -45,7 +45,7 @@ namespace Application.Validators
             RuleFor(x => x.ResourcesURL)
                 .Must(BeAValidUrl)
                 .WithMessage("ResourcesURL phải là một URL hợp lệ")
-                .When(x => !string.IsNullOrEmpty(x.ResourcesURL));
+                .When(x => x.Type == TaskType.Meeting && !string.IsNullOrEmpty(x.ResourcesURL));
         }
 
         private bool BeAValidUrl(string? url)
