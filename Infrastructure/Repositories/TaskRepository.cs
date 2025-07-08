@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application.Common.Constants;
+﻿using Application.Common.Constants;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -59,9 +55,13 @@ namespace Infrastructure.Repositories
                     return OperationResult<string?>.Fail("Không tìm thấy task");
                 }
 
-                // Có thể thêm field Status vào WorkTask entity nếu cần
-                // task.Status = status;
+                // Validate and parse status
+                if (!Enum.TryParse<Domain.Enums.TaskStatus>(status, true, out var taskStatus))
+                {
+                    return OperationResult<string?>.Fail("Trạng thái task không hợp lệ");
+                }
 
+                task.Status = taskStatus;
                 await _dbContext.SaveChangesAsync();
                 return OperationResult<string?>.Ok(taskId, "Cập nhật trạng thái thành công");
             }
@@ -103,6 +103,46 @@ namespace Infrastructure.Repositories
             return await _dbContext.WorkTasks
                 .OrderByDescending(t => t.TaskID)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<WorkTask>> GetTasksToAutoCompleteAsync()
+        {
+            var autoCompleteTypes = TaskTypeExtensions.GetAutoCompleteTaskTypes()
+                .Select(t => t.ToString())
+                .ToList();
+
+            return await _dbContext.WorkTasks
+                .Where(t => autoCompleteTypes.Contains(t.Type) &&
+                           t.Status == Domain.Enums.TaskStatus.InProgress &&
+                           t.Deadline <= DateTime.Now)
+                .ToListAsync();
+        }
+
+        public async Task<OperationResult<int>> BulkUpdateTaskStatusAsync(List<string> taskIds, string status)
+        {
+            try
+            {
+                if (!Enum.TryParse<Domain.Enums.TaskStatus>(status, true, out var taskStatus))
+                {
+                    return OperationResult<int>.Fail("Trạng thái task không hợp lệ");
+                }
+
+                var tasks = await _dbContext.WorkTasks
+                    .Where(t => taskIds.Contains(t.TaskID))
+                    .ToListAsync();
+
+                foreach (var task in tasks)
+                {
+                    task.Status = taskStatus;
+                }
+
+                await _dbContext.SaveChangesAsync();
+                return OperationResult<int>.Ok(tasks.Count, $"Cập nhật {tasks.Count} task thành công");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<int>.Fail($"Lỗi khi cập nhật hàng loạt task: {ex.Message}");
+            }
         }
     }
 }
