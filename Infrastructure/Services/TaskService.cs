@@ -119,16 +119,12 @@ namespace Infrastructure.Services
                     return OperationResult<string?>.Fail("Không tìm thấy task");
                 }
 
-                if (taskStatus == Domain.Enums.TaskStatus.Completed && !task.RequiresManualCompletion)
-                {
-                   
-                }
-
                 var result = await _taskRepository.UpdateTaskStatusAsync(taskId, taskStatus.ToString());
                 if (!result.Success)
                 {
                     return OperationResult<string?>.Fail(result.Message);
                 }
+
                 return OperationResult<string?>.Ok(taskId, "Cập nhật trạng thái task thành công");
             }
             catch (Exception ex)
@@ -136,6 +132,46 @@ namespace Infrastructure.Services
                 return OperationResult<string?>.Fail($"Lỗi khi cập nhật trạng thái task: {ex.Message}");
             }
         }
+
+        public async Task<OperationResult<string?>> CompleteTaskAsync(string taskId, string lecturerID)
+        {
+            try
+            {
+                var task = await _taskRepository.GetTaskByIdAsync(taskId);
+                if (task == null)
+                {
+                    return OperationResult<string?>.Fail("Không tìm thấy task");
+                }
+
+                if (task.Status == Domain.Enums.TaskStatus.Completed)
+                {
+                    return OperationResult<string?>.Fail("Task đã được hoàn thành");
+                }
+
+                if (!Enum.TryParse<Domain.Enums.TaskType>(task.Type, true, out var taskType))
+                {
+                    return OperationResult<string?>.Fail("Loại task không hợp lệ");
+                }
+
+                if (taskType == Domain.Enums.TaskType.Meeting)
+                {
+                    return OperationResult<string?>.Fail("Task loại Meeting không thể hoàn thành thủ công");
+                }
+
+                var result = await _taskRepository.UpdateTaskStatusAsync(taskId, Domain.Enums.TaskStatus.Completed.ToString());
+                if (!result.Success)
+                {
+                    return OperationResult<string?>.Fail(result.Message);
+                }
+
+                return OperationResult<string?>.Ok(taskId, "Hoàn thành task thành công");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<string?>.Fail($"Lỗi khi hoàn thành task: {ex.Message}");
+            }
+        }
+
 
         public async Task<OperationResult<List<WorkTask>>> GetAllTasksAsync()
         {
