@@ -4,6 +4,7 @@ using Application.Usecases.Query;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
@@ -45,7 +46,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while creating feedback", error = ex.Message });
             }
@@ -61,7 +62,7 @@ namespace WebAPI.Controllers
                 var result = await _mediator.Send(query);
                 return Ok(result);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while retrieving feedbacks", error = ex.Message });
             }
@@ -77,7 +78,7 @@ namespace WebAPI.Controllers
                 var result = await _mediator.Send(query);
                 return Ok(result);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while retrieving feedbacks", error = ex.Message });
             }
@@ -99,7 +100,7 @@ namespace WebAPI.Controllers
 
                 return Ok(result);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while retrieving feedback", error = ex.Message });
             }
@@ -111,12 +112,11 @@ namespace WebAPI.Controllers
         {
             try
             {
-                // You might want to create a separate query for this
                 var query = new GetFeedbackSummaryQuery { ClassID = classId };
                 var result = await _mediator.Send(query);
                 return Ok(result);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while retrieving feedback summary", error = ex.Message });
             }
@@ -144,7 +144,7 @@ namespace WebAPI.Controllers
 
                 return Ok(new { message = "Feedback updated successfully" });
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while updating feedback", error = ex.Message });
             }
@@ -166,7 +166,7 @@ namespace WebAPI.Controllers
 
                 return Ok(new { message = "Feedback deleted successfully" });
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while deleting feedback", error = ex.Message });
             }
