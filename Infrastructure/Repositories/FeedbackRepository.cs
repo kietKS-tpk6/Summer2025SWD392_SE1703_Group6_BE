@@ -46,6 +46,7 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Feedback
                 .Include(f => f.Class)
+                .Include(f => f.Student)
                 .Where(f => f.StudentID == studentId)
                 .OrderByDescending(f => f.FeedbackAt)
                 .ToListAsync();

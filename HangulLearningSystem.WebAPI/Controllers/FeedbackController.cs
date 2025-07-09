@@ -11,7 +11,7 @@ namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    //[Authorize]
     public class FeedbackController : ControllerBase
     {
         private readonly IMediator _mediator;
