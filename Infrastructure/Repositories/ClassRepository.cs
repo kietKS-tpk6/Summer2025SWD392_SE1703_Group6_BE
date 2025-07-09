@@ -157,7 +157,7 @@ namespace Infrastructure.Repositories
                 CreateAt = c.CreateAt,
                 TeachingStartTime = c.TeachingStartTime,
                 ImageURL = c.ImageURL,
-                LecturerName = c.Lecturer?.FirstName,
+                LecturerName = c.Lecturer?.FirstName + " " + c.Lecturer?.LastName,
                 SubjectName = c.Subject?.SubjectName
             }).ToList();
 
@@ -281,7 +281,7 @@ namespace Infrastructure.Repositories
                 select new
                 {
                     Class = c,
-                    LecturerName = acc.FirstName,
+                    LecturerName = acc.FirstName + " " + acc.LastName,
                     SubjectName = subj.SubjectName
                 }
             ).FirstOrDefaultAsync();
