@@ -17,6 +17,7 @@ namespace Application.IServices
         Task<OperationResult<bool>> GradeWritingAnswerAsync(GradeWritingAnswerCommand request);
         Task<OperationResult<bool>> ValidateWritingScoreAsync(string testSectionID, decimal writingScore);
         Task<OperationResult<int>> CountPendingWrittenGradingAsync(string lecturerId);
+        Task<OperationResult<List<StudentTestResultSimpleDTO>>> GetSimpleStudentTestsByTestEventAsync(string testEventId);
 
     }
 }

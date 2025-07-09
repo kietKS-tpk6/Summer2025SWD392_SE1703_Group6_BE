@@ -27,6 +27,7 @@ namespace Infrastructure.Services
         private readonly ITestEventRepository _testEventRepository;
         private readonly ILessonRepository _lessonRepository;
         private readonly IEnrollmentRepository _enrollmentRepository;
+        private readonly IAccountRepository _accountRepo;
 
 
 
@@ -44,7 +45,8 @@ namespace Infrastructure.Services
             ITestRepository testRepository,
             ITestEventRepository testEventRepository,
             ILessonRepository lessonRepository,
-            IEnrollmentRepository enrollmentRepository)
+            IEnrollmentRepository enrollmentRepository,
+            IAccountRepository accountRepository)
         {
             _studentTestRepo = studentTestRepo;
             _questionRepo = questionRepo;
@@ -57,6 +59,7 @@ namespace Infrastructure.Services
             _testEventRepository = testEventRepository;
             _lessonRepository = lessonRepository;
             _enrollmentRepository = enrollmentRepository;
+            _accountRepo = accountRepository;
         }
 
         public async Task<OperationResult<bool>> ValidateStudentTestExistsAsync(string studentTestID)
@@ -288,6 +291,47 @@ namespace Infrastructure.Services
             var count = await _studentTestRepo.CountPendingWrittenGradingByLecturerAsync(lecturerId);
             return OperationResult<int>.Ok(count, OperationMessages.RetrieveSuccess("số bài chưa được chấm viết"));
         }
+        public async Task<OperationResult<List<StudentTestResultSimpleDTO>>> GetSimpleStudentTestsByTestEventAsync(string testEventId)
+        {
+            try
+            {
+                // Lấy TestEvent để lấy TestID
+                var testEvent = await _testEventRepository.GetByIdAsync(testEventId);
+                if (testEvent == null)
+                    return OperationResult<List<StudentTestResultSimpleDTO>>.Fail("Không tìm thấy sự kiện kiểm tra.");
+
+                // Lấy danh sách bài làm
+                var studentTests = await _studentTestRepo.GetByTestEventIdAsync(testEventId);
+
+                var studentDTOs = new List<StudentTestResultSimpleDTO>();
+
+                foreach (var st in studentTests)
+                {
+                    var student = await _accountRepo.GetAccountsByIdAsync(st.StudentID);
+                    string name = student != null ? $"{student.FirstName} {student.LastName}" : "Unknown";
+
+                    studentDTOs.Add(new StudentTestResultSimpleDTO
+                    {
+                        StudentTestID = st.StudentTestID,
+                        StudentID = st.StudentID,
+                        StudentName = name,
+                        TestID = testEvent.TestID,
+                        StartTime = st.StartTime,
+                        SubmitTime = st.SubmitTime,
+                        Status = st.Status.ToString(),
+                        OriginalSubmissionScore = st.Mark,
+                        Comment = st.Feedback
+                    });
+                }
+
+                return OperationResult<List<StudentTestResultSimpleDTO>>.Ok(studentDTOs);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<StudentTestResultSimpleDTO>>.Fail($"Lỗi khi lấy danh sách: {ex.Message}");
+            }
+        }
+
     }
 
 }
