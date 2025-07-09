@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.DTOs;
+using MediatR;
 
 namespace Application.Usecases.Command
 {

@@ -13,7 +13,7 @@ namespace Application.Usecases.CommandHandler
         {
             _feedbackService = feedbackService;
         }
-            
+
         public async Task<List<FeedbackDTO>> Handle(GetFeedbackByClassQuery request, CancellationToken cancellationToken)
         {
             return await _feedbackService.GetFeedbacksByClassAsync(request.ClassID);
