@@ -32,4 +32,9 @@ namespace Application.DTOs
         public int TwoStarCount { get; set; }
         public int OneStarCount { get; set; }
     }
+    public class UpdateFeedbackDTO
+    {
+        public int Rating { get; set; }
+        public string Comment { get; set; }
+    }
 }
