@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Domain.Enums;
 
 namespace Domain.Entities
@@ -28,9 +29,12 @@ namespace Domain.Entities
 
         public Enums.TaskStatus Status { get; set; } = Enums.TaskStatus.InProgress;
 
-        /// <summary>
-        /// Helper property to get TaskType enum from string Type
-        /// </summary>
+        [JsonIgnore]
+        public virtual ICollection<ScheduleWork> ScheduleWorks { get; set; } = new List<ScheduleWork>();
+
+        [NotMapped]
+        public string? AccountID => ScheduleWorks?.FirstOrDefault()?.AccountID;
+
         [NotMapped]
         public TaskType TaskType
         {

@@ -33,8 +33,8 @@ namespace Infrastructure.Repositories
         public async Task<List<WorkTask>> GetTasksByLecturerIdAsync(string lecturerId)
         {
             return await _dbContext.WorkTasks
-                .Where(t => _dbContext.ScheduleWork
-                    .Any(sw => sw.TaskID == t.TaskID && sw.AccountID == lecturerId))
+                .Include(t => t.ScheduleWorks)
+                .Where(t => t.ScheduleWorks.Any(sw => sw.AccountID == lecturerId))
                 .OrderByDescending(t => t.DateStart)
                 .ToListAsync();
         }
@@ -42,6 +42,7 @@ namespace Infrastructure.Repositories
         public async Task<WorkTask?> GetTaskByIdAsync(string taskId)
         {
             return await _dbContext.WorkTasks
+                .Include(t => t.ScheduleWorks)
                 .FirstOrDefaultAsync(t => t.TaskID == taskId);
         }
 
@@ -55,7 +56,6 @@ namespace Infrastructure.Repositories
                     return OperationResult<string?>.Fail("Không tìm thấy task");
                 }
 
-                // Validate and parse status
                 if (!Enum.TryParse<Domain.Enums.TaskStatus>(status, true, out var taskStatus))
                 {
                     return OperationResult<string?>.Fail("Trạng thái task không hợp lệ");
@@ -84,6 +84,7 @@ namespace Infrastructure.Repositories
         public async Task<List<WorkTask>> GetAllTasksAsync()
         {
             return await _dbContext.WorkTasks
+                .Include(t => t.ScheduleWorks)
                 .OrderByDescending(t => t.DateStart)
                 .ToListAsync();
         }
