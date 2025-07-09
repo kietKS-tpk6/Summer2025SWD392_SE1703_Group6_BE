@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Common.Constants;
+using Application.DTOs;
 using Application.Usecases.Command;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,5 +14,7 @@ namespace Application.IServices
         Task<int> GetClassCurrentEnrollmentsAsync(string classId);
         Task<string> GenerateNextEnrollmentIdAsync();
         Task<bool> HasScheduleConflictAsync(string studentId, string newClassId);
+        Task<OperationResult<int>> CountActiveStudentsByLecturerAsync(string lecturerId);
+
     }
 }

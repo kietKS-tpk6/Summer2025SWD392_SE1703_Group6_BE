@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -98,6 +99,18 @@ namespace Infrastructure.Repositories
                 .Where(l => l.ClassID == classId && l.IsActive)
                 .ToListAsync();
         }
-
+        public async Task<int> CountActiveStudentsOfLecturerAsync(string lecturerId)
+        {
+            return await (
+                from ce in _dbContext.ClassEnrollment
+                join c in _dbContext.Class on ce.ClassID equals c.ClassID
+                join a in _dbContext.Accounts on ce.StudentID equals a.AccountID
+                where c.LecturerID == lecturerId
+                      && c.Status == ClassStatus.Ongoing
+                      && ce.Status == EnrollmentStatus.Actived
+                      && a.Status == AccountStatus.Active
+                select ce
+            ).CountAsync();
+        }
     }
 }

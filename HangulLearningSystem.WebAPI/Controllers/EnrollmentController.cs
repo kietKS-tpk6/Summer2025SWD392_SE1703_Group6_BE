@@ -83,5 +83,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+        [HttpGet("active-student-count/{accountId}")]
+        public async Task<IActionResult> GetActiveStudentCountByLecturer(string accountId)
+        {
+            var result = await _enrollmentService.CountActiveStudentsByLecturerAsync(accountId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

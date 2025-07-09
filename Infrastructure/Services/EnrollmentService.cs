@@ -174,5 +174,11 @@ namespace Infrastructure.Services
             var lessons = await _classRepository.GetByClassIDAsync(classID);
             return OperationResult<List<Lesson>>.Ok(lessons);
         }
+        public async Task<OperationResult<int>> CountActiveStudentsByLecturerAsync(string lecturerId)
+        {
+            var count = await _enrollmentRepository.CountActiveStudentsOfLecturerAsync(lecturerId);
+            return OperationResult<int>.Ok(count, OperationMessages.RetrieveSuccess("số sinh viên đang học"));
+        }
+
     }
 }
