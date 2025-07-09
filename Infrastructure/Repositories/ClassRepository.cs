@@ -361,5 +361,10 @@ namespace Infrastructure.Repositories
 
             return OperationResult<string>.Ok(classEntity.SubjectID, OperationMessages.RetrieveSuccess("SubjectID"));
         }
+        public async Task<int> CountOngoingClassesByLecturerAsync(string lecturerId)
+        {
+            return await _dbContext.Class
+                .CountAsync(c => c.LecturerID == lecturerId && c.Status == ClassStatus.Ongoing);
+        }
     }
 }

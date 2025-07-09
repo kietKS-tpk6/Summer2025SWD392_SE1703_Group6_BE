@@ -32,5 +32,7 @@ namespace Application.IServices
         Task<OperationResult<ClassCreateLessonDTO>> GetClassCreateLessonDTOByIdAsync(string classId);
         Task<OperationResult<List<StudentDTO>>> GetStudentsByClassIdAsync(string classId);
         Task<OperationResult<bool>> IsClassNameDuplicateAsync(string className);
+        Task<OperationResult<int>> GetOngoingClassCountByLecturerAsync(string lecturerId);
+
     }
 }

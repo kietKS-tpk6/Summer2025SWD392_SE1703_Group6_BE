@@ -40,6 +40,7 @@ namespace Infrastructure.IRepositories
         Task<List<Lesson>> GetByClassIDAsync(string classID);
 
         Task<OperationResult<string>> GetSubjectIDByOngoingClassID(string classId);
+        Task<int> CountOngoingClassesByLecturerAsync(string lecturerId);
 
     }
 }
