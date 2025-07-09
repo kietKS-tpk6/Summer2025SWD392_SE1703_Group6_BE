@@ -1,18 +1,33 @@
 ﻿using Application.Usecases.Command;
 using FluentValidation;
 using Domain.Enums;
+using Application.IServices;
 
 namespace Application.Validators
 {
     public class TaskCreateCommandValidator : AbstractValidator<TaskCreateCommand>
     {
-        public TaskCreateCommandValidator()
+        private readonly IAccountService _accountService;
+
+        public TaskCreateCommandValidator(IAccountService accountService)
         {
+            _accountService = accountService;
+
             RuleFor(x => x.LecturerID)
                 .NotEmpty()
                 .WithMessage("LecturerID không được để trống")
                 .MaximumLength(6)
-                .WithMessage("LecturerID không được vượt quá 6 ký tự");
+                .WithMessage("LecturerID không được vượt quá 6 ký tự")
+                .MustAsync(async (lecturerId, cancellation) =>
+                 {
+                     var result = await _accountService.GetListAccountByRoleAsync(AccountRole.Lecture);
+
+                     if (!result.Success || result.Data == null)
+                         return false;
+
+                     return result.Data.Any(a => a.AccountID == lecturerId);
+                 })
+                .WithMessage("LecturerID phải thuộc về tài khoản có role là Lecture và đang hoạt động");
 
             RuleFor(x => x.Type)
                 .IsInEnum()
