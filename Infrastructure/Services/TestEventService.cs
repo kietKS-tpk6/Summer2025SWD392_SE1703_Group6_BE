@@ -376,5 +376,10 @@ namespace Infrastructure.Services
             }
             return await _testEventRepository.GetTestEventWithLessonDTOByIDAsync(testEventID);
         }
+        public async Task<OperationResult<int>> CountUpcomingTestEventsAsync(string lecturerId)
+        {
+            var count = await _testEventRepository.CountUpcomingTestEventsByLecturerAsync(lecturerId);
+            return OperationResult<int>.Ok(count, OperationMessages.RetrieveSuccess("số bài kiểm tra sắp diễn ra"));
+        }
     }
 }

@@ -261,6 +261,11 @@ namespace Infrastructure.Services
         {
             return await _classRepository.IsClassNameDuplicateAsync(className);
         }
+        public async Task<OperationResult<int>> GetOngoingClassCountByLecturerAsync(string lecturerId)
+        {
+            var count = await _classRepository.CountOngoingClassesByLecturerAsync(lecturerId);
+            return OperationResult<int>.Ok(count, OperationMessages.RetrieveSuccess("số lớp đang dạy"));
+        }
     }
 
 }

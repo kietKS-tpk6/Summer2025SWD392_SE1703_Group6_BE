@@ -235,5 +235,19 @@ namespace Infrastructure.Repositories
                 .Select(te => te.TestID)
                 .FirstOrDefaultAsync();
         }
+        public async Task<int> CountUpcomingTestEventsByLecturerAsync(string lecturerId)
+        {
+            var today = DateTime.Today;
+
+            return await (
+                from te in _dbContext.TestEvent
+                join lesson in _dbContext.Lesson on te.ClassLessonID equals lesson.ClassLessonID
+                where lesson.LecturerID == lecturerId
+                      && te.StartAt >= today
+                      && te.Status == TestEventStatus.Actived 
+                select te
+            ).CountAsync();
+        }
+
     }
 }

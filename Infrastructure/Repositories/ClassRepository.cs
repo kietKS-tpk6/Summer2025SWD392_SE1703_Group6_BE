@@ -157,7 +157,7 @@ namespace Infrastructure.Repositories
                 CreateAt = c.CreateAt,
                 TeachingStartTime = c.TeachingStartTime,
                 ImageURL = c.ImageURL,
-                LecturerName = c.Lecturer?.FirstName,
+                LecturerName = c.Lecturer?.FirstName + " " + c.Lecturer?.LastName,
                 SubjectName = c.Subject?.SubjectName
             }).ToList();
 
@@ -281,7 +281,7 @@ namespace Infrastructure.Repositories
                 select new
                 {
                     Class = c,
-                    LecturerName = acc.FirstName,
+                    LecturerName = acc.FirstName + " " + acc.LastName,
                     SubjectName = subj.SubjectName
                 }
             ).FirstOrDefaultAsync();
@@ -360,6 +360,11 @@ namespace Infrastructure.Repositories
                 return OperationResult<string>.Fail("Không tìm thấy lớp đang học tương ứng hoặc lớp không hợp lệ.");
 
             return OperationResult<string>.Ok(classEntity.SubjectID, OperationMessages.RetrieveSuccess("SubjectID"));
+        }
+        public async Task<int> CountOngoingClassesByLecturerAsync(string lecturerId)
+        {
+            return await _dbContext.Class
+                .CountAsync(c => c.LecturerID == lecturerId && c.Status == ClassStatus.Ongoing);
         }
     }
 }

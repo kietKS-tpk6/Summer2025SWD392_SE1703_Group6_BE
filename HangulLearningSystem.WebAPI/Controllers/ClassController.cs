@@ -167,7 +167,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 isDuplicate = false
             });
         }
-
+        [HttpGet("ongoing-count/{accountId}")]
+        public async Task<IActionResult> GetOngoingClassCount(string accountId)
+        {
+            var result = await _classService.GetOngoingClassCountByLecturerAsync(accountId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 
 }

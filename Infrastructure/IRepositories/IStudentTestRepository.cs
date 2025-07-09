@@ -17,6 +17,7 @@ namespace Infrastructure.IRepositories
         Task<List<StudentTest>> GetByTestEventIdAsync(string testEventId);
         Task<OperationResult<bool>> AddAsync(StudentTest studentTest);
         Task<int> CountAttemptsAsync(string testEventId, string studentId);
+        Task<int> CountPendingWrittenGradingByLecturerAsync(string lecturerId);
 
     }
 }
