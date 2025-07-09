@@ -19,6 +19,7 @@ namespace Infrastructure.IRepositories
         Task UpdateAsync(Question question);
         Task<List<Question>> GetByIDsAsync(List<string> IDs);
         Task<List<Question>> GetByTestSectionIDsAsync(List<string> testSectionIDs);
+        Task<List<Question>> GetQuestionsWithSectionByIdsAsync(List<string> questionIds);
 
     }
 }

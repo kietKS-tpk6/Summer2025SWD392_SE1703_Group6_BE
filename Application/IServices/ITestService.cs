@@ -44,5 +44,7 @@ namespace Application.IServices
             int pageSize = 10);
         //Kho - làm tạm hàm update status mới
         Task<OperationResult<string>> UpdateTestStatusFixAsync(UpdateTestStatusFixCommand request);
+        Task<OperationResult<StudentTestResultDTO>> GetStudentTestResultByStudentTestIDAsync(string studentTestID);
+
     }
 }

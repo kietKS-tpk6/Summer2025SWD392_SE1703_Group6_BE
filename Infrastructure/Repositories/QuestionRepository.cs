@@ -68,6 +68,12 @@ namespace Infrastructure.Repositories
                 .Where(q => testSectionIDs.Contains(q.TestSectionID) && q.IsActive)
                 .ToListAsync();
         }
-
+        public async Task<List<Question>> GetQuestionsWithSectionByIdsAsync(List<string> questionIds)
+        {
+            return await _dbContext.Question
+                .Include(q => q.TestSection)
+                .Where(q => questionIds.Contains(q.QuestionID))
+                .ToListAsync();
+        }
     }
 }

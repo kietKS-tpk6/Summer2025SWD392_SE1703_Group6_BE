@@ -81,6 +81,13 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result.Data);
         }
-      
+        [HttpGet("result-by-student-test/{studentTestID}")]
+        public async Task<IActionResult> GetStudentTestResultByStudentTestID(string studentTestID)
+        {
+            var command = new GetStudentTestResultByStudentTestIDQueryCommand(studentTestID);
+            var result = await _mediator.Send(command);
+
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

@@ -462,6 +462,7 @@ namespace Infrastructure.Services
                     Context = question.Context,
                     ImageURL = question.ImageURL,
                     AudioURL = question.AudioURL,
+                    Score = question.Score,
                     Barems = barems.Select(b => new WritingBaremDTO
                     {
                         WritingBaremID = b.WritingBaremID,

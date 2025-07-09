@@ -6,6 +6,7 @@ using Application.Usecases.Command;
 using Application.Usecases.CommandHandler;
 using Application.Usecases.CommandHandlers;
 using Application.Usecases.QueryHandlers;
+using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
@@ -88,8 +89,10 @@ namespace Infrastructure
             services.AddScoped<IStudentMarkRepository, StudentMarksRepository>();
             services.AddScoped<ITestSectionRepository, TestSectionRepository>();
             services.AddScoped<IWritingBaremService, WritingBaremService>();
-
+            services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IAttendanceService, AttendanceService>();
+            services.AddHostedService<TaskAutoCompleteBackgroundService>();
+
             //Repositories
             services.AddScoped<IDashboardAnalyticsRepository, DashboardAnalyticsRepository>();
             services.AddScoped<IChartRepository, ChartRepository>();
@@ -116,6 +119,8 @@ namespace Infrastructure
             services.AddScoped<IAttendanceRepository, AttendanceRepository>();
             services.AddScoped<IStudentMarkRepository, StudentMarksRepository>();
             services.AddScoped<IWritingBaremRepository, WritingBaremRepository>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
+            services.AddScoped<IScheduleWorkRepository, ScheduleWorkRepository>();
 
 
             //CommandHandler
@@ -144,7 +149,7 @@ namespace Infrastructure
             services.AddScoped<GetStudentMarksByClassAndAssessmentQueryHandler>();
             services.AddScoped<GetStudentMarksByStudentIdQueryHandler>();
             services.AddScoped<DeleteStudentMarkCommandHandler>();
-
+            services.AddScoped<TaskCreateCommandHandler>();
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();
