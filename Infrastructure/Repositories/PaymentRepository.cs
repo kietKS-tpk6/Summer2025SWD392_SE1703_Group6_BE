@@ -45,6 +45,7 @@ namespace Infrastructure.Repositories
         public async Task<List<Payment>> GetPaymentsByAccountIdAsync(string accountId)
         {
             return await _dbContext.Payment
+                .Include(p => p.Account)
                 .Include(p => p.Class)
                 //.Include(p => p.Transaction)
                 .Where(p => p.AccountID == accountId)
