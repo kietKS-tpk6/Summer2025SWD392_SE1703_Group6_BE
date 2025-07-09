@@ -191,12 +191,12 @@ namespace Infrastructure.Repositories
             }
         }
         public async Task<OperationResult<List<Test>>> GetTestsWithAdvancedFiltersAsync(
-    AssessmentCategory? category = null,
-    string? subjectId = null,
-    TestType? testType = null,
-    TestStatus? status = null)
-        {
-            try
+            AssessmentCategory? category = null,
+            string? subjectId = null,
+            TestType? testType = null,
+            TestStatus? status = null)
+            {
+                try
             {
                 var query = _dbContext.Test
                     .Include(t => t.Account)
@@ -270,7 +270,7 @@ namespace Infrastructure.Repositories
                 Status = t.Status,
                 Category = t.Category,
                 TestType = t.TestType,
-                CreatedByName = t.Account?.FirstName,
+                CreatedByName = t.Account?.Fullname,
                 SubjectName = t.Subject?.SubjectName
             }).ToList();
 
@@ -372,7 +372,7 @@ namespace Infrastructure.Repositories
                     Status = t.Status,
                     Category = t.Category,
                     TestType = t.TestType,
-                    CreatedByName = t.Account?.FirstName,
+                    CreatedByName = t.Account?.Fullname,
                     SubjectName = t.Subject?.SubjectName
                 }).ToList();
 
@@ -396,7 +396,7 @@ namespace Infrastructure.Repositories
                 Status = t.Status,
                 Category = t.Category,
                 TestType = t.TestType,
-                CreatedByName = creatorName ?? t.Account?.FirstName,
+                CreatedByName = creatorName ?? t.Account?.Fullname,
                 SubjectName = subjectName ?? t.Subject?.SubjectName
             };
         }
