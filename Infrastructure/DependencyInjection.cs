@@ -12,6 +12,7 @@ using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Infrastructure.Services.BackgroundServices;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -92,6 +93,9 @@ namespace Infrastructure
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IAttendanceService, AttendanceService>();
             services.AddHostedService<TaskAutoCompleteBackgroundService>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
+
+
 
             //Repositories
             services.AddScoped<IDashboardAnalyticsRepository, DashboardAnalyticsRepository>();
@@ -121,6 +125,7 @@ namespace Infrastructure
             services.AddScoped<IWritingBaremRepository, WritingBaremRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IScheduleWorkRepository, ScheduleWorkRepository>();
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 
 
             //CommandHandler
@@ -150,6 +155,14 @@ namespace Infrastructure
             services.AddScoped<GetStudentMarksByStudentIdQueryHandler>();
             services.AddScoped<DeleteStudentMarkCommandHandler>();
             services.AddScoped<TaskCreateCommandHandler>();
+            services.AddScoped<CreateFeedbackCommandHandler>();
+            services.AddScoped<UpdateFeedbackCommandHandler>();
+            services.AddScoped<DeleteFeedbackCommandHandler>();
+            services.AddScoped<GetFeedbackByClassQueryHandler>();
+            services.AddScoped<GetFeedbackByStudentQueryHandler>();
+            services.AddScoped<GetFeedbackByIdQueryHandler>();
+            services.AddScoped<GetFeedbackSummaryQueryHandler>();
+
             //CommandHandler
             services.AddScoped<CreateSubjectCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();
