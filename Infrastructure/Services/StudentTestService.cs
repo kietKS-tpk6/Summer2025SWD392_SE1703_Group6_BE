@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Infrastructure.IRepositories;
 using Infrastructure.Data;
 using Application.Usecases.Command;
+using Infrastructure.Repositories;
 
 namespace Infrastructure.Services
 {
@@ -282,7 +283,11 @@ namespace Infrastructure.Services
 
             return OperationResult<bool>.Ok(true);
         }
-
+        public async Task<OperationResult<int>> CountPendingWrittenGradingAsync(string lecturerId)
+        {
+            var count = await _studentTestRepo.CountPendingWrittenGradingByLecturerAsync(lecturerId);
+            return OperationResult<int>.Ok(count, OperationMessages.RetrieveSuccess("số bài chưa được chấm viết"));
+        }
     }
 
 }

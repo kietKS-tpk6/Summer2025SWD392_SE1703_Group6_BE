@@ -89,5 +89,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("pending-writing-count/{lecturerId}")]
+        public async Task<IActionResult> CountPendingWrittenGrading(string lecturerId)
+        {
+            var result = await _studentTestService.CountPendingWrittenGradingAsync(lecturerId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

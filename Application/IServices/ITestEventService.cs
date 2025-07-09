@@ -28,6 +28,7 @@ namespace Application.IServices
        //kit {Lấy danh sách tất cả TestEvent theo ClassID, thông qua ClassLessonID}
         Task<OperationResult<List<TestByClassDTO>>> GetTestsByClassIDAsync(string classID);
         Task<OperationResult<List<TestByClassDTO>>> GetMidtermAndFinalTestsByClassIDAsync(string classID);
+        Task<OperationResult<int>> CountUpcomingTestEventsAsync(string lecturerId);
 
     }
 }

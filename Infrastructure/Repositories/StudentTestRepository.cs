@@ -74,5 +74,22 @@ namespace Infrastructure.Repositories
             return await _dbContext.StudentTest
                 .CountAsync(x => x.TestEventID == testEventId && x.StudentID == studentId);
         }
+        public async Task<int> CountPendingWrittenGradingByLecturerAsync(string lecturerId)
+        {
+            var statuses = new[]
+            {
+            StudentTestStatus.AutoGradedWaitingForWritingGrading,
+            StudentTestStatus.WaitingForWritingGrading
+        };
+
+            return await (
+                from st in _dbContext.StudentTest
+                join te in _dbContext.TestEvent on st.TestEventID equals te.TestEventID
+                join lesson in _dbContext.Lesson on te.ClassLessonID equals lesson.ClassLessonID
+                where lesson.LecturerID == lecturerId
+                      && statuses.Contains(st.Status)
+                select st
+            ).CountAsync();
+        }
     }
 }
