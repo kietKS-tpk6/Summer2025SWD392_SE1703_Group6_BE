@@ -55,10 +55,7 @@ namespace Application.Validators
                 .NotEmpty()
                 .WithErrorCode(nameof(ErrorCodes.PhoneNumberIsEmpty))
                 .WithMessage(ValidationMessages.PhoneNumberIsEmpty)
-                .Must(BeValidVietnamesePhoneNumber)
-                .WithErrorCode(nameof(ErrorCodes.PhoneNumberInvalidFormat))
-                .WithMessage(ValidationMessages.PhoneNumberInvalidFormat);
-
+                
             // Gender validation - Hỗ trợ cả tiếng Anh và tiếng Việt
             RuleFor(x => x.Gender)
                 .NotEmpty()
@@ -108,24 +105,7 @@ namespace Application.Validators
             return age >= 13 && age <= 120; // Tuổi hợp lệ từ 13-120
         }
 
-        private bool BeValidVietnamesePhoneNumber(string phoneNumber)
-        {
-            if (string.IsNullOrEmpty(phoneNumber)) return false;
-
-            // Loại bỏ khoảng trắng và dấu gạch ngang
-            var cleanPhone = phoneNumber.Replace(" ", "").Replace("-", "").Replace(".", "");
-
-            // Các định dạng số điện thoại Việt Nam hợp lệ:
-            var vietnamesePhonePatterns = new[]
-            {
-            @"^(\+84|84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-9]|9[0-9])[0-9]{7}$", // Di động
-            @"^(\+84|84|0)(2[0-9])[0-9]{8}$", // Cố định Hà Nội, HCM
-            @"^(\+84|84|0)(2[1-9][0-9])[0-9]{7}$" // Cố định các tỉnh khác
-        };
-
-            return vietnamesePhonePatterns.Any(pattern =>
-                System.Text.RegularExpressions.Regex.IsMatch(cleanPhone, pattern));
-        }
+       
 
         private bool BeValidGender(string gender)
         {
