@@ -138,7 +138,14 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("get-student-mark-by-class/{classId}")]
+        public async Task<IActionResult> GetStudentMarksByClassId(string classId)
+        {
+            var result = await _studentMarkService.GetStudentMarkDetailDTOByClassIdAsync(classId);
+            if (!result.Success)
+                return BadRequest(result);
 
-
+            return Ok(result);
+        }
     }
 }

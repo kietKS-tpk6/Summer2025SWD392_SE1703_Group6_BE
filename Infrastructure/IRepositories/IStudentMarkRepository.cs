@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
+using Application.DTOs;
 using Domain.Entities;
 
 namespace Infrastructure.IRepositories
@@ -19,7 +20,9 @@ namespace Infrastructure.IRepositories
         Task<List<StudentMark>> GetByStudentIdAsync(string studentId);
         Task<int> CountAsync();
         Task<List<StudentMark>> GetByStudentTestIdAsync(string studentTestId);
+        //Kho - setup bảng điểm null
         Task<OperationResult<bool>> SetupStudentMarkByClassIdAsync(string classId);
-
+        //Kho - get bảng điểm theo lớp
+        Task<OperationResult<List<StudentMarkDetailDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId);
     }
 }

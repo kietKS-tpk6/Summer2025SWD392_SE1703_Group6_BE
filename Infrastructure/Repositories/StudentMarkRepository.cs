@@ -1,5 +1,7 @@
 ﻿using Application.Common.Constants;
+using Application.DTOs;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -100,43 +102,87 @@ namespace Infrastructure.Repositories
                 .Where(e => e.ClassID == classId)
                 .Select(e => e.StudentID)
                 .ToListAsync();
-            if(!studentIds.Any())
-            {
+
+            if (!studentIds.Any())
                 return OperationResult<bool>.Fail(OperationMessages.NotFound("học viên"));
-            }
+
             var assessmentCriteriaList = await _dbContext.AssessmentCriteria
                 .Where(a => a.SubjectID == classEntity.SubjectID)
                 .ToListAsync();
 
             var now = DateTime.UtcNow;
-            var maxIdNumber = _dbContext.StudentMarks
-            .Where(sm => sm.StudentMarkID.StartsWith("IM"))
-            .Select(sm => sm.StudentMarkID.Substring(2))
-            .AsEnumerable() 
-            .Where(id => int.TryParse(id, out var _))
-            .Select(id => int.Parse(id))
-            .DefaultIfEmpty(0)
-            .Max();
 
+            // Tìm ID lớn nhất đã có
+            var maxIdNumber = _dbContext.StudentMarks
+                .Where(sm => sm.StudentMarkID.StartsWith("IM"))
+                .Select(sm => sm.StudentMarkID.Substring(2))
+                .AsEnumerable()
+                .Where(id => int.TryParse(id, out _))
+                .Select(int.Parse)
+                .DefaultIfEmpty(0)
+                .Max();
 
             int counter = maxIdNumber + 1;
+
             var studentMarks = studentIds
-                .SelectMany(studentId => assessmentCriteriaList, (studentId, criteria) => new StudentMark
-                {
-                    StudentMarkID = $"IM{(counter++).ToString("D6")}",
-                    AccountID = studentId,
-                    AssessmentCriteriaID = criteria.AssessmentCriteriaID,
-                    ClassID = classId,
-                    IsFinalized = false,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                }).ToList();
+                .SelectMany(studentId =>
+                    assessmentCriteriaList.SelectMany(criteria =>
+                    {
+                        int count = (criteria.RequiredTestCount ?? 0) > 0
+                            ? criteria.RequiredTestCount.Value
+                            : 1;
+
+                        return Enumerable.Range(1, count)
+                            .Select(attempt => new StudentMark
+                            {
+                                StudentMarkID = $"IM{(counter++).ToString("D6")}",
+                                AccountID = studentId,
+                                AssessmentCriteriaID = criteria.AssessmentCriteriaID,
+                                ClassID = classId,
+                                AttemptNumber = attempt,
+                                Mark = 0,
+                                IsFinalized = false,
+                                CreatedAt = now,
+                                UpdatedAt = now
+                            });
+                    }))
+                .ToList();
 
             await _dbContext.StudentMarks.AddRangeAsync(studentMarks);
             await _dbContext.SaveChangesAsync();
 
-            return OperationResult<bool>.Ok(true, "Khởi tạo bảng điểm thành công");
+            return OperationResult<bool>.Ok(true, OperationMessages.CreateSuccess("bảng điểm"));
         }
+        //Get điểm theo lớp
+        public async Task<OperationResult<List<StudentMarkDetailDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId)
+        {
+            var studentMarks = await _dbContext.StudentMarks
+                .Where(sm => sm.ClassID == classId)
+                .Include(sm => sm.AssessmentCriteria) 
+                .Include(sm => sm.StudentTest)
+                    .ThenInclude(st => st.Student)
+                .ToListAsync();
+
+            var result = studentMarks
+                .GroupBy(sm => new { sm.AssessmentCriteria.Category, sm.AttemptNumber })
+                .Select(g => new StudentMarkDetailDTO
+                {
+                    AssessmentCategory = (AssessmentCategory)g.Key.Category,
+                    AttemptNumber = g.Key.AttemptNumber,
+                    StudentMarks = g.Select(sm => new StudentMarkItem
+                    {
+                        StudentMarkID = sm.StudentMarkID,
+                        StudentName = sm.StudentTest?.Student?.LastName +" " + sm.StudentTest?.Student?.FirstName ?? "(Không rõ tên)",
+                        Mark = sm.Mark,
+                        Comment = sm.Comment,
+                        StudentTestID = sm.StudentTestID,
+                    }).ToList()
+                })
+                .ToList();
+
+            return OperationResult<List<StudentMarkDetailDTO>>.Ok(result, OperationMessages.RetrieveSuccess("bảng điểm"));
+        }
+
 
     }
 }

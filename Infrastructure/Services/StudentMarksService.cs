@@ -557,5 +557,9 @@ namespace Infrastructure.Services
         {
             return await _studentMarksRepository.SetupStudentMarkByClassIdAsync(classId);
         }
+        public async Task<OperationResult<List<StudentMarkDetailDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId)
+        {
+            return await _studentMarksRepository.GetStudentMarkDetailDTOByClassIdAsync(classId);
+        }
     }
 }
