@@ -10,7 +10,7 @@ namespace Application.DTOs
     public class StudentMarkDetailKhoDTO
     {
         public AssessmentCategory AssessmentCategory { get; set; }
-        public int AttemptNumber { get; set; }
+        public int AssessmentIndex { get; set; }
         public List<StudentMarkItem> StudentMarks { get; set; }
 
     };

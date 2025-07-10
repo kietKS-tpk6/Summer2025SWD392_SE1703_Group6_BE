@@ -147,7 +147,7 @@ namespace Infrastructure.Repositories
                                 AccountID = studentId,
                                 AssessmentCriteriaID = criteria.AssessmentCriteriaID,
                                 ClassID = classId,
-                                AttemptNumber = attempt,
+                                AssessmentIndex = attempt,
                                 Mark = 0,
                                 IsFinalized = false,
                                 CreatedAt = now,
@@ -173,11 +173,11 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
 
             var result = studentMarks
-                .GroupBy(sm => new { sm.AssessmentCriteria.Category, sm.AttemptNumber })
+                .GroupBy(sm => new { sm.AssessmentCriteria.Category, sm.AssessmentIndex })
                 .Select(g => new StudentMarkDetailKhoDTO
                 {
                     AssessmentCategory = (AssessmentCategory)g.Key.Category,
-                    AttemptNumber = g.Key.AttemptNumber,
+                    AssessmentIndex = g.Key.AssessmentIndex,
                     StudentMarks = g.Select(sm => new StudentMarkItem
                     {
                         StudentMarkID = sm.StudentMarkID,

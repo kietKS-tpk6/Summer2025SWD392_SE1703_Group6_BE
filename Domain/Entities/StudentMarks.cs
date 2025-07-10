@@ -55,7 +55,7 @@ namespace Domain.Entities
         [StringLength(6)]
         public string? ClassID { get; set; }
 
-        public int AttemptNumber { get; set; }
+        public int AssessmentIndex { get; set; }
         // Navigation Properties
         [ForeignKey("AccountID")]
         public virtual Account? Account { get; set; }
