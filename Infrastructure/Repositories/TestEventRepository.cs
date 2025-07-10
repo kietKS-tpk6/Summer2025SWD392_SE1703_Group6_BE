@@ -109,7 +109,8 @@ namespace Infrastructure.Repositories
                                     LessonTitle = ss.LessonTitle,
                                     LessonStartTime = lesson.StartTime,
                                     LessonEndTime = lesson.StartTime.AddMinutes(ss.DurationMinutes ?? 45),
-                                    AssessmentCategory = ac.Category
+                                    AssessmentCategory = ac.Category,
+                                    AssessmentIndex = te.AssessmentIndex
                                 })
                                 .ToListAsync();
 
@@ -156,7 +157,8 @@ namespace Infrastructure.Repositories
                                           Status = te.Status,
                                           AttemptLimit = te.AttemptLimit,
                                           Password = te.Password,
-                                          LessonTitle = ss.LessonTitle
+                                          LessonTitle = ss.LessonTitle,
+                                          AssessmentIndex = te.AssessmentIndex
                                       }
                                   };
 
@@ -202,7 +204,8 @@ namespace Infrastructure.Repositories
                     LessonTitle = ss.LessonTitle,
                     LessonStartTime = lesson.StartTime,
                     LessonEndTime = lesson.StartTime.AddMinutes((double)(ss.DurationMinutes ?? 45)),
-                    AssessmentCategory = ac.Category
+                    AssessmentCategory = ac.Category,
+                    AssessmentIndex = te.AssessmentIndex
                 }
             ).FirstOrDefaultAsync();
 

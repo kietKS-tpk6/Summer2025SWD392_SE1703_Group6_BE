@@ -25,6 +25,7 @@ namespace Application.DTOs
         public string LessonTitle { get; set; }
         public DateTime LessonStartTime { get; set; }
         public DateTime LessonEndTime { get; set; }
+        public int AssessmentIndex { get; set; }
     }
 
 }
