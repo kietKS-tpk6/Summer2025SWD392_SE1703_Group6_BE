@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Constants;
 using Domain.Entities;
 
 namespace Infrastructure.IRepositories
@@ -18,6 +19,7 @@ namespace Infrastructure.IRepositories
         Task<List<StudentMark>> GetByStudentIdAsync(string studentId);
         Task<int> CountAsync();
         Task<List<StudentMark>> GetByStudentTestIdAsync(string studentTestId);
+        Task<OperationResult<bool>> SetupStudentMarkByClassIdAsync(string classId);
 
     }
 }

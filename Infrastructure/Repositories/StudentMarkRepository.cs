@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Common.Constants;
+using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +85,57 @@ namespace Infrastructure.Repositories
             return await _dbContext.StudentMarks
                 .Where(sm => sm.StudentTestID == studentTestId)
                 .ToListAsync();
+        }
+        //Setup điểm
+        public async Task<OperationResult<bool>> SetupStudentMarkByClassIdAsync(string classId)
+        {
+            var classEntity = await _dbContext.Class
+                .Include(c => c.Subject)
+                .FirstOrDefaultAsync(c => c.ClassID == classId);
+
+            if (classEntity == null)
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("lớp học"));
+
+            var studentIds = await _dbContext.ClassEnrollment
+                .Where(e => e.ClassID == classId)
+                .Select(e => e.StudentID)
+                .ToListAsync();
+            if(!studentIds.Any())
+            {
+                return OperationResult<bool>.Fail(OperationMessages.NotFound("học viên"));
+            }
+            var assessmentCriteriaList = await _dbContext.AssessmentCriteria
+                .Where(a => a.SubjectID == classEntity.SubjectID)
+                .ToListAsync();
+
+            var now = DateTime.UtcNow;
+            var maxIdNumber = _dbContext.StudentMarks
+            .Where(sm => sm.StudentMarkID.StartsWith("IM"))
+            .Select(sm => sm.StudentMarkID.Substring(2))
+            .AsEnumerable() 
+            .Where(id => int.TryParse(id, out var _))
+            .Select(id => int.Parse(id))
+            .DefaultIfEmpty(0)
+            .Max();
+
+
+            int counter = maxIdNumber + 1;
+            var studentMarks = studentIds
+                .SelectMany(studentId => assessmentCriteriaList, (studentId, criteria) => new StudentMark
+                {
+                    StudentMarkID = $"IM{(counter++).ToString("D6")}",
+                    AccountID = studentId,
+                    AssessmentCriteriaID = criteria.AssessmentCriteriaID,
+                    ClassID = classId,
+                    IsFinalized = false,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                }).ToList();
+
+            await _dbContext.StudentMarks.AddRangeAsync(studentMarks);
+            await _dbContext.SaveChangesAsync();
+
+            return OperationResult<bool>.Ok(true, "Khởi tạo bảng điểm thành công");
         }
 
     }
