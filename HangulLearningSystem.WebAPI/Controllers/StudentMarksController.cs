@@ -1,4 +1,5 @@
-﻿using Application.Usecases.Commands;
+﻿using Application.Usecases.Command;
+using Application.Usecases.Commands;
 using Application.Usecases.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -82,6 +83,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("class/{classId}")]
+        public async Task<IActionResult> GetStudentMarksByClassId(string classId)
+        {
+            var query = new GetStudentMarksByClassIdQuery { ClassId = classId };
+            var result = await _mediator.Send(query);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+
         [HttpGet("class/{classId}/assessment/{assessmentCriteriaId}")]
         public async Task<IActionResult> GetStudentMarksByClassAndAssessment(string classId, string assessmentCriteriaId)
         {
