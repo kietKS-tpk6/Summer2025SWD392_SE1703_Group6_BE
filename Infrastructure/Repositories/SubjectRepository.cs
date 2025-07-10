@@ -155,7 +155,6 @@ namespace Infrastructure.Repositories
                         SubjectID = s.SubjectID,
                         SubjectName = s.SubjectName,
                         Description = s.Description,
-                        IsActive = s.Status == SubjectStatus.Active,
                         CreateAt = s.CreateAt,
                         MinAverageScoreToPass = s.MinAverageScoreToPass,
                         Status = s.Status

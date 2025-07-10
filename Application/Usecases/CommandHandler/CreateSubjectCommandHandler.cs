@@ -32,7 +32,6 @@ namespace Application.Usecases.CommandHandler
             {
                 SubjectName = request.SubjectName,
                 Description = request.Description,
-                IsActive = false,
                 CreateAt = DateTime.Now,
                 MinAverageScoreToPass = request.MinAverageScoreToPass
             });

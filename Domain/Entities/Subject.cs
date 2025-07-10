@@ -23,7 +23,6 @@ namespace Domain.Entities
         public string Description { get; set; }
 
         public SubjectStatus Status { get; set; }
-        public bool IsActive { get; set; }  
 
         public DateTime CreateAt { get; set; }
 
