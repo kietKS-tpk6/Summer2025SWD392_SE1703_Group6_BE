@@ -373,5 +373,6 @@ namespace Infrastructure.Repositories
                 .Cast<Class?>()
                 .ToListAsync();
         }
+
     }
 }

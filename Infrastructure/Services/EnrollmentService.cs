@@ -135,14 +135,14 @@ namespace Infrastructure.Services
             var enrollments = await _enrollmentRepository.GetEnrollmentsByStudentIdAsync(studentId);
             var result = new List<ClassDetailForPaymentDTO>();
             //tạo 
-            var listClass = await _classRepository.GetListClassByIdAsync(enrollments.FirstOrDefault().ClassID);
+            //var listClass = await _classRepository.GetListClassByIdAsync(enrollments.FirstOrDefault().ClassID);
 
             foreach (var enrollment in enrollments)
             {
-                //var classResult = await _classRepository.GetByIdAsync(enrollment.ClassID);
-                //var classEntity = classResult.Data;
-                foreach ( var classRes in listClass)
-//if (classEntity != null)
+                var classResult = await _classRepository.GetByIdAsync(enrollment.ClassID);
+                var classEntity = classResult.Data;
+                //foreach ( var classRes in listClass)
+if (classEntity != null)
                 {
                     //var payment = await _paymentRepository.GetPaymentByIdAsync(
                     //    (await _paymentRepository.GetPaymentsByAccountIdAsync(studentId))
@@ -150,11 +150,11 @@ namespace Infrastructure.Services
 
                     result.Add(new ClassDetailForPaymentDTO
                     {
-                        ClassID = classRes.ClassID,
-                        ClassName = classRes.ClassName,
-                        SubjectName = classRes.Subject?.SubjectName ?? "Unknown",                                                
-                        ImageURL = classRes.ImageURL,
-                        LecturerName = classRes.Lecturer.Fullname
+                        ClassID = classEntity.ClassID,
+                        ClassName = classEntity.ClassName,
+                        SubjectName = classEntity.Subject?.SubjectName ?? "Unknown",                                                
+                        ImageURL = classEntity.ImageURL,
+                        LecturerName = classEntity.Lecturer.Fullname
                     });
                 }
             }
