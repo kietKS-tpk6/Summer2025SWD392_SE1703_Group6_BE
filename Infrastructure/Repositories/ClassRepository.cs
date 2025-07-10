@@ -366,5 +366,13 @@ namespace Infrastructure.Repositories
             return await _dbContext.Class
                 .CountAsync(c => c.LecturerID == lecturerId && c.Status == ClassStatus.Ongoing);
         }
+        public async Task<List<Class?>> GetListClassByIdAsync(string id)
+        {
+            return await _dbContext.Class
+                .Where(c => c.ClassID == id)
+                .Cast<Class?>()
+                .ToListAsync();
+        }
+
     }
 }
