@@ -16,6 +16,7 @@ namespace Infrastructure.IRepositories
         Task<StudentMark> CreateAsync(StudentMark studentMarks);
         Task<StudentMark> UpdateAsync(StudentMark studentMarks);
         Task<bool> DeleteAsync(string id);
+        Task<List<StudentMark>> GetByClassIdAsync(string classId);
         Task<List<StudentMark>> GetByAssessmentCriteriaAndClassAsync(string assessmentCriteriaId, string classId);
         Task<List<StudentMark>> GetByStudentIdAsync(string studentId);
         Task<int> CountAsync();
@@ -23,6 +24,6 @@ namespace Infrastructure.IRepositories
         //Kho - setup bảng điểm null
         Task<OperationResult<bool>> SetupStudentMarkByClassIdAsync(string classId);
         //Kho - get bảng điểm theo lớp
-        Task<OperationResult<List<StudentMarkDetailDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId);
+        Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId);
     }
 }

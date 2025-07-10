@@ -62,6 +62,14 @@ namespace Infrastructure.Repositories
             return true;
         }
 
+        public async Task<List<StudentMark>> GetByClassIdAsync(string classId)
+        {
+            return await _dbContext.StudentMarks
+                .Where(sm => sm.ClassID == classId)
+                .Include(sm => sm.Account) 
+                .ToListAsync();
+        }
+
         public async Task<List<StudentMark>> GetByAssessmentCriteriaAndClassAsync(string assessmentCriteriaId, string classId)
         {
             return await _dbContext.StudentMarks
@@ -154,25 +162,26 @@ namespace Infrastructure.Repositories
             return OperationResult<bool>.Ok(true, OperationMessages.CreateSuccess("bảng điểm"));
         }
         //Get điểm theo lớp
-        public async Task<OperationResult<List<StudentMarkDetailDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId)
+        public async Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId)
         {
             var studentMarks = await _dbContext.StudentMarks
                 .Where(sm => sm.ClassID == classId)
-                .Include(sm => sm.AssessmentCriteria) 
+                .Include(sm => sm.AssessmentCriteria)
+                .Include(sm => sm.Account)
                 .Include(sm => sm.StudentTest)
                     .ThenInclude(st => st.Student)
                 .ToListAsync();
 
             var result = studentMarks
                 .GroupBy(sm => new { sm.AssessmentCriteria.Category, sm.AttemptNumber })
-                .Select(g => new StudentMarkDetailDTO
+                .Select(g => new StudentMarkDetailKhoDTO
                 {
                     AssessmentCategory = (AssessmentCategory)g.Key.Category,
                     AttemptNumber = g.Key.AttemptNumber,
                     StudentMarks = g.Select(sm => new StudentMarkItem
                     {
                         StudentMarkID = sm.StudentMarkID,
-                        StudentName = sm.StudentTest?.Student?.LastName +" " + sm.StudentTest?.Student?.FirstName ?? "(Không rõ tên)",
+                        StudentName = sm.Account?.LastName + " " + sm.Account?.FirstName,
                         Mark = sm.Mark,
                         Comment = sm.Comment,
                         StudentTestID = sm.StudentTestID,
@@ -180,7 +189,7 @@ namespace Infrastructure.Repositories
                 })
                 .ToList();
 
-            return OperationResult<List<StudentMarkDetailDTO>>.Ok(result, OperationMessages.RetrieveSuccess("bảng điểm"));
+            return OperationResult<List<StudentMarkDetailKhoDTO>>.Ok(result, OperationMessages.RetrieveSuccess("bảng điểm"));
         }
 
 

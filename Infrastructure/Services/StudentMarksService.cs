@@ -462,6 +462,40 @@ namespace Infrastructure.Services
             }
         }
 
+        public async Task<OperationResult<List<StudentMarksByClassDTO>>> GetStudentMarksByClassIdAsync(string classId)
+        {
+            try
+            {
+                var studentMarks = await _studentMarksRepository.GetByClassIdAsync(classId);
+
+                // Group by student to organize marks
+                var groupedMarks = studentMarks
+                    .GroupBy(sm => sm.AccountID)
+                    .Select(g => new StudentMarksByClassDTO
+                    {
+                        StudentId = g.Key,
+                        StudentName = g.First().Account?.Fullname ?? "Unknown Student",
+                        Marks = g.Select(sm => new StudentMarkDetailDTO
+                        {
+                            StudentMarkID = sm.StudentMarkID,
+                            AssessmentCriteriaID = sm.AssessmentCriteriaID,
+                            Mark = sm.Mark,
+                            Comment = sm.Comment,
+                            GradedBy = sm.GradedBy,
+                            GradedAt = sm.GradedAt,
+                            IsFinalized = sm.IsFinalized,
+                            CreatedAt = sm.CreatedAt,
+                            UpdatedAt = sm.UpdatedAt
+                        }).ToList()
+                    }).ToList();
+
+                return OperationResult<List<StudentMarksByClassDTO>>.Ok(groupedMarks);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<StudentMarksByClassDTO>>.Fail(ex.Message);
+            }
+        }
         public async Task<OperationResult<List<StudentMarkDTO>>> GetStudentMarksByClassAndAssessmentAsync(string classId, string assessmentCriteriaId)
         {
             try
@@ -557,7 +591,7 @@ namespace Infrastructure.Services
         {
             return await _studentMarksRepository.SetupStudentMarkByClassIdAsync(classId);
         }
-        public async Task<OperationResult<List<StudentMarkDetailDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId)
+        public async Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId)
         {
             return await _studentMarksRepository.GetStudentMarkDetailDTOByClassIdAsync(classId);
         }

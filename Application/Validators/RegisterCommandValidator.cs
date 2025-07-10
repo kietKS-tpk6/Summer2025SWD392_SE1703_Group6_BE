@@ -18,26 +18,14 @@ namespace Application.Validators
             RuleFor(x => x.FirstName)
                 .NotEmpty()
                 .WithErrorCode(nameof(ErrorCodes.FirstNameIsEmpty))
-                .WithMessage(ValidationMessages.FirstNameIsEmpty)
-                .Length(2, 50)
-                .WithErrorCode(nameof(ErrorCodes.FirstNameInvalidLength))
-                .WithMessage(ValidationMessages.FirstNameInvalidLength)
-                .Matches(@"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵýỷỹ\s]+$")
-                .WithErrorCode(nameof(ErrorCodes.FirstNameInvalidFormat))
-                .WithMessage(ValidationMessages.FirstNameInvalidFormat);
+                .WithMessage(ValidationMessages.FirstNameIsEmpty);
 
             // LastName validation - Hỗ trợ tiếng Việt có dấu
             RuleFor(x => x.LastName)
                 .NotEmpty()
                 .WithErrorCode(nameof(ErrorCodes.LastNameIsEmpty))
-                .WithMessage(ValidationMessages.LastNameIsEmpty)
-                .Length(2, 50)
-                .WithErrorCode(nameof(ErrorCodes.LastNameInvalidLength))
-                .WithMessage(ValidationMessages.LastNameInvalidLength)
-                .Matches(@"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵýỷỹ\s]+$")
-                .WithErrorCode(nameof(ErrorCodes.LastNameInvalidFormat))
-                .WithMessage(ValidationMessages.LastNameInvalidFormat);
-
+                .WithMessage(ValidationMessages.LastNameIsEmpty);
+                
             // BirthDate validation
             RuleFor(x => x.BirthDate)
                 .NotEmpty()

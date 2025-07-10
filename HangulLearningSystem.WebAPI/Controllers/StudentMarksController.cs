@@ -1,4 +1,5 @@
 ﻿using Application.IServices;
+using Application.Usecases.Command;
 using Application.Usecases.Commands;
 using Application.Usecases.Queries;
 using MediatR;
@@ -97,6 +98,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("class/{classId}")]
+        public async Task<IActionResult> GetStudentMarksByClassId(string classId)
+        {
+            var query = new GetStudentMarksByClassIdQuery { ClassId = classId };
+            var result = await _mediator.Send(query);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+
         [HttpGet("class/{classId}/assessment/{assessmentCriteriaId}")]
         public async Task<IActionResult> GetStudentMarksByClassAndAssessment(string classId, string assessmentCriteriaId)
         {
@@ -138,8 +152,8 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpGet("get-student-mark-by-class/{classId}")]
-        public async Task<IActionResult> GetStudentMarksByClassId(string classId)
+        [HttpGet("get-student-mark-detail-by-class/{classId}")]
+        public async Task<IActionResult> GetStudentMarksDetailKhoDTOByClassId(string classId)
         {
             var result = await _studentMarkService.GetStudentMarkDetailDTOByClassIdAsync(classId);
             if (!result.Success)

@@ -18,6 +18,7 @@ namespace Application.IServices
         //Kho - Setup bảng điểm khi class chốt sĩ số
         Task<OperationResult<bool>> SetupStudentMarkByClassIdAsync(string classId);
         //Kho - Get bảng điểm theo class
-        Task<OperationResult<List<StudentMarkDetailDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId);
+        Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId);
+        Task<OperationResult<List<StudentMarksByClassDTO>>> GetStudentMarksByClassIdAsync(string classId);
     }
 }
