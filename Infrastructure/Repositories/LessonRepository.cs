@@ -66,7 +66,7 @@ namespace Infrastructure.Repositories
             return await _dbContext.Lesson
                 .Include(cl => cl.SyllabusSchedule)
                 .Include(cl => cl.Class)
-                    .ThenInclude(c => c.Subject)
+                    //.ThenInclude(c => c.Subject)
                 .Where(cl => cl.ClassID == classID)
                 .ToListAsync();
         }
