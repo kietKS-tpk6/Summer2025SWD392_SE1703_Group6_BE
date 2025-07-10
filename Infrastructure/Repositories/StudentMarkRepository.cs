@@ -59,6 +59,14 @@ namespace Infrastructure.Repositories
             return true;
         }
 
+        public async Task<List<StudentMark>> GetByClassIdAsync(string classId)
+        {
+            return await _dbContext.StudentMarks
+                .Where(sm => sm.ClassID == classId)
+                .Include(sm => sm.Account) 
+                .ToListAsync();
+        }
+
         public async Task<List<StudentMark>> GetByAssessmentCriteriaAndClassAsync(string assessmentCriteriaId, string classId)
         {
             return await _dbContext.StudentMarks

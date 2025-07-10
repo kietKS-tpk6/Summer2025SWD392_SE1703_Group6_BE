@@ -15,5 +15,6 @@ namespace Application.IServices
         Task<OperationResult<bool>> DeleteStudentMarkAsync(string studentMarkId);
         Task<OperationResult<List<StudentMarkDTO>>> GetStudentMarksByClassAndAssessmentAsync(string classId, string assessmentCriteriaId);
         Task<OperationResult<List<StudentMarkDTO>>> GetStudentMarksByStudentIdAsync(string studentId);
+        Task<OperationResult<List<StudentMarksByClassDTO>>> GetStudentMarksByClassIdAsync(string classId);
     }
 }
