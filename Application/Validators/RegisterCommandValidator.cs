@@ -54,7 +54,7 @@ namespace Application.Validators
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty()
                 .WithErrorCode(nameof(ErrorCodes.PhoneNumberIsEmpty))
-                .WithMessage(ValidationMessages.PhoneNumberIsEmpty)
+                .WithMessage(ValidationMessages.PhoneNumberIsEmpty);
                 
             // Gender validation - Hỗ trợ cả tiếng Anh và tiếng Việt
             RuleFor(x => x.Gender)
