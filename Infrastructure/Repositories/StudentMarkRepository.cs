@@ -148,7 +148,7 @@ namespace Infrastructure.Repositories
                                 AssessmentCriteriaID = criteria.AssessmentCriteriaID,
                                 ClassID = classId,
                                 AssessmentIndex = attempt,
-                                Mark = 0,
+                                Mark = null,
                                 IsFinalized = false,
                                 CreatedAt = now,
                                 UpdatedAt = now
