@@ -1,5 +1,6 @@
 ﻿using Application.Common.Constants;
 using Application.DTOs;
+using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
@@ -190,6 +191,39 @@ namespace Infrastructure.Repositories
                 .ToList();
 
             return OperationResult<List<StudentMarkDetailKhoDTO>>.Ok(result, OperationMessages.RetrieveSuccess("bảng điểm"));
+        }
+        public async Task<OperationResult<StudentMarkForStudentDTO>> GetStudentMarkForStudent(GetStudentMarkForStudentCommand request)
+        {
+            var studentMarks = await _dbContext.StudentMarks
+                .Where(sm => sm.AccountID == request.StudentId && sm.ClassID == request.ClassId)
+                .Include(sm => sm.AssessmentCriteria)
+                .Include(sm => sm.StudentTest)
+                .ToListAsync();
+            var details = studentMarks.Select(sm => new MarkComponentDTO
+            {
+                StudentMarkID = sm.StudentMarkID,
+                AssessmentCategory = sm.AssessmentCriteria?.Category,
+                AssessmentIndex = sm.AssessmentIndex,
+                WeightPercent = sm.AssessmentCriteria?.WeightPercent,
+                Mark = sm.Mark,
+                Comment = sm.Comment,
+                StudentTestID = sm.StudentTestID
+            }).ToList();
+
+            bool allValid = details.All(d => d.Mark.HasValue && d.WeightPercent.HasValue);
+
+            decimal? GPA = null;
+            if (allValid && details.Any())
+            {
+                decimal total = details.Sum(d => (decimal)d.Mark.Value * (decimal)(d.WeightPercent.Value / 100.0));
+                GPA = Math.Round(total, 2);
+            }
+
+            return OperationResult<StudentMarkForStudentDTO>.Ok(new StudentMarkForStudentDTO
+            {
+                GPA = GPA,
+                StudentMarkDetails = details
+            });
         }
 
 

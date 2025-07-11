@@ -161,5 +161,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
+        [HttpGet("get-for-student")]
+        public async Task<IActionResult> GetStudentMarksForStudent([FromQuery] GetStudentMarkForStudentCommand request)
+        {
+            var result = await _mediator.Send(request);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }

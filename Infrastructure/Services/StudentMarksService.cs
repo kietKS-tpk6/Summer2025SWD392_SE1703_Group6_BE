@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Infrastructure.IRepositories;
 using Infrastructure.Repositories;
+using Application.Usecases.Command;
 
 namespace Infrastructure.Services
 {
@@ -594,6 +595,10 @@ namespace Infrastructure.Services
         public async Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId)
         {
             return await _studentMarksRepository.GetStudentMarkDetailDTOByClassIdAsync(classId);
+        }
+        public async Task<OperationResult<StudentMarkForStudentDTO>> GetStudentMarkForStudent(GetStudentMarkForStudentCommand request)
+        {
+            return await _studentMarksRepository.GetStudentMarkForStudent(request);
         }
     }
 }

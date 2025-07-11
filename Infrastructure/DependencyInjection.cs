@@ -129,6 +129,7 @@ namespace Infrastructure
 
 
             //CommandHandler
+            services.AddScoped<GetStudentMarkForStudentCommandHandler>();
             services.AddScoped<CreateSubjectCommandHandler>();
             services.AddScoped<CreateQuestionsCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();
