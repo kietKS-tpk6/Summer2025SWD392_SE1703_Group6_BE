@@ -21,12 +21,12 @@ namespace Application.Usecases.CommandHandler
 
         public async Task<OperationResult<bool>> Handle(UpdateSyllabusScheduleListCommand request, CancellationToken cancellationToken)
         {
-            var validationResult = _syllabusScheduleService.ValidateTestTypeDuplicatedInInput(request.ScheduleItems);
+            //var validationResult = _syllabusScheduleService.ValidateTestTypeDuplicatedInInput(request.ScheduleItems);
 
-            if (!validationResult.Success)
-            {
-                return OperationResult<bool>.Fail(validationResult.Message);
-            }
+            //if (!validationResult.Success)
+            //{
+            //    return OperationResult<bool>.Fail(validationResult.Message);
+            //}
             return await _syllabusScheduleService.UpdateBulkScheduleWithTestAsync(request.SubjectID, request.ScheduleItems);
         }
     }

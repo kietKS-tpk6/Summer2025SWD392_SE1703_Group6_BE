@@ -185,7 +185,7 @@ namespace Infrastructure.Services
                 if (int.TryParse(numberPart, out int number))
                 {
                     maxNumber = Math.Max(maxNumber, number);
-                }
+                }       
             }
 
             // Generate next ID
