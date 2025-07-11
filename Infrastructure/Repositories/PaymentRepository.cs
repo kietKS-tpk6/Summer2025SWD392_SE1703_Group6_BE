@@ -1,4 +1,6 @@
-﻿using Domain.Entities;
+﻿using Application.Common.Constants;
+using Application.DTOs;
+using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.IRepositories;
@@ -92,6 +94,24 @@ namespace Infrastructure.Repositories
             {
                 return new List<Payment>(); 
             }
+        }
+        public async Task<OperationResult<List<GetPaymentsForStudentDTO>>> GetPaymentsForStudentAsync(string studentId)
+        {
+            var result = await _dbContext.Payment
+                .Include(p => p.Account)
+                .Include(p => p.Class)
+                .Where(p => p.AccountID == studentId && p.Status != PaymentStatus.Pending) 
+                .OrderByDescending(p => p.DayCreate)
+                .Select(p => new GetPaymentsForStudentDTO
+                {
+                    PaymentId = p.PaymentID,
+                    ClassName = p.Class.ClassName,
+                    Total = p.Total,
+                    PaymentStatus = p.Status,
+                    PaidAt = p.DayCreate
+                })
+                .ToListAsync();
+            return OperationResult<List<GetPaymentsForStudentDTO>>.Ok(result, OperationMessages.RetrieveSuccess("lịch sử thanh toán"));
         }
     }
 }

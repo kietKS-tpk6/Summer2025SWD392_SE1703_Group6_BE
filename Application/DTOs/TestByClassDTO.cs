@@ -24,6 +24,7 @@ namespace Application.DTOs
 
         public int TotalSubmittedTests { get; set; }          // tổng số bài nộp
         public int TotalStudentsSubmitted { get; set; }       // số học sinh đã nộp (không tính trùng)
+        public int AssessmentIndex { get; set; }
     }
 
 }

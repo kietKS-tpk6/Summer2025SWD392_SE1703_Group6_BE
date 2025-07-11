@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Common.Constants;
+using Application.DTOs;
 using Application.Usecases.Command;
 using Domain.Entities;
 using System.Threading.Tasks;
@@ -21,5 +22,7 @@ namespace Application.IServices
         Task<RefundResponseDTO> ApproveRefundAsync(string paymentId, string managerId);
         Task<List<RefundListItemDTO>> GetPendingRefundRequestsAsync();
         Task<List<RefundListItemDTO>> GetRefundHistoryAsync(string studentId = null);
+
+        Task<OperationResult<List<GetPaymentsForStudentDTO>>> GetPaymentsForStudentAsync(string studentId);
     }
 }

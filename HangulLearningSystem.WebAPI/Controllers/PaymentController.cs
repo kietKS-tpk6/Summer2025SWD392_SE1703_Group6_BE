@@ -72,7 +72,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-
+        [HttpGet("history/{studentId}")]
+        public async Task<IActionResult> GetPaymentHistory(string studentId)
+        {
+            try
+            {
+                var history = await _paymentService.GetPaymentsForStudentAsync(studentId);
+                return Ok(history);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
     }
 
 

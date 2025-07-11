@@ -62,7 +62,13 @@ namespace Infrastructure.Services
             if (lessons == null || !lessons.Any())
                 return OperationResult<bool>.Fail(OperationMessages.NotFound("tiết học trong lớp"));
 
+            var testEventCountResult = await _testEventRepository.CountTestEventAsync();
+            if (!testEventCountResult.Success)
+                return OperationResult<bool>.Fail(testEventCountResult.Message);
+            int currentTestEventIndex = testEventCountResult.Data;
+
             int createdCount = 0;
+            var assessmentIndexMap = new Dictionary<string, int>();
 
             foreach (var lesson in lessons)
             {
@@ -72,13 +78,21 @@ namespace Infrastructure.Services
                 var scheduleTest = await _syllabusScheduleTestRepository
                     .GetSyllabusScheduleTestBySyllabusScheduleIdAsync(lesson.SyllabusScheduleID);
 
-                if (scheduleTest == null)
+                if (scheduleTest == null || string.IsNullOrEmpty(scheduleTest.AssessmentCriteriaID))
                     continue;
 
-                var countResult = await _testEventRepository.CountTestEventAsync();
-                if (!countResult.Success)
-                    return OperationResult<bool>.Fail(countResult.Message);
-                var newTestEventId = "TE" + countResult.Data.ToString("D4");
+                var assessmentCriteriaId = scheduleTest.AssessmentCriteriaID;
+
+              
+                if (!assessmentIndexMap.ContainsKey(assessmentCriteriaId))
+                    assessmentIndexMap[assessmentCriteriaId] = 1;
+                else
+                    assessmentIndexMap[assessmentCriteriaId]++;
+
+                var index = assessmentIndexMap[assessmentCriteriaId];
+
+                currentTestEventIndex++;
+                var newTestEventId = "TE" + currentTestEventIndex.ToString("D4");
 
                 var newTestEvent = new TestEvent
                 {
@@ -93,7 +107,8 @@ namespace Infrastructure.Services
                     ScheduleTestID = scheduleTest.ScheduleTestID,
                     AttemptLimit = null,
                     Password = null,
-                    ClassLessonID = lesson.ClassLessonID
+                    ClassLessonID = lesson.ClassLessonID,
+                    AssessmentIndex = index 
                 };
 
                 await _testEventRepository.CreateTestEventForCreateClassAsync(newTestEvent);
@@ -240,7 +255,8 @@ namespace Infrastructure.Services
                     DurationMinutes = ev.DurationMinutes,
                     AttemptLimit = ev.AttemptLimit.GetValueOrDefault(),
                     TotalSubmittedTests = totalSubmitted,
-                    TotalStudentsSubmitted = uniqueStudents
+                    TotalStudentsSubmitted = uniqueStudents,
+                    AssessmentIndex = ev.AssessmentIndex
                 });
             }
 
@@ -285,7 +301,6 @@ namespace Infrastructure.Services
             testEventFound.EndAt = request.EndAt;
             testEventFound.AttemptLimit = request.AttemptLimit == 0 ? null : request.AttemptLimit;
             testEventFound.Password = string.IsNullOrWhiteSpace(request.Password) ? null : request.Password;
-
             return await _testEventRepository.UpdateTestEventAsync(testEventFound);
         }
 
