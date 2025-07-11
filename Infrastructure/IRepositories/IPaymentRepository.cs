@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Common.Constants;
+using Application.DTOs;
 using Domain.Entities;
 using Domain.Enums;
 using System.Collections.Generic;
@@ -15,5 +16,6 @@ namespace Infrastructure.IRepositories
         Task<bool> PaymentExistsAsync(string paymentId);
         Task<int> GetTotalPaymentsCountAsync();
         Task<List<Payment>> GetPaymentsByStatusAsync(PaymentStatus status);
+        Task<OperationResult<List<GetPaymentsForStudentDTO>>> GetPaymentsForStudentAsync(string studentId);
     }
 }

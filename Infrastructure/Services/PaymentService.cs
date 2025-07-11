@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Common.Constants;
+using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
 using Domain.Entities;
@@ -24,6 +25,7 @@ namespace Infrastructure.Services
         private readonly IEnrollmentRepository _enrollmentRepository;
         private readonly IConfiguration _configuration;
         private readonly ILogger<PaymentService> _logger;
+        private readonly IAccountRepository _accountRepository;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
@@ -31,6 +33,7 @@ namespace Infrastructure.Services
             IClassRepository classRepository,
             IEnrollmentRepository enrollmentRepository,
             IConfiguration configuration,
+            IAccountRepository accountRepository,
             ILogger<PaymentService> logger)
         {
             _paymentRepository = paymentRepository;
@@ -38,6 +41,7 @@ namespace Infrastructure.Services
             _classRepository = classRepository;
             _enrollmentRepository = enrollmentRepository;
             _configuration = configuration;
+            _accountRepository = accountRepository;
             _logger = logger;
         }
 
@@ -647,6 +651,16 @@ namespace Infrastructure.Services
                 _logger.LogError(ex, "Error retrieving refund history");
                 return new List<RefundListItemDTO>();
             }
+        }
+
+        public async Task<OperationResult<List<GetPaymentsForStudentDTO>>> GetPaymentsForStudentAsync(string studentId)
+        {
+            var studentFound = await _accountRepository.GetAccountsByIdAsync(studentId);
+            if(studentFound == null)
+            {
+                return OperationResult<List<GetPaymentsForStudentDTO>>.Fail(OperationMessages.NotFound("học sinh"));
+            }
+        return await _paymentRepository.GetPaymentsForStudentAsync(studentId);
         }
     }
 }
