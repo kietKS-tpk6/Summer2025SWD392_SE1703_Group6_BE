@@ -73,11 +73,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
             }
         }
         [HttpGet("history/{studentId}")]
-        public async Task<IActionResult> GetPaymentHistory(string accountId)
+        public async Task<IActionResult> GetPaymentHistory(string studentId)
         {
             try
             {
-                var history = await _paymentService.GetPaymentsForStudentAsync(accountId);
+                var history = await _paymentService.GetPaymentsForStudentAsync(studentId);
                 return Ok(history);
             }
             catch (System.Exception ex)
