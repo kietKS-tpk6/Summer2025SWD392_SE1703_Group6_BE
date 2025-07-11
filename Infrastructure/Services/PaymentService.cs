@@ -144,14 +144,9 @@ namespace Infrastructure.Services
             decimal amountReceived = (transaction.TransferAmount) / 100;
             try
             {
-                _logger.LogInformation($"Processing webhook for transaction ID: {transaction.Id}");
-                _logger.LogInformation($"Transaction amount: {transaction.TransferAmount}, Type: {transaction.TransferType}");
-                _logger.LogInformation($"Transaction content: {transaction.Content}");
-                _logger.LogInformation($"Transaction description: {transaction.Description}");
-
-                // Lưu transaction trước
-                //var savedTransactionId = await SaveTransactionAsync(transaction);
-                //_logger.LogInformation($"Transaction saved with ID: {savedTransactionId}");
+                // Lưu transaction data từ webhook và lấy ID
+                var savedTransactionId = await SaveTransactionAsync(transaction);
+                _logger.LogInformation($"Transaction saved with ID: {savedTransactionId}");
 
                 // Extract PaymentID từ nhiều nguồn
                 string paymentId = ExtractPaymentIdFromTransaction(transaction);
@@ -176,13 +171,12 @@ namespace Infrastructure.Services
                     };
                 }
 
-                
-
-                bool updated = await UpdatePaymentStatusAsync(paymentId, amountReceived);
+                // Cập nhật payment với TransactionID
+                bool updated = await UpdatePaymentStatusAsync(paymentId, amountReceived, savedTransactionId);
 
                 if (updated)
                 {
-                    _logger.LogInformation($"Payment {paymentId} successfully updated to PAID status");
+                    _logger.LogInformation($"Payment {paymentId} successfully updated to PAID status with TransactionID: {savedTransactionId}");
                     return new WebhookResponseDTO
                     {
                         Success = true,
@@ -210,7 +204,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<bool> UpdatePaymentStatusAsync(string paymentId, decimal amountReceived)
+        public async Task<bool> UpdatePaymentStatusAsync(string paymentId, decimal amountReceived, int? transactionId = null)
         {
             _logger.LogInformation($"Attempting to update payment {paymentId} with amount {amountReceived}");
             var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
@@ -229,8 +223,8 @@ namespace Infrastructure.Services
 
             _logger.LogInformation($"Payment found. Expected amount: {payment.Total}, Received: {amountReceived}");
 
-            decimal expectedAmount = payment.Total/100;
-            if (Math.Abs(expectedAmount  - amountReceived) > 1m) 
+            decimal expectedAmount = payment.Total / 100;
+            if (Math.Abs(expectedAmount - amountReceived) > 1m)
             {
                 _logger.LogWarning($"Amount mismatch for payment {paymentId}. Expected: {expectedAmount}, Received: {amountReceived}");
                 if (amountReceived < expectedAmount)
@@ -240,10 +234,13 @@ namespace Infrastructure.Services
             }
 
             payment.Status = PaymentStatus.Paid;
-            //if (transactionId.HasValue)
-            //{
-            //    payment.TransactionID = transactionId.Value;
-            //}
+
+            // Cập nhật TransactionID nếu có
+            if (transactionId.HasValue)
+            {
+                payment.TransactionID = transactionId.Value;
+                _logger.LogInformation($"Setting TransactionID: {transactionId.Value} for payment {paymentId}");
+            }
 
             var updateResult = await _paymentRepository.UpdatePaymentAsync(payment);
             _logger.LogInformation($"Payment update result: {updateResult}");
@@ -283,20 +280,22 @@ namespace Infrastructure.Services
             return $"{baseUrl.TrimEnd('/')}{webhookEndpoint}";
         }
 
+        
+
         private async Task<int> SaveTransactionAsync(TransactionDTO transaction)
         {
             try
             {
-                _logger.LogInformation($"start saved transaction with ID: {transaction.Id}");
+                _logger.LogInformation($"Saving transaction data from webhook");
                 var transactionEntity = new Transaction
                 {
-                    TransactionID = transaction.Id,
+                    // Không set TransactionID - để database tự tăng
                     Gateway = transaction.Gateway,
                     TransactionDate = DateTime.ParseExact(transaction.TransactionDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                     AccountNumber = transaction.AccountNumber,
                     SubAccount = transaction.SubAccount,
-                    AmountIn = transaction.TransferType == "in" ? transaction.TransferAmount : 0,
-                    AmountOut = transaction.TransferType == "out" ? transaction.TransferAmount : 0,
+                    AmountIn = transaction.TransferType?.ToLower() == "in" ? transaction.TransferAmount : 0,
+                    AmountOut = transaction.TransferType?.ToLower() == "out" ? transaction.TransferAmount : 0,
                     Accumulated = transaction.Accumulated,
                     Code = transaction.Code,
                     TransactionContent = transaction.Content,
@@ -311,8 +310,8 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error saving transaction");
-                throw;
+                _logger.LogError(ex, "Error saving transaction data");
+                throw; // Throw để webhook processing biết có lỗi
             }
         }
 
