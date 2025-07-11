@@ -225,6 +225,39 @@ namespace Infrastructure.Repositories
                 StudentMarkDetails = details
             });
         }
+        public async Task<OperationResult<bool>> UpdateStudentMarksAsync(UpdateStudentMarksCommand request)
+        {
+            var markIds = request.InputMarks.Select(m => m.StudentMarkID).ToList();
+
+            var studentMarks = await _dbContext.StudentMarks
+                .Where(sm => markIds.Contains(sm.StudentMarkID))
+                .ToListAsync();
+
+            if (!studentMarks.Any())
+            {
+                return OperationResult<bool>.Fail("Không tìm thấy bản ghi điểm nào để cập nhật.");
+            }
+
+            foreach (var input in request.InputMarks)
+            {
+                var mark = studentMarks.FirstOrDefault(sm => sm.StudentMarkID == input.StudentMarkID);
+                {
+                    mark.Mark = input.Mark;
+                    mark.Comment = input.Comment;
+                    mark.UpdatedAt = DateTime.UtcNow;
+                    mark.GradedBy = request.LecturerId;
+                    mark.GradedAt = DateTime.UtcNow;
+
+                }
+                if(mark.CreatedAt == null)
+                {
+                    mark.CreatedAt = DateTime.UtcNow;
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("điểm"));
+        }
 
 
     }

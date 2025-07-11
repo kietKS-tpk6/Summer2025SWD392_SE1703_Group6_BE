@@ -600,5 +600,17 @@ namespace Infrastructure.Services
         {
             return await _studentMarksRepository.GetStudentMarkForStudent(request);
         }
+        public async Task<OperationResult<bool>> UpdateStudentMarksAsync(UpdateStudentMarksCommand request)
+        {
+
+            foreach (var input in request.InputMarks)
+            {
+                if (input.Mark < 0 || input.Mark > 10)
+                {
+                    return OperationResult<bool>.Fail($"Điểm không hợp lệ cho StudentMarkID = {input.StudentMarkID}");
+                }
+            }
+            return await _studentMarksRepository.UpdateStudentMarksAsync(request);
+        }
     }
 }

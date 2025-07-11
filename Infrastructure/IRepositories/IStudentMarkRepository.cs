@@ -28,5 +28,7 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId);
         //Kho - get bảng điêm theo studdent
         Task<OperationResult<StudentMarkForStudentDTO>> GetStudentMarkForStudent(GetStudentMarkForStudentCommand request);
+        //Kho - lecturer input mark
+        Task<OperationResult<bool>> UpdateStudentMarksAsync(UpdateStudentMarksCommand request);
     }
 }

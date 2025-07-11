@@ -23,6 +23,8 @@ namespace Application.IServices
         Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId);
         //Kho - Get bảng điểm theo student 
         Task<OperationResult<StudentMarkForStudentDTO>> GetStudentMarkForStudent(GetStudentMarkForStudentCommand request);
-      
+        //Kho - Lecture input điểm
+        Task<OperationResult<bool>> UpdateStudentMarksAsync(UpdateStudentMarksCommand request);
+
     }
 }
