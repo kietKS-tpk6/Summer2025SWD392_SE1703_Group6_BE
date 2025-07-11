@@ -30,7 +30,9 @@ namespace Domain.Entities
 
         [Required]
         [MaxLength(6)] 
-        public string AssessmentCriteriaID { get; set; } 
+        public string AssessmentCriteriaID { get; set; }
+        [ForeignKey("AssessmentCriteriaID")]
+        public virtual AssessmentCriteria? AssessmentCriteria { get; set; }
 
     }
 }

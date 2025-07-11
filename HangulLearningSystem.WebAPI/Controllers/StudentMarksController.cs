@@ -1,4 +1,5 @@
-﻿using Application.Usecases.Command;
+﻿using Application.IServices;
+using Application.Usecases.Command;
 using Application.Usecases.Commands;
 using Application.Usecases.Queries;
 using MediatR;
@@ -14,12 +15,26 @@ namespace HangulLearningSystem.WebAPI.Controllers
     public class StudentMarksController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IStudentMarksService _studentMarkService;
 
-        public StudentMarksController(IMediator mediator)
+        public StudentMarksController(IMediator mediator, IStudentMarksService studentMarkService)
         {
             _mediator = mediator;
+            _studentMarkService = studentMarkService;
         }
 
+        //Setup điểm
+        [HttpPost("setup-by-class-id/{classId}")]
+        public async Task<IActionResult> SetupByClassId(string classId)
+        {
+            var result = await _studentMarkService.SetupStudentMarkByClassIdAsync(classId);
+            if(!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
  
         [HttpPost("create-from-student-test/{studentTestId}")]
         public async Task<IActionResult> CreateFromStudentTest(string studentTestId)
@@ -137,5 +152,14 @@ namespace HangulLearningSystem.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("get-student-mark-detail-by-class/{classId}")]
+        public async Task<IActionResult> GetStudentMarksDetailKhoDTOByClassId(string classId)
+        {
+            var result = await _studentMarkService.GetStudentMarkDetailDTOByClassIdAsync(classId);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

@@ -27,6 +27,7 @@ namespace Application.DTOs
         public int? AttemptLimit { get; set; }
         public string? Password { get; set; }
         public string LessonTitle { get; set; }
+        public int AssessmentIndex { get; set; }
     }
 
 }

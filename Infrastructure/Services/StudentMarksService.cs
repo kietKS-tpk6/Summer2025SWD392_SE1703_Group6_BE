@@ -586,5 +586,14 @@ namespace Infrastructure.Services
             string number = _studentMarkCounter.ToString("D6");
             return $"IM{number}";
         }
+        //Setup điểm cho lớp
+        public async Task<OperationResult<bool>> SetupStudentMarkByClassIdAsync(string classId)
+        {
+            return await _studentMarksRepository.SetupStudentMarkByClassIdAsync(classId);
+        }
+        public async Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId)
+        {
+            return await _studentMarksRepository.GetStudentMarkDetailDTOByClassIdAsync(classId);
+        }
     }
 }
