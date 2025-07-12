@@ -11,14 +11,14 @@ using Application.IServices;
 
 namespace Application.Usecases.CommandHandler
 {
-    public class RegisterCommandHandler : IRequestHandler<RegisterCommand,RegisterDTO>
+    public class RegisterCommandHandler : IRequestHandler<RegisterCommand,bool>
     {
         private readonly IAccountService _accountService;
         public RegisterCommandHandler(IAccountService accountService)
         {
             _accountService = accountService;
         }
-        public async Task<RegisterDTO> Handle(RegisterCommand req, CancellationToken cancellationToken)
+        public async Task<bool> Handle(RegisterCommand req, CancellationToken cancellationToken)
         {
             var res= await _accountService.Register(req);
             return res;
