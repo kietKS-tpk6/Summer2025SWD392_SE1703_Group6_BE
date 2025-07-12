@@ -31,12 +31,13 @@ namespace Infrastructure.Repositories
         //    _dbContext.Accounts.Add(account);
         //    return await _dbContext.SaveChangesAsync() > 0;
         //}
-        public async Task<string?> GetHassPassAccountWithEmailAsync(LoginCommand loginCommand)
-        {
-            var account = await _dbContext.Accounts
-           .FirstOrDefaultAsync(x => x.Email == loginCommand.Email);
-            return account.HashPass;
-        }
+        //Bị trùng nên t comment lại - Kho
+        //public async Task<string?> GetHassPassAccountWithEmailAsync(LoginCommand loginCommand)
+        //{
+        //    var account = await _dbContext.Accounts
+        //   .FirstOrDefaultAsync(x => x.Email == loginCommand.Email);
+        //    return account.HashPass;
+        //}
         public async Task<Account?> GetAccountsByEmailAsync(string email)
         {
             var account = await _dbContext.Accounts.FirstOrDefaultAsync(x => x.Email == email);
