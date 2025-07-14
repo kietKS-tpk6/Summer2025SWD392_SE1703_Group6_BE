@@ -15,7 +15,7 @@ namespace HangulLearningSystem.WebAPI.Controllers
         [HttpGet("export-student-mark/{classId}")]
         public async Task<IActionResult> ExportStudentMarkTemplate(string classId)
         {
-            var result = await _exportExcelService.ExportStudentMarkTemplateAsync(classId);
+            var result = await _exportExcelService.ExportStudentMarkAsync(classId);
             if (!result.Success)
                 return BadRequest(result.Message);
 

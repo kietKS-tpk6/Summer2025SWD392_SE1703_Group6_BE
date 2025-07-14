@@ -9,6 +9,7 @@ namespace Application.IServices
 {
     public interface IExportExcelService
     {
-        Task<OperationResult<byte[]>> ExportStudentMarkTemplateAsync(string classId);
+        Task<OperationResult<byte[]>> ExportStudentMarkAsync(string classId);
+        Task<OperationResult<byte[]>> ExportAttendanceAsync(string classId);
     }
 }

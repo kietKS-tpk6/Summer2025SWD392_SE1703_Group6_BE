@@ -16,7 +16,7 @@ namespace Infrastructure.Services
         {
             _studentMarksService = studentMarksService;
         }
-        public async Task<OperationResult<byte[]>> ExportStudentMarkTemplateAsync(string classId)
+        public async Task<OperationResult<byte[]>> ExportStudentMarkAsync(string classId)
         {
             var studentMarkResult = await _studentMarksService.GetStudentMarkDetailDTOByClassIdAsync(classId);
             if (!studentMarkResult.Success)
