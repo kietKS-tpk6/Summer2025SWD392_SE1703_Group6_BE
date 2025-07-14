@@ -15,11 +15,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
         [HttpPost("schedule/import/excel")]
         public async Task<IActionResult> ImportScheduleExcel([FromForm] UploadExcelRequest request)
         {
-           var result = await _importExcelService.ImportScheduleByExcelAsync(request.File);
-            if(!result.Success) return BadRequest(result);
+            var result = await _importExcelService.ImportScheduleByExcelAsync(request.File);
+            if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
-       
+
         [HttpPost("mcq/import/excel")]
         public async Task<IActionResult> ImportMCQExcel([FromForm] UploadExcelRequest request)
         {
@@ -51,6 +51,18 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
             var fileName = "HuongDanNhapLichHoc.docx";
 
+            if (!System.IO.File.Exists(filePath))
+                return NotFound(new { Message = "Không tìm thấy file hướng dẫn." });
+
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, contentType, fileName);
+        }
+        [HttpGet("barem/import/guide-doc")]
+        public IActionResult DownloadBaremGuideDoc()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "HuongDanNhapBarem.docx");
+            var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            var fileName = "HuongDanNhapBarem.docx";
             if (!System.IO.File.Exists(filePath))
                 return NotFound(new { Message = "Không tìm thấy file hướng dẫn." });
 
