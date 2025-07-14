@@ -27,6 +27,13 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
+        [HttpPost("barem/import/excel")]
+        public async Task<IActionResult> ImportBaremExcel([FromForm] UploadExcelRequest request, int scoreQuestion)
+        {
+            var result = await _importExcelService.ImportBaremWritingByExcelAsync(request.File, scoreQuestion);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
         [HttpGet("mcq/import/guide-doc")]
         public IActionResult DownloadWordGuide()
         {
