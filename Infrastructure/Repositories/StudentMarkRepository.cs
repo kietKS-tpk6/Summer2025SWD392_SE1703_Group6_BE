@@ -173,12 +173,20 @@ namespace Infrastructure.Repositories
                     .ThenInclude(st => st.Student)
                 .ToListAsync();
 
+            var criteriaGroupCounts = studentMarks
+                .GroupBy(sm => sm.AssessmentCriteriaID)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(x => x.AssessmentIndex).Distinct().Count()
+                );
+
             var result = studentMarks
-                .GroupBy(sm => new { sm.AssessmentCriteria.Category, sm.AssessmentIndex })
+                .GroupBy(sm => new { sm.AssessmentCriteriaID, sm.AssessmentCriteria.Category, sm.AssessmentIndex })
                 .Select(g => new StudentMarkDetailKhoDTO
                 {
                     AssessmentCategory = (AssessmentCategory)g.Key.Category,
                     AssessmentIndex = g.Key.AssessmentIndex,
+                    WeightPercent = g.FirstOrDefault()?.AssessmentCriteria?.WeightPercent / criteriaGroupCounts[g.Key.AssessmentCriteriaID],
                     StudentMarks = g.Select(sm => new StudentMarkItem
                     {
                         StudentMarkID = sm.StudentMarkID,

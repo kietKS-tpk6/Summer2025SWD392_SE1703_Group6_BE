@@ -11,6 +11,7 @@ namespace Application.DTOs
     {
         public AssessmentCategory AssessmentCategory { get; set; }
         public int AssessmentIndex { get; set; }
+        public double? WeightPercent { get; set; }
         public List<StudentMarkItem> StudentMarks { get; set; }
 
     };
