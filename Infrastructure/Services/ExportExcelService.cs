@@ -5,16 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.IServices;
+using Domain.Enums;
 using OfficeOpenXml;
 namespace Infrastructure.Services
 {
     public class ExportExcelService: IExportExcelService
     {
         private readonly IStudentMarksService _studentMarksService;
+        private readonly IAttendanceService _attendanceService;
 
-        public ExportExcelService(IStudentMarksService studentMarksService)
+        public ExportExcelService(IStudentMarksService studentMarksService, IAttendanceService attendanceService)
         {
             _studentMarksService = studentMarksService;
+            _attendanceService = attendanceService;
         }
         public async Task<OperationResult<byte[]>> ExportStudentMarkAsync(string classId)
         {
@@ -89,6 +92,85 @@ namespace Infrastructure.Services
             }
 
             return OperationResult<byte[]>.Ok(await package.GetAsByteArrayAsync(), "Xuất file Excel thành công.");
+        }
+        public async Task<OperationResult<byte[]>> ExportAttendanceAsync(string classId)
+        {
+            var attendanceResult = await _attendanceService.GetAttendanceAsync(classId);
+            if (!attendanceResult.Success)
+                return OperationResult<byte[]>.Fail(attendanceResult.Message);
+
+            var lessons = attendanceResult.Data.LessonAttendances;
+
+            ExcelPackage.License.SetNonCommercialPersonal("HangulLearningSystem");
+            using var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("TinhTrangDiemDanh");
+
+            // 🟢 Header
+            ws.Cells[1, 1].Value = "STT";
+            ws.Cells[1, 2].Value = "Tên học viên";
+            for (int i = 0; i < lessons.Count; i++)
+            {
+                ws.Cells[1, i + 3].Value = $"Slot {i + 1}";
+            }
+            ws.Cells[1, lessons.Count + 3].Value = "Tổng buổi có mặt";
+
+            var allStudents = lessons
+                .SelectMany(l => l.StudentAttendanceRecords)
+                .GroupBy(s => s.StudentID)
+                .Select(g => new
+                {
+                    StudentID = g.Key,
+                    StudentName = g.First().StudentName
+                })
+                .ToList();
+
+            int row = 2;
+            foreach (var student in allStudents)
+            {
+                ws.Cells[row, 1].Value = row - 1; 
+                ws.Cells[row, 2].Value = student.StudentName;
+
+                int presentCount = 0;
+
+                for (int i = 0; i < lessons.Count; i++)
+                {
+                    var lesson = lessons[i];
+                    var record = lesson.StudentAttendanceRecords
+                        .FirstOrDefault(s => s.StudentID == student.StudentID);
+
+                    var status = (AttendanceStatus?)record?.AttendanceStatus;
+                    var cell = ws.Cells[row, i + 3];
+                    cell.Value = status?.ToString();
+
+                    if (status == AttendanceStatus.Present)
+                    {
+                        cell.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        cell.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGreen);
+                        presentCount++;
+                    }
+                    else if (status == AttendanceStatus.Absence)
+                    {
+                        cell.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        cell.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightCoral);
+                    }
+                    else if (status == AttendanceStatus.NotAvailable)
+                    {
+                        cell.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        cell.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGoldenrodYellow);
+                    }
+                }
+
+                ws.Cells[row, lessons.Count + 3].Value = presentCount;
+                row++;
+            }
+
+            for (int col = 1; col <= lessons.Count + 3; col++)
+            {
+                ws.Column(col).AutoFit();
+                ws.Cells[1, col].Style.Font.Bold = true;
+            }
+
+            return OperationResult<byte[]>.Ok(await package.GetAsByteArrayAsync(), "Xuất file điểm danh thành công.");
         }
 
         private string GetColumnLetter(int columnNumber)

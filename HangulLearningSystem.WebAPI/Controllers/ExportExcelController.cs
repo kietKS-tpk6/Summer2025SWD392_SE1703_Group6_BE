@@ -27,5 +27,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 fileDownloadName: fileName
             );
         }
+        [HttpGet("export-attendance/{classId}")]
+        public async Task<IActionResult> ExportAttendanceAsync(string classId)
+        {
+            var result = await _exportExcelService.ExportAttendanceAsync(classId);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            var fileName = $"DiemDanh_{classId}.xlsx";
+
+            return File(
+                fileContents: result.Data,
+                contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileDownloadName: fileName
+            );
+        }
     }
 }
