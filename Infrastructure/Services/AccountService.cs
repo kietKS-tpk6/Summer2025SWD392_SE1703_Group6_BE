@@ -415,6 +415,25 @@ namespace Infrastructure.Services
         {
             return await _accountRepository.GetFreeLecturersAsync(request);
         }
+        public async Task<OperationResult<List<AccountDTO>>> GetAllAccountForExcelAsync()
+        {
+            var accounts = await _accountRepository.GetAllAccountsAsync();
+            if(accounts == null) return OperationResult<List<AccountDTO>>.Fail(OperationMessages.NotFound("tài khoản"));
+            var result = accounts.Select(a => new AccountDTO
+            {
+                AccountID = a.AccountID,
+                FirstName = a.FirstName,
+                LastName = a.LastName,
+                Email = a.Email,
+                PhoneNumber = a.PhoneNumber,
+                Gender = a.Gender.ToString(),
+                Role = a.Role.ToString(),
+                Status = a.Status.ToString(),
+                BirthDate = a.BirthDate,
+                Img = a.Image
+            }).ToList();
+            return OperationResult<List<AccountDTO>>.Ok(result, OperationMessages.RetrieveSuccess("tài khoản"));
+        }
 
     }
 }

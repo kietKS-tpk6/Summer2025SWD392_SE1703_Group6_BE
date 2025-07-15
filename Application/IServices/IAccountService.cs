@@ -40,5 +40,7 @@ namespace Application.IServices
         Task<OperationResult<string>> GetAccountImageAsync(string accountID);
 
         Task<OperationResult<List<AccountDTO>>> GetFreeLecturersAsync(CheckLecturerFreeCommand request);
+        //Kho
+        Task<OperationResult<List<AccountDTO>>> GetAllAccountForExcelAsync();
     }
 }

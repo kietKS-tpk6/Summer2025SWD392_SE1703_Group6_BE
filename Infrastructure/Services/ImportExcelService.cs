@@ -70,8 +70,7 @@ namespace Infrastructure.Services
                     dto.Title = title;
                     dto.Content = content;
                     dto.DurationMinutes = duration;
-                    dto.Resource = resource;
-
+                    dto.Resources = resource;
                     list.Add(dto);
                 }
 
