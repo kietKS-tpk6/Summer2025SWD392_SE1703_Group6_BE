@@ -13,7 +13,7 @@ namespace Application.DTOs
         public string Title { get; set; } 
         public string Content { get; set; } 
         public int DurationMinutes { get; set; }
-        public string Resource { get; set; }
+        public string Resources { get; set; }
     }
 
 }
