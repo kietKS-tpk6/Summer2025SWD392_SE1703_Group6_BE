@@ -190,7 +190,7 @@ namespace Infrastructure.Repositories
                     StudentMarks = g.Select(sm => new StudentMarkItem
                     {
                         StudentMarkID = sm.StudentMarkID,
-                        StudentName = sm.Account?.LastName + " " + sm.Account?.FirstName,
+                        StudentName = sm.Account?.FirstName + " " + sm.Account?.LastName,
                         Mark = sm.Mark,
                         Comment = sm.Comment,
                         StudentTestID = sm.StudentTestID,

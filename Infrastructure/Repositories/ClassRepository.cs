@@ -327,7 +327,7 @@ namespace Infrastructure.Repositories
                                       select new StudentDTO
                                       {
                                           StudentID = acc.AccountID,
-                                          FullName = acc.LastName + " " + acc.FirstName,
+                                          FullName = acc.FirstName + " " + acc.LastName,
                                           Gender = acc.Gender,
                                           PhoneNumber = acc.PhoneNumber,
                                           Email = acc.Email,

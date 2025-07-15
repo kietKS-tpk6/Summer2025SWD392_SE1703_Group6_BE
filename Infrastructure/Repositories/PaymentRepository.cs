@@ -131,7 +131,7 @@ namespace Infrastructure.Repositories
                     PaymentID = p.PaymentID,
                     StudentID = p.AccountID,
                     ClassID = p.ClassID,
-                    StudentName = a != null ? a.LastName + " " + a.FirstName : "(Không rõ)",
+                    StudentName = a != null ? a.FirstName + " " + a.LastName : "(Không rõ)",
                     ClassName = c != null ? c.ClassName : "(Không rõ)",
                     Amount = p.Total,
                     Status = p.Status.ToString(),

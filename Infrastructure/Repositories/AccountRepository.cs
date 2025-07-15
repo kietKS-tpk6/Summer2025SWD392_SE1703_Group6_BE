@@ -233,7 +233,7 @@ namespace Infrastructure.Repositories
                     .Select(l => new TeachingScheduleDTO
                     {
                         LecturerID = l.LecturerID,
-                        LecturerName = l.Lecturer.LastName + " " + l.Lecturer.FirstName,
+                        LecturerName = l.Lecturer.FirstName + " " + l.Lecturer.LastName,
                         TeachingDay = (int)l.StartTime.DayOfWeek,
                         StartTime = l.StartTime.TimeOfDay,
                         EndTime = l.StartTime.TimeOfDay.Add(
