@@ -699,5 +699,48 @@ namespace Infrastructure.Services
                 return new List<PaymentListItemDTO>();
             }
         }
+        public async Task<PaginatedResult<PaymentListItemDTO>> GetPaymentsByStatusWithPaginationAsync(PaymentStatus status, int page, int pageSize)
+        {
+            try
+            {
+                _logger.LogInformation($"Getting payments with status: {status}, page: {page}, pageSize: {pageSize}");
+
+                if (page < 1) page = 1;
+                if (pageSize < 1) pageSize = 10;
+                if (pageSize > 100) pageSize = 100; 
+
+                var paginatedPayments = await _paymentRepository.GetPaymentsByStatusWithPaginationAsync(status, page, pageSize);
+                var paymentList = new List<PaymentListItemDTO>();
+
+                foreach (var payment in paginatedPayments.Data)
+                {
+                    paymentList.Add(new PaymentListItemDTO
+                    {
+                        PaymentID = payment.PaymentID,
+                        AccountID = payment.AccountID,
+                        StudentName = payment.Account?.Fullname ?? "Unknown",
+                        ClassID = payment.ClassID,
+                        ClassName = payment.Class?.ClassName ?? "Unknown",
+                        Total = payment.Total,
+                        Status = payment.Status,
+                        DayCreate = payment.DayCreate,
+                        Description = $"Payment for {payment.Class?.ClassName ?? "Unknown Class"}",
+                        TransactionID = payment.TransactionID
+                    });
+                }
+
+                return new PaginatedResult<PaymentListItemDTO>(
+                    paymentList,
+                    paginatedPayments.TotalCount,
+                    page,
+                    pageSize
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving payments with status: {status}");
+                return new PaginatedResult<PaymentListItemDTO>(new List<PaymentListItemDTO>(), 0, page, pageSize);
+            }
+        }
     }
 }

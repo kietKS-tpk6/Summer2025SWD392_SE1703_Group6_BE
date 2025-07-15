@@ -140,5 +140,29 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
           return OperationResult<List<PaymentTableRowDTO>>.Ok(result, OperationMessages.RetrieveSuccess("hóa đơn thanh toán"));
         }
+        public async Task<PaginatedResult<Payment>> GetPaymentsByStatusWithPaginationAsync(PaymentStatus status, int page, int pageSize)
+        {
+            try
+            {
+                var query = _dbContext.Payment
+                    .Include(p => p.Account)
+                    .Include(p => p.Class)
+                    .Where(p => p.Status == status)
+                    .OrderByDescending(p => p.DayCreate);
+
+                var totalCount = await query.CountAsync();
+
+                var payments = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return new PaginatedResult<Payment>(payments, totalCount, page, pageSize);
+            }
+            catch (Exception ex)
+            {
+                return new PaginatedResult<Payment>(new List<Payment>(), 0, page, pageSize);
+            }
+        }
     }
 }
