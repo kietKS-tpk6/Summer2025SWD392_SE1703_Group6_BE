@@ -14,14 +14,17 @@ namespace Infrastructure.Services
         private readonly IStudentMarksService _studentMarksService;
         private readonly ISyllabusScheduleService _syllabusScheduleService;
         private readonly IAttendanceService _attendanceService;
+        private readonly IAccountService _accountService;
 
         public ExportExcelService(IStudentMarksService studentMarksService, IAttendanceService attendanceService,
-            ISyllabusScheduleService syllabusScheduleService
+            ISyllabusScheduleService syllabusScheduleService,
+            IAccountService accountService
             )
         {
             _studentMarksService = studentMarksService;
             _attendanceService = attendanceService;
             _syllabusScheduleService = syllabusScheduleService;
+            _accountService = accountService;
         }
         public async Task<OperationResult<byte[]>> ExportStudentMarkAsync(string classId)
         {
@@ -245,6 +248,45 @@ namespace Infrastructure.Services
             }
 
             return OperationResult<byte[]>.Ok(await package.GetAsByteArrayAsync(), "Xuất thời khóa biểu thành công.");
+        }
+        public async Task<OperationResult<byte[]>> ExportAccountAsync()
+        {
+            var accountResult = await _accountService.GetAllAccountForExcelAsync();
+            if (!accountResult.Success)
+                return OperationResult<byte[]>.Fail(accountResult.Message);
+
+            var accounts = accountResult.Data;
+
+            ExcelPackage.License.SetNonCommercialPersonal("HangulLearningSystem");
+            using var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("TaiKhoan");
+
+            ws.Cells[1, 1].Value = "ID";
+            ws.Cells[1, 2].Value = "Họ Tên";
+            ws.Cells[1, 3].Value = "Email";
+            ws.Cells[1, 4].Value = "Số điện thoại";
+            ws.Cells[1, 5].Value = "Vai trò";
+            ws.Cells[1, 6].Value = "Trạng thái";
+
+            int row = 2;
+            foreach (var a in accounts)
+            {
+                ws.Cells[row, 1].Value = a.AccountID;
+                ws.Cells[row, 2].Value = $"{a.LastName} {a.FirstName}";
+                ws.Cells[row, 3].Value = a.Email;
+                ws.Cells[row, 4].Value = a.PhoneNumber;
+                ws.Cells[row, 5].Value = a.Role?.ToString();     
+                ws.Cells[row, 6].Value = a.Status?.ToString();   
+                row++;
+            }
+
+            for (int col = 1; col <= 6; col++)
+            {
+                ws.Column(col).AutoFit();
+                ws.Cells[1, col].Style.Font.Bold = true;
+            }
+
+            return OperationResult<byte[]>.Ok(await package.GetAsByteArrayAsync(), "Xuất danh sách tài khoản thành công.");
         }
 
         private string GetColumnLetter(int columnNumber)

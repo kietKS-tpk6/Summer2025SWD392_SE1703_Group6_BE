@@ -1,4 +1,5 @@
 ﻿using Application.IServices;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HangulLearningSystem.WebAPI.Controllers
@@ -48,6 +49,20 @@ namespace HangulLearningSystem.WebAPI.Controllers
             if (!result.Success)
                 return BadRequest(result.Message);
             var fileName = $"LichTrinhGiangDay_{subjectId}.xlsx";
+
+            return File(
+                fileContents: result.Data,
+                contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileDownloadName: fileName
+            );
+        }
+        [HttpGet("export-account")]
+        public async Task<IActionResult> ExportAccountAsync()
+        {
+            var result = await _exportExcelService.ExportAccountAsync();
+            if (!result.Success)
+                return BadRequest(result.Message);
+            var fileName = $"DanhSachTaiKhoan.xlsx";
 
             return File(
                 fileContents: result.Data,
