@@ -13,5 +13,6 @@ namespace Application.IServices
         Task<OperationResult<byte[]>> ExportAttendanceAsync(string classId);
         Task<OperationResult<byte[]>> ExportScheduleAsync(string subjectId);
         Task<OperationResult<byte[]>> ExportAccountAsync();
+        Task<OperationResult<byte[]>> ExportPaymentAsync();
     }
 }

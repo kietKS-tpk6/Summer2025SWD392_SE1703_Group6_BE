@@ -661,5 +661,9 @@ namespace Infrastructure.Services
             }
         return await _paymentRepository.GetPaymentsForStudentAsync(studentId);
         }
+        public async Task<OperationResult<List<PaymentTableRowDTO>>> GetPaymentForExcelAsync()
+        {
+            return await _paymentRepository.GetPaymentForExcelAsync();
+        }
     }
 }

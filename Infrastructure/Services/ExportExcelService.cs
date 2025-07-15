@@ -15,16 +15,22 @@ namespace Infrastructure.Services
         private readonly ISyllabusScheduleService _syllabusScheduleService;
         private readonly IAttendanceService _attendanceService;
         private readonly IAccountService _accountService;
+        private readonly IPaymentService _paymentService;
 
-        public ExportExcelService(IStudentMarksService studentMarksService, IAttendanceService attendanceService,
+        public ExportExcelService
+            (
+            IStudentMarksService studentMarksService, 
+            IAttendanceService attendanceService,
             ISyllabusScheduleService syllabusScheduleService,
-            IAccountService accountService
+            IAccountService accountService,
+            IPaymentService paymentService
             )
         {
             _studentMarksService = studentMarksService;
             _attendanceService = attendanceService;
             _syllabusScheduleService = syllabusScheduleService;
             _accountService = accountService;
+            _paymentService = paymentService;
         }
         public async Task<OperationResult<byte[]>> ExportStudentMarkAsync(string classId)
         {
@@ -287,6 +293,43 @@ namespace Infrastructure.Services
             }
 
             return OperationResult<byte[]>.Ok(await package.GetAsByteArrayAsync(), "Xuất danh sách tài khoản thành công.");
+        }
+        public async Task<OperationResult<byte[]>> ExportPaymentAsync()
+        {
+            var paymentResult = await _paymentService.GetPaymentForExcelAsync();
+            if (!paymentResult.Success)
+                return OperationResult<byte[]>.Fail(paymentResult.Message);
+            var payments = paymentResult.Data;
+            ExcelPackage.License.SetNonCommercialPersonal("HangulLearningSystem");
+            using var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("ThanhToan");
+
+            ws.Cells[1, 1].Value = "ID";
+            ws.Cells[1, 2].Value = "Tên học viên";
+            ws.Cells[1, 3].Value = "Lớp học";
+            ws.Cells[1, 4].Value = "Số tiền";
+            ws.Cells[1, 5].Value = "Trạng thai";
+            ws.Cells[1, 6].Value = "Ngày thanh toán";
+
+            int row = 2;
+            foreach (var p in payments)
+            {
+                ws.Cells[row, 1].Value = p.PaymentID;
+                ws.Cells[row, 2].Value = p.StudentName;
+                ws.Cells[row, 3].Value = p.ClassName;
+                ws.Cells[row, 4].Value = p.Amount;
+                ws.Cells[row, 5].Value = p.Status?.ToString();
+                ws.Cells[row, 6].Value = p.PaidAt.ToString("dd/MM/yyyy HH:mm"); ;
+                row++;
+            }
+            for (int col = 1; col <= 6; col++)
+            {
+                ws.Column(col).AutoFit();
+                ws.Cells[1, col].Style.Font.Bold = true;
+            }
+
+            return OperationResult<byte[]>.Ok(await package.GetAsByteArrayAsync(), "Xuất danh sách hóa đơn thanh toán thành công.");
+
         }
 
         private string GetColumnLetter(int columnNumber)

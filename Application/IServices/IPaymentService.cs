@@ -22,7 +22,10 @@ namespace Application.IServices
         Task<RefundResponseDTO> ApproveRefundAsync(string paymentId, string managerId);
         Task<List<RefundListItemDTO>> GetPendingRefundRequestsAsync();
         Task<List<RefundListItemDTO>> GetRefundHistoryAsync(string studentId = null);
-
+        //Kho
         Task<OperationResult<List<GetPaymentsForStudentDTO>>> GetPaymentsForStudentAsync(string studentId);
+        //Kho
+        Task<OperationResult<List<PaymentTableRowDTO>>> GetPaymentForExcelAsync();
+
     }
 }

@@ -70,5 +70,18 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 fileDownloadName: fileName
             );
         }
+        [HttpGet("export-payment")]
+        public async Task<IActionResult> ExportPaymentAsync()
+        {
+            var result = await _exportExcelService.ExportPaymentAsync();
+            if (!result.Success)
+                return BadRequest(result.Message);
+            var fileName = $"DanhSachThanhToan.xlsx";
+            return File(
+                fileContents: result.Data,
+                contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileDownloadName: fileName
+            );
+        }
     }
 }

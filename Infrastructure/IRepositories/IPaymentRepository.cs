@@ -16,6 +16,9 @@ namespace Infrastructure.IRepositories
         Task<bool> PaymentExistsAsync(string paymentId);
         Task<int> GetTotalPaymentsCountAsync();
         Task<List<Payment>> GetPaymentsByStatusAsync(PaymentStatus status);
+        //Kho
         Task<OperationResult<List<GetPaymentsForStudentDTO>>> GetPaymentsForStudentAsync(string studentId);
+        //Kho
+        Task<OperationResult<List<PaymentTableRowDTO>>> GetPaymentForExcelAsync();
     }
 }
