@@ -41,5 +41,19 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 fileDownloadName: fileName
             );
         }
+        [HttpGet("export-schedule/{subjectId}")]
+        public async Task<IActionResult> ExportScheduleAsync(string subjectId)
+        {
+            var result = await _exportExcelService.ExportScheduleAsync(subjectId);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            var fileName = $"LichTrinhGiangDay_{subjectId}.xlsx";
+
+            return File(
+                fileContents: result.Data,
+                contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                fileDownloadName: fileName
+            );
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace Application.IServices
     {
         Task<OperationResult<byte[]>> ExportStudentMarkAsync(string classId);
         Task<OperationResult<byte[]>> ExportAttendanceAsync(string classId);
+        Task<OperationResult<byte[]>> ExportScheduleAsync(string subjectId);
     }
 }

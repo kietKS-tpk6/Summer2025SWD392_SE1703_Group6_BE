@@ -12,12 +12,16 @@ namespace Infrastructure.Services
     public class ExportExcelService: IExportExcelService
     {
         private readonly IStudentMarksService _studentMarksService;
+        private readonly ISyllabusScheduleService _syllabusScheduleService;
         private readonly IAttendanceService _attendanceService;
 
-        public ExportExcelService(IStudentMarksService studentMarksService, IAttendanceService attendanceService)
+        public ExportExcelService(IStudentMarksService studentMarksService, IAttendanceService attendanceService,
+            ISyllabusScheduleService syllabusScheduleService
+            )
         {
             _studentMarksService = studentMarksService;
             _attendanceService = attendanceService;
+            _syllabusScheduleService = syllabusScheduleService;
         }
         public async Task<OperationResult<byte[]>> ExportStudentMarkAsync(string classId)
         {
@@ -105,7 +109,6 @@ namespace Infrastructure.Services
             using var package = new ExcelPackage();
             var ws = package.Workbook.Worksheets.Add("TinhTrangDiemDanh");
 
-            // 🟢 Header
             ws.Cells[1, 1].Value = "STT";
             ws.Cells[1, 2].Value = "Tên học viên";
             for (int i = 0; i < lessons.Count; i++)
@@ -171,6 +174,77 @@ namespace Infrastructure.Services
             }
 
             return OperationResult<byte[]>.Ok(await package.GetAsByteArrayAsync(), "Xuất file điểm danh thành công.");
+        }
+
+        public async Task<OperationResult<byte[]>> ExportScheduleAsync(string subjectId)
+        {
+            var scheduleResult = await _syllabusScheduleService.GetScheduleBySubjectIdAsync(subjectId);
+            if (!scheduleResult.Success)
+                return OperationResult<byte[]>.Fail(scheduleResult.Message);
+
+            var schedules = scheduleResult.Data
+                .OrderBy(s => s.Week)
+                .ThenBy(s => s.Slot)
+                .ToList();
+
+            ExcelPackage.License.SetNonCommercialPersonal("HangulLearningSystem");
+            using var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("LichTrinhGiangDay");
+
+            ws.Cells[1, 1].Value = "Tuần";
+            ws.Cells[1, 2].Value = "Slot";
+            ws.Cells[1, 3].Value = "Tiêu đề bài học";
+            ws.Cells[1, 4].Value = "Nội dung";
+            ws.Cells[1, 5].Value = "Thời lượng";
+            ws.Cells[1, 6].Value = "Tài nguyên";
+
+            int row = 2;
+            int slot = 1;
+            foreach (var s in schedules)
+            {
+                ws.Cells[row, 1].Value = s.Week;
+                ws.Cells[row, 2].Value = slot;
+                ws.Cells[row, 3].Value = s.LessonTitle;
+                ws.Cells[row, 4].Value = s.Content;
+                ws.Cells[row, 5].Value = $"{s.DurationMinutes} phút";
+                ws.Cells[row, 6].Value = s.Resources;
+                row++;
+                slot++;
+            }
+
+            int startRow = 2;
+            int endRow = 2;
+            int totalRows = schedules.Count;
+
+            for (int i = 1; i < totalRows; i++)
+            {
+                bool isSameWeek = schedules[i].Week == schedules[i - 1].Week;
+
+                if (isSameWeek)
+                {
+                    endRow++;
+                }
+                else
+                {
+                    if (startRow != endRow)
+                        ws.Cells[startRow, 1, endRow, 1].Merge = true;
+
+                    startRow = endRow = startRow + (endRow - startRow) + 1;
+                }
+            }
+
+            if (startRow != endRow)
+            {
+                ws.Cells[startRow, 1, endRow, 1].Merge = true;
+            }
+
+            for (int col = 1; col <= 6; col++)
+            {
+                ws.Column(col).AutoFit();
+                ws.Cells[1, col].Style.Font.Bold = true;
+            }
+
+            return OperationResult<byte[]>.Ok(await package.GetAsByteArrayAsync(), "Xuất thời khóa biểu thành công.");
         }
 
         private string GetColumnLetter(int columnNumber)
