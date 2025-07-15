@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
+using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -85,8 +86,62 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
+        [HttpGet("by-status/{status}")]
+        public async Task<IActionResult> GetPaymentsByStatus(PaymentStatus status)
+        {
+            try
+            {
+                var payments = await _paymentService.GetPaymentsByStatusAsync(status);
+
+                return Ok(new
+                {
+                    status = status.ToString(),
+                    count = payments.Count,
+                    data = payments
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Internal server error",
+                    detail = ex.Message
+                });
+            }
+        }
+
+        /*[HttpGet("filter")]
+        public async Task<IActionResult> GetPaymentsWithFilter([FromQuery] PaymentStatus? status = null)
+        {
+            try
+            {
+                if (!status.HasValue)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Status parameter is required",
+                        validStatuses = Enum.GetNames(typeof(PaymentStatus))
+                    });
+                }
+
+                var payments = await _paymentService.GetPaymentsByStatusAsync(status.Value);
+
+                return Ok(new
+                {
+                    status = status.Value.ToString(),
+                    count = payments.Count,
+                    data = payments
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Internal server error",
+                    detail = ex.Message
+                });
+            }
+        }*/
     }
-
-
- 
 }
