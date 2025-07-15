@@ -18,6 +18,7 @@ namespace Application.IServices
         string GetQrCodeUrl(string paymentId, decimal total);
         string GetWebhookUrl();
         Task<List<PaymentListItemDTO>> GetPaymentsByStatusAsync(PaymentStatus status);
+        Task<PaginatedResult<PaymentListItemDTO>> GetPaymentsByStatusWithPaginationAsync(PaymentStatus status, int page, int pageSize);
 
 
         Task<RefundEligibilityDTO> CheckRefundEligibilityAsync(string paymentId, string studentId);

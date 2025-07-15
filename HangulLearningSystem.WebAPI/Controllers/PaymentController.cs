@@ -88,17 +88,28 @@ namespace HangulLearningSystem.WebAPI.Controllers
         }
 
         [HttpGet("by-status/{status}")]
-        public async Task<IActionResult> GetPaymentsByStatus(PaymentStatus status)
+        public async Task<IActionResult> GetPaymentsByStatus(
+            PaymentStatus status,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
             try
             {
-                var payments = await _paymentService.GetPaymentsByStatusAsync(status);
+                var payments = await _paymentService.GetPaymentsByStatusWithPaginationAsync(status, page, pageSize);
 
                 return Ok(new
                 {
                     status = status.ToString(),
-                    count = payments.Count,
-                    data = payments
+                    pagination = new
+                    {
+                        currentPage = payments.PageNumber,
+                        pageSize = payments.PageSize,
+                        totalCount = payments.TotalCount,
+                        totalPages = payments.TotalPages,
+                        hasPreviousPage = payments.HasPreviousPage,
+                        hasNextPage = payments.HasNextPage
+                    },
+                    data = payments.Data
                 });
             }
             catch (Exception ex)
