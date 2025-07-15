@@ -2,6 +2,7 @@
 using Application.DTOs;
 using Application.Usecases.Command;
 using Domain.Entities;
+using Domain.Enums;
 using System.Threading.Tasks;
 
 namespace Application.IServices
@@ -16,6 +17,8 @@ namespace Application.IServices
         Task<Payment> GetPaymentAsync(string paymentId);
         string GetQrCodeUrl(string paymentId, decimal total);
         string GetWebhookUrl();
+        Task<List<PaymentListItemDTO>> GetPaymentsByStatusAsync(PaymentStatus status);
+
 
         Task<RefundEligibilityDTO> CheckRefundEligibilityAsync(string paymentId, string studentId);
         Task<RefundResponseDTO> RequestRefundAsync(string paymentId, string studentId);

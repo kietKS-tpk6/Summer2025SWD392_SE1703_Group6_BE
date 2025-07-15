@@ -85,4 +85,17 @@ namespace Application.DTOs
         public string LecturerName { get; set; }
        
     }
+    public class PaymentListItemDTO
+    {
+        public string PaymentID { get; set; }
+        public string AccountID { get; set; }
+        public string StudentName { get; set; }
+        public string ClassID { get; set; }
+        public string ClassName { get; set; }
+        public decimal Total { get; set; }
+        public PaymentStatus Status { get; set; }
+        public DateTime DayCreate { get; set; }
+        public string Description { get; set; }
+        public int? TransactionID { get; set; }
+    }
 }

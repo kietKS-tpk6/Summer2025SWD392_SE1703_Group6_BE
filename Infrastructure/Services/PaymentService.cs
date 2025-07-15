@@ -665,5 +665,39 @@ namespace Infrastructure.Services
         {
             return await _paymentRepository.GetPaymentForExcelAsync();
         }
+        public async Task<List<PaymentListItemDTO>> GetPaymentsByStatusAsync(PaymentStatus status)
+        {
+            try
+            {
+                _logger.LogInformation($"Getting payments with status: {status}");
+
+                var payments = await _paymentRepository.GetPaymentsByStatusAsync(status);
+                var paymentList = new List<PaymentListItemDTO>();
+
+                foreach (var payment in payments)
+                {
+                    paymentList.Add(new PaymentListItemDTO
+                    {
+                        PaymentID = payment.PaymentID,
+                        AccountID = payment.AccountID,
+                        StudentName = payment.Account?.Fullname ?? "Unknown",
+                        ClassID = payment.ClassID,
+                        ClassName = payment.Class?.ClassName ?? "Unknown",
+                        Total = payment.Total,
+                        Status = payment.Status,
+                        DayCreate = payment.DayCreate,
+                        Description = $"Payment for {payment.Class?.ClassName ?? "Unknown Class"}",
+                        TransactionID = payment.TransactionID
+                    });
+                }
+
+                return paymentList.OrderByDescending(p => p.DayCreate).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving payments with status: {status}");
+                return new List<PaymentListItemDTO>();
+            }
+        }
     }
 }
