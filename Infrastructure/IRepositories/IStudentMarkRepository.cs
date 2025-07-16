@@ -25,5 +25,8 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<bool>> SetupStudentMarkByClassIdAsync(string classId);
         //Kho - get bảng điểm theo lớp
         Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId);
+        Task<List<StudentMark>> GetMarksByStudentAndClassAsync(string studentID, string classID);
+        Task<List<StudentMark>> GetMarksByClassAsync(string classId);
+
     }
 }

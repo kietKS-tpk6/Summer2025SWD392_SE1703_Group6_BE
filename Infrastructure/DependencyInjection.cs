@@ -94,6 +94,7 @@ namespace Infrastructure
             services.AddScoped<IAttendanceService, AttendanceService>();
             services.AddHostedService<TaskAutoCompleteBackgroundService>();
             services.AddScoped<IFeedbackService, FeedbackService>();
+            services.AddScoped<ICertificateService, CertificateService>();
 
 
 

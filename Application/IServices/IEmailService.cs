@@ -19,5 +19,7 @@ namespace Application.IServices
         Task<OperationResult<bool>> SendClassStartNotificationAsync(string classId);
         Task<OperationResult<bool>> SendLessonUpdateNotificationAsync(string classId);
         Task<OperationResult<bool>> SendClassCancelledEmailAsync(string classId);
+        Task<bool> SendCertificateWithAttachmentAsync(string email, string studentName, string subjectName, byte[] certificateImageBytes);
+
     }
 }

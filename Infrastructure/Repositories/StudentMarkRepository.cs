@@ -192,6 +192,20 @@ namespace Infrastructure.Repositories
             return OperationResult<List<StudentMarkDetailKhoDTO>>.Ok(result, OperationMessages.RetrieveSuccess("bảng điểm"));
         }
 
+        public async Task<List<StudentMark>> GetMarksByStudentAndClassAsync(string studentID, string classID)
+        {
+            return await _dbContext.StudentMarks
+                .Where(sm => sm.AccountID == studentID && sm.ClassID == classID)
+                .Include(sm => sm.AssessmentCriteria)
+                .ToListAsync();
+        }
+        public async Task<List<StudentMark>> GetMarksByClassAsync(string classId)
+        {
+            return await _dbContext.StudentMarks
+                .Where(sm => sm.ClassID == classId)
+                .Include(sm => sm.AssessmentCriteria)
+                .ToListAsync();
+        }
 
     }
 }
