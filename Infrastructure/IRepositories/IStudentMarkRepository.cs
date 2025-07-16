@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
+using Application.Usecases.Command;
 using Domain.Entities;
 
 namespace Infrastructure.IRepositories
@@ -27,6 +28,11 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<List<StudentMarkDetailKhoDTO>>> GetStudentMarkDetailDTOByClassIdAsync(string classId);
         Task<List<StudentMark>> GetMarksByStudentAndClassAsync(string studentID, string classID);
         Task<List<StudentMark>> GetMarksByClassAsync(string classId);
+
+        //Kho - get bảng điêm theo studdent
+        Task<OperationResult<StudentMarkForStudentDTO>> GetStudentMarkForStudent(GetStudentMarkForStudentCommand request);
+        //Kho - lecturer input mark
+        Task<OperationResult<bool>> UpdateStudentMarksAsync(UpdateStudentMarksCommand request);
 
     }
 }

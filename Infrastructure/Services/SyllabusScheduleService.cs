@@ -23,19 +23,22 @@ namespace Infrastructure.Services
         private readonly ISyllabusScheduleTestService _syllabusScheduleTestService;
         private readonly IAssessmentCriteriaService _assessmentCriteriaService;
         private readonly IClassRepository _classRepository;
-
+        private readonly ISubjectService _subjectService;
         public SyllabusScheduleService(
             ISyllabusScheduleRepository syllabusScheduleRepository,
             ISyllabusScheduleTestService syllabusScheduleTestService,
             IAssessmentCriteriaService assessmentCriteriaService,
             HangulLearningSystemDbContext dbContext,
-            IClassRepository classRepository)
+            IClassRepository classRepository,
+            ISubjectService subjectService
+            )
         {
             _syllabusScheduleRepository = syllabusScheduleRepository;
             _syllabusScheduleTestService = syllabusScheduleTestService;
             _assessmentCriteriaService = assessmentCriteriaService;
             _dbContext = dbContext;
             _classRepository = classRepository;
+            _subjectService = subjectService;
         }
 
         public async Task<OperationResult<int>> GetMaxSlotPerWeekAsync(string subjectId)
@@ -176,6 +179,39 @@ namespace Infrastructure.Services
             catch (Exception)
             {
                 return new List<SyllabusScheduleDTO>();
+            }
+        }
+        public async Task<OperationResult<List<SyllabusScheduleDTO>>> GetScheduleBySubjectIdAsync(string subjectId)
+        {
+            try
+            {
+                var subject = await _subjectService.GetSubjectByIdAsync(subjectId);
+                if(subject == null) return OperationResult<List<SyllabusScheduleDTO>>.Fail(OperationMessages.NotFound("môn học"));
+                var schedules = await _syllabusScheduleRepository.GetSchedulesBySubjectAndWeekAsync(subjectId, null);
+                var result = new List<SyllabusScheduleDTO>();
+                foreach (var schedule in schedules)
+                {
+                    var dto = new SyllabusScheduleDTO
+                    {
+                        SyllabusScheduleID = schedule.SyllabusScheduleID,
+                        Content = schedule.Content,
+                        SubjectID = schedule.SubjectID,
+                        Resources = schedule.Resources,
+                        LessonTitle = schedule.LessonTitle,
+                        DurationMinutes = schedule.DurationMinutes.GetValueOrDefault(),
+                        HasTest = schedule.HasTest,
+                        Week = schedule.Week.GetValueOrDefault(),
+                    };
+
+
+                    result.Add(dto);
+                }
+
+                return OperationResult<List<SyllabusScheduleDTO>>.Ok(result,OperationMessages.RetrieveSuccess("lịch học"));
+            }
+            catch (Exception)
+            {
+                return OperationResult<List<SyllabusScheduleDTO>>.Fail("Không tìm thấy lịch học.");
             }
         }
         // ========== REFACTORED METHOD - TWO STEP PROCESSING ==========

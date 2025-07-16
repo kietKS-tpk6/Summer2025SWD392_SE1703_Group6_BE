@@ -30,5 +30,7 @@ namespace Application.IServices
         Task<OperationResult<List<SyllabusScheduleResourceDTO>>> GetScheduleResourcesByClassIdAsync(string classId);
         Task<OperationResult<string?>> GetResourcesByScheduleIDAsync(string syllabusScheduleID);
 
+        //Kho 
+        Task<OperationResult<List<SyllabusScheduleDTO>>> GetScheduleBySubjectIdAsync(string subjectId);
     }
 }

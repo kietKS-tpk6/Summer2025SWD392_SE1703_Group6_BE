@@ -233,7 +233,7 @@ namespace Infrastructure.Repositories
                     .Select(l => new TeachingScheduleDTO
                     {
                         LecturerID = l.LecturerID,
-                        LecturerName = l.Lecturer.LastName + " " + l.Lecturer.FirstName,
+                        LecturerName = l.Lecturer.FirstName + " " + l.Lecturer.LastName,
                         TeachingDay = (int)l.StartTime.DayOfWeek,
                         StartTime = l.StartTime.TimeOfDay,
                         EndTime = l.StartTime.TimeOfDay.Add(
@@ -373,7 +373,7 @@ namespace Infrastructure.Repositories
                 .ToList();
 
             return final
-                .OrderByDescending(a => ($"{a.FirstName} {a.LastName}").ToLower().Contains(search)) // ưu tiên khớp tên
+                .OrderByDescending(a => ($"{a.FirstName} {a.LastName}").ToLower().Contains(search)) 
                 .ThenBy(a => a.AccountID)
                 .Take(1000)
                 .ToList();
@@ -387,28 +387,38 @@ namespace Infrastructure.Repositories
             if (maxDuration == 0)
                 return OperationResult<List<AccountDTO>>.Fail("Không tìm thấy thời lượng học cho môn học.");
 
-            // Bước 2: Tính các khoảng thời gian cần kiểm tra
+            var numberOfLessons = await _dbContext.SyllabusSchedule
+                .Where(s => s.SubjectID == request.SubjectID)
+                .CountAsync();
+
+            if (numberOfLessons == 0)
+                return OperationResult<List<AccountDTO>>.Fail("Không tìm thấy nội dung giảng dạy cho môn học.");
+
+            int lessonsPerWeek = request.dayOfWeeks.Count;
+            int numberOfWeeksToCheck = (int)Math.Ceiling((double)numberOfLessons / lessonsPerWeek);
+
             var timeRanges = new List<(DateTime Start, DateTime End)>();
 
-            // 2.1. Tiết đầu tiên đúng ngày DateStart
-            var firstStart = request.DateStart;
-            var firstEnd = firstStart.AddMinutes(maxDuration);
-            timeRanges.Add((firstStart, firstEnd));
+            var dateStartStart = request.DateStart;
+            var dateStartEnd = dateStartStart.AddMinutes(maxDuration);
+            timeRanges.Add((dateStartStart, dateStartEnd));
 
-            // 2.2. Các tiết lặp theo DayOfWeek
-            foreach (var dow in request.dayOfWeeks)
+            for (int week = 0; week < numberOfWeeksToCheck; week++)
             {
-                int offsetDays = ((int)dow - (int)request.DateStart.DayOfWeek + 7) % 7;
+                foreach (var dow in request.dayOfWeeks)
+                {
+                    int offsetDays = ((int)dow - (int)request.DateStart.DayOfWeek + 7) % 7;
+                    var startDate = request.DateStart.Date.AddDays(week * 7 + offsetDays);
+                    var start = startDate.Add(request.Time.ToTimeSpan());
+                    var end = start.AddMinutes(maxDuration);
 
-                // Nếu trùng với DateStart đã thêm ở trên thì bỏ qua
-                if (offsetDays == 0) continue;
-
-                var start = request.DateStart.Date.AddDays(offsetDays).Add(request.Time.ToTimeSpan());
-                var end = start.AddMinutes(maxDuration);
-                timeRanges.Add((start, end));
+                    if (start != dateStartStart)
+                    {
+                        timeRanges.Add((start, end));
+                    }
+                }
             }
 
-            // Bước 3: Lấy lesson đang active
             var activeLessons = await _dbContext.Lesson
                 .Where(l => l.IsActive)
                 .Select(l => new
@@ -418,7 +428,6 @@ namespace Infrastructure.Repositories
                 })
                 .ToListAsync();
 
-            // Bước 4: Lọc những LecturerID bị trùng thời gian
             var conflictingLecturerIds = activeLessons
                 .Where(lesson => timeRanges.Any(t =>
                     lesson.StartTime < t.End &&
@@ -427,7 +436,6 @@ namespace Infrastructure.Repositories
                 .Distinct()
                 .ToList();
 
-            // Bước 5: Lấy danh sách giảng viên rảnh
             var freeLecturers = await _dbContext.Accounts
                 .Where(a => a.Role == AccountRole.Lecture && a.Status == AccountStatus.Active)
                 .Where(a => !conflictingLecturerIds.Contains(a.AccountID))
@@ -451,10 +459,6 @@ namespace Infrastructure.Repositories
 
             return OperationResult<List<AccountDTO>>.Ok(freeLecturers);
         }
-
-
-
-
 
     }
 }

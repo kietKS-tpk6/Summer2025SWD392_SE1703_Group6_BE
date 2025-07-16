@@ -58,6 +58,7 @@ namespace Infrastructure
             services.AddScoped<SendOTPViaEmailCommandHandler>();
 
             //Services 
+            services.AddScoped<IExportExcelService, ExportExcelService>();
             services.AddScoped<IDashboardAnalyticsService, DashboardAnalyticsService>();
             services.AddScoped<IChartService, ChartService>();
             services.AddScoped<IDashboardManagerService, DashboardManagerService>();
@@ -130,6 +131,8 @@ namespace Infrastructure
 
 
             //CommandHandler
+            services.AddScoped<UpdateStudentMarksCommandHandler>();
+            services.AddScoped<GetStudentMarkForStudentCommandHandler>();
             services.AddScoped<CreateSubjectCommandHandler>();
             services.AddScoped<CreateQuestionsCommandHandler>();
             services.AddScoped<UpdateSubjectCommandHandler>();

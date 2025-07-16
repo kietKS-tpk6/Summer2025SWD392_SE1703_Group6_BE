@@ -85,4 +85,38 @@ namespace Application.DTOs
         public string LecturerName { get; set; }
        
     }
+    public class PaymentListItemDTO
+    {
+        public string PaymentID { get; set; }
+        public string AccountID { get; set; }
+        public string StudentName { get; set; }
+        public string ClassID { get; set; }
+        public string ClassName { get; set; }
+        public decimal Total { get; set; }
+        public PaymentStatus Status { get; set; }
+        public DateTime DayCreate { get; set; }
+        public string Description { get; set; }
+        public int? TransactionID { get; set; }
+    }
+    public class PaginatedResult<T>
+    {
+        public List<T> Data { get; set; }
+        public int TotalCount { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public int TotalPages { get; set; }
+        public bool HasPreviousPage { get; set; }
+        public bool HasNextPage { get; set; }
+
+        public PaginatedResult(List<T> data, int totalCount, int pageNumber, int pageSize)
+        {
+            Data = data;
+            TotalCount = totalCount;
+            PageNumber = pageNumber;
+            PageSize = pageSize;
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            HasPreviousPage = pageNumber > 1;
+            HasNextPage = pageNumber < TotalPages;
+        }
+    }
 }

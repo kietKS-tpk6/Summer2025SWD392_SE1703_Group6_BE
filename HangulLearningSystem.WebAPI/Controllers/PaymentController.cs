@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
+using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -72,9 +73,86 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+        [HttpGet("history/{studentId}")]
+        public async Task<IActionResult> GetPaymentHistory(string studentId)
+        {
+            try
+            {
+                var history = await _paymentService.GetPaymentsForStudentAsync(studentId);
+                return Ok(history);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
 
+        [HttpGet("by-status/{status}")]
+        public async Task<IActionResult> GetPaymentsByStatus(
+            PaymentStatus status,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var payments = await _paymentService.GetPaymentsByStatusWithPaginationAsync(status, page, pageSize);
+
+                return Ok(new
+                {
+                    status = status.ToString(),
+                    pagination = new
+                    {
+                        currentPage = payments.PageNumber,
+                        pageSize = payments.PageSize,
+                        totalCount = payments.TotalCount,
+                        totalPages = payments.TotalPages,
+                        hasPreviousPage = payments.HasPreviousPage,
+                        hasNextPage = payments.HasNextPage
+                    },
+                    data = payments.Data
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Internal server error",
+                    detail = ex.Message
+                });
+            }
+        }
+
+        /*[HttpGet("filter")]
+        public async Task<IActionResult> GetPaymentsWithFilter([FromQuery] PaymentStatus? status = null)
+        {
+            try
+            {
+                if (!status.HasValue)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Status parameter is required",
+                        validStatuses = Enum.GetNames(typeof(PaymentStatus))
+                    });
+                }
+
+                var payments = await _paymentService.GetPaymentsByStatusAsync(status.Value);
+
+                return Ok(new
+                {
+                    status = status.Value.ToString(),
+                    count = payments.Count,
+                    data = payments
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Internal server error",
+                    detail = ex.Message
+                });
+            }
+        }*/
     }
-
-
- 
 }

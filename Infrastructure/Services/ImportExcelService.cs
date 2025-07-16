@@ -70,8 +70,7 @@ namespace Infrastructure.Services
                     dto.Title = title;
                     dto.Content = content;
                     dto.DurationMinutes = duration;
-                    dto.ResourceUrl = resource;
-
+                    dto.Resources = resource;
                     list.Add(dto);
                 }
 
@@ -141,6 +140,57 @@ namespace Infrastructure.Services
             catch (Exception ex)
             {
                 return OperationResult<List<QuestionMCQExcelDTO>>.Fail("Đã xảy ra lỗi khi đọc file Excel: " + ex.Message);
+            }
+        }
+
+        public async Task<OperationResult<List<BaremWritingExcelDTO>>> ImportBaremWritingByExcelAsync(IFormFile file, double scoreQuestion)
+        {
+            if (file == null || file.Length == 0)
+                return OperationResult<List<BaremWritingExcelDTO>>.Fail("File Excel không hợp lệ.");
+
+            try
+            {
+                ExcelPackage.License.SetNonCommercialPersonal("HangulLearningSystem");
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                using var package = new ExcelPackage(stream);
+
+                var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                if (worksheet == null)
+                    return OperationResult<List<BaremWritingExcelDTO>>.Fail("Không tìm thấy sheet trong file Excel.");
+
+                var result = new List<BaremWritingExcelDTO>();
+                var rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                    var criteria = worksheet.Cells[row, 1].Text.Trim();
+                    var maxScoreText = worksheet.Cells[row, 2].Text.Trim();
+                    var description = worksheet.Cells[row, 3].Text.Trim();
+
+                    if (string.IsNullOrEmpty(criteria) && string.IsNullOrEmpty(maxScoreText) && string.IsNullOrEmpty(description))
+                        continue;
+
+                    if (!double.TryParse(maxScoreText, out double maxScore) || maxScore < 0)
+                        return OperationResult<List<BaremWritingExcelDTO>>.Fail($"Điểm tối đa không hợp lệ tại dòng {row}.");
+
+                    result.Add(new BaremWritingExcelDTO
+                    {
+                        CriteriaName = criteria,
+                        MaxScore = maxScore,
+                        Description = description
+                    });
+                }
+
+                double total = result.Sum(x => x.MaxScore);
+                if (Math.Abs(total - scoreQuestion) > 0.001) 
+                    return OperationResult<List<BaremWritingExcelDTO>>.Fail($"Tổng điểm trong file là {total}, không khớp với điểm yêu cầu ({scoreQuestion} điểm).");
+
+                return OperationResult<List<BaremWritingExcelDTO>>.Ok(result, "Nhập tiêu chí chấm bài viết thành công.");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<BaremWritingExcelDTO>>.Fail("Đã xảy ra lỗi khi đọc file Excel: " + ex.Message);
             }
         }
 

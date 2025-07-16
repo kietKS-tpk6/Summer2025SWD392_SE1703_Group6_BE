@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Common.Constants;
+using Application.DTOs;
 using Application.IServices;
 using Application.Usecases.Command;
 using Domain.Entities;
@@ -24,6 +25,7 @@ namespace Infrastructure.Services
         private readonly IEnrollmentRepository _enrollmentRepository;
         private readonly IConfiguration _configuration;
         private readonly ILogger<PaymentService> _logger;
+        private readonly IAccountRepository _accountRepository;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
@@ -31,6 +33,7 @@ namespace Infrastructure.Services
             IClassRepository classRepository,
             IEnrollmentRepository enrollmentRepository,
             IConfiguration configuration,
+            IAccountRepository accountRepository,
             ILogger<PaymentService> logger)
         {
             _paymentRepository = paymentRepository;
@@ -38,6 +41,7 @@ namespace Infrastructure.Services
             _classRepository = classRepository;
             _enrollmentRepository = enrollmentRepository;
             _configuration = configuration;
+            _accountRepository = accountRepository;
             _logger = logger;
         }
 
@@ -144,14 +148,9 @@ namespace Infrastructure.Services
             decimal amountReceived = (transaction.TransferAmount) / 100;
             try
             {
-                _logger.LogInformation($"Processing webhook for transaction ID: {transaction.Id}");
-                _logger.LogInformation($"Transaction amount: {transaction.TransferAmount}, Type: {transaction.TransferType}");
-                _logger.LogInformation($"Transaction content: {transaction.Content}");
-                _logger.LogInformation($"Transaction description: {transaction.Description}");
-
-                // Lưu transaction trước
-                //var savedTransactionId = await SaveTransactionAsync(transaction);
-                //_logger.LogInformation($"Transaction saved with ID: {savedTransactionId}");
+                // Lưu transaction data từ webhook và lấy ID
+                var savedTransactionId = await SaveTransactionAsync(transaction);
+                _logger.LogInformation($"Transaction saved with ID: {savedTransactionId}");
 
                 // Extract PaymentID từ nhiều nguồn
                 string paymentId = ExtractPaymentIdFromTransaction(transaction);
@@ -176,13 +175,12 @@ namespace Infrastructure.Services
                     };
                 }
 
-                
-
-                bool updated = await UpdatePaymentStatusAsync(paymentId, amountReceived);
+                // Cập nhật payment với TransactionID
+                bool updated = await UpdatePaymentStatusAsync(paymentId, amountReceived, savedTransactionId);
 
                 if (updated)
                 {
-                    _logger.LogInformation($"Payment {paymentId} successfully updated to PAID status");
+                    _logger.LogInformation($"Payment {paymentId} successfully updated to PAID status with TransactionID: {savedTransactionId}");
                     return new WebhookResponseDTO
                     {
                         Success = true,
@@ -210,7 +208,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<bool> UpdatePaymentStatusAsync(string paymentId, decimal amountReceived)
+        public async Task<bool> UpdatePaymentStatusAsync(string paymentId, decimal amountReceived, int? transactionId = null)
         {
             _logger.LogInformation($"Attempting to update payment {paymentId} with amount {amountReceived}");
             var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
@@ -229,8 +227,8 @@ namespace Infrastructure.Services
 
             _logger.LogInformation($"Payment found. Expected amount: {payment.Total}, Received: {amountReceived}");
 
-            decimal expectedAmount = payment.Total/100;
-            if (Math.Abs(expectedAmount  - amountReceived) > 1m) 
+            decimal expectedAmount = payment.Total / 100;
+            if (Math.Abs(expectedAmount - amountReceived) > 1m)
             {
                 _logger.LogWarning($"Amount mismatch for payment {paymentId}. Expected: {expectedAmount}, Received: {amountReceived}");
                 if (amountReceived < expectedAmount)
@@ -240,10 +238,13 @@ namespace Infrastructure.Services
             }
 
             payment.Status = PaymentStatus.Paid;
-            //if (transactionId.HasValue)
-            //{
-            //    payment.TransactionID = transactionId.Value;
-            //}
+
+            // Cập nhật TransactionID nếu có
+            if (transactionId.HasValue)
+            {
+                payment.TransactionID = transactionId.Value;
+                _logger.LogInformation($"Setting TransactionID: {transactionId.Value} for payment {paymentId}");
+            }
 
             var updateResult = await _paymentRepository.UpdatePaymentAsync(payment);
             _logger.LogInformation($"Payment update result: {updateResult}");
@@ -283,20 +284,22 @@ namespace Infrastructure.Services
             return $"{baseUrl.TrimEnd('/')}{webhookEndpoint}";
         }
 
+        
+
         private async Task<int> SaveTransactionAsync(TransactionDTO transaction)
         {
             try
             {
-                _logger.LogInformation($"start saved transaction with ID: {transaction.Id}");
+                _logger.LogInformation($"Saving transaction data from webhook");
                 var transactionEntity = new Transaction
                 {
-                    TransactionID = transaction.Id,
+                    // Không set TransactionID - để database tự tăng
                     Gateway = transaction.Gateway,
                     TransactionDate = DateTime.ParseExact(transaction.TransactionDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                     AccountNumber = transaction.AccountNumber,
                     SubAccount = transaction.SubAccount,
-                    AmountIn = transaction.TransferType == "in" ? transaction.TransferAmount : 0,
-                    AmountOut = transaction.TransferType == "out" ? transaction.TransferAmount : 0,
+                    AmountIn = transaction.TransferType?.ToLower() == "in" ? transaction.TransferAmount : 0,
+                    AmountOut = transaction.TransferType?.ToLower() == "out" ? transaction.TransferAmount : 0,
                     Accumulated = transaction.Accumulated,
                     Code = transaction.Code,
                     TransactionContent = transaction.Content,
@@ -311,8 +314,8 @@ namespace Infrastructure.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error saving transaction");
-                throw;
+                _logger.LogError(ex, "Error saving transaction data");
+                throw; // Throw để webhook processing biết có lỗi
             }
         }
 
@@ -646,6 +649,97 @@ namespace Infrastructure.Services
             {
                 _logger.LogError(ex, "Error retrieving refund history");
                 return new List<RefundListItemDTO>();
+            }
+        }
+
+        public async Task<OperationResult<List<GetPaymentsForStudentDTO>>> GetPaymentsForStudentAsync(string studentId)
+        {
+            var studentFound = await _accountRepository.GetAccountsByIdAsync(studentId);
+            if(studentFound == null)
+            {
+                return OperationResult<List<GetPaymentsForStudentDTO>>.Fail(OperationMessages.NotFound("học sinh"));
+            }
+        return await _paymentRepository.GetPaymentsForStudentAsync(studentId);
+        }
+        public async Task<OperationResult<List<PaymentTableRowDTO>>> GetPaymentForExcelAsync()
+        {
+            return await _paymentRepository.GetPaymentForExcelAsync();
+        }
+        public async Task<List<PaymentListItemDTO>> GetPaymentsByStatusAsync(PaymentStatus status)
+        {
+            try
+            {
+                _logger.LogInformation($"Getting payments with status: {status}");
+
+                var payments = await _paymentRepository.GetPaymentsByStatusAsync(status);
+                var paymentList = new List<PaymentListItemDTO>();
+
+                foreach (var payment in payments)
+                {
+                    paymentList.Add(new PaymentListItemDTO
+                    {
+                        PaymentID = payment.PaymentID,
+                        AccountID = payment.AccountID,
+                        StudentName = payment.Account?.Fullname ?? "Unknown",
+                        ClassID = payment.ClassID,
+                        ClassName = payment.Class?.ClassName ?? "Unknown",
+                        Total = payment.Total,
+                        Status = payment.Status,
+                        DayCreate = payment.DayCreate,
+                        Description = $"Payment for {payment.Class?.ClassName ?? "Unknown Class"}",
+                        TransactionID = payment.TransactionID
+                    });
+                }
+
+                return paymentList.OrderByDescending(p => p.DayCreate).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving payments with status: {status}");
+                return new List<PaymentListItemDTO>();
+            }
+        }
+        public async Task<PaginatedResult<PaymentListItemDTO>> GetPaymentsByStatusWithPaginationAsync(PaymentStatus status, int page, int pageSize)
+        {
+            try
+            {
+                _logger.LogInformation($"Getting payments with status: {status}, page: {page}, pageSize: {pageSize}");
+
+                if (page < 1) page = 1;
+                if (pageSize < 1) pageSize = 10;
+                if (pageSize > 100) pageSize = 100; 
+
+                var paginatedPayments = await _paymentRepository.GetPaymentsByStatusWithPaginationAsync(status, page, pageSize);
+                var paymentList = new List<PaymentListItemDTO>();
+
+                foreach (var payment in paginatedPayments.Data)
+                {
+                    paymentList.Add(new PaymentListItemDTO
+                    {
+                        PaymentID = payment.PaymentID,
+                        AccountID = payment.AccountID,
+                        StudentName = payment.Account?.Fullname ?? "Unknown",
+                        ClassID = payment.ClassID,
+                        ClassName = payment.Class?.ClassName ?? "Unknown",
+                        Total = payment.Total,
+                        Status = payment.Status,
+                        DayCreate = payment.DayCreate,
+                        Description = $"Payment for {payment.Class?.ClassName ?? "Unknown Class"}",
+                        TransactionID = payment.TransactionID
+                    });
+                }
+
+                return new PaginatedResult<PaymentListItemDTO>(
+                    paymentList,
+                    paginatedPayments.TotalCount,
+                    page,
+                    pageSize
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving payments with status: {status}");
+                return new PaginatedResult<PaymentListItemDTO>(new List<PaymentListItemDTO>(), 0, page, pageSize);
             }
         }
     }

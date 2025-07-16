@@ -13,5 +13,6 @@ namespace Application.IServices
     {
         Task<OperationResult<List<ScheduleExcelDTO>>> ImportScheduleByExcelAsync(IFormFile file);
         Task<OperationResult<List<QuestionMCQExcelDTO>>> ImportMCQByExcelAsync(IFormFile file);
-    }
+        Task<OperationResult<List<BaremWritingExcelDTO>>> ImportBaremWritingByExcelAsync(IFormFile file, double scoreQuestion);
+     }
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Common.Constants;
 using Application.DTOs;
+using Application.Usecases.Command;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
@@ -172,16 +173,24 @@ namespace Infrastructure.Repositories
                     .ThenInclude(st => st.Student)
                 .ToListAsync();
 
+            var criteriaGroupCounts = studentMarks
+                .GroupBy(sm => sm.AssessmentCriteriaID)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(x => x.AssessmentIndex).Distinct().Count()
+                );
+
             var result = studentMarks
-                .GroupBy(sm => new { sm.AssessmentCriteria.Category, sm.AssessmentIndex })
+                .GroupBy(sm => new { sm.AssessmentCriteriaID, sm.AssessmentCriteria.Category, sm.AssessmentIndex })
                 .Select(g => new StudentMarkDetailKhoDTO
                 {
                     AssessmentCategory = (AssessmentCategory)g.Key.Category,
                     AssessmentIndex = g.Key.AssessmentIndex,
+                    WeightPercent = g.FirstOrDefault()?.AssessmentCriteria?.WeightPercent / criteriaGroupCounts[g.Key.AssessmentCriteriaID],
                     StudentMarks = g.Select(sm => new StudentMarkItem
                     {
                         StudentMarkID = sm.StudentMarkID,
-                        StudentName = sm.Account?.LastName + " " + sm.Account?.FirstName,
+                        StudentName = sm.Account?.FirstName + " " + sm.Account?.LastName,
                         Mark = sm.Mark,
                         Comment = sm.Comment,
                         StudentTestID = sm.StudentTestID,
@@ -190,6 +199,72 @@ namespace Infrastructure.Repositories
                 .ToList();
 
             return OperationResult<List<StudentMarkDetailKhoDTO>>.Ok(result, OperationMessages.RetrieveSuccess("bảng điểm"));
+        }
+        public async Task<OperationResult<StudentMarkForStudentDTO>> GetStudentMarkForStudent(GetStudentMarkForStudentCommand request)
+        {
+            var studentMarks = await _dbContext.StudentMarks
+                .Where(sm => sm.AccountID == request.StudentId && sm.ClassID == request.ClassId)
+                .Include(sm => sm.AssessmentCriteria)
+                .Include(sm => sm.StudentTest)
+                .ToListAsync();
+            var details = studentMarks.Select(sm => new MarkComponentDTO
+            {
+                StudentMarkID = sm.StudentMarkID,
+                AssessmentCategory = sm.AssessmentCriteria?.Category,
+                AssessmentIndex = sm.AssessmentIndex,
+                WeightPercent = sm.AssessmentCriteria?.WeightPercent,
+                Mark = sm.Mark,
+                Comment = sm.Comment,
+                StudentTestID = sm.StudentTestID
+            }).ToList();
+
+            bool allValid = details.All(d => d.Mark.HasValue && d.WeightPercent.HasValue);
+
+            decimal? GPA = null;
+            if (allValid && details.Any())
+            {
+                decimal total = details.Sum(d => (decimal)d.Mark.Value * (decimal)(d.WeightPercent.Value / 100.0));
+                GPA = Math.Round(total, 2);
+            }
+
+            return OperationResult<StudentMarkForStudentDTO>.Ok(new StudentMarkForStudentDTO
+            {
+                GPA = GPA,
+                StudentMarkDetails = details
+            });
+        }
+        public async Task<OperationResult<bool>> UpdateStudentMarksAsync(UpdateStudentMarksCommand request)
+        {
+            var markIds = request.InputMarks.Select(m => m.StudentMarkID).ToList();
+
+            var studentMarks = await _dbContext.StudentMarks
+                .Where(sm => markIds.Contains(sm.StudentMarkID))
+                .ToListAsync();
+
+            if (!studentMarks.Any())
+            {
+                return OperationResult<bool>.Fail("Không tìm thấy bản ghi điểm nào để cập nhật.");
+            }
+
+            foreach (var input in request.InputMarks)
+            {
+                var mark = studentMarks.FirstOrDefault(sm => sm.StudentMarkID == input.StudentMarkID);
+                {
+                    mark.Mark = input.Mark;
+                    mark.Comment = input.Comment;
+                    mark.UpdatedAt = DateTime.UtcNow;
+                    mark.GradedBy = request.LecturerId;
+                    mark.GradedAt = DateTime.UtcNow;
+
+                }
+                if(mark.CreatedAt == null)
+                {
+                    mark.CreatedAt = DateTime.UtcNow;
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("điểm"));
         }
 
         public async Task<List<StudentMark>> GetMarksByStudentAndClassAsync(string studentID, string classID)

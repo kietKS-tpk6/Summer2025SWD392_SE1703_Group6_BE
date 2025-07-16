@@ -85,6 +85,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
+        [HttpPut("input-marks-by-lecturer")]
+        public async Task<IActionResult> InputMarksByLecturer([FromBody] UpdateStudentMarksCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result);
+        }
 
 
         [HttpDelete("{studentMarkId}")]
@@ -160,6 +169,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result);
 
             return Ok(result);
+        }
+        [HttpGet("get-for-student")]
+        public async Task<IActionResult> GetStudentMarksForStudent([FromQuery] GetStudentMarkForStudentCommand request)
+        {
+            var result = await _mediator.Send(request);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
     }
 }
