@@ -228,5 +228,42 @@ namespace Infrastructure.Services
                 return OperationResult<List<Lesson>>.Fail("Lỗi khi truy vấn danh sách lesson: " + ex.Message);
             }
         }
+        public async Task<OperationResult<List<int>>> GetDateOfWeekByClassIdAsync(string classId)
+        {
+            var lessons = await _lessonRepository.GetLessonsByClassIDAsync(classId);
+            if (lessons == null || lessons.Count <= 1)
+                return OperationResult<List<int>>.Fail("Không đủ tiết học để phân tích.");
+            var remainingLessons = lessons.Skip(1).ToList();
+            int totalRemaining = remainingLessons.Count;
+            var grouped = remainingLessons
+                .Select(l => l.StartTime.DayOfWeek)
+                .GroupBy(d => d)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var result = new List<int>();
+
+            foreach (var kvp in grouped)
+            {
+                var day = kvp.Key;
+                var count = kvp.Value;
+
+                if (totalRemaining <= 5)
+                {
+                    result.Add((int)day);
+                }
+                else
+                {
+                    if (count >= 2)
+                        result.Add((int)day);
+                }
+            }
+
+            return OperationResult<List<int>>.Ok(result, OperationMessages.RetrieveSuccess("thứ trong tuần"));
+        }
+        public async Task<OperationResult<TimeOnly>> GetLessonTimeByClassIdAsync(string classId)
+        {
+            return await _lessonRepository.GetLessonTimeByClassIdAsync(classId);
+        }
+
     }
 }

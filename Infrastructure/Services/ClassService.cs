@@ -266,6 +266,43 @@ namespace Infrastructure.Services
             var count = await _classRepository.CountOngoingClassesByLecturerAsync(lecturerId);
             return OperationResult<int>.Ok(count, OperationMessages.RetrieveSuccess("số lớp đang dạy"));
         }
+        public async Task<OperationResult<ClassInfoUpdateDTO>> GetClassInfoForUpdateAsync(string classId)
+        {
+            var classFound = await _classRepository.GetClassDTOByIdAsync(classId);
+            if(!classFound.Success)
+            {
+                return OperationResult<ClassInfoUpdateDTO>.Fail(classFound.Message);
+            }
+            var dayOfWeeks = await _lessonService.GetDateOfWeekByClassIdAsync(classId);
+            if(!dayOfWeeks.Success)
+            {
+                return OperationResult<ClassInfoUpdateDTO>.Fail(dayOfWeeks.Message);
+            }
+            var lessonTime = await _lessonService.GetLessonTimeByClassIdAsync(classId);
+            if(!lessonTime.Success)
+            {
+                return OperationResult<ClassInfoUpdateDTO>.Fail(lessonTime.Message);
+            }
+            var result = new ClassInfoUpdateDTO
+            {
+                ClassName = classFound.Data.ClassName,
+                SubjectName = classFound.Data.SubjectName,
+                LecturerId = classFound.Data.LecturerID,
+                LecturerName = classFound.Data.LecturerName,
+                TeachingStartTime = classFound.Data.TeachingStartTime,
+                MinStudentAcp = classFound.Data.MinStudentAcp,
+                MaxStudentAcp  = classFound.Data.MaxStudentAcp,
+                LessonTime = lessonTime.Data,
+                PriceOfClass = classFound.Data.PriceOfClass,
+                NumberStudentEnroll = classFound.Data.NumberStudentEnroll,
+                ImageURL = classFound.Data.ImageURL,
+                DayOfWeeks = dayOfWeeks.Data,
+                SubjectId = classFound.Data.SubjectID,
+                Status = classFound.Data.Status,
+                ClassId = classFound.Data.ClassID
+            };
+            return OperationResult<ClassInfoUpdateDTO>.Ok(result, OperationMessages.RetrieveSuccess("lớp học"));
+        }
     }
 
 }

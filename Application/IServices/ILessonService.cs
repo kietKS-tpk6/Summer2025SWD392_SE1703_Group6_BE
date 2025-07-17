@@ -32,8 +32,10 @@ namespace Application.IServices
             List<SyllabusScheduleCreateLessonDTO> schedules,
             DateTime startTime
         );
+        Task<OperationResult<TimeOnly>> GetLessonTimeByClassIdAsync(string classId);
 
         Task<OperationResult<List<LessonContentDTO>>> GetLessonContentByClassIdAsyn(string classId);
+        Task<OperationResult<List<int>>> GetDateOfWeekByClassIdAsync(string classId);
 
         //kit {Lấy danh sách ClassLesson theo ClassID}
         Task<OperationResult<List<Lesson>>> GetLessonsByClassIDAsync(string classID);

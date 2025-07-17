@@ -67,7 +67,7 @@ namespace Infrastructure.Repositories
                 .Include(cl => cl.SyllabusSchedule)
                 .Include(cl => cl.Class)
                     //.ThenInclude(c => c.Subject)
-                .Where(cl => cl.ClassID == classID)
+                .Where(cl => cl.ClassID == classID && cl.IsActive)
                 .ToListAsync();
         }
         public async Task<List<Lesson>> GetLessonsByStudentIDAsync(string studentID)
@@ -182,5 +182,27 @@ namespace Infrastructure.Repositories
                 .Where(l => l.ClassID == classID)
                 .ToListAsync();
         }
+
+        public async Task<OperationResult<TimeOnly>> GetLessonTimeByClassIdAsync(string classId)
+        {
+            var lessons = await _dbContext.Lesson
+                .Where(l => l.ClassID == classId && l.IsActive)
+                .OrderBy(l => l.StartTime)
+                .ToListAsync();
+
+            if (lessons == null || !lessons.Any())
+                return OperationResult<TimeOnly>.Fail("Không có tiết học hợp lệ cho lớp này.");
+
+            var mostCommonTime = lessons
+                .Select(l => TimeOnly.FromDateTime(l.StartTime))
+                .GroupBy(t => t)
+                .OrderByDescending(g => g.Count())  
+                .ThenBy(g => g.Key)              
+                .Select(g => g.Key)
+                .First();
+
+            return OperationResult<TimeOnly>.Ok(mostCommonTime, OperationMessages.RetrieveSuccess("giờ học"));
+        }
+
     }
 }
