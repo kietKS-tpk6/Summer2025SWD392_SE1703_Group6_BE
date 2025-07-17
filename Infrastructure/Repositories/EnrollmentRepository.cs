@@ -112,5 +112,14 @@ namespace Infrastructure.Repositories
                 select ce
             ).CountAsync();
         }
+        public async Task<List<string>> GetEnrolledClassIdsByStudentIdAsync(string studentId)
+        {
+            return await _dbContext.ClassEnrollment
+                .Where(e => e.StudentID == studentId && e.Status == EnrollmentStatus.Actived)
+                .Select(e => e.ClassID)
+                .Distinct()
+                .ToListAsync();
+        }
+
     }
 }

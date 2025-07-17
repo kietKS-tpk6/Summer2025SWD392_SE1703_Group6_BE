@@ -5,6 +5,7 @@ using Application.IServices;
 using Application.Usecases.Command;
 using Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HangulLearningSystem.WebAPI.Controllers
@@ -45,7 +46,17 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return BadRequest(result);
         }
+        [HttpDelete("{accountId}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> DeleteAccount(string accountId)
+        {
+            var currentUserId = User.FindFirst("id")?.Value;
+            var result = await _accountService.DeleteAccountAsync(accountId, currentUserId);
+            if (result.Success)
+                return Ok(result);
 
+            return BadRequest(result);
+        }
         [HttpGet("list-account-with-role-gender-status")]
         public async Task<IActionResult> ListAccountWithRole([FromQuery] GetPaginatedAccountListCommand command, CancellationToken cancellationToken)
         {

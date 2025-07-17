@@ -28,18 +28,23 @@ namespace Infrastructure.Services
         private const string DEFAULT_PASS = "Hello123";
 
         private readonly IAccountRepository _accountRepository;
+        private readonly IClassRepository _classRepository;
+        private readonly IEnrollmentRepository _enrollmentRepository;
+
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly IOTPRepository _OTPRepository;
         private readonly ISystemConfigService _configService;
 
-        public AccountService(IAccountRepository accountRepository, ITokenService tokenService, IEmailService emailService, IOTPRepository oTPRepository, ISystemConfigService configService)
+        public AccountService(IAccountRepository accountRepository, ITokenService tokenService, IEmailService emailService, IOTPRepository oTPRepository, ISystemConfigService configService, IClassRepository classRepository, IEnrollmentRepository enrollmentRepository)
         {
             _accountRepository = accountRepository;
             _tokenService = tokenService;
             _emailService = emailService;
             _OTPRepository = oTPRepository;
             _configService = configService;
+            _classRepository = classRepository;
+            _enrollmentRepository = enrollmentRepository;
         }
 
         private async Task<string> GetDefaultPasswordAsync()
@@ -414,6 +419,41 @@ namespace Infrastructure.Services
         public async Task<OperationResult<List<AccountDTO>>> GetFreeLecturersAsync(CheckLecturerFreeCommand request)
         {
             return await _accountRepository.GetFreeLecturersAsync(request);
+        }
+        public async Task<OperationResult<bool>> DeleteAccountAsync(string accountId, string currentUserId)
+        {
+            var account = await _accountRepository.GetAccountsByIdAsync(accountId);
+            if (account == null)
+                return OperationResult<bool>.Fail("Không tìm thấy tài khoản.");
+
+            if (account.Status == AccountStatus.Deleted)
+                return OperationResult<bool>.Fail("Tài khoản đã bị xóa trước đó.");
+
+            if (account.Role == AccountRole.Student)
+            {
+                var listClassEnrolled = await _enrollmentRepository.GetEnrolledClassIdsByStudentIdAsync(accountId);
+
+                var isOngoing = await _classRepository.IsClassStatusIsOngoing(listClassEnrolled);
+
+                if (isOngoing)
+                    return OperationResult<bool>.Fail("Bạn không thể xóa tài khoản học sinh đang tham gia lớp học đang diễn ra.");
+            }
+
+
+            // Nếu là giáo viên → kiểm tra đang dạy lớp
+            if (account.Role == AccountRole.Lecture)
+            {
+                var ongoingClassCount = await _classRepository.CountOngoingClassesByLecturerAsync(accountId);
+                if (ongoingClassCount > 0)
+                    return OperationResult<bool>.Fail("Giáo viên đang dạy lớp học đang diễn ra. Không thể xóa.");
+            }
+
+
+            // Đánh dấu là đã xóa
+            account.Status = AccountStatus.Deleted;
+            await _accountRepository.UpdateAccountAsync(account);
+
+            return OperationResult<bool>.Ok(true, "Xóa thành công");
         }
 
     }

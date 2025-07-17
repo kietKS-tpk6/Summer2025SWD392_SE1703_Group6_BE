@@ -373,6 +373,17 @@ namespace Infrastructure.Repositories
                 .Cast<Class?>()
                 .ToListAsync();
         }
+        public async Task<bool> IsClassStatusIsOngoing(List<string> classIds)
+        {
+            if (classIds == null || !classIds.Any())
+                return false;
+
+            var countOngoing = await _dbContext.Class
+                .Where(c => classIds.Contains(c.ClassID) && c.Status == ClassStatus.Ongoing)
+                .CountAsync();
+
+            return countOngoing == classIds.Count;
+        }
 
     }
 }
