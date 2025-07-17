@@ -109,7 +109,7 @@ namespace Infrastructure.Services
             {
                 await _emailService.SendClassCancelledEmailAsync(classFound.Data.ClassID);
             }
-            await _lessonService.DeleteLessonByClassIDAsync(classId);
+            //await _lessonService.DeleteLessonByClassIDAsync(classId);
             //await _testEventService.DeleteTestEventsByClassIDAsync(classId);
             return await _classRepository.DeleteAsync(classId);
             
