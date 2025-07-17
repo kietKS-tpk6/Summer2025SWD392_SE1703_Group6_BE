@@ -34,6 +34,7 @@ namespace Application.IServices
         Task<OperationResult<bool>> IsClassNameDuplicateAsync(string className);
         Task<OperationResult<int>> GetOngoingClassCountByLecturerAsync(string lecturerId);
         Task<OperationResult<ClassInfoUpdateDTO>> GetClassInfoForUpdateAsync(string classId);
+        Task<OperationResult<bool>> IsCompleted(string classId);
 
     }
 }

@@ -179,6 +179,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _classService.GetClassInfoForUpdateAsync(classId);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("is-completed/{classId}")]
+        public async Task<IActionResult> IsCompleted(string classId)
+        {
+            var result = await _classService.IsCompleted(classId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 
 }

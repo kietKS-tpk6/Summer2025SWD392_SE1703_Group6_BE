@@ -281,6 +281,19 @@ namespace Infrastructure.Repositories
                 .Include(sm => sm.AssessmentCriteria)
                 .ToListAsync();
         }
+        public async Task<OperationResult<bool>> HasAllStudentsGradedAsync(string classId)
+        {
+            var hasUnmarked = await _dbContext.StudentMarks
+                .AnyAsync(m => m.ClassID == classId && m.Mark == null);
+
+            if (hasUnmarked)
+            {
+                return OperationResult<bool>.Fail("Vẫn còn học viên chưa được chấm điểm.");
+            }
+
+            return OperationResult<bool>.Ok(true, "Tất cả học viên đã được chấm điểm.");
+        }
+
 
     }
 }

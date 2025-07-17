@@ -301,11 +301,16 @@ namespace Infrastructure.Repositories
                 .Where(e => e.ClassID == id)
                 .CountAsync();
             var enrollCounts = new Dictionary<string, int> { { id, count } };
-            var result = MapToDTO(classInfo.Class, enrollCounts, classInfo.LecturerName, classInfo.SubjectName);
+            var endDate = await _dbContext.Lesson
+            .Where(l => l.ClassID == id && l.IsActive && l.StartTime != null)
+            .MaxAsync(l => l.StartTime);
+
+
+            var result = MapToDTO(classInfo.Class, enrollCounts, classInfo.LecturerName, classInfo.SubjectName, endDate);
             return OperationResult<ClassDTO?>.Ok(result);
         }
 
-        private static ClassDTO MapToDTO(Class c, Dictionary<string, int>? enrollCounts = null, string? lecturerName = null, string? subjectName = null)
+        private static ClassDTO MapToDTO(Class c, Dictionary<string, int>? enrollCounts = null, string? lecturerName = null, string? subjectName = null, DateTime? endDateClass = null)
         {
             return new ClassDTO
             {
@@ -322,7 +327,8 @@ namespace Infrastructure.Repositories
                 ImageURL = c.ImageURL,
                 LecturerName = lecturerName ?? c.Lecturer?.FirstName,
                 SubjectName = subjectName ?? c.Subject?.SubjectName,
-                NumberStudentEnroll = enrollCounts != null && enrollCounts.TryGetValue(c.ClassID, out var count) ? count : 0
+                NumberStudentEnroll = enrollCounts != null && enrollCounts.TryGetValue(c.ClassID, out var count) ? count : 0,
+                EndDateClass = endDateClass,
             };
         }
 

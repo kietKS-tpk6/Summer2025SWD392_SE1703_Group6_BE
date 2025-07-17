@@ -22,9 +22,12 @@ namespace Infrastructure.Services
         private readonly ILessonService _lessonService;
         //private readonly ITestEventService _testEventService;
         private readonly IEmailService _emailService;
+        private readonly IStudentMarksService _studentMarksService;
         public ClassService(IClassRepository classRepository, ISubjectRepository subjectRepository,
             IEnrollmentRepository enrollmentRepository, ILessonService lessonService, 
-            IEmailService emailService)
+            IEmailService emailService,
+            IStudentMarksService studentMarksService
+            )
         {
             _classRepository = classRepository;
             _subjectRepository = subjectRepository;
@@ -32,6 +35,7 @@ namespace Infrastructure.Services
             _lessonService = lessonService;
             //_testEventService = testEventService;
             _emailService = emailService;
+            _studentMarksService = studentMarksService;
         }
         public async Task<int> GetEnrollmentCountAsync(string classId)
         {
@@ -302,6 +306,25 @@ namespace Infrastructure.Services
                 ClassId = classFound.Data.ClassID
             };
             return OperationResult<ClassInfoUpdateDTO>.Ok(result, OperationMessages.RetrieveSuccess("lớp học"));
+        }
+
+        public async Task<OperationResult<bool>> IsCompleted(string classId)
+        {
+            var classFound = await _classRepository.GetClassDTOByIdAsync(classId);
+            if (!classFound.Success)
+            {
+                return OperationResult<bool>.Fail(classFound.Message);
+            }
+            var hasMarked = await _studentMarksService.HasAllStudentsGradedAsync(classId);
+            if(!hasMarked.Success)
+            {
+                return OperationResult<bool>.Fail(hasMarked.Message);
+            }
+            if (classFound.Data.EndDateClass >= DateTime.Now)
+            {
+                return OperationResult<bool>.Fail("Lớp vẫn đang diễn ra hoặc chưa kết thúc");
+            }
+            return OperationResult<bool>.Ok(true, "Lớp học đủ điều kiện để hoàn tất.");
         }
     }
 

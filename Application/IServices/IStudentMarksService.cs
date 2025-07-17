@@ -26,5 +26,7 @@ namespace Application.IServices
         //Kho - Lecture input điểm
         Task<OperationResult<bool>> UpdateStudentMarksAsync(UpdateStudentMarksCommand request);
 
+        //Kho - Check full điểm chưa
+        Task<OperationResult<bool>> HasAllStudentsGradedAsync(string classId);
     }
 }

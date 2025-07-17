@@ -34,5 +34,6 @@ namespace Infrastructure.IRepositories
         //Kho - lecturer input mark
         Task<OperationResult<bool>> UpdateStudentMarksAsync(UpdateStudentMarksCommand request);
 
+        Task<OperationResult<bool>> HasAllStudentsGradedAsync(string classId);
     }
 }

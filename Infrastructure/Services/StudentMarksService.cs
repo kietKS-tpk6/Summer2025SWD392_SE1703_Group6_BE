@@ -612,5 +612,9 @@ namespace Infrastructure.Services
             }
             return await _studentMarksRepository.UpdateStudentMarksAsync(request);
         }
+        public async Task<OperationResult<bool>> HasAllStudentsGradedAsync(string classId)
+        {
+            return await _studentMarksRepository.HasAllStudentsGradedAsync(classId);
+        }
     }
 }
