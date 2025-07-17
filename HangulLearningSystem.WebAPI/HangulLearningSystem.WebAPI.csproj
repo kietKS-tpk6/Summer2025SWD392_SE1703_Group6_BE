@@ -18,5 +18,9 @@
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
-
+	<ItemGroup>
+		<Content Include="Fonts\Montserrat\Montserrat-Regular.ttf">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 </Project>

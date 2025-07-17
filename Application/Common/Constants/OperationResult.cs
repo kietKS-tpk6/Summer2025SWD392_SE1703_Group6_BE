@@ -23,6 +23,8 @@ namespace Application.Common.Constants
         //    Console.WriteLine($"Fail called with message:{message}"); // debug
         //    return new OperationResult<T> { Success = false, Message = message };
         //}
+        public static OperationResult<T> Fail(T data, string message) =>
+       new() { Success = false, Data = data, Message = message };
     }
 
 }

@@ -568,6 +568,43 @@ namespace Infrastructure.Services
     </body>
     </html>";
         }
+        public async Task<bool> SendCertificateWithAttachmentAsync(string email, string studentName, string subjectName, byte[] certificateImageBytes)
+        {
+            try
+            {
+                string subject = $"[HangulLearning] Chứng chỉ hoàn thành môn học: {subjectName}";
+                string body = $@"
+            <p>Xin chúc mừng <strong>{studentName}</strong>!</p>
+            <p>Bạn đã hoàn thành môn học <strong>{subjectName}</strong> trong hệ thống HangulLearning.</p>
+            <p>Vui lòng kiểm tra chứng chỉ đính kèm trong email này.</p>
+            <p>🎓 Một lần nữa, xin chúc mừng và chúc bạn tiếp tục học tốt!</p>";
+
+                using var mail = new MailMessage
+                {
+                    From = new MailAddress(_fromEmail, _fromName),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
+
+                mail.To.Add(email);
+
+                if (certificateImageBytes != null && certificateImageBytes.Length > 0)
+                {
+                    var attachment = new Attachment(new MemoryStream(certificateImageBytes), "certificate.png", "image/png");
+                    mail.Attachments.Add(attachment);
+                }
+
+                await _smtpClient.SendMailAsync(mail);
+                _logger.LogInformation("Đã gửi chứng chỉ thành công đến {Email}", email);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi gửi chứng chỉ đến {Email}", email);
+                return false;
+            }
+        }
 
     }
 }
