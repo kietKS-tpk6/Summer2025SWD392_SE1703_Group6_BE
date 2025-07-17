@@ -142,7 +142,15 @@ namespace Infrastructure.Repositories
                     Count = g.Count()
                 })
                 .ToDictionaryAsync(x => x.ClassID, x => x.Count);
-
+            var endDates = await _dbContext.Lesson
+                .Where(l => classIds.Contains(l.ClassID) && l.StartTime != null && l.IsActive)
+                .GroupBy(l => l.ClassID)
+                .Select(g => new
+                {
+                    ClassID = g.Key,
+                    EndDate = g.Max(x => x.StartTime)
+                })
+                .ToDictionaryAsync(x => x.ClassID, x => x.EndDate);
             var items = pagedClasses.Select(c => new ClassDTO
             {
                 ClassID = c.ClassID,
@@ -158,7 +166,8 @@ namespace Infrastructure.Repositories
                 TeachingStartTime = c.TeachingStartTime,
                 ImageURL = c.ImageURL,
                 LecturerName = c.Lecturer?.FirstName + " " + c.Lecturer?.LastName,
-                SubjectName = c.Subject?.SubjectName
+                SubjectName = c.Subject?.SubjectName,
+                EndDateClass = endDates.TryGetValue(c.ClassID, out var endDate) ? endDate : null
             }).ToList();
 
             return OperationResult<(List<ClassDTO>, int)>.Ok((items, totalCount));

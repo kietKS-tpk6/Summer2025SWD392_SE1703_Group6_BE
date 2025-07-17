@@ -23,6 +23,7 @@ namespace Application.DTOs
         public string ImageURL { get; set; }
         public string LecturerName { get; set; }
         public string SubjectName { get; set; }
+        public DateTime? EndDateClass { get; set; }
     }
 
 }
