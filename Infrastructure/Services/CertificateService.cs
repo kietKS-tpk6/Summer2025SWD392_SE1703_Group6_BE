@@ -59,7 +59,7 @@ public class CertificateService : ICertificateService
         var criterias = await _assessmentCriteriaRepository.GetListBySubjectIdAsync(subject.SubjectID);
 
         var isQualified = IsStudentQualified(studentID, marks, criterias.Data, (decimal)subject.MinAverageScoreToPass);
-        if (!isQualified) return OperationResult<bool>.Ok("Những học sinh không đủ điều kiện nhận chứng chỉ.");
+        if (!isQualified) return OperationResult<bool>.Ok(true, "Học sinh không đủ điều kiện nhận chứng chỉ.");
 
         var student = await _accountRepository.GetAccountsByIdAsync(studentID);
         var lecturer = await _accountRepository.GetAccountsByIdAsync(classInfo.Data.LecturerID);

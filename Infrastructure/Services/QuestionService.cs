@@ -196,9 +196,9 @@ namespace Infrastructure.Services
                 return OperationResult<bool>.Fail("Không tìm thấy câu hỏi.");
 
             // Kiểm tra nội dung hợp lệ
-            var validateContent = ValidateExactlyOneContent(command.Context, command.ImageURL, command.AudioURL);
-            if (!validateContent.Success)
-                return validateContent;
+            //var validateContent = ValidateExactlyOneContent(command.Context, command.ImageURL, command.AudioURL);
+            //if (!validateContent.Success)
+            //    return validateContent;
 
             question.Context = command.Context;
             question.ImageURL = command.ImageURL;
