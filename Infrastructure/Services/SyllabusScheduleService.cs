@@ -491,7 +491,7 @@ namespace Infrastructure.Services
                             IsActive = true,
                             AllowMultipleAttempts = true,
                             AssessmentCriteriaID = criteriaId,
-                            DurationMinutes = item.DurationMinutes
+                            DurationMinutes = item.ItemsAssessmentCriteria.Duration
                         };
 
                         var createTestResult = await _syllabusScheduleTestService.CreateAsync(test);
