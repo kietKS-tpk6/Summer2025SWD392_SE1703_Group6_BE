@@ -65,5 +65,9 @@ namespace Infrastructure.Services
         {
             return await _attendanceRepository.CheckAttendanceAsync(request);
         }
+        public async Task<OperationResult<bool>> HasAllStudentsCheckedAttendanceAsync(string classId)
+        {
+            return await _attendanceRepository.HasAllStudentsCheckedAttendanceAsync(classId);
+        }
     }
 }

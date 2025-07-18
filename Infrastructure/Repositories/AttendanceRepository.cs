@@ -178,6 +178,21 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<OperationResult<bool>> HasAllStudentsCheckedAttendanceAsync(string classId)
+        {
+            var hasAnyNotAvailable = await _dbContext.AttendanceRecord
+                .Where(a => a.Status == AttendanceStatus.NotAvailable && a.Lesson.ClassID == classId)
+                .AnyAsync();
+
+            if (hasAnyNotAvailable)
+            {
+                return OperationResult<bool>.Fail("Một số học viên chưa được điểm danh.");
+            }
+
+            return OperationResult<bool>.Ok(true, "Tất cả học viên đã được điểm danh.");
+        }
+
+
 
 
 

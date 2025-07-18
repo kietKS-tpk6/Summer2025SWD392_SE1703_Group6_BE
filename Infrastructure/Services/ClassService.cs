@@ -23,11 +23,13 @@ namespace Infrastructure.Services
         //private readonly ITestEventService _testEventService;
         private readonly IEmailService _emailService;
         private readonly IStudentMarksService _studentMarksService;
+        private readonly IAttendanceRepository _attendanceRepository;
         public ClassService(IClassRepository classRepository, ISubjectRepository subjectRepository,
             IEnrollmentRepository enrollmentRepository, ILessonService lessonService, 
             IEmailService emailService,
-            IStudentMarksService studentMarksService
-            )
+            IStudentMarksService studentMarksService,
+            IAttendanceRepository attendanceRepository)
+
         {
             _classRepository = classRepository;
             _subjectRepository = subjectRepository;
@@ -36,6 +38,7 @@ namespace Infrastructure.Services
             //_testEventService = testEventService;
             _emailService = emailService;
             _studentMarksService = studentMarksService;
+            _attendanceRepository = attendanceRepository;
         }
         public async Task<int> GetEnrollmentCountAsync(string classId)
         {
@@ -319,6 +322,11 @@ namespace Infrastructure.Services
             if(!hasMarked.Success)
             {
                 return OperationResult<bool>.Fail(hasMarked.Message);
+            }
+            var hasCheckAttendance = await _attendanceRepository.HasAllStudentsCheckedAttendanceAsync(classId);
+            if(!hasCheckAttendance.Success)
+            {
+                return OperationResult<bool>.Fail(hasCheckAttendance.Message);
             }
             if (classFound.Data.EndDateClass >= DateTime.Now)
             {

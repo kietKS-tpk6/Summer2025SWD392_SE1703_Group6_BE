@@ -15,5 +15,6 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<AttendanceRecordDTO>> GetAttendanceAsync(string classId);
         Task<OperationResult<LessonAttendanceDTO>> GetAttendanceByLessonIdAsync(string lessonId);
         Task<OperationResult<bool>> CheckAttendanceAsync(AttendanceCheckCommand request);
+        Task<OperationResult<bool>> HasAllStudentsCheckedAttendanceAsync(string classId);
     }
 }

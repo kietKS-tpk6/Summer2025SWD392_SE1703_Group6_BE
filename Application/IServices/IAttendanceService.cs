@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.Common.Constants;
 using Application.DTOs;
 using Application.Usecases.Command;
+using Domain.Entities;
 
 namespace Application.IServices
 {
@@ -15,5 +16,6 @@ namespace Application.IServices
         Task<OperationResult<AttendanceRecordDTO>> GetAttendanceAsync(string classId);
         Task<OperationResult<LessonAttendanceDTO>> GetAttendanceByLessonIdAsync(string lessonId);
         Task<OperationResult<bool>> CheckAttendanceAsync(AttendanceCheckCommand request);
+        Task<OperationResult<bool>> HasAllStudentsCheckedAttendanceAsync(string classId);
     }
 }
