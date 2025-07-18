@@ -29,9 +29,9 @@ namespace Application.Usecases.CommandHandler
                 if (!existsResult.Success)
                     return OperationResult<bool>.Fail($"Câu hỏi {command.QuestionID}: {existsResult.Message}");
 
-                var contentCheck = _questionService.ValidateExactlyOneContent(command.Context, command.ImageURL, command.AudioURL);
-                if (!contentCheck.Success)
-                    return OperationResult<bool>.Fail($"Câu hỏi {command.QuestionID}: {contentCheck.Message}");
+                //var contentCheck = _questionService.ValidateExactlyOneContent(command.Context, command.ImageURL, command.AudioURL);
+                //if (!contentCheck.Success)
+                //    return OperationResult<bool>.Fail($"Câu hỏi {command.QuestionID}: {contentCheck.Message}");
 
                 var question = await _questionService.GetQuestionByIdAsync(command.QuestionID);
                 if (question.Type == TestFormatType.Multiple || question.Type == TestFormatType.TrueFalse)

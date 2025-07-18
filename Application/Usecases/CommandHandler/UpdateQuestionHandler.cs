@@ -25,8 +25,8 @@ namespace Application.Usecases.CommandHandler
             var existsResult = await _questionService.ValidateQuestionExistsAsync(request.QuestionID);
             if (!existsResult.Success) return existsResult;
 
-            var contentCheck = _questionService.ValidateExactlyOneContent(request.Context, request.ImageURL, request.AudioURL);
-            if (!contentCheck.Success) return contentCheck;
+            //var contentCheck = _questionService.ValidateExactlyOneContent(request.Context, request.ImageURL, request.AudioURL);
+            //if (!contentCheck.Success) return contentCheck;
 
             var question = await _questionService.GetQuestionByIdAsync(request.QuestionID);
             if (question.Type == TestFormatType.Multiple || question.Type == TestFormatType.TrueFalse)
