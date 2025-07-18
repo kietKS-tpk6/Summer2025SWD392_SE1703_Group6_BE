@@ -474,14 +474,14 @@ namespace Infrastructure.Services
                         if (string.IsNullOrWhiteSpace(criteriaId))
                             return OperationResult<bool>.Fail($"AssessmentCriteriaID không được để trống cho slot {item.SyllabusScheduleID}");
 
-                        bool isDuplicate = await _syllabusScheduleTestService
-                            .IsDuplicateTestTypeAsync(criteriaId, item.ItemsAssessmentCriteria.TestType);
+                        //bool isDuplicate = await _syllabusScheduleTestService
+                        //    .IsDuplicateTestTypeAsync(criteriaId, item.ItemsAssessmentCriteria.TestType);
 
-                        if (isDuplicate)
-                        {
-                            return OperationResult<bool>.Fail(
-                                $"Bài kiểm tra dạng {item.ItemsAssessmentCriteria.TestType} đã tồn tại cho tiêu chí đánh giá {criteriaId}");
-                        }
+                        //if (isDuplicate)
+                        //{
+                        //    return OperationResult<bool>.Fail(
+                        //        $"Bài kiểm tra dạng {item.ItemsAssessmentCriteria.TestType} đã tồn tại cho tiêu chí đánh giá {criteriaId}");
+                        //}
 
                         var test = new SyllabusScheduleTest
                         {
