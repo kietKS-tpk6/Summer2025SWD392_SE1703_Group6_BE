@@ -19,7 +19,7 @@ namespace Domain.Entities
             public string LastName { get; set; }
             public string FirstName { get; set; }
 
-            public string Fullname => $"{FirstName} {LastName}"; // Optional: computed property
+            public string Fullname => $"{LastName} {FirstName}"; // Optional: computed property
 
             public string HashPass { get; set; }
 
