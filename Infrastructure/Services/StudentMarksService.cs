@@ -23,7 +23,7 @@ namespace Infrastructure.Services
         private readonly ITestEventRepository _testEventRepository;
         private readonly ISyllabusScheduleTestRepository _syllabusScheduleTestsRepository;
         private readonly ILessonRepository _lessonRepository;
-
+        private readonly IStudentTestService _studentTestService;
 
         public StudentMarksService(
             IStudentMarkRepository studentMarksRepository,
@@ -33,7 +33,9 @@ namespace Infrastructure.Services
             ITestRepository testRepository,
             ITestEventRepository testEventRepository,
             ISyllabusScheduleTestRepository syllabusScheduleTestsRepository,
-            ILessonRepository lessonRepository)
+            ILessonRepository lessonRepository,
+            IStudentTestService studentTestService
+            )
         {
             _studentMarksRepository = studentMarksRepository;
             _studentTestRepository = studentTestRepository;
@@ -43,6 +45,7 @@ namespace Infrastructure.Services
             _testEventRepository = testEventRepository;
             _syllabusScheduleTestsRepository = syllabusScheduleTestsRepository;
             _lessonRepository = lessonRepository;
+            _studentTestService = studentTestService;
         }
 
         public async Task<OperationResult<GetTestScoresDTO>> GetTestScoresByTestIdAsync(string testId)
@@ -615,6 +618,10 @@ namespace Infrastructure.Services
         public async Task<OperationResult<bool>> HasAllStudentsGradedAsync(string classId)
         {
             return await _studentMarksRepository.HasAllStudentsGradedAsync(classId);
+        }
+        public async Task<OperationResult<bool>> ImportStudentMarksFromTestsAsync(string studentTestId)
+        {
+            return await _studentMarksRepository.ImportStudentMarksFromTestsAsync(studentTestId);
         }
     }
 }

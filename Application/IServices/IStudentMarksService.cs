@@ -28,5 +28,7 @@ namespace Application.IServices
 
         //Kho - Check full điểm chưa
         Task<OperationResult<bool>> HasAllStudentsGradedAsync(string classId);
+        //Kho - Nhập điểm bằng student test
+        Task<OperationResult<bool>> ImportStudentMarksFromTestsAsync(string studentTestId);
     }
 }

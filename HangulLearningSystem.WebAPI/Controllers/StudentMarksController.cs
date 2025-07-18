@@ -94,7 +94,14 @@ namespace HangulLearningSystem.WebAPI.Controllers
 
             return Ok(result);
         }
-
+        [HttpPut("update-marks-by-student-test/{studentTestId}")]
+        public async Task<IActionResult> ImportStudentMarksFromTestsAsync(string studentTestId)
+        {
+            var result = await _studentMarkService.ImportStudentMarksFromTestsAsync(studentTestId);
+            if (!result.Success)
+                return BadRequest(result.Message);
+            return Ok(result);
+        }
 
         [HttpDelete("{studentMarkId}")]
         public async Task<IActionResult> DeleteStudentMark(string studentMarkId)
@@ -176,5 +183,6 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _mediator.Send(request);
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        
     }
 }

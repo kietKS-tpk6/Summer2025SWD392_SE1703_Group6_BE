@@ -35,5 +35,6 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<bool>> UpdateStudentMarksAsync(UpdateStudentMarksCommand request);
 
         Task<OperationResult<bool>> HasAllStudentsGradedAsync(string classId);
+        Task<OperationResult<bool>> ImportStudentMarksFromTestsAsync(string studentTestId);
     }
 }

@@ -294,6 +294,54 @@ namespace Infrastructure.Repositories
             return OperationResult<bool>.Ok(true, "Tất cả học viên đã được chấm điểm.");
         }
 
+        public async Task<OperationResult<bool>> ImportStudentMarksFromTestsAsync(string studentTestId)
+        {
+            var studentTest = await _dbContext.StudentTest
+                .Include(st => st.TestEvent)
+                .ThenInclude(te => te.Lesson)
+                .ThenInclude(lesson => lesson.SyllabusSchedule)
+                .FirstOrDefaultAsync(st => st.StudentTestID == studentTestId);
+
+            if (studentTest == null)
+            {
+                return OperationResult<bool>.Fail("Không tìm thấy bài kiểm tra học viên.");
+            }
+
+            var studentId = studentTest.StudentID;
+            var assessmentIndex = studentTest.TestEvent.AssessmentIndex;
+            var classId = studentTest.TestEvent.Lesson.ClassID;
+            var syllabusScheduleId = studentTest.TestEvent.Lesson.SyllabusScheduleID;
+
+            var syllabusScheduleTest = await _dbContext.SyllabusScheduleTests.FirstOrDefaultAsync(sst =>
+                sst.SyllabusScheduleID == syllabusScheduleId);
+
+            if (syllabusScheduleTest == null)
+            {
+                return OperationResult<bool>.Fail("Không tìm thấy tiêu chí đánh giá cho bài kiểm tra.");
+            }
+
+            var assessmentCriteriaId = syllabusScheduleTest.AssessmentCriteriaID;
+            var now = DateTime.UtcNow.AddHours(7);
+
+            var existingMark = await _dbContext.StudentMarks.FirstOrDefaultAsync(sm =>
+                sm.AccountID == studentId &&
+                sm.AssessmentCriteriaID == assessmentCriteriaId &&
+                sm.ClassID == classId &&
+                sm.AssessmentIndex == assessmentIndex);
+            if(existingMark == null)
+            {
+                return OperationResult<bool>.Fail("Không tìm thấy bảng điểm của học viên");
+            }
+                existingMark.Mark = studentTest.Mark ?? 0;
+                existingMark.UpdatedAt = now;
+                existingMark.StudentTestID = studentTestId;
+                existingMark.GradedBy = studentTest.GradeBy;
+                existingMark.GradedAt = now;
+                existingMark.Comment = studentTest.Feedback;
+                _dbContext.StudentMarks.Update(existingMark);
+            await _dbContext.SaveChangesAsync();
+            return OperationResult<bool>.Ok(true, OperationMessages.UpdateSuccess("điểm học viên"));
+        }
 
     }
 }

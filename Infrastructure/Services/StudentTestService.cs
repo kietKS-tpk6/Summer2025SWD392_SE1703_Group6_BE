@@ -332,6 +332,16 @@ namespace Infrastructure.Services
             }
         }
 
+        public async Task<OperationResult<StudentTest>> GetByIdAsync(string studentTestId)
+        {
+            var result = await _studentTestRepo.GetByIdAsync(studentTestId);
+            if(result!= null)
+            {
+                return OperationResult<StudentTest>.Ok(result, OperationMessages.RetrieveSuccess("bài làm của học sinh"));
+            }
+            return OperationResult<StudentTest>.Fail(OperationMessages.NotFound("bài làm của học sinh"));
+        }
+
     }
 
 }
