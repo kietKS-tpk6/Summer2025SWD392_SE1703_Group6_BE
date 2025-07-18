@@ -38,6 +38,11 @@ namespace Infrastructure.Services
         {
             return await _chartRepository.GetIncomeBySubjectAsync();
         }
-    
-}
+        public async Task<OperationResult<List<ClassCompletionRateByMonthDTO>>> GetClassCompletionRateByMonthAsync()
+        {
+            return await _chartRepository.GetClassCompletionRateByMonthAsync();
+        }
+
+
+    }
 }

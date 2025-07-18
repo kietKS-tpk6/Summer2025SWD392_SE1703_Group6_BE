@@ -15,5 +15,6 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<List<ClassCountBySubjectDTO>>> GetClassCountBySubjectAsync();
         Task<OperationResult<List<ClassStatusDistributionDTO>>> GetClassStatusDistributionAsync();
         Task<OperationResult<List<SubjectIncomeDTO>>> GetIncomeBySubjectAsync();
+        Task<OperationResult<List<ClassCompletionRateByMonthDTO>>> GetClassCompletionRateByMonthAsync();
     }
 }

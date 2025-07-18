@@ -137,5 +137,56 @@ namespace Infrastructure.Repositories
                 OperationMessages.RetrieveSuccess("doanh thu theo môn học")
             );
         }
+
+        public async Task<OperationResult<List<ClassCompletionRateByMonthDTO>>> GetClassCompletionRateByMonthAsync()
+        {
+            try
+            {
+                var now = DateTime.Now;
+                var months = Enumerable.Range(0, 7)
+                    .Select(i => now.AddMonths(-i))
+                    .Select(d => new DateTime(d.Year, d.Month, 1))
+                    .Distinct()
+                    .ToList();
+
+                var classGroups = await _dbContext.Class
+                    .Where(c => c.Status == ClassStatus.Completed || c.Status == ClassStatus.Cancelled)
+                    .ToListAsync();
+
+                var grouped = classGroups
+                    .GroupBy(c => new DateTime(c.TeachingStartTime.Year, c.TeachingStartTime.Month, 1))
+                    .ToDictionary(
+                        g => g.Key,
+                        g => new
+                        {
+                            Completed = g.Count(c => c.Status == ClassStatus.Completed),
+                            Cancelled = g.Count(c => c.Status == ClassStatus.Cancelled)
+                        }
+                    );
+
+                var result = months
+                    .OrderBy(d => d)
+                    .Select(m =>
+                    {
+                        var key = new DateTime(m.Year, m.Month, 1);
+                        var data = grouped.ContainsKey(key) ? grouped[key] : new { Completed = 0, Cancelled = 0 };
+
+                        return new ClassCompletionRateByMonthDTO
+                        {
+                            Month = key.ToString("yyyy-MM"),
+                            Completed = data.Completed,
+                            Cancelled = data.Cancelled
+                        };
+                    })
+                    .ToList();
+
+                return OperationResult<List<ClassCompletionRateByMonthDTO>>.Ok(result, "Lấy thống kê tỷ lệ hoàn thành theo tháng thành công.");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<ClassCompletionRateByMonthDTO>>.Fail("Thống kê thất bại: " + ex.Message);
+            }
+        }
+
     }
 }

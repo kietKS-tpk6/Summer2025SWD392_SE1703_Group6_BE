@@ -42,5 +42,12 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _chartService.GetIncomeBySubjectAsync();
             return Ok(result);
         }
+        [HttpGet("completion-rate-by-month")]
+        public async Task<IActionResult> GetClassCompletionRateByMonth()
+        {
+            var result = await _chartService.GetClassCompletionRateByMonthAsync();
+            return Ok(result);
+        }
+
     }
 }
