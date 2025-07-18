@@ -99,5 +99,71 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<LecturerStatisticsDTO>>.Fail("Lỗi khi lấy dữ liệu thống kê giảng viên: " + ex.Message);
             }
         }
+
+        public async Task<OperationResult<List<ClassCompletionStatsDTO>>> GetClassCompletionStatisticsAsync()
+        {
+            try
+            {
+                var completedClasses = await (from cls in _dbContext.Class
+                                              join subj in _dbContext.Subject on cls.SubjectID equals subj.SubjectID
+                                              where cls.Status == ClassStatus.Completed
+                                              select new
+                                              {
+                                                  cls.ClassID,
+                                                  cls.ClassName,
+                                                  subj.SubjectName
+                                              }).ToListAsync();
+
+                var enrollments = await _dbContext.ClassEnrollment.ToListAsync();
+                var marks = await _dbContext.StudentMarks.ToListAsync();
+                var attendance = await _dbContext.AttendanceRecord.ToListAsync();
+                var lessons = await _dbContext.Lesson.ToListAsync();
+
+                var stats = completedClasses.Select(cls =>
+                {
+                    var classEnrollments = enrollments.Where(e => e.ClassID == cls.ClassID).ToList();
+                    var totalStudents = classEnrollments.Count;
+                    var completedStudents = classEnrollments.Count(e => e.Status == EnrollmentStatus.Passed);
+
+                    var classLessons = lessons.Where(l => l.ClassID == cls.ClassID).Select(l => l.ClassLessonID).ToList();
+                    var classAttendance = attendance.Where(a => classLessons.Contains(a.ClassLessonID)).ToList();
+
+                    var groupedAttendance = classAttendance
+                        .GroupBy(a => a.StudentID)
+                        .Select(g =>
+                        {
+                            var total = g.Count();
+                            var present = g.Count(a => a.Status == AttendanceStatus.Present);
+                            return total > 0 ? (100.0 * present / total) : 0;
+                        });
+
+                    var avgAttendance = groupedAttendance.Any() ? groupedAttendance.Average() : 0;
+
+                    var classMarks = marks.Where(m => m.ClassID == cls.ClassID).Select(m => (double?)m.Mark).ToList();
+                    var avgScore = classMarks.Any() ? classMarks.Average() ?? 0 : 0;
+
+                    var completionRate = totalStudents > 0 ? 100.0 * completedStudents / totalStudents : 0;
+
+                    return new ClassCompletionStatsDTO
+                    {
+                        ClassId = cls.ClassID,
+                        ClassName = cls.ClassName,
+                        SubjectName = cls.SubjectName,
+                        TotalStudents = totalStudents,
+                        CompletedStudents = completedStudents,
+                        AverageAttendanceRate = avgAttendance,
+                        AverageScore = avgScore,
+                        CompletionRate = completionRate
+                    };
+                }).ToList();
+
+                return OperationResult<List<ClassCompletionStatsDTO>>.Ok(stats, "Lấy thống kê học phần thành công.");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<ClassCompletionStatsDTO>>.Fail("Thống kê thất bại: " + ex.Message);
+            }
+        }
+
     }
 }
