@@ -41,7 +41,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+        [HttpPut("{classID}/update-status")]
+        public async Task<IActionResult> UpdateEnrollmentStatuses(string classID)
+        {
+            var result = await _enrollmentService.UpdateStatusesByClassIDAsync(classID);
+            if (!result.Success)
+                return BadRequest(result.Message);
 
+            return Ok(result);
+        }
         [HttpGet("my-classes/{studentId}")]
         public async Task<IActionResult> GetMyClasses(string studentId)
         {

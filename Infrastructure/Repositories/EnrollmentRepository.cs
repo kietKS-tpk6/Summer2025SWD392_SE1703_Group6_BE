@@ -112,5 +112,18 @@ namespace Infrastructure.Repositories
                 select ce
             ).CountAsync();
         }
+        public async Task<bool> UpdateEnrollmentAsync(ClassEnrollment enrollment)
+        {
+            try
+            {
+                _dbContext.ClassEnrollment.Update(enrollment);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }

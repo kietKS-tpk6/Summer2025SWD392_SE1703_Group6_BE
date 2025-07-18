@@ -15,6 +15,7 @@ namespace Application.IServices
         Task<string> GenerateNextEnrollmentIdAsync();
         Task<bool> HasScheduleConflictAsync(string studentId, string newClassId);
         Task<OperationResult<int>> CountActiveStudentsByLecturerAsync(string lecturerId);
+        Task<OperationResult<bool>> UpdateStatusesByClassIDAsync(string classID);
 
     }
 }

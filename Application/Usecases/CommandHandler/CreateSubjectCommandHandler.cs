@@ -19,10 +19,10 @@ namespace Application.Usecases.CommandHandler
 
         public async Task<OperationResult<string>> Handle(CreateSubjectCommand request, CancellationToken cancellationToken)
         {
-            if (await _subjectService.DescriptionExistsAsync(request.Description))
-            {
-                return OperationResult<string>.Fail(OperationMessages.AlreadyExists("Mô tả môn học"));
-            }
+            //if (await _subjectService.DescriptionExistsAsync(request.Description))
+            //{
+            //    return OperationResult<string>.Fail(OperationMessages.AlreadyExists("Mô tả môn học"));
+            //}
             if (await _subjectService.SubjectNameExistsAsync(request.SubjectName))
             {
                 return OperationResult<string>.Fail(OperationMessages.AlreadyExists("Tên môn học"));

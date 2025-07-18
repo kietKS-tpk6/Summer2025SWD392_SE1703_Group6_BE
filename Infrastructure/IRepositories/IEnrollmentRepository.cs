@@ -16,6 +16,7 @@ namespace Infrastructure.IRepositories
         Task<List<Lesson>> GetLessonsByStudentIdAsync(string studentId);
         Task<List<Lesson>> GetLessonsByClassIdAsync(string classId);
         Task<int> CountActiveStudentsOfLecturerAsync(string lecturerId);
+        Task<bool> UpdateEnrollmentAsync(ClassEnrollment enrollment);
 
     }
 }

@@ -15,10 +15,10 @@ namespace Application.Validators
             RuleFor(o => o.Email)
      .NotEmpty()
      .WithErrorCode(nameof(ErrorCodes.EmailIsEmpty))
-     .WithMessage(ValidationMessages.EmailIsEmpty)
-     .Matches(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-     .WithErrorCode(nameof(ErrorCodes.EmailInvalidFormat))
-     .WithMessage(ValidationMessages.EmailInvalidFormat);
+     .WithMessage(ValidationMessages.EmailIsEmpty);
+     //.Matches(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+     //.WithErrorCode(nameof(ErrorCodes.EmailInvalidFormat))
+     //.WithMessage(ValidationMessages.EmailInvalidFormat);
 
 
             //RuleFor(o => o.Password)

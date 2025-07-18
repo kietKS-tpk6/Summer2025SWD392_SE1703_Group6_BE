@@ -148,7 +148,7 @@ public class CertificateService : ICertificateService
 
         if (errors.Any())
         {
-            return OperationResult<List<CertificateSendErrorDTO>>.Fail(errors, "Một số học sinh không gửi chứng chỉ thành công.");
+            return OperationResult<List<CertificateSendErrorDTO>>.Ok(errors, "Một số học sinh không gửi chứng chỉ thành công.");
         }
 
         return OperationResult<List<CertificateSendErrorDTO>>.Ok(new List<CertificateSendErrorDTO>(), "Tất cả chứng chỉ đã được gửi thành công.");
@@ -221,28 +221,33 @@ public class CertificateService : ICertificateService
         fontCollection.AddFontFile(fontPath);
         var fontCollectionBold = new PrivateFontCollection();
         fontCollectionBold.AddFontFile(fontPathBold);
-        using var font = new Font(fontCollectionBold.Families[0], 36, FontStyle.Regular);
-        using var studentFont = new Font(fontCollectionBold.Families[0], 60, FontStyle.Regular);
+        using var font = new Font(fontCollection.Families[0], 36, FontStyle.Regular);
+        using var fontHieuTrgVaGiangVien = new Font(fontCollection.Families[0], 28, FontStyle.Regular);
+
+        using var studentFont = new Font(fontCollectionBold.Families[0], 68, FontStyle.Regular);
         using var brush = new SolidBrush(ColorTranslator.FromHtml("#1A6674"));
 
-        // Student name
-        var studentRect = new RectangleF((bitmap.Width - 1500) / 2, 630, 1500, 200);
-        graphics.DrawString(studentName, studentFont, brush, studentRect, new StringFormat { Alignment = StringAlignment.Center });
+        var studentRect = new RectangleF((bitmap.Width - 1700) / 2, 620, 1700, 250);
+        var format = new StringFormat
+        {
+            Alignment = StringAlignment.Center,      
+            LineAlignment = StringAlignment.Center      
+        };
 
+        graphics.DrawString(studentName.ToUpper(), studentFont, brush, studentRect, format);
         // Subject name
         var subjectRect = new RectangleF((bitmap.Width - 1000) / 2, 900, 1000, 70);
-        graphics.DrawString(subjectName, font, brush, subjectRect, new StringFormat { Alignment = StringAlignment.Center });
-
+        graphics.DrawString(subjectName.ToUpper(), font, brush, subjectRect, new StringFormat { Alignment = StringAlignment.Center });
         // Principal & Lecturer names
         float boxWidth = 800;
         float startX = (bitmap.Width - boxWidth * 2) / 2;
-        float nameY = 1050;
+        float nameY = 1055;
 
         var principalRect = new RectangleF(startX, nameY, boxWidth, 70);
         var lecturerRect = new RectangleF(startX + boxWidth, nameY, boxWidth, 70);
 
-        graphics.DrawString(principalName, font, brush, principalRect, new StringFormat { Alignment = StringAlignment.Center });
-        graphics.DrawString(lectureName, font, brush, lecturerRect, new StringFormat { Alignment = StringAlignment.Center });
+        graphics.DrawString(principalName.ToUpper(), fontHieuTrgVaGiangVien, brush, principalRect, new StringFormat { Alignment = StringAlignment.Center });
+        graphics.DrawString(lectureName.ToUpper(), fontHieuTrgVaGiangVien, brush, lecturerRect, new StringFormat { Alignment = StringAlignment.Center });
 
         using var resultStream = new MemoryStream();
         bitmap.Save(resultStream, ImageFormat.Png);
