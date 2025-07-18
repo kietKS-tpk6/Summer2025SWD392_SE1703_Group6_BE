@@ -142,15 +142,23 @@ namespace Infrastructure.Repositories
                     Count = g.Count()
                 })
                 .ToDictionaryAsync(x => x.ClassID, x => x.Count);
-            var endDates = await _dbContext.Lesson
-                .Where(l => classIds.Contains(l.ClassID) && l.StartTime != null && l.IsActive)
-                .GroupBy(l => l.ClassID)
-                .Select(g => new
-                {
-                    ClassID = g.Key,
-                    EndDate = g.Max(x => x.StartTime)
-                })
-                .ToDictionaryAsync(x => x.ClassID, x => x.EndDate);
+            var endDateDict = await _dbContext.Lesson
+           .Where(l => classIds.Contains(l.ClassID) && l.IsActive && l.StartTime != null && l.SyllabusSchedule != null)
+           .Select(l => new
+           {
+               l.ClassID,
+               EndTime = l.StartTime.AddMinutes((double)(l.SyllabusSchedule.DurationMinutes ?? 0))
+           })
+           .GroupBy(x => x.ClassID)
+           .Select(g => new
+           {
+               ClassID = g.Key,
+               MaxEndTime = g.Max(x => x.EndTime)
+           })
+           .ToDictionaryAsync(x => x.ClassID, x => x.MaxEndTime);
+
+
+
             var items = pagedClasses.Select(c => new ClassDTO
             {
                 ClassID = c.ClassID,
@@ -167,7 +175,7 @@ namespace Infrastructure.Repositories
                 ImageURL = c.ImageURL,
                 LecturerName = c.Lecturer?.FirstName + " " + c.Lecturer?.LastName,
                 SubjectName = c.Subject?.SubjectName,
-                EndDateClass = endDates.TryGetValue(c.ClassID, out var endDate) ? endDate : null
+                EndDateClass = endDateDict.TryGetValue(c.ClassID, out var end) ? end : null
             }).ToList();
 
             return OperationResult<(List<ClassDTO>, int)>.Ok((items, totalCount));
@@ -302,8 +310,10 @@ namespace Infrastructure.Repositories
                 .CountAsync();
             var enrollCounts = new Dictionary<string, int> { { id, count } };
             var endDate = await _dbContext.Lesson
-            .Where(l => l.ClassID == id && l.IsActive && l.StartTime != null)
-            .MaxAsync(l => l.StartTime);
+            .Where(l => l.ClassID == id && l.IsActive && l.StartTime != null && l.SyllabusSchedule != null)
+            .Select(l => l.StartTime.AddMinutes((double)l.SyllabusSchedule.DurationMinutes.Value))
+            .MaxAsync();
+
 
 
             var result = MapToDTO(classInfo.Class, enrollCounts, classInfo.LecturerName, classInfo.SubjectName, endDate);
