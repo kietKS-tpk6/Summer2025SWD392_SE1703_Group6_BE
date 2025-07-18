@@ -164,6 +164,49 @@ namespace Infrastructure.Repositories
                 return OperationResult<List<ClassCompletionStatsDTO>>.Fail("Thống kê thất bại: " + ex.Message);
             }
         }
+        public async Task<OperationResult<List<StudentPerformanceInClassDTO>>> GetStudentPerformanceInClassAsync(string classId)
+        {
+            try
+            {
+                var students = await (
+                    from enroll in _dbContext.ClassEnrollment
+                    join acc in _dbContext.Accounts on enroll.StudentID equals acc.AccountID
+                    where enroll.ClassID == classId
+                    select new StudentPerformanceInClassDTO
+                    {
+                        StudentId = enroll.StudentID,
+                        StudentName = acc.FirstName + " " + acc.LastName,
 
+                        AttendanceRate = (
+                            from a in _dbContext.AttendanceRecord
+                            join l in _dbContext.Lesson on a.ClassLessonID equals l.ClassLessonID
+                            where l.ClassID == classId && a.StudentID == enroll.StudentID
+                            group a by a.StudentID into g
+                            select 100.0 * g.Count(x => x.Status == AttendanceStatus.Present) / g.Count()
+                        ).FirstOrDefault(),
+
+                        AverageScore = _dbContext.StudentMarks
+                            .Where(m => m.ClassID == classId && m.AccountID == enroll.StudentID)
+                            .Average(m => (double?)m.Mark) ?? 0,
+
+                        Status = enroll.Status == EnrollmentStatus.Passed ? "Hoàn thành" : "Chưa hoàn thành",
+
+                        AbsentSessions = (
+                            from a in _dbContext.AttendanceRecord
+                            join l in _dbContext.Lesson on a.ClassLessonID equals l.ClassLessonID
+                            where l.ClassID == classId && a.StudentID == enroll.StudentID
+                            && a.Status != AttendanceStatus.Present
+                            select a
+                        ).Count()
+                    }
+                ).ToListAsync();
+
+                return OperationResult<List<StudentPerformanceInClassDTO>>.Ok(students, "Lấy danh sách học viên thành công.");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<List<StudentPerformanceInClassDTO>>.Fail("Thống kê thất bại: " + ex.Message);
+            }
+        }
     }
 }

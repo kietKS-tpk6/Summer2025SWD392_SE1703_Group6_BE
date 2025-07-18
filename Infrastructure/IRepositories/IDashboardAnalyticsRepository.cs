@@ -14,6 +14,8 @@ namespace Infrastructure.IRepositories
         Task<OperationResult<PagedResult<PaymentTableRowDTO>>> GetPaginatedPaymentTableAsync(int page, int pageSize);
         Task<OperationResult<List<LecturerStatisticsDTO>>> GetLecturerStatisticsAsync();
         Task<OperationResult<List<ClassCompletionStatsDTO>>> GetClassCompletionStatisticsAsync();
+        Task<OperationResult<List<StudentPerformanceInClassDTO>>> GetStudentPerformanceInClassAsync(string classId);
+
 
 
     }

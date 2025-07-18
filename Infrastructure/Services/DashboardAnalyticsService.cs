@@ -30,5 +30,9 @@ namespace Infrastructure.Services
         {
             return await _dashboardAnalyticsRepository.GetClassCompletionStatisticsAsync();
         }
+        public async Task<OperationResult<List<StudentPerformanceInClassDTO>>> GetStudentPerformanceInClassAsync(string classId)
+        {
+            return await _dashboardAnalyticsRepository.GetStudentPerformanceInClassAsync(classId);
+        }
     }
 }

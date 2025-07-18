@@ -14,5 +14,7 @@ namespace Application.IServices
         Task<OperationResult<PagedResult<PaymentTableRowDTO>>> GetPaginatedPaymentTableAsync(int page, int pageSize);
         Task<OperationResult<List<LecturerStatisticsDTO>>> GetLecturerStatisticsAsync();
         Task<OperationResult<List<ClassCompletionStatsDTO>>> GetClassCompletionStatsAsync();
+        Task<OperationResult<List<StudentPerformanceInClassDTO>>> GetStudentPerformanceInClassAsync(string classId);
+
     }
 }

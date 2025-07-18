@@ -30,5 +30,11 @@ namespace HangulLearningSystem.WebAPI.Controllers
             var result = await _dashboardAnalyticsService.GetClassCompletionStatsAsync();
             return result.Success ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("student-statistic/{classId}")]
+        public async Task<IActionResult> GetStudentStatistic(string classId)
+        {
+            var result = await _dashboardAnalyticsService.GetStudentPerformanceInClassAsync(classId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
     }
 }
