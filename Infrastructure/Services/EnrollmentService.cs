@@ -152,7 +152,9 @@ if (classEntity != null)
                     {
                         ClassID = classEntity.ClassID,
                         ClassName = classEntity.ClassName,
-                        SubjectName = classEntity.Subject?.SubjectName ?? "Unknown",                                                
+                      //ClassStatus = classEntity.Status,
+                        ClassStatus = classEntity.Status.ToString(),
+                        SubjectName = classEntity.Subject?.SubjectName ?? "Unknown",
                         ImageURL = classEntity.ImageURL,
                         LecturerName = classEntity.Lecturer.Fullname
                     });

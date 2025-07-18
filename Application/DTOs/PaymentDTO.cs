@@ -80,6 +80,8 @@ namespace Application.DTOs
     {
         public string ClassID { get; set; }
         public string ClassName { get; set; }
+       // public ClassStatus ClassStatus { get; set; }
+        public string ClassStatus { get; set; }
         public string SubjectName { get; set; }
         public string ImageURL { get; set; }
         public string LecturerName { get; set; }

@@ -30,5 +30,7 @@ namespace Application.IServices
         Task<OperationResult<bool>> HasAllStudentsGradedAsync(string classId);
         //Kho - Nhập điểm bằng student test
         Task<OperationResult<bool>> ImportStudentMarksFromTestsAsync(string studentTestId);
+        Task<OperationResult<int>> FinalizeStudentMarksByClassIdAsync(string classId);
+
     }
 }

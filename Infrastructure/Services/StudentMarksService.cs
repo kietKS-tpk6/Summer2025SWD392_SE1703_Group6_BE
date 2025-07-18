@@ -623,5 +623,35 @@ namespace Infrastructure.Services
         {
             return await _studentMarksRepository.ImportStudentMarksFromTestsAsync(studentTestId);
         }
+        public async Task<OperationResult<int>> FinalizeStudentMarksByClassIdAsync(string classId)
+        {
+            try
+            {
+                var marks = await _studentMarksRepository.GetByClassIdAsync(classId);
+                if (marks == null || !marks.Any())
+                {
+                    return OperationResult<int>.Fail("Không tìm thấy điểm nào cho lớp này");
+                }
+
+                int updatedCount = 0;
+                foreach (var mark in marks)
+                {
+                    if (!mark.IsFinalized)
+                    {
+                        mark.IsFinalized = true;
+                        mark.UpdatedAt = DateTime.UtcNow;
+                        await _studentMarksRepository.UpdateAsync(mark);
+                        updatedCount++;
+                    }
+                }
+
+                return OperationResult<int>.Ok(updatedCount, $"Đã cập nhật {updatedCount} điểm thành finalized.");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<int>.Fail($"Lỗi khi cập nhật điểm: {ex.Message}");
+            }
+        }
+
     }
 }

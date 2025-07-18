@@ -2,6 +2,7 @@
 using Application.Usecases.Command;
 using Application.Usecases.Commands;
 using Application.Usecases.Queries;
+using Infrastructure.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -102,7 +103,15 @@ namespace HangulLearningSystem.WebAPI.Controllers
                 return BadRequest(result.Message);
             return Ok(result);
         }
+        [HttpPut("finalize-by-class/{classId}")]
+        public async Task<IActionResult> FinalizeStudentMarksByClassId(string classId)
+        {
+            var result = await _studentMarkService.FinalizeStudentMarksByClassIdAsync(classId);
+            if (!result.Success)
+                return BadRequest(result.Message);
 
+            return Ok(result);
+        }
         [HttpDelete("{studentMarkId}")]
         public async Task<IActionResult> DeleteStudentMark(string studentMarkId)
         {
